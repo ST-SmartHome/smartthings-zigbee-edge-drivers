@@ -262,7 +262,9 @@ local zg101z_sos_remote = {
     }),
   },
   zcl_clusters = {
-    zcl.battery_low({ read_only = true }),
+    zcl.battery_low({ read_only = true, emit = function(_, low)
+      return low and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
+    end }),
   },
   query_on_configure = true,
 }

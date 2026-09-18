@@ -699,6 +699,7 @@ local din_rail_model_rmdzb_1pnl63 = {
   package_group = "energy",
   tuya.dp_energy(1, { emit = emit.energy(), scale = 100 }),
   tuya.dp_phase_variant2(6, {
+    signed_power = true,
     emit = emit_metric_bundle({
       voltage = true,
       current = true,
@@ -744,16 +745,19 @@ local din_rail_model_stb3l_125_zj = {
   package_group = "energy",
   tuya.dp_energy(1, { emit = emit.energy(), scale = 100 }),
   tuya.dp_phase_variant2(6, {
+    signed_power = true,
     phase = "a",
     component = "l1",
     emit = emit_metric_bundle({ voltage = true, current = true, power = true }),
   }),
   tuya.dp_phase_variant2(7, {
+    signed_power = true,
     phase = "b",
     component = "l2",
     emit = emit_metric_bundle({ voltage = true, current = true, power = true }),
   }),
   tuya.dp_phase_variant2(8, {
+    signed_power = true,
     phase = "c",
     component = "l3",
     emit = emit_metric_bundle({ voltage = true, current = true, power = true }),
@@ -885,7 +889,8 @@ local din_rail_model_zbn_dj_63 = {
   tuya.dp_numeric(124, { name = "alarm_over_current_count" }),           -- profile 미포함
   tuya.dp_numeric(125, { name = "alarm_low_current_count" }),            -- profile 미포함
   tuya.dp_numeric(127, { name = "status" }),                             -- profile 미포함
-  tuya.dp_power_on_behavior(134, {
+  -- Z2M's plain numeric lookup sends VALUE, not Tuya ENUM.
+  tuya.dp_numeric(134, {
     name = "relay_power_on_state",
     emit = emit.zbndj63RelayPowerOnState(),
     converter = converter.lookup_from_to({
@@ -909,6 +914,7 @@ local din_rail_model_toqcb2_80 = {
   package_group = "energy",
   tuya.dp_energy(1, { emit = emit.energy(), scale = 100 }),
   tuya.dp_phase_variant2(6, {
+    signed_power = true,
     phase = "a",
     component = "l1",
     emit = emit_metric_bundle({
@@ -918,11 +924,13 @@ local din_rail_model_toqcb2_80 = {
     }),
   }),
   tuya.dp_phase_variant2(7, {
+    signed_power = true,
     phase = "b",
     component = "l2",
     emit = emit_metric_bundle({ voltage = true, current = true, power = true }),
   }),
   tuya.dp_phase_variant2(8, {
+    signed_power = true,
     phase = "c",
     component = "l3",
     emit = emit_metric_bundle({ voltage = true, current = true, power = true }),

@@ -1,0 +1,14 @@
+name: safety-motion-zg204zl-z-core
+components:
+  - id: main
+    capabilities:
+      - id: motionSensor
+        version: 1
+      - id: illuminanceMeasurement
+        version: 1
+      - id: battery
+        version: 1
+      - id: refresh
+        version: 1
+    categories:
+      - name: MotionSensor

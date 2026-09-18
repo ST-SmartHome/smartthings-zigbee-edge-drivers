@@ -1,0 +1,1 @@
+{name: sensors-smartthings-tagv4-core,components:[{id: main,capabilities:[{id: presenceSensor,version: 1},{id: battery,version: 1},{id: voltageMeasurement,version: 1},{id: batteryLevel,version: 1}],categories:[{name: PresenceSensor}]}]}

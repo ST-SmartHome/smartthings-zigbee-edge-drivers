@@ -8,6 +8,22 @@ local capabilities = require "st.capabilities"
 local converter = tuya.converter
 local device_definitions, register_device_definition = device_helpers.definition_registry()
 
+local function add_panel_scenes(definition, datapoints)
+  definition.button_actions = {"pushed"}
+  for index, dp in ipairs(datapoints) do
+    definition.datapoints[#definition.datapoints + 1] = tuya.dp_enum(dp, {
+      name = "panel_scene_" .. index, component = index == 1 and "main" or "button" .. index,
+      read_only = true, from_device = function() return "pushed" end,
+      emit = function(_, value) return capabilities.button.button(value, {state_change = true}) end,
+    })
+  end
+end
+
+local function panel_presence(value)
+  if value == 0 or value == false then return false end
+  if value == 1 or value == true then return true end
+end
+
 -- Z2M multifunction switch (tuya.ts:28068) offers 7 colours; the colored
 -- backlight panels (tuya.ts:2851) add warm_white and warm_yellow.
 local backlight_color_converter = converter.lookup_from_to({
@@ -542,13 +558,32 @@ local switch_8gang_m9_motion_scene = {
       name = "power_on_behavior_l6",
       emit = emit.m98gPowerOnBehavior6(),
     }),
-    tuya.dp_presence(105, { emit = emit.presence() }),
+    tuya.dp_presence(105, {read_only = true, from_device = panel_presence, emit = emit.presence()}),
     tuya.dp_numeric(106, { name = "delay", emit = emit.m98gDelay() }),
   },
   query_on_configure = false,
   time_start = "off",
 }
 
+add_panel_scenes(switch_8gang_m9_motion_scene, {101,102,103,104,108,109,110,111})
+local m9_mode = converter.lookup_from_to({switch=0,scene=1})
+local m9_light = converter.lookup_from_to({normal=0,on=1,off=2,flash=3})
+for index, factories in ipairs({
+  {emit.m9EightModeOne,emit.m9EightLightOne}, {emit.m9EightModeTwo,emit.m9EightLightTwo},
+  {emit.m9EightModeThree,emit.m9EightLightThree}, {emit.m9EightModeFour,emit.m9EightLightFour},
+  {emit.m9EightModeFive,emit.m9EightLightFive}, {emit.m9EightModeSix,emit.m9EightLightSix},
+  {emit.m9EightModeSeven,emit.m9EightLightSeven}, {emit.m9EightModeEight,emit.m9EightLightEight},
+}) do
+  local dps = switch_8gang_m9_motion_scene.datapoints
+  dps[#dps+1] = tuya.dp_enum(113+index, {name="switch_mode_l"..index,converter=m9_mode,emit=factories[1]()})
+  dps[#dps+1] = tuya.dp_enum(121+index, {name="light_mode_l"..index,converter=m9_light,emit=factories[2]()})
+end
+switch_8gang_m9_motion_scene.datapoints[#switch_8gang_m9_motion_scene.datapoints+1] = tuya.dp_power_on_behavior(130, {
+  name="power_on_behavior_l7",emit=emit.m9EightPowerSeven(),
+})
+switch_8gang_m9_motion_scene.datapoints[#switch_8gang_m9_motion_scene.datapoints+1] = tuya.dp_power_on_behavior(131, {
+  name="power_on_behavior_l8",emit=emit.m9EightPowerEight(),
+})
 register_device_definition(switch_8gang_m9_motion_scene, device_helpers.create_fingerprints("TS0601", {
   "_TZE200_nvodulvi",
   "_TZE284_nvodulvi",
@@ -565,8 +600,7 @@ local switch_4gang_m9_scene = {
     tuya.dp_on_off(27, { name = "switch", component = "switch4" }),
     -- Z2M M9-zigbee-SL-2 (tuya.ts:17634).  DP18~21 use switchMode(switch 0/scene 1),
     -- DP36 is an on/off backlight and DP38~42 are the global plus per-channel
-    -- power-on behaviours.  DP1~8 and DP17 are momentary scene reports kept
-    -- internal, matching the Z2M `action` expose.
+    -- power-on behaviours. DP1~8 are scenes1~8; DP17 is scene0 (button9).
     tuya.dp_enum(18, {
       name = "switch_mode_l1",
       emit = emit.m9slSwitchMode1(),
@@ -612,13 +646,14 @@ local switch_4gang_m9_scene = {
       name = "power_on_behavior_l4",
       emit = emit.m9slPowerOnBehavior4(),
     }),
-    tuya.dp_presence(101, { emit = emit.presence() }),
+    tuya.dp_presence(101, {read_only = true, from_device = panel_presence, emit = emit.presence()}),
     tuya.dp_numeric(102, { name = "delay", emit = emit.m9slDelay() }),
   },
   query_on_configure = false,
   time_start = "off",
 }
 
+add_panel_scenes(switch_4gang_m9_scene, {1,2,3,4,5,6,7,8,17})
 register_device_definition(switch_4gang_m9_scene, device_helpers.create_fingerprints("TS0601", {
   "_TZE284_yrwmnya3",
 }))
@@ -626,10 +661,58 @@ register_device_definition(switch_4gang_m9_scene, device_helpers.create_fingerpr
 -- F3-Pro smart panel (Z2M tuya.ts:24973): DP121~124 are the relays, DP102/103/105/107
 -- the dimmer brightness, DP109~112 the dimmer warmth, DP117~120 the dimmer switches,
 -- DP113~116 the cover positions, DP133~136 the cover open/stop/close command and
--- DP149 the panel screen.  The DP1~8 scene actions and the DP125~148 name strings
--- stay internal, matching the Z2M `action` and text exposes.
+-- DP149 the panel screen. DP1~8 scene actions ignore payload values in Z2M.
+-- DP125~148 names are UTF16BE hex carried in STRING datapoints. Weather remains pending.
+local function f3_trim(value)
+  local first, last
+  for offset, codepoint in utf8.codes(value) do
+    -- ECMAScript String.trim whitespace, including BOM and Unicode separators.
+    local space = (codepoint >= 9 and codepoint <= 13) or codepoint == 32 or codepoint == 160
+      or codepoint == 0x1680 or (codepoint >= 0x2000 and codepoint <= 0x200A)
+      or codepoint == 0x2028 or codepoint == 0x2029 or codepoint == 0x202F
+      or codepoint == 0x205F or codepoint == 0x3000 or codepoint == 0xFEFF
+    if not space then first = first or offset; last = offset + #utf8.char(codepoint) - 1 end
+  end
+  return first and value:sub(first, last) or ""
+end
+local f3_name_converter = {
+  to = function(value)
+    if type(value) ~= "string" or not utf8.len(value) then return nil end
+    local words = {}
+    for _, cp in utf8.codes(f3_trim(value)) do
+      if cp <= 0xFFFF then words[#words + 1] = string.format("%04x", cp)
+      else
+        cp = cp - 0x10000
+        words[#words + 1] = string.format("%04x%04x", 0xD800 + (cp >> 10), 0xDC00 + (cp & 0x3FF))
+      end
+    end
+    local encoded = table.concat(words)
+    if #encoded > 65535 then return nil end
+    return encoded
+  end,
+  from = function(value)
+    if type(value) ~= "string" or not utf8.len(value) then return nil end
+    value = f3_trim(value)
+    if #value % 4 ~= 0 or value:find("[^%x]") then return nil end
+    local result, index = {}, 1
+    while index <= #value do
+      local cp = tonumber(value:sub(index, index + 3), 16)
+      index = index + 4
+      if cp >= 0xD800 and cp <= 0xDBFF then
+        local low = tonumber(value:sub(index, index + 3), 16)
+        if low and low >= 0xDC00 and low <= 0xDFFF then
+          cp = 0x10000 + ((cp - 0xD800) << 10) + low - 0xDC00
+          index = index + 4
+        else cp = 0xFFFD end
+      elseif cp >= 0xDC00 and cp <= 0xDFFF then cp = 0xFFFD end
+      result[#result + 1] = utf8.char(cp)
+    end
+    return f3_trim(table.concat(result))
+  end,
+}
 local switch_4gang_smart_panel = {
   profile = "switches-switch-4-f3-pro",
+  button_actions = {"pushed"},
   package_group = "switch-panel",
   datapoints = {
     tuya.dp_on_off(121, { name = "switch", component = "main" }),
@@ -699,6 +782,27 @@ local switch_4gang_smart_panel = {
   time_start = "1970",
 }
 
+for button = 1, 8 do
+  switch_4gang_smart_panel.datapoints[#switch_4gang_smart_panel.datapoints + 1] = tuya.dp_enum(button, {
+    name = "f3pro_scene_" .. button, component = button == 1 and "main" or "button" .. button,
+    read_only = true,
+    from_device = function() return "pushed" end,
+    emit = function(_, value) return capabilities.button.button(value, {state_change = true}) end,
+  })
+end
+for _, group in ipairs({
+  {125, "led_switch_name", {emit.f3proLedOneName, emit.f3proLedTwoName, emit.f3proLedThreeName, emit.f3proLedFourName}},
+  {129, "cover_name", {emit.f3proCoverOneName, emit.f3proCoverTwoName, emit.f3proCoverThreeName, emit.f3proCoverFourName}},
+  {137, "switch_name", {emit.f3proSwitchOneName, emit.f3proSwitchTwoName, emit.f3proSwitchThreeName, emit.f3proSwitchFourName}},
+  {141, "scene_name", {emit.f3proSceneOneName, emit.f3proSceneTwoName, emit.f3proSceneThreeName, emit.f3proSceneFourName,
+    emit.f3proSceneFiveName, emit.f3proSceneSixName, emit.f3proSceneSevenName, emit.f3proSceneEightName}},
+}) do
+  for index, factory in ipairs(group[3]) do
+    switch_4gang_smart_panel.datapoints[#switch_4gang_smart_panel.datapoints + 1] = tuya.dp_string(group[1] + index - 1, {
+      name = group[2] .. "_l" .. index, converter = f3_name_converter, emit = factory({allow_empty = true}),
+    })
+  end
+end
 register_device_definition(switch_4gang_smart_panel, device_helpers.create_fingerprints("TS0601", {
   "_TZE284_7zazvlyn",
   "_TZE284_idn2htgu",
@@ -755,6 +859,29 @@ local switch_4gang_lcd_panel = {
   time_start = "1970",
 }
 
+add_panel_scenes(switch_4gang_lcd_panel, {1,2,3,4})
+-- M8Pro's convLocal.name encodes EACH UTF-8 BYTE as four hex digits.
+-- This differs from F3-Pro's UTF-16 code units and preserves surrounding spaces.
+local m8_name = {
+  to = function(value)
+    if type(value) ~= "string" or not utf8.len(value) or #value > 16383 then return nil end
+    return (value:gsub(".",function(byte) return string.format("%04x",byte:byte()) end))
+  end,
+  from = function(value)
+    if type(value) ~= "string" or #value % 4 ~= 0 or value:find("[^%x]") then return nil end
+    local result = value:gsub("%x%x%x%x",function(word) return string.char(tonumber(word,16) & 255) end)
+    if result:sub(1,3) == "\239\187\191" then result = result:sub(4) end
+    if utf8.len(result) then return result end
+  end,
+}
+for index, factories in ipairs({
+  {emit.m8SwitchOneName,emit.m8SceneOneName}, {emit.m8SwitchTwoName,emit.m8SceneTwoName},
+  {emit.m8SwitchThreeName,emit.m8SceneThreeName}, {emit.m8SwitchFourName,emit.m8SceneFourName},
+}) do
+  local dps = switch_4gang_lcd_panel.datapoints
+  dps[#dps+1] = tuya.dp_string(102+index, {name="name_l"..index,converter=m8_name,emit=factories[1]({allow_empty=true})})
+  dps[#dps+1] = tuya.dp_string(106+index, {name="scene_name_l"..index,converter=m8_name,emit=factories[2]({allow_empty=true})})
+end
 register_device_definition(switch_4gang_lcd_panel, device_helpers.create_fingerprints("TS0601", {
   "_TZE284_atuj3i0w",
 }))

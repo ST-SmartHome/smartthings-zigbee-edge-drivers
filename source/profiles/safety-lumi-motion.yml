@@ -1,0 +1,25 @@
+name: safety-lumi-motion
+components:
+- id: main
+  capabilities:
+  - id: motionSensor
+    version: 1
+  - id: battery
+    version: 1
+  - id: voltageMeasurement
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.miMotionRestarts
+    version: 1
+  categories:
+  - name: MotionSensor
+preferences:
+- name: occupancyTimeout
+  title: Motion reset time
+  description: Seconds before motion clears. Set 0 to disable automatic reset.
+  required: true
+  preferenceType: integer
+  definition:
+    minimum: 0
+    default: 90

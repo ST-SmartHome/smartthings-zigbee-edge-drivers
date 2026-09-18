@@ -14,19 +14,19 @@ components:
         version: 1
       - id: concertmirror08464.scimagicDelay
         version: 1
-      - id: concertmirror08464.scimagicTempTarget
+      - id: concertmirror08464.sciThTarget
         version: 1
-      - id: concertmirror08464.scimagicTempRange
+      - id: concertmirror08464.sciThRange
         version: 1
       - id: concertmirror08464.scimagicTempCalibration
         version: 1
-      - id: concertmirror08464.scimagicDelayTime
+      - id: concertmirror08464.sciThDelayTime
         version: 1
-      - id: concertmirror08464.scimagicHumidityTarget
+      - id: concertmirror08464.sciThHumidityTarget
         version: 1
-      - id: concertmirror08464.scimagicHumidityRange
+      - id: concertmirror08464.sciThHumidityRange
         version: 1
-      - id: concertmirror08464.scimagicHumidityCalibration
+      - id: concertmirror08464.sciThHumidityCalibration
         version: 1
       - id: refresh
         version: 1
@@ -69,25 +69,25 @@ deviceConfig:
       capability: concertmirror08464.scimagicDelay
       version: 1
     - component: main
-      capability: concertmirror08464.scimagicTempTarget
+      capability: concertmirror08464.sciThTarget
       version: 1
     - component: main
-      capability: concertmirror08464.scimagicTempRange
+      capability: concertmirror08464.sciThRange
       version: 1
     - component: main
       capability: concertmirror08464.scimagicTempCalibration
       version: 1
     - component: main
-      capability: concertmirror08464.scimagicDelayTime
+      capability: concertmirror08464.sciThDelayTime
       version: 1
     - component: main
-      capability: concertmirror08464.scimagicHumidityTarget
+      capability: concertmirror08464.sciThHumidityTarget
       version: 1
     - component: main
-      capability: concertmirror08464.scimagicHumidityRange
+      capability: concertmirror08464.sciThHumidityRange
       version: 1
     - component: main
-      capability: concertmirror08464.scimagicHumidityCalibration
+      capability: concertmirror08464.sciThHumidityCalibration
       version: 1
     - component: main
       capability: refresh
@@ -113,25 +113,25 @@ deviceConfig:
         capability: concertmirror08464.scimagicDelay
         version: 1
       - component: main
-        capability: concertmirror08464.scimagicTempTarget
+        capability: concertmirror08464.sciThTarget
         version: 1
       - component: main
-        capability: concertmirror08464.scimagicTempRange
+        capability: concertmirror08464.sciThRange
         version: 1
       - component: main
         capability: concertmirror08464.scimagicTempCalibration
         version: 1
       - component: main
-        capability: concertmirror08464.scimagicDelayTime
+        capability: concertmirror08464.sciThDelayTime
         version: 1
       - component: main
-        capability: concertmirror08464.scimagicHumidityTarget
+        capability: concertmirror08464.sciThHumidityTarget
         version: 1
       - component: main
-        capability: concertmirror08464.scimagicHumidityRange
+        capability: concertmirror08464.sciThHumidityRange
         version: 1
       - component: main
-        capability: concertmirror08464.scimagicHumidityCalibration
+        capability: concertmirror08464.sciThHumidityCalibration
         version: 1
     actions:
       - component: main
@@ -147,23 +147,23 @@ deviceConfig:
         capability: concertmirror08464.scimagicDelay
         version: 1
       - component: main
-        capability: concertmirror08464.scimagicTempTarget
+        capability: concertmirror08464.sciThTarget
         version: 1
       - component: main
-        capability: concertmirror08464.scimagicTempRange
+        capability: concertmirror08464.sciThRange
         version: 1
       - component: main
         capability: concertmirror08464.scimagicTempCalibration
         version: 1
       - component: main
-        capability: concertmirror08464.scimagicDelayTime
+        capability: concertmirror08464.sciThDelayTime
         version: 1
       - component: main
-        capability: concertmirror08464.scimagicHumidityTarget
+        capability: concertmirror08464.sciThHumidityTarget
         version: 1
       - component: main
-        capability: concertmirror08464.scimagicHumidityRange
+        capability: concertmirror08464.sciThHumidityRange
         version: 1
       - component: main
-        capability: concertmirror08464.scimagicHumidityCalibration
+        capability: concertmirror08464.sciThHumidityCalibration
         version: 1

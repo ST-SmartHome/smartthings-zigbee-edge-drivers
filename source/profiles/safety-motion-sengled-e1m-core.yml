@@ -1,0 +1,12 @@
+name: safety-motion-sengled-e1m-core
+components:
+  - id: main
+    capabilities:
+      - id: motionSensor
+        version: 1
+      - id: battery
+        version: 1
+      - id: refresh
+        version: 1
+    categories:
+      - name: MotionSensor

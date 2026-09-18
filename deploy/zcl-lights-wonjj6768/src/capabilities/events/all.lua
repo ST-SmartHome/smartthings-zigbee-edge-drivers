@@ -543,9 +543,9 @@ end
 return attribute_fn({value=value})
 end
 end
-local function emit_text_custom(definition)
+local function emit_text_custom(definition,options)
 return function(device,value)
-if type(value)~="string" or value=="" then
+if type(value)~="string" or(value=="" and not(options and options.allow_empty))then
 return
 end
 local capability,attribute_fn=resolve_capability_attribute(definition.capability_id,definition.attribute_name)
@@ -576,8 +576,8 @@ return emit_enum_custom(definition)
 end
 end
 for _,definition in ipairs(custom_capabilities.text)do
-emit[definition.emit_name]=function()
-return emit_text_custom(definition)
+emit[definition.emit_name]=function(options)
+return emit_text_custom(definition,options)
 end
 end
 function emit.driver_message()

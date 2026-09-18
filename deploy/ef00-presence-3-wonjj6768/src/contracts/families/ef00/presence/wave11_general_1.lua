@@ -122,7 +122,7 @@ emit=emit.szrSevenIndicator(),
 },
 query_on_configure=false,
 }
-register(szr_seven,{"_TZE204_khoqss0a"})
+register(szr_seven,{"_TZE204_khoqss0a","_TZE28C1000000_khoqss0a"})
 local szlr_eight={
 profile="safety-presence-wave11-szlr08",
 package_group="z2m-ef00-presence",
@@ -173,7 +173,7 @@ emit=emit.szlrEightRadarMode(),
 },
 query_on_configure=false,
 }
-register(szlr_eight,{"_TZE204_lw5ny7tp"})
+register(szlr_eight,{"_TZE204_lw5ny7tp","_TZE28C1000000_lw5ny7tp"})
 local szlr_eight_t={
 profile="safety-presence-wave11-szlr08t",
 package_group="z2m-ef00-presence",
@@ -219,7 +219,7 @@ emit=emit.szlrEightTRadarMode(),
 },
 query_on_configure=false,
 }
-register(szlr_eight_t,{"_TZE204_b8vxct9l"})
+register(szlr_eight_t,{"_TZE204_b8vxct9l","_TZE28C1000000_b8vxct9l"})
 return{
 id="ef00.presence.wave11.general.1",
 registrations=registrations,

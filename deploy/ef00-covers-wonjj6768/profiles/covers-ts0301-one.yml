@@ -1,0 +1,1 @@
+{name: covers-ts0301-one,components:[{id: main,capabilities:[{id: windowShade,version: 1},{id: windowShadeLevel,version: 1},{id: battery,version: 1},{id: concertmirror08464.ts0301Direction,version: 1},{id: refresh,version: 1}],categories:[{name: Blind}]}],preferences:[{preferenceId: reverse,explicit: true}]}

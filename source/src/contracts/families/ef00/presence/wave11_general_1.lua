@@ -135,7 +135,7 @@ local szr_seven = {
   query_on_configure = false,
 }
 
-register(szr_seven, { "_TZE204_khoqss0a" })
+register(szr_seven, { "_TZE204_khoqss0a", "_TZE28C1000000_khoqss0a" })
 
 -- Lincukoo SZLR08, lincukoo.ts:37.
 local szlr_eight = {
@@ -189,7 +189,7 @@ local szlr_eight = {
   query_on_configure = false,
 }
 
-register(szlr_eight, { "_TZE204_lw5ny7tp" })
+register(szlr_eight, { "_TZE204_lw5ny7tp", "_TZE28C1000000_lw5ny7tp" })
 
 -- Lincukoo SZLR08T, lincukoo.ts:314.  Presence uses trueFalse0 unlike
 -- SZR07/SZLR08 and must remain a distinct family contract.
@@ -239,7 +239,7 @@ local szlr_eight_t = {
   query_on_configure = false,
 }
 
-register(szlr_eight_t, { "_TZE204_b8vxct9l" })
+register(szlr_eight_t, { "_TZE204_b8vxct9l", "_TZE28C1000000_b8vxct9l" })
 
 return {
   id = "ef00.presence.wave11.general.1",

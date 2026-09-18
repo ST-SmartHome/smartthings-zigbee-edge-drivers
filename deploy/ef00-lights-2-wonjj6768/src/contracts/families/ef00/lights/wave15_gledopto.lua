@@ -4,9 +4,6 @@ local emit=require "capabilities.events.all"
 local device_helpers=require "contracts.helpers.family"
 local converter=tuya.converter
 local device_definitions,register_device_definition=device_helpers.definition_registry()
-local function custom(name)
-return assert(emit[name],"missing Wave15 GL-SPI emitter: " .. name)()
-end
 local function clamp(value,minimum,maximum)
 if value < minimum then return minimum end
 if value > maximum then return maximum end
@@ -95,12 +92,14 @@ if tuya.send_datapoint(
 device,2,tuya.DP_TYPE_ENUM,
 ({white=0,colour=1,scene=2,music=3})[mode]
 )==nil then return false end
+store(device,"gl_spi_work_mode",mode)
 end
 return true
 end
 local function brightness_write(device,value)
 local level=clamp(tonumber(value)or 0,0,100)
-if not send_on_and_mode(device,"colour")then return nil end
+local mode=latest(device,"gl_spi_work_mode","concertmirror08464.glSpiWorkMode","workMode","colour")
+if not send_on_and_mode(device,mode)then return nil end
 return{
 dp=3,datatype=tuya.DP_TYPE_VALUE,
 value=clamp(round(10 + level * 990 / 100),10,1000),
@@ -128,9 +127,11 @@ math.floor(saturation_raw / 256),saturation_raw % 256,
 end
 local function color_temp_raw_write(device,value)
 if not send_on_and_mode(device,"white")then return nil end
+local raw=clamp(round(tonumber(value)or 0),0,1000)
+store(device,"gl_spi_color_temp_raw",raw)
 return{
 dp=4,datatype=tuya.DP_TYPE_VALUE,
-value=clamp(round(tonumber(value)or 0),0,1000),
+value=raw,
 }
 end
 local function color_write(device,value)
@@ -138,6 +139,16 @@ if type(value)~="table" then return nil end
 local hue=value.hue
 local saturation=value.saturation
 if hue==nil or saturation==nil then return nil end
+if tonumber(saturation)==0 then
+local payload=color_temp_raw_write(device,latest(
+device,"gl_spi_color_temp_raw","concertmirror08464.glSpiColorTempRaw","colorTempRaw",500
+))
+if payload==nil then return nil end
+store(device,HUE_FIELD,clamp(tonumber(hue)or 0,0,100))
+store(device,SATURATION_FIELD,0)
+emit_color_state(device,latest(device,HUE_FIELD,"colorControl","hue",0),0)
+return payload
+end
 if not send_on_and_mode(device,"colour")then return nil end
 return{
 dp=61,datatype=tuya.DP_TYPE_RAW,
@@ -194,9 +205,13 @@ auto_on_before_light_command=false,
 datapoints={
 tuya.dp_on_off(1,{name="switch",transaction=1,emit=emit.switch()}),
 tuya.dp_enum(2,{
-name="gl_spi_work_mode",transaction=1,
+name="gl_spi_work_mode",field="gl_spi_work_mode",transaction=1,
 converter=converter.lookup_from_to({white=0,colour=1,scene=2,music=3}),
-emit=custom("glSpiWorkMode"),
+to_device=function(value,device)
+store(device,"gl_spi_work_mode",value)
+return({white=0,colour=1,scene=2,music=3})[value]
+end,
+emit=emit.glSpiWorkMode(),
 }),
 tuya.dp_numeric(3,{
 name="brightness",read_only=true,transaction=1,
@@ -204,35 +219,35 @@ converter=converter.from_only(function(value)return clamp(round((tonumber(value)
 emit=emit.level(),
 }),
 tuya.dp_numeric(4,{
-name="gl_spi_color_temp_raw",transaction=1,
-emit=custom("glSpiColorTempRaw"),
+name="gl_spi_color_temp_raw",field="gl_spi_color_temp_raw",transaction=1,
+emit=emit.glSpiColorTempRaw(),
 }),
-tuya.dp_numeric(7,{name="gl_spi_countdown",transaction=1,emit=custom("glSpiCountdown")}),
+tuya.dp_numeric(7,{name="gl_spi_countdown",transaction=1,emit=emit.glSpiCountdown()}),
 tuya.dp_raw(51,{
 name="gl_spi_scene",transaction=1,
 converter=converter.from_to(scene_from_raw,function(value)return SCENE_DATA[value]end),
-emit=custom("glSpiScene"),
+emit=emit.glSpiScene(),
 }),
 tuya.dp_raw(52,{
 name="gl_spi_music_mode",transaction=1,
 converter=converter.from_to(mode_from_raw,function(value)return MUSIC_DATA[value]end),
-emit=custom("glSpiMusicMode"),
+emit=emit.glSpiMusicMode(),
 }),
 tuya.dp_numeric(53,{
 name="gl_spi_pixel_count",transaction=1,
-emit=custom("glSpiPixelCount"),
+emit=emit.glSpiPixelCount(),
 }),
 tuya.dp_enum(101,{
 name="gl_spi_bead_sequence",transaction=1,
-converter=converter.lookup_from_to(sequence_values),emit=custom("glSpiBeadSequence"),
+converter=converter.lookup_from_to(sequence_values),emit=emit.glSpiBeadSequence(),
 }),
 tuya.dp_enum(102,{
 name="gl_spi_chip_type",transaction=1,
-converter=converter.lookup_from_to(chip_values),emit=custom("glSpiChipType"),
+converter=converter.lookup_from_to(chip_values),emit=emit.glSpiChipType(),
 }),
 tuya.dp_binary(103,{
 name="gl_spi_do_not_disturb",transaction=1,
-converter=converter.lookup_from_to({ON=true,OFF=false}),emit=custom("glSpiDoNotDisturb"),
+converter=converter.lookup_from_to({ON=true,OFF=false}),emit=emit.glSpiDoNotDisturb(),
 }),
 },
 named_mapping={

@@ -1,8 +1,10 @@
 local zcl = require "protocol.zcl"
 local device_helpers = require "contracts.helpers.family"
 local emit = require "capabilities.events.all"
+local capabilities = require "st.capabilities"
 local data_types = require "st.zigbee.data_types"
 local device_management = require "st.zigbee.device_management"
+local cluster_base = require "st.zigbee.cluster_base"
 local shared_definitions = require "contracts.helpers.zcl_sensor_definitions"
 local fp = device_helpers.create_fingerprint
 
@@ -95,6 +97,18 @@ local third_reality_3rps_presence_sensor = {
   zcl_clusters = {
     zcl.motion(),
     zcl.battery(),
+    zcl.cluster_attribute(0xFF01, 0x0060, {
+      name = "rps_sensitivity", endpoint = 1, mfg_code = 0x1407,
+      data_type = data_types.Uint8, write_type = data_types.Uint8,
+      read_on_configure = true, emit = emit.rpsSensitivity(),
+    }),
+    zcl.cluster_attribute(0xFF01, 0x0003, {
+      name = "rps_calibration", endpoint = 1, mfg_code = 0x1407,
+      data_type = data_types.Uint8, write_type = data_types.Uint8,
+      read_on_configure = true, emit = emit.rpsCalibration(),
+      from_device = function(value) return value == 1 and "Press" or nil end,
+      to_device = function(value) return value == "Press" and 1 or nil end,
+    }),
   },
 }
 local motion_tamper_battery_low_battery_sensor = {
@@ -123,10 +137,28 @@ local motion_illuminance_sensor = {
 }
 local candeo_motion_illuminance_sensor = {
   profile = "safety-motion-illuminance-battery-candeo-pending",
+  datapoints = {
+    { dp = 9, datatype = 0x04, name = "candeo_motion_sensitivity", emit = emit.candeoMotionSensitivity(),
+      from_device = function(value) return ({ [0] = "low", "medium", "high" })[value] end,
+      to_device = function(value) return ({ low = 0, medium = 1, high = 2 })[value] end },
+    { dp = 10, datatype = 0x04, name = "candeo_motion_keep_time", emit = emit.candeoMotionKeepTime(),
+      from_device = function(value) return ({ [0] = "10", "30", "60", "120" })[value] end,
+      to_device = function(value) return ({ ["10"] = 0, ["30"] = 1, ["60"] = 2, ["120"] = 3 })[value] end },
+    -- ZHC valueConverter.raw is numeric identity here; the wire type is VALUE.
+    { dp = 102, datatype = 0x02, name = "candeo_light_interval", emit = emit.candeoLightInterval("min") },
+  },
   zcl_clusters = {
     zcl.tuya_magic_packet(),
     zcl.motion(),
-    zcl.illuminance(),
+    zcl.illuminance({ configure_reporting = false,
+      converter = { from = function(raw)
+        local lux = 10 ^ ((raw - 1) / 10000)
+        if lux <= 2200 then lux = -7.969192 + 0.0151988 * lux
+        elseif lux <= 2500 then lux = -1069.189434 + 0.4950663 * lux
+        else lux = 78029.21628 - 61.73575 * lux + 0.01223567 * lux * lux end
+        return math.floor(math.max(1, lux) + 0.5)
+      end },
+    }),
     zcl.battery(),
   },
 }
@@ -356,14 +388,19 @@ local smoke_sensor = {
   },
 }
 local schneider_smoke_sensor = {
-  profile = "safety-smoke-temp-tamper-battery-low-battery-voltage-schneider-pending",
+  profile = "safety-smoke-temp-tamper-battery-low-battery-voltage-schneider-pending",magic_packet=false,
   zcl_clusters = {
-    zcl.smoke(),
-    zcl.temperature(),
-    zcl.tamper(),
-    zcl.battery_low(),
-    zcl.battery(),
-    zcl.battery_voltage(),
+    zcl.smoke({minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=true}),
+    zcl.temperature({minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.tamper({minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=false}),
+    zcl.battery_low({minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=false,
+      emit=function(_,value)
+        return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
+      end}),
+    zcl.battery({minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,
+      from_device=function(value,_,context) if context.raw_value~=255 then return value end end}),
+    zcl.battery_voltage({minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,
+      from_device=function(value,_,context) if context.raw_value~=255 then return value end end}),
   },
 }
 local illuminance_sensor = {
@@ -446,6 +483,18 @@ local heiman_air_quality = {
         1
       ))
     end
+    -- HS2AQ does not request time after binding. Send the complete time record.
+    local utc = os.time()
+    local local_date, utc_date = os.date("*t", utc), os.date("!*t", utc)
+    utc_date.isdst = local_date.isdst
+    local offset = os.difftime(os.time(local_date), os.time(utc_date))
+    local tx
+    for _, field in ipairs({ {1, data_types.Bitmap8(3)}, {0, data_types.UtcTime(utc - 946684800)}, {2, data_types.Int32(offset)} }) do
+      local part = cluster_base.write_attribute(device, data_types.ClusterId(0x000A), data_types.AttributeId(field[1]), field[2])
+      if tx then tx.body.zcl_body.attr_records[#tx.body.zcl_body.attr_records + 1] = part.body.zcl_body.attr_records[1]
+      else tx = part end
+    end
+    device:send(tx:to_endpoint(1))
   end,
 }
 
@@ -619,6 +668,7 @@ register_aliases(sunricher_terncy_dc01, {
 register_aliases(schneider_smoke_sensor, {
   fp("Schneider Electric", "755WSA"),
   fp("Schneider Electric", "W599501"),
+  fp("Schneider Electric", "W599001"),
 })
 
 register_aliases(third_reality_3rms_motion_sensor, {

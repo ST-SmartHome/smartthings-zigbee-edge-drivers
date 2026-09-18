@@ -27,7 +27,7 @@
           "device_helpers"
         ]
       },
-      "dynamicEventMemberSha256": "f939f7915ad84d9b8d88a57d10ed26becc84f677c3dff6aa5cbde5cee9da0f68"
+      "dynamicEventMemberSha256": "e3d3a62f4ad1fa2da87d9b4006c38f955323c0970273f96588175f8edac6dbb0"
     },
     "contracts.families.ef00.din_rail.meters_z2m_absorption": {
       "id": "ef00.din_rail.meters.z2m_absorption",
@@ -121,7 +121,7 @@
           "common"
         ]
       },
-      "dynamicEventMemberSha256": "9d3fa7dad20446a05571650a468d4dd369c3a3924e40f163220b134583512c0d"
+      "dynamicEventMemberSha256": "2e8307c7edf4665dffe37ee332d5a5acc4a9ee951391fee9f23157cdfc30c5e3"
     },
     "contracts.families.ef00.safety.z2m_absorption": {
       "id": "ef00.safety.z2m_absorption",
@@ -209,12 +209,13 @@
           "ef00_helpers"
         ]
       },
-      "dynamicEventMemberSha256": "5ab581bb2ff6f86741ce69490fd357ae89a03cd7d5b75c276b7c590746037fca"
+      "dynamicEventMemberSha256": "acf259794a75171eb1cd1812281baaec775bd24faf1209371fb7e4c9ec938c06"
     },
     "contracts.families.ef00.switch_basic_z2m_absorption": {
       "id": "ef00.switch.basic.z2m_absorption",
       "requiredModules": [
         "protocol.tuya",
+        "capabilities.events.all",
         "contracts.helpers.family"
       ],
       "externalDependencies": [
@@ -226,6 +227,9 @@
         "contracts/helpers/family.lua"
       ],
       "aliasBindings": {
+        "capabilities.events.all": [
+          "emit"
+        ],
         "protocol.tuya": [
           "tuya"
         ],
@@ -233,7 +237,7 @@
           "device_helpers"
         ]
       },
-      "dynamicEventMemberSha256": "c365da4d6618e5832d40833bdb55984f1f484e05b696aad304bcebc8038fd2df"
+      "dynamicEventMemberSha256": "82f0955605ccb34258830e8b9f8c7a5d4ed239c3d9c7185b8f0a0eea273810c5"
     },
     "contracts.families.ef00.switch_panel_z2m_absorption": {
       "id": "ef00.switch.panel.z2m_absorption",
@@ -626,7 +630,7 @@
         ]
       },
       "converterDeclarations": 1,
-      "dynamicEventMemberSha256": "c3474c1b443f59e3f4d19a3b4a5720f96cfeccde3fe6b4fa4a627a2f33a2e677"
+      "dynamicEventMemberSha256": "465f883e1bb2c0dab18cb401774a412c14a72c7b8350777843deb9e08e1daeb5"
     },
     "contracts.families.ef00.thermostats.wave19_exact": {
       "id": "ef00.thermostats.wave19.exact",
@@ -697,7 +701,7 @@
           "zcl_clusters"
         ]
       },
-      "dynamicEventMemberSha256": "5d3cf12b564a6c911438d03a36c1a3fe7b7eb357b31e918d69e0c21327f193ea"
+      "dynamicEventMemberSha256": "918a014be17c909fe98c95abd51a19baa82005904f7bfc8c3ef0dd03419254a0"
     },
     "contracts.families.zcl.bridges_wave19": {
       "id": "zcl.bridges.wave19",
@@ -822,14 +826,16 @@
         "st.zigbee.data_types",
         "st.capabilities",
         "st.zigbee.device_management",
-        "st.zigbee.cluster_base"
+        "st.zigbee.cluster_base",
+        "st.buf"
       ],
       "externalDependencies": [
         "protocol.zcl",
         "st.zigbee.data_types",
         "st.capabilities",
         "st.zigbee.device_management",
-        "st.zigbee.cluster_base"
+        "st.zigbee.cluster_base",
+        "st.buf"
       ],
       "converterDeclarations": 0,
       "sourceRelativeToSrc": "contracts/families/zcl/sensors/wave19_environment.lua",
@@ -850,16 +856,19 @@
           "data_types"
         ],
         "st.capabilities": [
-          "capabilities"
+          "caps"
         ],
         "st.zigbee.device_management": [
           "device_management"
         ],
         "st.zigbee.cluster_base": [
           "cluster_base"
+        ],
+        "st.buf": [
+          "buf"
         ]
       },
-      "dynamicEventMemberSha256": "c2620e525a8e294164fccc643af761e7d2b2a022ae0e1c05be9352d12b05bcaa"
+      "dynamicEventMemberSha256": "198245c6443218dbf64d2517be86b4f1eefb2f07d882169558f3840c2fef0319"
     },
     "contracts.families.zcl.sensors.wave19_hvac": {
       "id": "zcl.sensors.wave19_hvac",
@@ -910,11 +919,15 @@
         "protocol.zcl",
         "capabilities.events.all",
         "contracts.helpers.family",
-        "st.zigbee.data_types"
+        "st.zigbee.data_types",
+        "st.capabilities",
+        "st.zigbee.cluster_base"
       ],
       "externalDependencies": [
         "protocol.zcl",
-        "st.zigbee.data_types"
+        "st.zigbee.data_types",
+        "st.capabilities",
+        "st.zigbee.cluster_base"
       ],
       "sourceRelativeToSrc": "contracts/families/zcl/sensors/wave19_smoke.lua",
       "contractHelpers": [
@@ -932,10 +945,16 @@
         ],
         "st.zigbee.data_types": [
           "data_types"
+        ],
+        "st.capabilities": [
+          "capabilities"
+        ],
+        "st.zigbee.cluster_base": [
+          "cluster_base"
         ]
       },
       "converterDeclarations": 0,
-      "dynamicEventMemberSha256": "85c3ce2ee05756b310416f91c72bd99908951ffc6668b23ccc6bcb5b042206f7"
+      "dynamicEventMemberSha256": "4dddf8c7ea6baad273770f8206b53da130405e3739270fc9830946b9def445d8"
     },
     "contracts.families.zcl.sensors.wave19_vibration": {
       "id": "zcl.sensors.wave19_vibration",
@@ -1178,7 +1197,7 @@
         ]
       },
       "converterDeclarations": 0,
-      "dynamicEventMemberSha256": "674de1f0e57628dd56224021cff553266dc450e190e1e02e63e729eb7f80b1ae"
+      "dynamicEventMemberSha256": "5635e1eb973b276df5f29f843052bad4208e2baacdae455f8f40924c28f81d88"
     },
     "contracts.families.zcl.sensors.hobeian": {
       "id": "zcl.sensors.hobeian",
@@ -1198,13 +1217,45 @@
         "contracts/helpers/family.lua"
       ],
       "aliasBindings": {
-        "protocol.zcl": ["zcl"],
-        "contracts.helpers.family": ["device_helpers"],
-        "st.capabilities": ["capabilities"],
-        "st.zigbee.data_types": ["data_types"]
+        "protocol.zcl": [
+          "zcl"
+        ],
+        "contracts.helpers.family": [
+          "device_helpers"
+        ],
+        "st.capabilities": [
+          "capabilities"
+        ],
+        "st.zigbee.data_types": [
+          "data_types"
+        ]
       },
       "converterDeclarations": 0,
       "dynamicEventMemberSha256": "b57a421054f34f215cf30e21a22b09e166264166af9d4a1a1cfc50879a25563f"
+    },
+    "contracts.families.zcl.sensors.zg204zl": {
+      "id": "zcl.sensors.zg204zl",
+      "sourceRelativeToSrc": "contracts/families/zcl/sensors/zg204zl.lua",
+      "requiredModules": [
+        "protocol.zcl",
+        "contracts.helpers.family"
+      ],
+      "externalDependencies": [
+        "protocol.zcl"
+      ],
+      "contractHelpers": [
+        "contracts/helpers/family.lua"
+      ],
+      "aliasBindings": {
+        "protocol.zcl": [
+          "zcl"
+        ],
+        "contracts.helpers.family": [
+          "device_helpers"
+        ]
+      },
+      "converterDeclarations": 0,
+      "dynamicEventMemberSha256": "3f886c2fbd944ae04a75741e8071b3a398acc19583174c6ff91e92e07f1a6b13"
     },
     "contracts.families.zcl.sensors.sonoff_safety": {
       "id": "zcl.sensors.sonoff_safety",
@@ -1281,8 +1332,60 @@
       },
       "converterDeclarations": 0,
       "dynamicEventMemberSha256": "3b53c95f924ba0d478ac71fb70f900d61b2746b5affaef186ab7015a11e6ba71"
+    },
+    "contracts.families.zcl.sensors.simple_sensors": {
+      "id": "zcl.sensors.simple_sensors",
+      "sourceRelativeToSrc": "contracts/families/zcl/sensors/simple_sensors.lua",
+      "requiredModules": [
+        "protocol.zcl",
+        "capabilities.events.all",
+        "st.capabilities",
+        "st.zigbee.data_types",
+        "st.zigbee.device_management",
+        "st.zigbee.zcl.clusters",
+        "st.zigbee.cluster_base",
+        "contracts.helpers.family"
+      ],
+      "externalDependencies": [
+        "protocol.zcl",
+        "st.capabilities",
+        "st.zigbee.data_types",
+        "st.zigbee.device_management",
+        "st.zigbee.zcl.clusters",
+        "st.zigbee.cluster_base"
+      ],
+      "contractHelpers": [
+        "contracts/helpers/family.lua"
+      ],
+      "aliasBindings": {
+        "protocol.zcl": [
+          "zcl"
+        ],
+        "capabilities.events.all": [
+          "emit"
+        ],
+        "st.capabilities": [
+          "capabilities"
+        ],
+        "contracts.helpers.family": [
+          "device_helpers"
+        ],
+        "st.zigbee.data_types": [
+          "data_types"
+        ],
+        "st.zigbee.device_management": [
+          "device_management"
+        ],
+        "st.zigbee.zcl.clusters": [
+          "clusters"
+        ],
+        "st.zigbee.cluster_base": [
+          "cluster_base"
+        ]
+      },
+      "converterDeclarations": 0,
+      "dynamicEventMemberSha256": "ce0c70508fc2e4adfeb8176b3639611962a54b84befcf820a7b7c56b39489e6f"
     }
   },
-  "composers": {
-  }
+  "composers": {}
 }

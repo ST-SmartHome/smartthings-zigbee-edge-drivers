@@ -177,7 +177,16 @@ zcl.battery(),
 }
 local motion_illuminance={
 profile="safety-motion-illuminance-battery-low-battery",
-zcl_clusters={zcl.motion(),zcl.illuminance(),zcl.battery_low(),zcl.battery()},
+zcl_clusters={
+zcl.motion(),zcl.illuminance(),zcl.battery_low(),zcl.battery(),
+zcl.cluster_attribute(0x0500,0x0013,{
+name="shelly_blu_motion_sensitivity",endpoint=1,
+data_type=data_types.Uint8,write_type=data_types.Uint8,
+read_on_configure=true,emit=emit.shellyBluSensitivity(),
+from_device=function(value)return({"low","medium","high"})[value]end,
+to_device=function(value)return({low=1,medium=2,high=3})[value]end,
+}),
+},
 }
 register_device_definition(metered_plug,{
 device_helpers.create_fingerprint("Shelly","Plug US"),

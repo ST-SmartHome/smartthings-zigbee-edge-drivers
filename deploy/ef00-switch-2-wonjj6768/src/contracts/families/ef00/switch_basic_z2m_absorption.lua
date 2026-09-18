@@ -1,4 +1,5 @@
 local tuya=require "protocol.tuya"
+local emit=require "capabilities.events.all"
 local device_helpers=require "contracts.helpers.family"
 local device_definitions,register_device_definition=device_helpers.definition_registry()
 local semicom_6switch={
@@ -15,6 +16,19 @@ tuya.dp_on_off(6,{name="switch",component="switch6"}),
 register_device_definition(semicom_6switch,device_helpers.create_fingerprints("TS0601",{
 "_TZE204_8eazvzo6",
 }))
+local grxx6qek_temperature_humidity_switch={
+profile="switches-switch-1-temp-humidity",
+package_group="switch-basic",
+query_on_configure=false,
+time_start="1970",
+datapoints={
+tuya.dp_on_off(2,{name="switch",component="main",suppress_optimistic_state=true}),
+tuya.dp_temperature(27,{read_only=true,scale=10,emit=emit.temperature("C")}),
+tuya.dp_humidity(46,{read_only=true,scale=1,emit=emit.humidity()}),
+},
+}
+register_device_definition(grxx6qek_temperature_humidity_switch,
+device_helpers.create_fingerprints("TS0601",{"_TZE284_grxx6qek"}))
 return{
 id="ef00.switch.basic.z2m_absorption",
 registrations=device_definitions,

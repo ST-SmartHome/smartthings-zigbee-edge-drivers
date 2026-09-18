@@ -239,7 +239,11 @@ local function load_runtime(zcl)
       return -1
     end
 
-    if expected_component_id ~= nil and actual_component_id ~= expected_component_id then
+    -- An inbound endpoint can host several measurements exposed in separate
+    -- components. Its wire endpoint already matched; the mapping chooses the
+    -- destination component. Commands still require the requested component.
+    local received_on_explicit_endpoint = expected_endpoint ~= nil and type(context) == "table" and context.zb_rx ~= nil
+    if expected_component_id ~= nil and actual_component_id ~= expected_component_id and not received_on_explicit_endpoint then
       return -1
     end
 

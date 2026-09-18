@@ -1,0 +1,1 @@
+{name: lights-dimmer-2-zcl-basic,components:[{id: main,capabilities:[{id: switch,version: 1},{id: switchLevel,version: 1},{id: refresh,version: 1}],categories:[{name: Light}]},{id: switch2,capabilities:[{id: switch,version: 1},{id: switchLevel,version: 1}],categories:[{name: Light}]}]}

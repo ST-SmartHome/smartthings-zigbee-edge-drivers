@@ -1,0 +1,1 @@
+{name: sensors-schneider-w564100-core,components:[{id: main,capabilities:[{id: motionSensor,version: 1},{id: temperatureMeasurement,version: 1},{id: illuminanceMeasurement,version: 1},{id: refresh,version: 1}],categories:[{name: MotionSensor}]}]}

@@ -78,7 +78,7 @@ tuya.dp_temperature_calibration(23,{emit=emit.th05zTempCalibration()}),
 tuya.dp_humidity_calibration(24,{emit=emit.th05zHumidityCalibration()}),
 },
 query_on_configure=true,
-query_on_announce=true,
+query_on_announce=false,
 respond_to_mcu_version_response=true,
 time_start="1970",
 }
@@ -101,6 +101,88 @@ tuya.dp_humidity(19,{emit=emit.humidity(),scale=1,read_only=true}),
 register_sensor_definition(aq_co2_temperature_humidity_pkpfn9hc,ef00_helpers.ts0601_fingerprints({
 "_TZE204_pkpfn9hc",
 }))
+local onenuo_qf5mzewi_core={
+profile="sensors-onenuo-th05-core",
+query_on_configure=true,
+query_on_announce=true,
+time_start="1970",
+datapoints={
+tuya.dp_temperature(1,{read_only=true,emit=emit.temperature("C")}),
+tuya.dp_humidity(2,{read_only=true,scale=1,emit=emit.humidity()}),
+tuya.dp_battery(4,{read_only=true,emit=emit.battery()}),
+},
+}
+register_device_definition(onenuo_qf5mzewi_core,
+ef00_helpers.ts0601_fingerprints({"_TZE284_qf5mzewi"}))
+local lincukoo_szt04_long_core={
+profile="sensors-lincukoo-szt04-long-core",
+query_on_configure=false,
+time_start="1970",
+force_time_updates=true,
+datapoints={
+tuya.dp_temperature(1,{read_only=true,scale=10,emit=emit.temperature("C")}),
+tuya.dp_humidity(2,{read_only=true,scale=1,emit=emit.humidity()}),
+tuya.dp_battery(4,{read_only=true,emit=emit.battery()}),
+},
+}
+register_device_definition(lincukoo_szt04_long_core,ef00_helpers.ts0601_fingerprints({
+"_TZE2841000000_rs62zxk8",
+"_TZE2841000000_4dosadbh",
+"_TZE2841000000_mpzuabwk",
+}))
+local hobeian_zg227_core={
+profile="sensors-hobeian-zg227-core",
+query_on_configure=false,
+query_on_announce=false,
+time_start="off",
+datapoints={
+tuya.dp_temperature(1,{read_only=true,signed=true,
+converter=converter.signed_number_pair(10),emit=emit.temperature("C")}),
+tuya.dp_humidity(2,{read_only=true,scale=1,emit=emit.humidity()}),
+tuya.dp_battery(4,{read_only=true,emit=emit.battery()}),
+},
+}
+register_device_definition(hobeian_zg227_core,{
+device_helpers.create_fingerprint("HOBEIAN","ZG-227Z"),
+device_helpers.create_fingerprint("HOBEIAN","ZG-227ZL"),
+})
+local blitzwolf_bw_is3_core={
+profile="safety-motion-blitzwolf-bwis3-core",magic_packet=false,query_on_configure=false,
+datapoints={
+tuya.dp_enum(3,{
+name="motion",read_only=true,receive_datatypes={0,1,2,3,5},
+from_device=function(_,device,dp,context)
+local frame=context.frame
+if frame.command_id~=2 or frame.datapoints[1]~=dp then return nil end
+return true
+end,
+emit=function(device,value)
+local previous=device:get_field("__bwis3_core_timer")
+if previous then previous:cancel()end
+device:set_field("__bwis3_core_timer",device.thread:call_with_delay(90,function()
+device:set_field("__bwis3_core_timer",nil)
+device:emit_event(emit.motion()(device,false))
+end,"Motion reset"))
+return emit.motion()(device,value)
+end,
+}),
+},
+}
+register_device_definition(blitzwolf_bw_is3_core,{
+device_helpers.create_fingerprint("_TYST11_i5j6ifxj","5j6ifxj"),
+device_helpers.create_fingerprint("_TYST11_i5j6ifxj","5j6ifxj\0"),
+})
+local dak2k10o_air_core={
+profile="sensors-dak2k10o-air-core",magic_packet=true,query_on_configure=false,
+datapoints={
+tuya.dp_co2(2,{emit=emit.co2(),read_only=true}),
+tuya.dp_temperature(18,{emit=emit.temperature("C"),scale=10,read_only=true}),
+tuya.dp_humidity(19,{emit=emit.humidity(),scale=10,read_only=true}),
+},
+}
+register_device_definition(dak2k10o_air_core,{
+device_helpers.create_fingerprint("_TZE204_dak2k10o","TS0601"),
+})
 return{
 id="ef00.sensors.z2m_absorption",
 registrations=device_definitions,

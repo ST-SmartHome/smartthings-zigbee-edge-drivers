@@ -14,6 +14,8 @@ components:
     version: 1
   - id: refresh
     version: 1
+  - id: concertmirror08464.kctwDisplayUnit
+    version: 1
   categories:
   - name: TempHumiditySensor
 preferences:
@@ -42,6 +44,9 @@ deviceConfig:
     basicPlus: []
   detailView:
     - component: main
+      capability: concertmirror08464.kctwDisplayUnit
+      version: 1
+    - component: main
       capability: temperatureMeasurement
       version: 1
     - component: main
@@ -59,6 +64,9 @@ deviceConfig:
   automation:
     conditions:
       - component: main
+        capability: concertmirror08464.kctwDisplayUnit
+        version: 1
+      - component: main
         capability: temperatureMeasurement
         version: 1
       - component: main
@@ -70,4 +78,7 @@ deviceConfig:
       - component: main
         capability: voltageMeasurement
         version: 1
-    actions: []
+    actions:
+      - component: main
+        capability: concertmirror08464.kctwDisplayUnit
+        version: 1

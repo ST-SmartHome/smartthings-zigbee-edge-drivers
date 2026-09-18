@@ -238,6 +238,8 @@ local tuya=require "protocol.tuya"
 local emit=require "capabilities.events.all"
 local device_helpers=require "contracts.helpers.family"
 local ef00_helpers=require "contracts.helpers.ef00"
+local zcl=require "protocol.zcl"
+local device_management=require "st.zigbee.device_management"
 local device_definitions,register_device_definition=device_helpers.definition_registry()
 local converter=tuya.converter
 local OA1ODMGA_HUE_FIELD="oa1odmga_color_hue"
@@ -411,6 +413,19 @@ toggle=0,
 state=1,
 momentary=2,
 })
+local function add_ts0601_knob_reports(definition)
+definition.magic_packet=true
+definition.mcu_version_request_on_configure=true
+definition.zcl_clusters={
+zcl.switch({name="knob_switch",read_only=true,read_on_configure=false,maximum_interval=0}),
+zcl.level({name="knob_level",read_only=true,read_on_configure=false,maximum_interval=0}),
+}
+definition.configure=function(driver,device)
+for _,cluster in ipairs({0x0006,0x0008})do
+device:send(device_management.build_bind_request(device,cluster,driver.environment_info.hub_zigbee_eui,1))
+end
+end
+end
 local dimmer_model_ts0601_la2c2uo9={
 profile="lights-dimmer-options-ts0601-la2c2uo9",
 tuya.dp_on_off(1,{name="switch",emit=emit.switch()}),
@@ -421,6 +436,7 @@ tuya.dp_countdown(6,{name="countdown_timer",emit=emit.countdownTsOneTenHours()})
 tuya.dp_power_on_behavior(14,{emit=emit.power_on_behavior()}),
 tuya.dp_backlight_mode(21,{name="la2c2uo9_backlight_mode",emit=emit.la2c2uo9BacklightMode()}),
 }
+add_ts0601_knob_reports(dimmer_model_ts0601_la2c2uo9)
 register_device_definition(dimmer_model_ts0601_la2c2uo9,device_helpers.create_fingerprints("TS0601",{
 "_TZE200_la2c2uo9",
 }))
@@ -433,14 +449,12 @@ tuya.dp_light_type(4,{name="light_type",emit=emit.light_type()}),
 tuya.dp_countdown(6,{name="countdown_timer",emit=emit.countdownTsOneTenHours()}),
 tuya.dp_power_on_behavior(14,{emit=emit.power_on_behavior()}),
 }
+add_ts0601_knob_reports(dimmer_model_ts0601_dfxkcots)
 register_device_definition(dimmer_model_ts0601_dfxkcots,device_helpers.create_fingerprints("TS0601",{
 "_TZE200_dfxkcots",
 }))
 local dimmer_model_ts0601_dimmer_1_gang_1={
 profile="lights-dimmer-options-ts0601",
-presence_capability_ranges={
-indicator_mode={allowed_values=ef00_helpers.capability_values({"off","on"})},
-},
 tuya.dp_on_off(1,{name="switch",emit=emit.switch()}),
 tuya.dp_brightness(2,{name="brightness",emit=emit.level()}),
 tuya.dp_min_brightness(3,{name="min_brightness",value_max=1000,emit=emit.ef00Ts0601MinimumBrightness()}),
@@ -448,14 +462,14 @@ tuya.dp_light_type(4,{name="light_type",emit=emit.light_type()}),
 tuya.dp_max_brightness(5,{name="max_brightness",value_max=1000,emit=emit.ef00Ts0601MaximumBrightness()}),
 tuya.dp_countdown(6,{name="countdown_timer",emit=emit.countdownTsOneTenHours()}),
 tuya.dp_power_on_behavior(14,{emit=emit.power_on_behavior()}),
-tuya.dp_backlight_mode_off_on(21,{name="indicator_mode",emit=emit.indicator_mode()}),
+tuya.dp_backlight_mode(21,{name="ts_dimmer_backlight",emit=emit.tsDimmerBacklight()}),
 }
+add_ts0601_knob_reports(dimmer_model_ts0601_dimmer_1_gang_1)
 register_device_definition(dimmer_model_ts0601_dimmer_1_gang_1,device_helpers.create_fingerprints("TS0601",{
 "_TZE200_ip2akl4w",
 "_TZE200_1agwnems",
 "_TZE200_579lguh2",
 "_TZE200_vucankjx",
-"_TZE200_4mh6tyyo",
 "_TZE204_hlx9tnzb",
 "_TZE204_n9ctkb6j",
 "_TZE204_9qhuzgo0",
@@ -471,11 +485,7 @@ register_device_definition(dimmer_model_ts0601_dimmer_1_gang_1,device_helpers.cr
 "_TZE200_ebwgzdqq",
 "_TZE204_vevc4c6g",
 "_TZE200_0nauxa0p",
-"_TZE200_ykgar0ow",
 "_TZE284_m1cvyneb",
-"_TZE200_0hb4rdnp",
-"_TZE200_gne0e6mk",
-"_TZE200_itp8dt7f",
 "_TZE284_68utemio",
 "_TZE28C1000000_68utemio",
 }))
@@ -495,6 +505,23 @@ device_helpers.create_fingerprint("Moes","MS-105Z"),
 device_helpers.create_fingerprint("Mercator Ikuü","SSWM-DIMZ"),
 device_helpers.create_fingerprint("Zemismart","ZN2S-US1-SD"),
 device_helpers.create_fingerprint("Mercator Ikuü","SSWRM-ZB"),
+})
+local dimmer_ion={
+profile="lights-dimmer-ion",
+tuya.dp_on_off(1,{name="switch",emit=emit.switch()}),
+tuya.dp_brightness(2,{name="brightness",emit=emit.level()}),
+tuya.dp_min_brightness(3,{name="ion_min_brightness",value_max=254,emit=emit.ionDimmerMin()}),
+tuya.dp_max_brightness(5,{name="ion_max_brightness",value_max=254,emit=emit.ionDimmerMax()}),
+tuya.dp_countdown(6,{name="ion_countdown",emit=emit.ionDimmerCountdown()}),
+tuya.dp_power_on_behavior(14,{name="ion_power_on",emit=emit.ionDimmerPowerOn()}),
+}
+add_ts0601_knob_reports(dimmer_ion)
+register_device_definition(dimmer_ion,{
+device_helpers.create_fingerprint("_TZE200_4mh6tyyo","TS0601"),
+device_helpers.create_fingerprint("_TZE200_ykgar0ow","TS0601"),
+device_helpers.create_fingerprint("_TZE200_0hb4rdnp","TS0601"),
+device_helpers.create_fingerprint("_TZE200_gne0e6mk","TS0601"),
+device_helpers.create_fingerprint("_TZE200_itp8dt7f","TS0601"),
 device_helpers.create_fingerprint("ION Industries","ID200W-ZIGB"),
 device_helpers.create_fingerprint("ION Industries","90.500.090"),
 device_helpers.create_fingerprint("ION Industries","90.500.040"),

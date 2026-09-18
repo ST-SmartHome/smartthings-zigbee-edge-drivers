@@ -29,6 +29,13 @@ local function load_configuration(zcl)
       return reportable_change
     end
 
+    -- SDK floats are constructed from sign/exponent/mantissa, so retain
+    -- an already typed threshold instead of calling their constructor again.
+    if type(data_type) == "table" and type(reportable_change) == "table" and
+      reportable_change.ID == data_type.ID then
+      return reportable_change
+    end
+
     if is_callable_type(data_type) then
       return data_type(reportable_change)
     end

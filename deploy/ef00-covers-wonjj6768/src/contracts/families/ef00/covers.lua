@@ -1,6 +1,9 @@
 local tuya=require "protocol.tuya"
 local emit=require "capabilities.events.all"
 local device_helpers=require "contracts.helpers.family"
+local zcl=require "protocol.zcl"
+local zcl_clusters=require "st.zigbee.zcl.clusters"
+local device_management=require "st.zigbee.device_management"
 local converter=tuya.converter
 local device_definitions,register_device_definition=device_helpers.definition_registry()
 local function window_shade_state_from_position()
@@ -183,6 +186,24 @@ converter=window_shade_state_from_position_inverted(),
 read_only=true,
 }),
 }
+local cover_six={
+profile="covers-cover-six",
+magic_packet=true,
+mcu_version_request_on_configure=true,
+time_start="off",
+tuya.dp_enum(1,{name="cover_state",converter=cover_state_standard,write_only=true}),
+tuya.dp_enum(1,{name="cover_action_report",converter=cover_action_shade_state,emit=emit.shade_state(),read_only=true}),
+tuya.dp_cover_position_inverted(2,{emit=emit.shade_level()}),
+tuya.dp_numeric(2,{name="window_shade_state",converter=window_shade_state_from_position_inverted(),emit=emit.shade_state(),read_only=true}),
+tuya.dp_cover_position_inverted(3,{name="position_report",emit=emit.shade_level(),read_only=true}),
+tuya.dp_numeric(3,{name="window_shade_report",converter=window_shade_state_from_position_inverted(),emit=emit.shade_state(),read_only=true}),
+tuya.dp_enum(4,{name="cover_six_opening",converter=converter.lookup_from_to({tilt=0,lift=1}),emit=emit.coverSixOpening()}),
+tuya.dp_enum(7,{name="cover_six_work_state",converter=converter.lookup_from_to({standby=0,success=1,learning=2}),emit=emit.coverSixWorkState(),read_only=true}),
+tuya.dp_battery(13,{emit=emit.battery(),read_only=true}),
+tuya.dp_enum(101,{name="cover_six_direction",converter=converter.lookup_from_to({left=0,right=1}),emit=emit.coverSixDirection()}),
+tuya.dp_enum(102,{name="cover_six_upper_limit",converter=converter.lookup_from_to({start=1,stop=0}),emit=emit.coverSixUpperLimit()}),
+tuya.dp_numeric(104,{name="cover_six_illumination",emit=emit.coverSixIllumination(),read_only=true}),
+}
 local cover_core_reversed_position_alt={
 tuya.dp_enum(1,{
 name="cover_state",
@@ -197,17 +218,33 @@ converter=window_shade_state_from_position_inverted(),
 read_only=true,
 }),
 }
+local function yy_position(value,device)
+return device.preferences.reverse==true and(100 - value)or value
+end
+local yy_position_converter={from=yy_position,to=yy_position}
+local yy_state_converter=converter.from_only(function(value,device)
+local position=yy_position(value,device)
+return position <=0 and "closed" or position >=100 and "open" or "partially open"
+end)
 local cover_core_alt_dp={
 tuya.dp_enum(2,{
 name="cover_state",
 converter=cover_state_standard,
 write_only=true,
 }),
-tuya.dp_cover_position(7,{emit=emit.shade_level()}),
+tuya.dp_cover_position(7,{converter=yy_position_converter,emit=emit.shade_level()}),
 tuya.dp_numeric(7,{
 name="window_shade_state",
 emit=emit.shade_state(),
-converter=window_shade_state_from_position(),
+converter=yy_state_converter,
+read_only=true,
+}),
+tuya.dp_cover_position(8,{name="cover_position_report",converter=yy_position_converter,
+emit=emit.shade_level(),read_only=true}),
+tuya.dp_numeric(8,{
+name="window_shade_state_report",
+emit=emit.shade_state(),
+converter=yy_state_converter,
 read_only=true,
 }),
 }
@@ -395,6 +432,33 @@ emit=emit.shade_state(),
 converter=window_shade_state_from_position(),
 read_only=true,
 }),
+}
+local moes_zcls02={
+profile="covers-cover-battery",
+magic_packet=true,
+mcu_version_request_on_configure=true,
+time_start="off",
+query_on_configure=true,
+query_on_announce=true,
+query_interval_seconds=86400,
+tuya.dp_enum(1,{name="cover_state",converter=cover_state_standard,write_only=true}),
+tuya.dp_enum(1,{name="cover_action_report",converter=cover_action_shade_state,emit=emit.shade_state(),read_only=true}),
+tuya.dp_cover_position_inverted(2,{emit=emit.shade_level()}),
+tuya.dp_numeric(2,{name="window_shade_state",converter=window_shade_state_from_position_inverted(),emit=emit.shade_state(),read_only=true}),
+tuya.dp_cover_position_inverted(3,{name="position_report",emit=emit.shade_level(),read_only=true}),
+tuya.dp_numeric(3,{name="window_shade_report",converter=window_shade_state_from_position_inverted(),emit=emit.shade_state(),read_only=true}),
+tuya.dp_battery(13,{emit=emit.battery(),read_only=true}),
+}
+register_device_definition(moes_zcls02,device_helpers.create_fingerprints("TS0601",{"_TZE284_koxaopnk"}))
+local cover_ten={
+magic_packet=true,mcu_version_request_on_configure=true,time_start="off",
+tuya.dp_enum(1,{name="cover_state",converter=cover_state_reversed,write_only=true}),
+tuya.dp_enum(1,{name="cover_action_report",read_only=true,emit=emit.shade_state(),
+from_device=function(value)return({[0]="closed",[1]="partially open",[2]="open"})[value]end}),
+tuya.dp_cover_position(2,{emit=emit.shade_level()}),
+tuya.dp_numeric(2,{name="window_shade_state",converter=window_shade_state_from_position(),emit=emit.shade_state(),read_only=true}),
+tuya.dp_numeric(3,{name="position_report",emit=emit.shade_level(),read_only=true}),
+tuya.dp_numeric(3,{name="window_shade_report",converter=window_shade_state_from_position(),emit=emit.shade_state(),read_only=true}),
 }
 local cover_core_am02={
 tuya.dp_enum(1,{
@@ -884,6 +948,88 @@ pending=2,
 }),
 }),
 }
+local ts0301_position=converter.from_to(function(value,device)
+return device.preferences.reverse==true and(100 - value)or value
+end,function(value,device)
+return device.preferences.reverse==true and(100 - value)or value
+end)
+local ts0301_position_state=converter.from_only(function(value,device)
+local position=ts0301_position.from(value,device)
+if position <=0 then return "closed" end
+if position >=100 then return "open" end
+return "partially open"
+end)
+local ts0301_cover_one={
+profile="covers-ts0301-one",
+query_on_configure=false,
+time_start="off",
+tuya.dp_enum(1,{name="cover_state",converter=cover_state_standard,write_only=true}),
+tuya.dp_enum(1,{name="cover_action_state",converter=cover_action_shade_state,read_only=true,emit=emit.shade_state()}),
+tuya.dp_cover_position(2,{emit=emit.shade_level(),converter=ts0301_position}),
+tuya.dp_numeric(2,{name="window_shade_command_state",converter=ts0301_position_state,read_only=true,emit=emit.shade_state()}),
+tuya.dp_numeric(3,{name="cover_position_state",converter=ts0301_position,read_only=true,emit=emit.shade_level()}),
+tuya.dp_numeric(3,{name="window_shade_state",converter=ts0301_position_state,read_only=true,emit=emit.shade_state()}),
+tuya.dp_enum(5,{name="ts0301_direction",converter=converter.lookup_from_to({forward=0,back=1}),emit=emit.ts0301Direction()}),
+tuya.dp_battery(13,{emit=emit.battery()}),
+}
+local function ts0301_combined_position(component,raw,device)
+if type(raw)=="table" then raw=raw.value end
+if raw > 100 then return end
+if component=="shade2" then return raw < 50 and 0 or(raw - 50)* 2 end
+if component=="shade3" then
+local top=raw > 50 and 0 or raw * 2
+return device.preferences.invertTopRail==true and 100 - top or top
+end
+return raw
+end
+local function ts0301_combined_sender(component)
+return function(device,_,value)
+local commands=zcl_clusters.WindowCovering.server.commands
+if value=="stop" then device:send(commands.Stop(device):to_endpoint(1));return true end
+if component=="main" and type(value)=="string" then
+if value=="open" then device:send(commands.UpOrOpen(device):to_endpoint(1))
+elseif value=="close" then device:send(commands.DownOrClose(device):to_endpoint(1))
+else return false end
+return true
+end
+if value=="open" then value=100 elseif value=="close" then value=0 end
+if type(value)~="number" then return false end
+local lift=value
+if component=="shade2" then lift=value==0 and 0 or 50 + value / 2
+elseif component=="shade3" then lift=(device.preferences.invertTopRail==true and 100 - value or value)/ 2 end
+device:send(commands.GoToLiftPercentage(device,math.floor(math.max(0,math.min(100,lift))+ 0.5)):to_endpoint(1))
+return true
+end
+end
+local ts0301_combined_rail={
+profile="covers-ts0301-combined-rail",magic_packet=false,query_on_configure=false,time_start="off",
+zcl_clusters={zcl.battery({read_only=true})},
+configure=function(driver,device)
+device:send(device_management.build_bind_request(device,0x0102,driver.environment_info.hub_zigbee_eui,1))
+end,
+}
+local function ts0301_combined_events(device,raw)
+for _,component in ipairs({"main","shade2","shade3"})do
+local position=ts0301_combined_position(component,raw,device)
+if position ~=nil then
+device:emit_component_event(device.profile.components[component],emit.shade_level()(device,position))
+device:emit_component_event(device.profile.components[component],emit.shade_state()(device,position==0 and "closed" or "open"))
+end
+end
+end
+for _,component in ipairs({"main","shade2","shade3"})do
+local position_from=function(value,device)return ts0301_combined_position(component,value,device)end
+ts0301_combined_rail.zcl_clusters[#ts0301_combined_rail.zcl_clusters + 1]=zcl.cover_position({
+endpoint=1,component=component,sender=ts0301_combined_sender(component),
+from_device=position_from,emit=ts0301_combined_events,
+read_only=false,write_only=component ~="main",read_on_configure=false,
+minimum_interval=1,maximum_interval=65000,reportable_change=1,
+})
+ts0301_combined_rail.zcl_clusters[#ts0301_combined_rail.zcl_clusters + 1]=zcl.cover_state({
+endpoint=1,component=component,sender=ts0301_combined_sender(component),
+read_only=false,
+})
+end
 local ts0301_cover_single={
 profile="covers-cover",
 tuya.dp_enum(1,{
@@ -907,7 +1053,10 @@ read_only=true,
 }),
 }
 local ts0301_cover_dual_rail={
-profile="covers-cover-2",
+profile="covers-ts0301-dual-rail",
+query_on_configure=false,
+time_start="off",
+tuya.dp_battery(13,{emit=emit.battery()}),
 tuya.dp_enum(109,{
 name="cover_state",
 component="main",
@@ -916,7 +1065,7 @@ write_only=true,
 }),
 tuya.dp_cover_position_inverted(101,{
 component="main",
-write_only=true,
+emit=emit.shade_level(),
 }),
 tuya.dp_numeric(102,{
 name="cover_position_state",
@@ -940,7 +1089,7 @@ write_only=true,
 }),
 tuya.dp_cover_position(2,{
 component="shade2",
-write_only=true,
+emit=emit.shade_level(),
 }),
 tuya.dp_numeric(3,{
 name="cover_position_state",
@@ -1095,7 +1244,7 @@ register_device_definition(cover_core,device_helpers.create_fingerprints("TS0601
 register_device_definition(cover_core,{
 device_helpers.create_fingerprint("Homeetec","37022483"),
 })
-register_device_definition(cover_core_position_reversed,device_helpers.create_fingerprints("TS0601",{
+register_device_definition(cover_six,device_helpers.create_fingerprints("TS0601",{
 "_TZE200_cpbo62rn",
 "_TZE200_libht6ua",
 "_TZE284_libht6ua",
@@ -1162,12 +1311,11 @@ register_device_definition(cover_core_position_reversed,device_helpers.create_fi
 "_TZE200_2odrmqwq",
 "_TZE200_hojryzzd",
 }))
-register_device_definition(cover_core_reversed,device_helpers.create_fingerprints("TS0601",{
+register_device_definition(cover_ten,device_helpers.create_fingerprints("TS0601",{
 "_TZE200_clm4gdw4",
 "_TZE200_2vfxweng",
 "_TZE200_gnw1rril",
 "_TZE204_ycke4deo",
-"_TZE284_koxaopnk",
 "_TZE284_clm4gdw4",
 }))
 register_device_definition(cover_core_reversed,device_helpers.create_fingerprints("TS0601",{
@@ -1230,8 +1378,10 @@ register_device_definition(cover_zb_sm,device_helpers.create_fingerprints("TS060
 "_TZE200_zyrdrmno",
 "_TZE200_osmxri8y",
 }))
-register_device_definition(ts0301_cover_single,device_helpers.create_fingerprints("TS0301",{
+register_device_definition(ts0301_cover_one,device_helpers.create_fingerprints("TS0301",{
 "_TZE210_m6lwazh9",
+}))
+register_device_definition(ts0301_combined_rail,device_helpers.create_fingerprints("TS0301",{
 "_TZE200_eatmkx5j",
 }))
 register_device_definition(ts0301_cover_single,{

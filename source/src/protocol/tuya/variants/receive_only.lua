@@ -29,6 +29,7 @@ function tuya.build_base_preset(options)
     return tuya.apply_read_only_datapoints(device, message, self.datapoints)
   end
   function preset:apply_preferences_changed(...) return false end
+  function preset:apply_announce(...) return false end
 
   return preset
 end

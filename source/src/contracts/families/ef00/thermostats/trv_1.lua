@@ -465,6 +465,75 @@ register_device_definition(thermostat_variant6, ef00_helpers.ts0601_fingerprints
 -- DP15 is the window-open state rather than DP14, DP113 is the system mode with
 -- inverted polarity, calibration sits on DP114 and it adds screen orientation,
 -- an antifrost setpoint, a fault code and a holiday time window.
+local function trv603_bytes(value)
+  if type(value) == "string" then return { value:byte(1, #value) } end
+  if type(value) == "table" then return value end
+end
+
+local trv603_schedule = {
+  from = function(value)
+    local bytes = trv603_bytes(value)
+    if not bytes or #bytes < 4 then return nil end
+    local count = bytes[2]
+    if count < 2 or count > 16 or count % 2 ~= 0 or #bytes ~= count + 2 then return nil end
+    local segments = {}
+    for i = 3, #bytes, 2 do
+      local hour, minute = math.floor(bytes[i] / 10), (bytes[i] % 10) * 10
+      if hour > 23 or minute > 59 then return nil end
+      segments[#segments + 1] = string.format("%02d:%02d/%.1f", hour, minute, bytes[i + 1] / 2)
+    end
+    return table.concat(segments, " ")
+  end,
+  to = function(value)
+    if type(value) ~= "string" then return nil end
+    local bytes = { 7, 0 }
+    for segment in value:gmatch("%S+") do
+      local hour, minute, temperature = segment:match("^(%d%d):(%d%d)/(%d%d?%.?%d?)$")
+      hour, minute, temperature = tonumber(hour), tonumber(minute), tonumber(temperature)
+      if not hour or hour > 23 or minute > 59 or minute % 10 ~= 0
+        or temperature > 99.5 or temperature * 2 % 1 ~= 0 or #bytes >= 18 then return nil end
+      bytes[#bytes + 1] = hour * 10 + minute / 10
+      bytes[#bytes + 1] = temperature * 2
+    end
+    if #bytes == 2 then return nil end
+    bytes[2] = #bytes - 2
+    return string.char(table.unpack(bytes))
+  end,
+}
+
+local function trv603_utc(text)
+  local year, month, day, hour, minute = text:match("^(%d%d%d%d)/(%d%d)/(%d%d) (%d%d):(%d%d)$")
+  year, month, day, hour, minute = tonumber(year), tonumber(month), tonumber(day), tonumber(hour), tonumber(minute)
+  if not year or year < 1970 or year > 2106 or month < 1 or month > 12 or day < 1 or day > 31 or hour > 23 or minute > 59 then return nil end
+  -- Gregorian civil date to UTC days, independent of the hub's local timezone.
+  local adjusted = year - (month <= 2 and 1 or 0)
+  local era = math.floor(adjusted / 400)
+  local yoe = adjusted - era * 400
+  local doy = math.floor((153 * (month + (month > 2 and -3 or 9)) + 2) / 5) + day - 1
+  local days = era * 146097 + yoe * 365 + math.floor(yoe / 4) - math.floor(yoe / 100) + doy - 719468
+  local timestamp = days * 86400 + hour * 3600 + minute * 60
+  if timestamp < 0 or timestamp > 4294967295 or os.date("!%Y/%m/%d %H:%M", timestamp) ~= text then return nil end
+  return timestamp
+end
+
+local trv603_holiday = {
+  from = function(value)
+    local bytes = trv603_bytes(value)
+    if not bytes or #bytes ~= 8 then return nil end
+    local first = bytes[1] * 16777216 + bytes[2] * 65536 + bytes[3] * 256 + bytes[4]
+    local last = bytes[5] * 16777216 + bytes[6] * 65536 + bytes[7] * 256 + bytes[8]
+    return os.date("!%Y/%m/%d %H:%M", first) .. " | " .. os.date("!%Y/%m/%d %H:%M", last)
+  end,
+  to = function(value)
+    if type(value) ~= "string" then return nil end
+    local first, last = value:match("^(.-)%s*|%s*(.-)$")
+    if not first then return nil end
+    first, last = trv603_utc(first), trv603_utc(last)
+    if not first or not last or last < first then return nil end
+    return string.pack(">I4I4", first, last)
+  end,
+}
+
 local thermostat_trv603_wz = {
   profile = "thermostats-thermostat-trv603wz",
   package_group = "trv-1",
@@ -500,14 +569,14 @@ local thermostat_trv603_wz = {
   tuya.dp_valve_state(49, { name = "valve_status", emit = emit.trv603wzValveStatus() }),
   tuya.dp_boost_heating(101, { emit = emit.trv603wzBoostHeating() }),
   tuya.dp_boost_time(102, { emit = emit.trv603wzBoostTime() }),
-  tuya.dp_raw(103, { name = "schedule_monday" }),                          -- 프로파일 미포함
-  tuya.dp_raw(104, { name = "schedule_tuesday" }),                         -- 프로파일 미포함
-  tuya.dp_raw(105, { name = "schedule_wednesday" }),                       -- 프로파일 미포함
-  tuya.dp_raw(106, { name = "schedule_thursday" }),                        -- 프로파일 미포함
-  tuya.dp_raw(107, { name = "schedule_friday" }),                          -- 프로파일 미포함
-  tuya.dp_raw(108, { name = "schedule_saturday" }),                        -- 프로파일 미포함
-  tuya.dp_raw(109, { name = "schedule_sunday" }),                          -- 프로파일 미포함
-  tuya.dp_raw(110, { name = "holiday_time" }),                             -- 프로파일 미포함
+  tuya.dp_raw(103, { name = "schedule_monday", converter = trv603_schedule, emit = emit.trv603Monday() }),
+  tuya.dp_raw(104, { name = "schedule_tuesday", converter = trv603_schedule, emit = emit.trv603Tuesday() }),
+  tuya.dp_raw(105, { name = "schedule_wednesday", converter = trv603_schedule, emit = emit.trv603Wednesday() }),
+  tuya.dp_raw(106, { name = "schedule_thursday", converter = trv603_schedule, emit = emit.trv603Thursday() }),
+  tuya.dp_raw(107, { name = "schedule_friday", converter = trv603_schedule, emit = emit.trv603Friday() }),
+  tuya.dp_raw(108, { name = "schedule_saturday", converter = trv603_schedule, emit = emit.trv603Saturday() }),
+  tuya.dp_raw(109, { name = "schedule_sunday", converter = trv603_schedule, emit = emit.trv603Sunday() }),
+  tuya.dp_raw(110, { name = "holiday_time", converter = trv603_holiday, emit = emit.trv603Holiday() }),
   tuya.dp_enum(111, {
     name = "screen_orientation",
     emit = emit.trv603wzScreenOrientation(),
@@ -636,7 +705,10 @@ local thermostat_variant1 = {
     name = "alarm_switch",
     read_only = true,
     emit = emit.trv1AlarmSwitch(),
-    converter = converter.lookup_from_to({ off = false, on = true }),
+    converter = converter.from_only(function(value)
+      if value == true or value == 1 then return "on" end
+      if value == false or value == 0 then return "off" end
+    end),
   }),
   tuya.dp_min_temperature_limit(15, {
     name = "min_temperature",

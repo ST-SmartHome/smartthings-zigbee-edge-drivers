@@ -271,6 +271,47 @@ converter=neo_alarm_converter,emit=emit.neoNasPdSevenAlarm(),
 register_device_definition(neo_nas_pd07,{
 device_helpers.create_fingerprint("_TZE200_7hfcudw5","TS0601"),
 })
+local mowe_mw833p={
+profile="safety-presence-mw833p-core",
+query_on_configure=false,
+time_start="off",
+datapoints={
+tuya.dp_enum(1,{name="presence",read_only=true,
+converter=converter.true_false1(),emit=emit.presence()}),
+tuya.dp_illuminance(103,{read_only=true,emit=emit.illuminance()}),
+},
+}
+register_device_definition(mowe_mw833p,{
+device_helpers.create_fingerprint("_TZE200_ops9sidw","TS0601"),
+})
+local lincukoo_r12z20_core={
+profile="safety-presence-r12z20-core",
+query_on_configure=false,
+time_start="off",
+datapoints={
+tuya.dp_enum(1,{name="presence",read_only=true,
+converter=converter.true_false0(),emit=emit.presence()}),
+tuya.dp_illuminance(101,{read_only=true,emit=emit.illuminance()}),
+},
+}
+register_device_definition(lincukoo_r12z20_core,device_helpers.create_fingerprints("TS0601",{
+"_TZE284_h7oalfxa","_TZE2841000000_h7oalfxa",
+}))
+local lincukoo_b08lrt_core={
+profile="safety-presence-b08lrt-core",
+query_on_configure=false,
+time_start="off",
+datapoints={
+tuya.dp_enum(1,{name="presence",read_only=true,
+converter=converter.true_false0(),emit=emit.presence()}),
+tuya.dp_illuminance(101,{read_only=true,emit=emit.illuminance()}),
+tuya.dp_temperature(22,{read_only=true,emit=emit.temperature()}),
+tuya.dp_humidity(23,{scale=1,read_only=true,emit=emit.humidity()}),
+},
+}
+register_device_definition(lincukoo_b08lrt_core,device_helpers.create_fingerprints("TS0601",{
+"_TZE284_cipobaav","_TZE2841000000_cipobaav",
+}))
 return{
 id="ef00.presence.wave19.sensors",
 registrations=registrations,

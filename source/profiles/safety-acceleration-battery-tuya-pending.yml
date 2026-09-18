@@ -6,12 +6,25 @@ components:
         version: 1
       - id: battery
         version: 1
+      - id: voltageMeasurement
+        version: 1
+      - id: concertmirror08464.tsVibrationSensitivity
+        version: 1
       - id: firmwareUpdate
         version: 1
       - id: refresh
         version: 1
     categories:
       - name: MultiFunctionalSensor
+preferences:
+  - name: vibrationTimeout
+    title: Vibration reset time
+    description: Seconds before vibration clears automatically; 0 disables automatic reset.
+    required: true
+    preferenceType: integer
+    definition:
+      minimum: 0
+      default: 90
 deviceConfig:
   dashboard:
     states:
@@ -22,6 +35,12 @@ deviceConfig:
     actions: []
     basicPlus: []
   detailView:
+    - component: main
+      capability: voltageMeasurement
+      version: 1
+    - component: main
+      capability: concertmirror08464.tsVibrationSensitivity
+      version: 1
     - component: main
       capability: accelerationSensor
       version: 1
@@ -34,9 +53,18 @@ deviceConfig:
   automation:
     conditions:
       - component: main
+        capability: voltageMeasurement
+        version: 1
+      - component: main
+        capability: concertmirror08464.tsVibrationSensitivity
+        version: 1
+      - component: main
         capability: accelerationSensor
         version: 1
       - component: main
         capability: battery
         version: 1
-    actions: []
+    actions:
+      - component: main
+        capability: concertmirror08464.tsVibrationSensitivity
+        version: 1

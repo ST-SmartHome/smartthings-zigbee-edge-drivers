@@ -64,18 +64,20 @@ return{
 {dp=3,datatype=tuya.DP_TYPE_ENUM,value=value=="program" and 0 or 1},
 }
 end
-local function bht002_definition(profile,setpoint_scale,local_temperature_scale,option_scale,calibration_emit,setpoint_step)
-local local_converter
+local function bht002_local_converter(local_temperature_scale,option_scale)
 if local_temperature_scale==10 and option_scale==10 then
-local_converter=converter.divide_by_pair(10)
+return converter.divide_by_pair(10)
 elseif local_temperature_scale==10 then
-local_converter=converter.from_to(function(value)
+return converter.from_to(function(value)
 local signed=bht002_signed_temperature(value)
 return signed==nil and nil or signed / 10
 end,function(value)return tonumber(value)and tonumber(value)* 10 or nil end)
 else
-local_converter=converter.from_to(bht002_signed_temperature,function(value)return tonumber(value)end)
+return converter.from_to(bht002_signed_temperature,function(value)return tonumber(value)end)
 end
+end
+local function bht002_definition(profile,setpoint_scale,local_temperature_scale,option_scale,calibration_emit,setpoint_step)
+local local_converter=bht002_local_converter(local_temperature_scale,option_scale)
 local definition={
 profile=profile,
 time_start="1970",
@@ -437,6 +439,8 @@ read_only=true,
 register_device_definition(thermostat_hy08we,ef00_helpers.ts0601_fingerprints({
 "_TZE200_znzs7yaw",
 }))
+local tervix_program_emit=emit.thermostatPresetTervixProgram()
+local tervix_mode_emit=emit.tervixMode()
 local thermostat_tervix={
 profile="thermostats-thermostat-tervix",
 tuya.dp_system_mode(1,{
@@ -447,7 +451,9 @@ heat=1,
 }),
 tuya.dp_enum(2,{
 name="preset",
-emit=emit.thermostatPresetTervixProgram(),
+emit=function(device,value)
+return{tervix_program_emit(device,value),tervix_mode_emit(device,value)}
+end,
 converter=converter.lookup_from_to({
 manual=0,
 program=1,

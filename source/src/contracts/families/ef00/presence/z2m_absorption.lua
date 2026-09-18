@@ -125,6 +125,8 @@ register_presence_definition(presence_model_szlmr10, ts0601_fingerprints({
   "_TZE204_sndkanfr",
   "_TZE204_bjf8qum1",
   "_TZE284_sndkanfr",
+  "_TZE28C1000000_sndkanfr",
+  "_TZE28C1000000_bjf8qum1",
 }))
 
 return {

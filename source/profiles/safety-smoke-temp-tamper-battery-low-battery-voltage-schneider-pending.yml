@@ -8,13 +8,11 @@ components:
         version: 1
       - id: tamperAlert
         version: 1
-      - id: concertmirror08464.batteryLow
+      - id: batteryLevel
         version: 1
       - id: battery
         version: 1
       - id: voltageMeasurement
-        version: 1
-      - id: firmwareUpdate
         version: 1
       - id: refresh
         version: 1
@@ -40,7 +38,7 @@ deviceConfig:
       capability: tamperAlert
       version: 1
     - component: main
-      capability: concertmirror08464.batteryLow
+      capability: batteryLevel
       version: 1
     - component: main
       capability: battery
@@ -63,7 +61,7 @@ deviceConfig:
         capability: tamperAlert
         version: 1
       - component: main
-        capability: concertmirror08464.batteryLow
+        capability: batteryLevel
         version: 1
       - component: main
         capability: battery

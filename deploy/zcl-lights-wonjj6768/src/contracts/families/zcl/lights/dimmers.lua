@@ -2,6 +2,7 @@ local zcl=require "protocol.zcl"
 local device_helpers=require "contracts.helpers.family"
 local emit=require "capabilities.events.all"
 local device_management=require "st.zigbee.device_management"
+local data_types=require "st.zigbee.data_types"
 local device_definitions,register_device_definition=device_helpers.definition_registry()
 local function copy_list(items)
 local copied={}
@@ -128,7 +129,21 @@ configure=bind_light_endpoints(2),
 end
 local basic_single_dimmer=build_basic_single_dimmer("lights-dimmer")
 local basic_single_dimmer_min=build_basic_single_dimmer_min("lights-dimmer-min")
-local basic_dual_dimmer=build_basic_dual_dimmer("lights-dimmer-2")
+local basic_dual_dimmer=build_basic_dual_dimmer("lights-dimmer-2-zcl-basic")
+local lonsonho_dual_dimmer=build_basic_dual_dimmer("lights-dimmer-2-lonsonho")
+for endpoint,spec in ipairs({{"One",emit.lonD2PowerOne()},{"Two",emit.lonD2PowerTwo()}})do
+lonsonho_dual_dimmer.zcl_clusters[#lonsonho_dual_dimmer.zcl_clusters + 1]=zcl.cluster_attribute(0x0006,0x4003,{
+name="lon_d_two_power_" .. spec[1]:lower(),endpoint=endpoint,
+component=endpoint==1 and "main" or "switch2",
+data_type=data_types.Enum8,write_type=data_types.Enum8,read_on_configure=true,
+emit=spec[2],
+from_device=function(value)
+if type(value)=="table" then value=value.value end
+return({[0]="off",[1]="on",[2]="toggle",[255]="previous"})[value]
+end,
+to_device=function(value)return({off=0,on=1,toggle=2,previous=255})[value]end,
+})
+end
 local basic_dual_dimmer_min=build_basic_dual_dimmer_min("lights-dimmer-2-min")
 local single_dimmer=build_single_dimmer("lights-dimmer-options-ts110",{
 power_on_behavior=true,
@@ -178,6 +193,8 @@ register_device_definition(basic_single_dimmer,device_helpers.create_fingerprint
 }))
 register_device_definition(basic_dual_dimmer,device_helpers.create_fingerprints("TS110F",{
 "_TZ3000_hexqj6ls",
+}))
+register_device_definition(lonsonho_dual_dimmer,device_helpers.create_fingerprints("TS110F",{
 "_TZ3000_92chsky7",
 }))
 register_device_definition(basic_single_dimmer_min,device_helpers.create_fingerprints("TS110F",{

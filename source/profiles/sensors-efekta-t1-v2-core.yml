@@ -1,0 +1,11 @@
+name: sensors-efekta-t1-v2-core
+components:
+  - id: main
+    capabilities:
+      - {id: temperatureMeasurement, version: 1}
+      - {id: battery, version: 1}
+      - {id: voltageMeasurement, version: 1}
+      - {id: batteryLevel, version: 1}
+      - {id: refresh, version: 1}
+    categories:
+      - {name: TempSensor}

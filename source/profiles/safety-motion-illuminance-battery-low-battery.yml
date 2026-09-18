@@ -10,6 +10,8 @@ components:
         version: 1
       - id: battery
         version: 1
+      - id: concertmirror08464.shellyBluSensitivity
+        version: 1
       - id: firmwareUpdate
         version: 1
       - id: refresh
@@ -26,6 +28,9 @@ deviceConfig:
     actions: []
     basicPlus: []
   detailView:
+    - component: main
+      capability: concertmirror08464.shellyBluSensitivity
+      version: 1
     - component: main
       capability: motionSensor
       version: 1
@@ -44,6 +49,9 @@ deviceConfig:
   automation:
     conditions:
       - component: main
+        capability: concertmirror08464.shellyBluSensitivity
+        version: 1
+      - component: main
         capability: motionSensor
         version: 1
       - component: main
@@ -55,4 +63,7 @@ deviceConfig:
       - component: main
         capability: battery
         version: 1
-    actions: []
+    actions:
+      - component: main
+        capability: concertmirror08464.shellyBluSensitivity
+        version: 1

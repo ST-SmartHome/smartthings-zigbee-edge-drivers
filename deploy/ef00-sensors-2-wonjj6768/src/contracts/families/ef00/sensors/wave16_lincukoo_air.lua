@@ -93,6 +93,7 @@ add(e_zero_two_c,numeric(106,"e_zero_two_c_co_two_alarm_value","eZeroTwoCCoTwoAl
 add(e_zero_two_c,binary(107,"e_zero_two_c_co_two_alarm","eZeroTwoCCoTwoAlarm",true))
 register_device_definition(e_zero_two_c,device_helpers.create_fingerprints("TS0601",{
 "_TZE204_hyt4iucb",
+"_TZE28C1000000_hyt4iucb",
 }))
 local ezc_zero_four=definition("sensors-wave16-lincukoo-ezc04")
 add(ezc_zero_four,value_enum(1,"ezc_zero_four_co_two_state","ezcZeroFourCoTwoState",{
@@ -115,6 +116,7 @@ reset_co2=0,
 },false))
 register_device_definition(ezc_zero_four,device_helpers.create_fingerprints("TS0601",{
 "_TZE204_isvlaage",
+"_TZE28C1000000_isvlaage",
 }))
 local ezcp_zero_four=definition("sensors-wave16-lincukoo-ezcp04")
 add(ezcp_zero_four,value_enum(1,"ezcp_zero_four_alarm_state","ezcpZeroFourAlarmState",{
@@ -137,6 +139,7 @@ add(ezcp_zero_four,standard_numeric(20,"pm25",emit.pm25(),1,false))
 add(ezcp_zero_four,numeric(101,"ezcp_zero_four_pm_two_five_alarm_value","ezcpZeroFourPm25AlarmValue",1,false,false))
 register_device_definition(ezcp_zero_four,device_helpers.create_fingerprints("TS0601",{
 "_TZE204_fpwtjlfh",
+"_TZE28C1000000_fpwtjlfh",
 }))
 return{
 id="ef00.sensors.wave16_lincukoo_air",

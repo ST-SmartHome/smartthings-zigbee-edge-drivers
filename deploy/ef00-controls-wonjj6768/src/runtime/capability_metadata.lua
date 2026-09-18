@@ -1,5 +1,5 @@
 local custom_capabilities={}
-local strings={"battery_low","batteryLow","Battery low","normal","low","security_remote_action","securityRemoteAction","supportedSecurityRemoteActions","Security remote action","disarm","arm_day_zones","arm_night_zones","arm_all_zones","exit_delay","emergency","foriaSceneBacklight","foria_scene_backlight","Foria Scene Backlight","off","on","foriaSceneIlluminationDetection","foria_scene_illumination_detection","Foria Scene Illumination Detection","foriaSceneApproachDetection","foria_scene_approach_detection","Foria Scene Approach Detection","foriaSceneVibration","foria_scene_vibration","Foria Scene Vibration","last_power_response_time","lastPowerResponseTime","Last power response time"}
+local strings={"security_remote_action","securityRemoteAction","supportedSecurityRemoteActions","Security remote action","disarm","arm_day_zones","arm_night_zones","arm_all_zones","exit_delay","emergency","foriaSceneBacklight","foria_scene_backlight","Foria Scene Backlight","off","on","foriaSceneIlluminationDetection","foria_scene_illumination_detection","Foria Scene Illumination Detection","foriaSceneApproachDetection","foria_scene_approach_detection","Foria Scene Approach Detection","foriaSceneVibration","foria_scene_vibration","Foria Scene Vibration","last_power_response_time","lastPowerResponseTime","Last power response time"}
 local function string_value(value)
 if type(value)=="number" then return strings[value]end
 return value
@@ -66,8 +66,8 @@ for _,row in ipairs(rows)do out[#out + 1]=factory(row)end
 return out
 end
 custom_capabilities.numeric=build({},numeric)
-custom_capabilities.enum=build({{1,1,2,2,nil,nil,nil,1,3,{4,5},{4,5},1,2,1},{6,6,7,7,8,nil,nil,6,9,{10,11,12,13,14,15},{10,11,12,13,14,15},3,4,3},{16,nil,16,16,nil,nil,nil,17,18,{19,20},{19,20},5,6,5},{21,nil,21,21,nil,nil,nil,22,23,{19,20},{19,20},7,8,7},{24,nil,24,24,nil,nil,nil,25,26,{19,20},{19,20},9,10,9},{27,nil,27,27,nil,nil,nil,28,29,{19,20},{19,20},11,12,11}},enum)
-custom_capabilities.text=build({{30,31,31,0,0,nil,32,64}},text)
+custom_capabilities.enum=build({{1,1,2,2,3,nil,nil,1,4,{5,6,7,8,9,10},{5,6,7,8,9,10},1,2,1},{11,nil,11,11,nil,nil,nil,12,13,{14,15},{14,15},3,4,3},{16,nil,16,16,nil,nil,nil,17,18,{14,15},{14,15},5,6,5},{19,nil,19,19,nil,nil,nil,20,21,{14,15},{14,15},7,8,7},{22,nil,22,22,nil,nil,nil,23,24,{14,15},{14,15},9,10,9}},enum)
+custom_capabilities.text=build({{25,26,26,0,0,nil,27,64}},text)
 custom_capabilities.driver_message={["attribute_name"]="driverMessage",["capability_id"]="concertmirror08464.driverMessage",["emit_name"]="driver_message",["label"]="Driver message",["maximum_length"]=512}
 custom_capabilities.by_range_key={}
 custom_capabilities.by_emit_name={}

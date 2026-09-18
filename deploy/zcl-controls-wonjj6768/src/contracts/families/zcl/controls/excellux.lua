@@ -18,6 +18,7 @@ return percent
 end
 local excellux_scene_switch={
 profile="buttons-button-1-battery-operation-mode-remote-action",
+datapoints={{dp=4,datatype=2,name="battery",field="battery",emit=emit.battery(),read_only=true}},
 advanced_remote=true,
 unprefixed_remote_actions=true,
 button_actions={"pushed","double","held"},

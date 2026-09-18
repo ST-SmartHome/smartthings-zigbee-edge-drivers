@@ -1,0 +1,6 @@
+name: "ZCL Sensors 3 wonjj6768"
+packageKey: "zcl-sensors-3-wonjj6768"
+description: "Basic temperature, humidity, motion and safety sensors with explicit device fingerprints."
+vendorSupportInformation: "Report issues with hub logcat: <a href=\"https://github.com/wonjj6768/smartthings-zigbee-edge-drivers\">GitHub</a> | URL: https://github.com/wonjj6768/smartthings-zigbee-edge-drivers"
+permissions:
+  zigbee: {}

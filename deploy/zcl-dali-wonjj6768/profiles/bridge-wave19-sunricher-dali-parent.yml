@@ -1,7 +1,1 @@
-name: bridge-wave19-sunricher-dali-parent
-components:
-  - id: main
-    capabilities:
-      - {id: refresh, version: 1}
-    categories:
-      - name: Bridges
+{name: bridge-wave19-sunricher-dali-parent,components:[{id: main,capabilities:[{id: refresh,version: 1}],categories:[{name: Bridges}]}]}

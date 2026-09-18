@@ -232,6 +232,11 @@ local function load_base_preset(tuya, shared)
 
     local configure_options = copy_table(options.configure)
     copy_keys(configure_options, options, configure_option_keys)
+    -- ZCL-owned families configure their Basic handshake through ZCL mappings.
+    -- Full Tuya support for a neighbour's settings must not add a second one.
+    if options.zcl_clusters ~= nil and configure_options.magic_packet == nil then
+      configure_options.magic_packet = false
+    end
     if preference_map ~= nil and configure_options.preference_map == nil then
       configure_options.preference_map = preference_map
     end

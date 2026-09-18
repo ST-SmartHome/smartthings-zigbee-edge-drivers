@@ -38,6 +38,8 @@ local definition = {
   fingerprints = {
     { manufacturer = "_TZE284_9ovska9w", model = "TS0601" },
     { manufacturer = "_TZE284_bquwrqh1", model = "TS0601" },
+    { manufacturer = "_TZE2841000000_9ovska9w", model = "TS0601" },
+    { manufacturer = "_TZE2841000000_bquwrqh1", model = "TS0601" },
   },
 }
 

@@ -103,10 +103,15 @@ local cover_model_gm25teq = {
     converter = window_shade_state_from_position_inverted(),
     read_only = true,
   }),
-  tuya.dp_enum(11, {
+  tuya.dp_numeric(11, {
     name = "motor_direction",
     emit = emit.gm25TeqMotorDirection(),
-    converter = converter.lookup_from_to({ normal = 0, reversed = 1 }),
+    -- ZHC 26.107 sends VALUE; older firmware also reports textual direction.
+    converter = converter.from_to(function(value)
+      return (value == 1 or value == "back" or value == "reversed") and "reversed" or "normal"
+    end, function(value)
+      return ({normal = 0, reversed = 1})[value]
+    end),
   }),
   query_on_configure = false,
   time_start = "off",
@@ -120,6 +125,21 @@ local cover_model_moes_zs_sf_euc_wh_ms = {
   profile = "covers-cover-moes-zs-sf-euc-wh-ms",
   query_on_configure = false,
   time_start = "off",
+  tuya.dp_enum(3, {
+    name = "moes_sf_calibration", emit = emit.moesSfCalibration(),
+    converter = converter.lookup_from_to({start = 0, ["end"] = 1}),
+  }),
+  tuya.dp_binary(7, {
+    name = "moes_sf_backlight", emit = emit.moesSfBacklight(),
+    converter = converter.lookup_from_to({on = true, off = false}),
+  }),
+  tuya.dp_enum(8, {
+    name = "moes_sf_direction", emit = emit.moesSfDirection(),
+    converter = converter.lookup_from_to({normal = 0, reversed = 1}),
+  }),
+  tuya.dp_numeric(10, {
+    name = "moes_sf_travel_time", emit = emit.moesSfTravelTime(),
+  }),
   tuya.dp_enum(1, {
     name = "cover_state",
     converter = cover_state_standard,
@@ -152,6 +172,7 @@ register_device_definition(cover_model_gm25teq, device_helpers.create_fingerprin
 
 register_device_definition(cover_model_moes_zs_sf_euc_wh_ms, device_helpers.create_fingerprints("TS0601", {
   "_TZE284_upt8lzi0",
+  "_TZE28C1000000_i8sdouy0",
 }))
 
 return {

@@ -130,4 +130,31 @@ return nil
 end
 return numeric==1 and "low" or "normal"
 end
+function thermostat_common.daily_schedule(day,count)
+return{
+from=function(value)
+if type(value)~="string" or #value ~=1 + count * 4 then return nil end
+local periods={}
+for index=0,count - 1 do
+local hour,minute,temperature=string.unpack(">BBI2",value,2 + index * 4)
+periods[#periods + 1]=string.format("%02d:%02d/%.1f",hour,minute,temperature / 10)
+end
+return table.concat(periods," ")
+end,
+to=function(value)
+if type(value)~="string" then return nil end
+local periods={string.char(day)}
+for period in value:gmatch("%S+")do
+local hour,minute,temperature=period:match("^(%d+):(%d+)/(%d+%.?%d*)$")
+hour,minute,temperature=tonumber(hour),tonumber(minute),tonumber(temperature)
+if not hour or not minute or not temperature then return nil end
+temperature=math.floor(temperature * 10)
+if hour > 24 or minute > 60 or temperature < 50 or temperature > 350 then return nil end
+periods[#periods + 1]=string.pack(">BBI2",hour,minute,temperature)
+end
+if #periods ~=count + 1 then return nil end
+return table.concat(periods)
+end,
+}
+end
 return thermostat_common

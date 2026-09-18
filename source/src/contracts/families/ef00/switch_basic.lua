@@ -39,8 +39,8 @@ register_device_definition(switch_1gang, {
 })
 
 -- ══════════════════════════════════════════════════════════════
--- 1-1a. switch_1gang_temperature: 1구 + 온도 센서
--- Z2M: TYONOFFTS
+-- Scimagic 1-ZB-WSD temperature-only revision. It shares seven settings with
+-- the humidity revision, but DP8 exposes only heating0/cooling2 here.
 -- ══════════════════════════════════════════════════════════════
 local switch_1gang_temperature = {
   profile = "switches-switch-1-temperature",
@@ -48,8 +48,16 @@ local switch_1gang_temperature = {
   datapoints = {
     tuya.dp_on_off(2, { name = "switch", component = "main" }),
     tuya.dp_temperature(27, { name = "temperature" }),
+    tuya.dp_temperature_calibration(30, {scale = 2, emit = emit.sciTempCalibration()}),
+    tuya.dp_temperature(29, {name = "temperature_range", scale = 10, emit = emit.sciTempRange()}),
+    tuya.dp_on_off(9, {name = "auto_work", converter = panel_off_on_converter, emit = emit.sciTempAuto()}),
+    tuya.dp_temperature(22, {name = "temperature_target", signed = true, converter = converter.signed_number_pair(10), emit = emit.sciTempTarget()}),
+    tuya.dp_enum(8, {name = "mode", converter = converter.lookup_from_to({heating = 0, cooling = 2}), emit = emit.sciTempMode()}),
+    tuya.dp_on_off(56, {name = "delay", converter = panel_off_on_converter, emit = emit.sciTempDelay()}),
+    tuya.dp_numeric(55, {name = "delay_time", emit = emit.sciTempDelayTime()}),
   },
-  query_on_configure = true,
+  query_on_configure = false,
+  time_start = "off",
 }
 
 local switch_1gang_temperature_humidity_scimagic = {
@@ -66,7 +74,7 @@ local switch_1gang_temperature_humidity_scimagic = {
     tuya.dp_temperature(29, {
       name = "temperature_range",
       scale = 10,
-      emit = emit.scimagicTempRange(),
+      emit = emit.sciThRange(),
     }),
     tuya.dp_on_off(9, {
       name = "auto_work",
@@ -75,8 +83,9 @@ local switch_1gang_temperature_humidity_scimagic = {
     }),
     tuya.dp_temperature(22, {
       name = "temperature_target",
-      scale = 10,
-      emit = emit.scimagicTempTarget(),
+      signed = true,
+      converter = converter.signed_number_pair(10),
+      emit = emit.sciThTarget(),
     }),
     tuya.dp_enum(8, {
       name = "mode",
@@ -93,15 +102,18 @@ local switch_1gang_temperature_humidity_scimagic = {
       emit = emit.scimagicDelay(),
       converter = panel_off_on_converter,
     }),
-    tuya.dp_numeric(55, { name = "delay_time", emit = emit.scimagicDelayTime() }),
-    tuya.dp_numeric(41, { name = "humidity_target", emit = emit.scimagicHumidityTarget() }),
-    tuya.dp_numeric(42, { name = "humidity_range", emit = emit.scimagicHumidityRange() }),
+    tuya.dp_numeric(55, { name = "delay_time", emit = emit.sciThDelayTime() }),
+    tuya.dp_numeric(41, { name = "humidity_target", emit = emit.sciThHumidityTarget() }),
+    tuya.dp_numeric(42, { name = "humidity_range", emit = emit.sciThHumidityRange() }),
     tuya.dp_numeric(47, {
       name = "humidity_calibration",
-      emit = emit.scimagicHumidityCalibration(),
+      signed = true,
+      converter = converter.signed_number_pair(1),
+      emit = emit.sciThHumidityCalibration(),
     }),
   },
-  query_on_configure = true,
+  query_on_configure = false,
+  time_start = "off",
 }
 
 register_device_definition(switch_1gang_temperature, device_helpers.create_fingerprints("TS0001", {

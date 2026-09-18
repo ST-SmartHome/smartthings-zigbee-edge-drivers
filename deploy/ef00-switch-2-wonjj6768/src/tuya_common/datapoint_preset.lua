@@ -646,6 +646,12 @@ resolved.emit=emit.switch()
 end
 return tuya.dp_binary(dp,resolved)
 end
+function tuya.dp_temperature(dp,name_or_options,options)
+return build_scaled_numeric_preset(dp,"temperature",name_or_options,options)
+end
+function tuya.dp_humidity(dp,name_or_options,options)
+return build_scaled_numeric_preset(dp,"humidity",name_or_options,options)
+end
 function tuya.dp_battery(dp,name_or_options,options)
 return build_divided_numeric_preset(dp,"battery",1,name_or_options,options)
 end

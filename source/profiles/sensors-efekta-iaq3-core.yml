@@ -1,0 +1,18 @@
+name: sensors-efekta-iaq3-core
+components:
+  - id: main
+    label: Internal sensor
+    capabilities:
+      - {id: temperatureMeasurement, version: 1}
+      - {id: relativeHumidityMeasurement, version: 1}
+      - {id: carbonDioxideMeasurement, version: 1}
+    categories:
+      - {name: AirQualityDetector}
+  - id: external
+    label: External sensor
+    capabilities:
+      - {id: temperatureMeasurement, version: 1}
+      - {id: relativeHumidityMeasurement, version: 1}
+      - {id: illuminanceMeasurement, version: 1}
+    categories:
+      - {name: TempHumiditySensor}

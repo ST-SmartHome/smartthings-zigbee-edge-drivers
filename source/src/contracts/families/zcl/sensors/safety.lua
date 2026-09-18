@@ -3,6 +3,10 @@ local device_helpers = require "contracts.helpers.family"
 local emit = require "capabilities.events.all"
 local device_management = require "st.zigbee.device_management"
 local data_types = require "st.zigbee.data_types"
+local ias_settings = require "contracts.helpers.ias_motion_settings"
+local capabilities = require "st.capabilities"
+
+local fp = device_helpers.create_fingerprint
 
 local device_definitions, register_device_definition = device_helpers.definition_registry()
 
@@ -93,12 +97,19 @@ local contact_tamper_battery_low_sensor = {
 
 local tuya_scene_contact_sensor = {
   profile = "safety-contact-tamper-battery-low-battery-tuya-scene-pending",
+  button_actions = { "pushed", "double", "held" },
+  datapoints = {
+    { dp = 101, datatype = 2, receive_datatypes = {2, 4}, name = "scene_button", read_only = true,
+      from_device = function(value) return ({[0] = "pushed", [1] = "double", [2] = "held"})[value] end,
+      emit = function(_, value) return capabilities.button.button(value, {state_change = true}) end },
+  },
   zcl_clusters = {
     zcl.tuya_magic_packet(),
-    zcl.contact(),
-    zcl.tamper(),
-    zcl.battery_low(),
-    zcl.battery(),
+    ias_settings.passive(zcl.contact()),
+    ias_settings.passive(zcl.tamper()),
+    ias_settings.passive(zcl.battery_low()),
+    ias_settings.battery(false),
+    ias_settings.passive(ias_settings.voltage()),
   },
 }
 
@@ -127,6 +138,23 @@ local motion_sensor = {
     zcl.motion(),
     zcl.battery(),
   },
+}
+
+local heiman_pirill_sensor = {
+  profile = "safety-motion-battery",
+  zcl_clusters = {
+    zcl.occupancy({endpoint = 1, emit = emit.motion(), read_on_configure = false,
+      minimum_interval = 0, maximum_interval = 3600, reportable_change = 0,
+      from_device = function(value)
+        if type(value) == "table" then value = value.value end
+        return bit32.band(value, 1) ~= 0
+      end}),
+    ias_settings.battery(true),
+  },
+  configure = function(driver, device)
+    device:send(device_management.build_bind_request(device, 0x0406, driver.environment_info.hub_zigbee_eui, 1))
+    device:send(device_management.build_bind_request(device, 0x0001, driver.environment_info.hub_zigbee_eui, 1))
+  end,
 }
 
 local motion_battery_low_sensor = {
@@ -158,43 +186,83 @@ local motion_tamper_battery_low_battery_voltage_sensor = {
   },
 }
 
+local function ias_battery_low_emit(_, low)
+  return low and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
+end
+
 local ih012_rt01_motion_sensor = {
   profile = "safety-motion-battery-low-battery-voltage-ih012-pending",
+  magic_packet = false,
+  parent_refresh = ias_settings.refresh,
   zcl_clusters = {
-    zcl.motion(),
-    zcl.battery_low(),
-    zcl.battery(),
-    zcl.battery_voltage(),
+    ias_settings.sensitivity(emit.ihRtOneSensitivity(), "ih_rt_one_sensitivity"),
+    ias_settings.keep_time(emit.ihRtOneKeepTime(), "ih_rt_one_keep_time"),
+    ias_settings.passive(zcl.motion({ endpoint = 1, handler = ias_settings.keep_alive(emit.motion()) })),
+    ias_settings.passive(zcl.battery_low({ endpoint = 1, read_only = true, emit = ias_battery_low_emit })),
+    ias_settings.battery_alarm(ias_battery_low_emit),
+    ias_settings.battery(true),
+    ias_settings.voltage(),
   },
 }
 
 local ih012_rt02_motion_sensor = {
   profile = "safety-motion-tamper-battery-low-battery-voltage-ih012-pending",
+  magic_packet = false,
+  parent_refresh = ias_settings.refresh,
   zcl_clusters = {
-    zcl.motion(),
-    zcl.tamper(),
-    zcl.battery_low(),
-    zcl.battery(),
-    zcl.battery_voltage(),
+    ias_settings.sensitivity(emit.ihRtTwoSensitivity(), "ih_rt_two_sensitivity"),
+    ias_settings.keep_time(emit.ihRtTwoKeepTime(), "ih_rt_two_keep_time"),
+    ias_settings.passive(zcl.motion({ endpoint = 1 })),
+    ias_settings.passive(zcl.tamper({ endpoint = 1 })),
+    ias_settings.passive(zcl.battery_low({ endpoint = 1, read_only = true, emit = ias_battery_low_emit })),
+    ias_settings.battery_alarm(ias_battery_low_emit),
+    ias_settings.battery(true),
+    ias_settings.voltage(),
   },
 }
 
 local motion_battery_voltage_sensor = {
-  profile = "safety-motion-battery-voltage",
+  profile = "safety-motion-scene-light-cwam",
+  button_actions = { "pushed", "double", "held" },
+  datapoints = {
+    { dp = 101, datatype = 0x02, name = "button", read_only = true,
+      from_device = function(value) return ({ [0] = "pushed", "double", "held" })[value] end,
+      emit = function(_, value)
+        if value == "pushed" then return capabilities.button.button.pushed({ state_change = true }) end
+        if value == "double" then return capabilities.button.button.double({ state_change = true }) end
+        if value == "held" then return capabilities.button.button.held({ state_change = true }) end
+      end },
+    { dp = 102, datatype = 0x01, name = "cwam_light_state", read_only = true,
+      from_device = function(value) return value == true and "bright" or "dark" end,
+      emit = emit.cwamLightState() },
+  },
   zcl_clusters = {
-    zcl.motion(),
-    zcl.battery(),
-    zcl.battery_voltage(),
+    ias_settings.passive(zcl.motion()),
+    ias_settings.battery(true),
+    ias_settings.voltage(),
   },
 }
 
 local zm35hq_motion_sensor = {
   profile = "safety-motion-battery-low-battery",
+  parent_refresh = ias_settings.refresh,
+  magic_packet = false,
+  query_on_configure = false,
+  configure = function(_, device) ias_settings.magic_packet(device) end,
+  datapoints = {
+    { dp = 4, datatype = 0x02, name = "battery", read_only = true, emit = emit.battery(),
+      from_device = function(value)
+        if type(value) == "number" and value >= 0 and value <= 100 then return value end
+      end,
+    },
+  },
   zcl_clusters = {
-    zcl.tuya_magic_packet(),
-    zcl.motion(),
-    zcl.battery_low(),
-    zcl.battery(),
+    ias_settings.sensitivity(emit.zm35Sensitivity(), "zm35_sensitivity"),
+    ias_settings.keep_time(emit.zm35KeepTime(), "zm35_keep_time"),
+    ias_settings.passive(zcl.motion({ endpoint = 1 })),
+    ias_settings.passive(zcl.battery_low({ endpoint = 1, read_only = true, emit = ias_battery_low_emit })),
+    ias_settings.battery_alarm(ias_battery_low_emit),
+    ias_settings.battery(false),
   },
 }
 
@@ -460,7 +528,14 @@ local vibration_sensor = {
 
 local tuya_vibration_sensor = {
   profile = "safety-acceleration-battery-tuya-pending",
-  zcl_clusters = { zcl.motion({ emit = emit.acceleration() }), zcl.battery() },
+  zcl_clusters = {
+    zcl.motion({ emit = emit.acceleration(), handler = ias_settings.vibration_timeout(emit.acceleration()) }), zcl.battery(), zcl.battery_voltage(),
+    zcl.cluster_attribute(0x0500, 0x0013, {
+      name = "ts_vibration_sensitivity", endpoint = 1,
+      data_type = data_types.Uint8, write_type = data_types.Uint8,
+      read_on_configure = false, emit = emit.tsVibrationSensitivity(),
+    }),
+  },
 }
 
 local heiman_vibration_sensor = {
@@ -587,7 +662,7 @@ local co_alarm12_sensor = {
 }
 
 register_device_definition(contact_tamper_battery_low_battery_voltage_sensor, {
-  device_helpers.create_fingerprint("_TZ3000_qrldbmfn", "TS0203"),
+  fp("_TZ3000_qrldbmfn", "TS0203"),
   { manufacturer = "AOYAN  ", model = "AY-101Z" },
 })
 
@@ -633,7 +708,7 @@ register_device_definition(tuya_scene_contact_sensor, device_helpers.create_fing
 }))
 
 register_device_definition(contact_temp_battery_low_sensor, {
-  device_helpers.create_fingerprint("frient A/S", "WISZB-131"),
+  fp("frient A/S", "WISZB-131"),
 })
 
 register_device_definition(c3007_pressure_sensor, device_helpers.create_fingerprints("TS0203", {
@@ -692,7 +767,7 @@ register_device_definition(motion_battery_low_sensor, device_helpers.create_fing
 }))
 
 register_device_definition(motion_sensor, {
-  device_helpers.create_fingerprint("TUYATEC-smmlguju", "RH3040"),
+  fp("TUYATEC-smmlguju", "RH3040"),
 })
 
 register_device_definition(motion_battery_voltage_sensor, device_helpers.create_fingerprints("TS0202", {
@@ -711,15 +786,15 @@ register_device_definition(motion_illuminance_temp_humidity_tamper_sensor, devic
 }))
 
 register_device_definition(sunricher_4in1_sensor, {
-  device_helpers.create_fingerprint("Sunricher", "HK-SENSOR-4IN1-A"),
+  fp("Sunricher", "HK-SENSOR-4IN1-A"),
 })
 
 register_device_definition(namron_4512771_multisensor, {
-  device_helpers.create_fingerprint("Namron", "4512771"),
+  fp("Namron", "4512771"),
 })
 
 register_device_definition(contact_tamper_battery_low_battery_sensor, {
-  device_helpers.create_fingerprint("TUYATEC-ktge2vqt", "RH3001"),
+  fp("TUYATEC-ktge2vqt", "RH3001"),
 })
 
 register_device_definition(contact_tamper_sensor, device_helpers.create_fingerprints("TY0203", {
@@ -733,33 +808,33 @@ register_device_definition(motion_battery_low_battery_voltage_sensor, device_hel
   "_TYZB01_2jzbhomb",
 }))
 
-register_device_definition(motion_sensor, {
-  device_helpers.create_fingerprint("HEIMAN", "PIRILLSensor-EF-3.0"),
+register_device_definition(heiman_pirill_sensor, {
+  fp("HEIMAN", "PIRILLSensor-EF-3.0"),
 })
 
 register_device_definition(motion_tamper_battery_low_sensor, {
-  device_helpers.create_fingerprint("Heiman", "PIR_TPV13"),
-  device_helpers.create_fingerprint("Heiman", "PIR_TPV16"),
-  device_helpers.create_fingerprint("HEIMAN", "PIRSensor-N"),
-  device_helpers.create_fingerprint("HEIMAN", "PIRSensor-N-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "PIRSensor-EM"),
-  device_helpers.create_fingerprint("HEIMAN", "PIRSensor-EF-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "PIR_TPV13"),
-  device_helpers.create_fingerprint("HEIMAN", "PIR_TPV16"),
-  device_helpers.create_fingerprint("HEIMAN", "TY0202"),
+  fp("Heiman", "PIR_TPV13"),
+  fp("Heiman", "PIR_TPV16"),
+  fp("HEIMAN", "PIRSensor-N"),
+  fp("HEIMAN", "PIRSensor-N-3.0"),
+  fp("HEIMAN", "PIRSensor-EM"),
+  fp("HEIMAN", "PIRSensor-EF-3.0"),
+  fp("HEIMAN", "PIR_TPV13"),
+  fp("HEIMAN", "PIR_TPV16"),
+  fp("HEIMAN", "TY0202"),
 })
 
 register_device_definition(motion_illuminance_tamper_battery_low_battery_sensor, {
-  device_helpers.create_fingerprint("HEIMAN", "HS9MS-E"),
-  device_helpers.create_fingerprint("Shyugj", "MotionSensor-ZB3.0"),
+  fp("HEIMAN", "HS9MS-E"),
+  fp("Shyugj", "MotionSensor-ZB3.0"),
 })
 
 register_device_definition(whd02_motion_sensor, {
-  device_helpers.create_fingerprint("HEIMAN", "PIR_TPV12"),
+  fp("HEIMAN", "PIR_TPV12"),
 })
 
 register_device_definition(whd02_motion_sensor, {
-  device_helpers.create_fingerprint("_TZ3000_hktqahrq", "WHD02"),
+  fp("_TZ3000_hktqahrq", "WHD02"),
 })
 
 register_device_definition(water_tamper_battery_low_battery_sensor, device_helpers.create_fingerprints("TS0207", {
@@ -784,29 +859,29 @@ register_device_definition(water_battery_low_battery_sensor, device_helpers.crea
 }))
 
 register_device_definition(water_tamper_battery_low_battery_sensor, {
-  device_helpers.create_fingerprint("AOYAN", "AY222Z"),
+  fp("AOYAN", "AY222Z"),
   { manufacturer = "AOYAN  ", model = "AY222Z" },
 })
 
 register_device_definition(water_tamper_battery_low_battery_sensor, {
-  device_helpers.create_fingerprint("HEIMAN", "WaterSensor-N"),
-  device_helpers.create_fingerprint("HEIMAN", "WaterSensor-EM"),
-  device_helpers.create_fingerprint("HEIMAN", "WaterSensor-N-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "WaterSensor-EF-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "WATER_TPV13"),
-  device_helpers.create_fingerprint("HEIMAN", "TY0207"),
+  fp("HEIMAN", "WaterSensor-N"),
+  fp("HEIMAN", "WaterSensor-EM"),
+  fp("HEIMAN", "WaterSensor-N-3.0"),
+  fp("HEIMAN", "WaterSensor-EF-3.0"),
+  fp("HEIMAN", "WATER_TPV13"),
+  fp("HEIMAN", "TY0207"),
 })
 
 register_device_definition(water_temp_battery_low_battery_sensor, {
-  device_helpers.create_fingerprint("HEIMAN", "WaterSensor2-EF-3.0"),
+  fp("HEIMAN", "WaterSensor2-EF-3.0"),
 })
 
 register_device_definition(water_alarm12_tamper_battery_low_battery_sensor, {
-  device_helpers.create_fingerprint("Sunricher", "HK-SENSOR-WT1"),
+  fp("Sunricher", "HK-SENSOR-WT1"),
 })
 
 register_device_definition(sunricher_water_temp_sensor, {
-  device_helpers.create_fingerprint("Sunricher", "HK-SENSOR-WT2"),
+  fp("Sunricher", "HK-SENSOR-WT2"),
 })
 
 register_device_definition(solar_rain_sensor, device_helpers.create_fingerprints("TS0207", {
@@ -815,19 +890,19 @@ register_device_definition(solar_rain_sensor, device_helpers.create_fingerprints
 }))
 
 register_device_definition(tuya_vibration_sensor, {
-  device_helpers.create_fingerprint("_TZ3210_kjafhwd2", "TS0210"),
-  device_helpers.create_fingerprint("_TYZB01_821siati", "TS0210"),
-  device_helpers.create_fingerprint("_TZ3000_lzdjjfss", "TS0210"),
+  fp("_TZ3210_kjafhwd2", "TS0210"),
+  fp("_TYZB01_821siati", "TS0210"),
+  fp("_TZ3000_lzdjjfss", "TS0210"),
 })
 
 register_device_definition(heiman_vibration_sensor, {
-  device_helpers.create_fingerprint("HEIMAN", "Vibration-EF-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "Vibration-EF_3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "Vibration-N"),
+  fp("HEIMAN", "Vibration-EF-3.0"),
+  fp("HEIMAN", "Vibration-EF_3.0"),
+  fp("HEIMAN", "Vibration-N"),
 })
 
 register_device_definition(third_reality_vibration_sensor, {
-  device_helpers.create_fingerprint("Third Reality, Inc", "3RVS01031Z"),
+  fp("Third Reality, Inc", "3RVS01031Z"),
 })
 
 register_device_definition(tuya_smoke_sensor, device_helpers.create_fingerprints("TS0205", {
@@ -836,42 +911,42 @@ register_device_definition(tuya_smoke_sensor, device_helpers.create_fingerprints
 }))
 
 register_device_definition(smoke_battery_low_battery_sensor, {
-  device_helpers.create_fingerprint("Heiman", "b5db59bfd81e4f1f95dc57fdbba17931"),
-  device_helpers.create_fingerprint("Heiman", "SMOK_HV14"),
-  device_helpers.create_fingerprint("Heiman", "SMOK_V16"),
-  device_helpers.create_fingerprint("Heiman", "SMOK_YDLV10"),
-  device_helpers.create_fingerprint("HEIMAN", "SMOK_V16"),
-  device_helpers.create_fingerprint("HEIMAN", "SMOK_V15"),
-  device_helpers.create_fingerprint("HEIMAN", "b5db59bfd81e4f1f95dc57fdbba17931"),
-  device_helpers.create_fingerprint("HEIMAN", "98293058552c49f38ad0748541ee96ba"),
-  device_helpers.create_fingerprint("HEIMAN", "SMOK_YDLV10"),
-  device_helpers.create_fingerprint("HEIMAN", "FB56-SMF02HM1.4"),
-  device_helpers.create_fingerprint("HEIMAN", "SmokeSensor-N-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "319fa36e7384414a9ea62cba8f6e7626"),
-  device_helpers.create_fingerprint("HEIMAN", "c3442b4ac59b4ba1a83119d938f283ab"),
-  device_helpers.create_fingerprint("HEIMAN", "SmokeSensor-EF-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "SMOK_HV14"),
-  device_helpers.create_fingerprint("HEIMAN", "SMOK_YDLV10N"),
-  device_helpers.create_fingerprint("HEIMAN", "SmokeSensor-N"),
-  device_helpers.create_fingerprint("HEIMAN", "SmokeSensor-EM"),
-  device_helpers.create_fingerprint("HEIMAN", "HS2SA-EF-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "HS15A-M"),
-  device_helpers.create_fingerprint("HEIMAN", "Smokesensor-EF2-3.0"),
-  device_helpers.create_fingerprint("Trust", "SmokeSensor-EM"),
-  device_helpers.create_fingerprint("Trust", "ZSDR-850"),
+  fp("Heiman", "b5db59bfd81e4f1f95dc57fdbba17931"),
+  fp("Heiman", "SMOK_HV14"),
+  fp("Heiman", "SMOK_V16"),
+  fp("Heiman", "SMOK_YDLV10"),
+  fp("HEIMAN", "SMOK_V16"),
+  fp("HEIMAN", "SMOK_V15"),
+  fp("HEIMAN", "b5db59bfd81e4f1f95dc57fdbba17931"),
+  fp("HEIMAN", "98293058552c49f38ad0748541ee96ba"),
+  fp("HEIMAN", "SMOK_YDLV10"),
+  fp("HEIMAN", "FB56-SMF02HM1.4"),
+  fp("HEIMAN", "SmokeSensor-N-3.0"),
+  fp("HEIMAN", "319fa36e7384414a9ea62cba8f6e7626"),
+  fp("HEIMAN", "c3442b4ac59b4ba1a83119d938f283ab"),
+  fp("HEIMAN", "SmokeSensor-EF-3.0"),
+  fp("HEIMAN", "SMOK_HV14"),
+  fp("HEIMAN", "SMOK_YDLV10N"),
+  fp("HEIMAN", "SmokeSensor-N"),
+  fp("HEIMAN", "SmokeSensor-EM"),
+  fp("HEIMAN", "HS2SA-EF-3.0"),
+  fp("HEIMAN", "HS15A-M"),
+  fp("HEIMAN", "Smokesensor-EF2-3.0"),
+  fp("Trust", "SmokeSensor-EM"),
+  fp("Trust", "ZSDR-850"),
 })
 
 register_device_definition(heiman_plus_smoke_sensor, {
-  device_helpers.create_fingerprint("HEIMAN", "HS1SA-EF-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "HS1SA-E-PLUS"),
+  fp("HEIMAN", "HS1SA-EF-3.0"),
+  fp("HEIMAN", "HS1SA-E-PLUS"),
 })
 
 register_device_definition(sunricher_smoke_sensor, {
-  device_helpers.create_fingerprint("Sunricher", "HK-SENSOR-SMO"),
+  fp("Sunricher", "HK-SENSOR-SMO"),
 })
 
 register_device_definition(fireangel_co_sensor, {
-  device_helpers.create_fingerprint("Fireangel", "Alarm_SD_Device"),
+  fp("Fireangel", "Alarm_SD_Device"),
 })
 
 register_device_definition(gas_tamper_sensor, device_helpers.create_fingerprints("TS0204", {
@@ -883,56 +958,56 @@ register_device_definition(gas_tamper_alarm12_battery_low_sensor, device_helpers
 }))
 
 register_device_definition(gas_tamper_battery_low_sensor, {
-  device_helpers.create_fingerprint("HEIMAN", "GASSensor-EN"),
-  device_helpers.create_fingerprint("HEIMAN", "HY0022"),
-  device_helpers.create_fingerprint("HEIMAN", "RH3070"),
-  device_helpers.create_fingerprint("HEIMAN", "GASSensor-EM"),
-  device_helpers.create_fingerprint("HEIMAN", "358e4e3e03c644709905034dae81433e"),
+  fp("HEIMAN", "GASSensor-EN"),
+  fp("HEIMAN", "HY0022"),
+  fp("HEIMAN", "RH3070"),
+  fp("HEIMAN", "GASSensor-EM"),
+  fp("HEIMAN", "358e4e3e03c644709905034dae81433e"),
 })
 
 register_device_definition(gas_tamper_alarm2_battery_low_sensor, {
-  device_helpers.create_fingerprint("Heiman", "GAS_V15"),
-  device_helpers.create_fingerprint("HEIMAN", "GASSensor-N"),
-  device_helpers.create_fingerprint("HEIMAN", "GASSensor-N-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "d90d7c61c44d468a8e906ca0841e0a0c"),
-  device_helpers.create_fingerprint("HEIMAN", "GAS_V15"),
-  device_helpers.create_fingerprint("HEIMAN", "GASSensor-EFR-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "GASSensor-EF-3.0"),
+  fp("Heiman", "GAS_V15"),
+  fp("HEIMAN", "GASSensor-N"),
+  fp("HEIMAN", "GASSensor-N-3.0"),
+  fp("HEIMAN", "d90d7c61c44d468a8e906ca0841e0a0c"),
+  fp("HEIMAN", "GAS_V15"),
+  fp("HEIMAN", "GASSensor-EFR-3.0"),
+  fp("HEIMAN", "GASSensor-EF-3.0"),
 })
 
 register_device_definition(gas_tamper_alarm12_battery_low_sensor, {
-  device_helpers.create_fingerprint("Sunricher", "HK-SENSOR-GAS"),
+  fp("Sunricher", "HK-SENSOR-GAS"),
 })
 
 register_device_definition(contact_tamper_battery_low_battery_sensor, {
-  device_helpers.create_fingerprint("HEIMAN", "DoorSensor-N"),
-  device_helpers.create_fingerprint("HEIMAN", "DoorSensor-N-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "D1-EF2-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "DoorSensor-EM"),
-  device_helpers.create_fingerprint("HEIMAN", "DoorSensor-EF-3.0"),
+  fp("HEIMAN", "DoorSensor-N"),
+  fp("HEIMAN", "DoorSensor-N-3.0"),
+  fp("HEIMAN", "D1-EF2-3.0"),
+  fp("HEIMAN", "DoorSensor-EM"),
+  fp("HEIMAN", "DoorSensor-EF-3.0"),
 })
 
 register_device_definition(contact_battery_low_battery_sensor, {
-  device_helpers.create_fingerprint("HEIMAN", "HS8DS-EF2-3.0"),
+  fp("HEIMAN", "HS8DS-EF2-3.0"),
 })
 
 register_device_definition(contact_tamper_battery_low_sensor, {
-  device_helpers.create_fingerprint("HEIMAN", "DOOR_TPV13"),
-  device_helpers.create_fingerprint("HEIMAN", "DOOR_TPV12"),
+  fp("HEIMAN", "DOOR_TPV13"),
+  fp("HEIMAN", "DOOR_TPV12"),
 })
 
 register_device_definition(co_sensor, {
-  device_helpers.create_fingerprint("_TYZB01_wpmo3ja3", "TS0212"),
-  device_helpers.create_fingerprint("Heiman", "CO_CTPG"),
-  device_helpers.create_fingerprint("Heiman", "CO_V15"),
-  device_helpers.create_fingerprint("Heiman", "CO_V16"),
-  device_helpers.create_fingerprint("HEIMAN", "COSensor-EM"),
-  device_helpers.create_fingerprint("HEIMAN", "COSensor-N"),
-  device_helpers.create_fingerprint("HEIMAN", "COSensor-EF-3.0"),
+  fp("_TYZB01_wpmo3ja3", "TS0212"),
+  fp("Heiman", "CO_CTPG"),
+  fp("Heiman", "CO_V15"),
+  fp("Heiman", "CO_V16"),
+  fp("HEIMAN", "COSensor-EM"),
+  fp("HEIMAN", "COSensor-N"),
+  fp("HEIMAN", "COSensor-EF-3.0"),
 })
 
 register_device_definition(co_alarm12_sensor, {
-  device_helpers.create_fingerprint("Sunricher", "HK-SENSOR-CO"),
+  fp("Sunricher", "HK-SENSOR-CO"),
 })
 
 return {

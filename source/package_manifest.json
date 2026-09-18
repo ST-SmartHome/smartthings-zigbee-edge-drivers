@@ -444,6 +444,10 @@
         {
           "module": "contracts.families.zcl.sensors.hobeian",
           "id": "zcl.sensors.hobeian"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.zg204zl",
+          "id": "zcl.sensors.zg204zl"
         }
       ]
     },
@@ -880,6 +884,20 @@
         {
           "module": "contracts.families.ef00.bridges_wave19",
           "id": "ef00.bridges.wave19"
+        }
+      ]
+    },
+    {
+      "name": "zcl-sensors-3-wonjj6768",
+      "display_name": "ZCL Sensors 3 wonjj6768",
+      "description": "Basic temperature, humidity, motion and safety sensors with explicit device fingerprints.",
+      "protocol": "zcl",
+      "generic_ids": [],
+      "runtime_features": [],
+      "catalogs": [
+        {
+          "module": "contracts.families.zcl.sensors.simple_sensors",
+          "id": "zcl.sensors.simple_sensors"
         }
       ]
     }

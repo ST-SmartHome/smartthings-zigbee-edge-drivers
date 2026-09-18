@@ -1,0 +1,11 @@
+name: safety-trust-co-em-core
+components:
+  - id: main
+    capabilities:
+      - {id: carbonMonoxideDetector, version: 1}
+      - {id: tamperAlert, version: 1}
+      - {id: battery, version: 1}
+      - {id: voltageMeasurement, version: 1}
+      - {id: batteryLevel, version: 1}
+    categories:
+      - {name: SmokeDetector}

@@ -10,6 +10,10 @@ components:
         version: 1
       - id: battery
         version: 1
+      - id: voltageMeasurement
+        version: 1
+      - id: button
+        version: 1
       - id: firmwareUpdate
         version: 1
       - id: refresh
@@ -41,6 +45,12 @@ deviceConfig:
     - component: main
       capability: refresh
       version: 1
+    - component: main
+      capability: voltageMeasurement
+      version: 1
+    - component: main
+      capability: button
+      version: 1
   automation:
     conditions:
       - component: main
@@ -54,5 +64,11 @@ deviceConfig:
         version: 1
       - component: main
         capability: battery
+        version: 1
+      - component: main
+        capability: voltageMeasurement
+        version: 1
+      - component: main
+        capability: button
         version: 1
     actions: []

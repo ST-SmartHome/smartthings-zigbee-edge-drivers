@@ -1,0 +1,1 @@
+{name: safety-aqara-gas-acn02-core,components:[{id: main,capabilities:[{id: gasDetector,version: 1},{id: refresh,version: 1}],categories:[{name: GenericSensor}]}]}

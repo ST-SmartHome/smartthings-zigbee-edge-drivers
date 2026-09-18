@@ -1,14 +1,1 @@
-name: safety-motion-battery-low-battery
-components:
-  - id: main
-    capabilities:
-      - id: motionSensor
-        version: 1
-      - id: concertmirror08464.batteryLow
-        version: 1
-      - id: battery
-        version: 1
-      - id: refresh
-        version: 1
-    categories:
-      - name: MotionSensor
+{name: safety-motion-battery-low-battery,components:[{id: main,capabilities:[{id: concertmirror08464.zm35Sensitivity,version: 1},{id: concertmirror08464.zm35KeepTime,version: 1},{id: motionSensor,version: 1},{id: batteryLevel,version: 1},{id: battery,version: 1},{id: refresh,version: 1}],categories:[{name: MotionSensor}]}]}

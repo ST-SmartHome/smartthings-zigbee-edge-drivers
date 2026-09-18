@@ -31,6 +31,8 @@ end
 
 local linptech_es_one = {
   profile = "safety-occupancy-wave11-linptech-es1",
+  -- This hybrid family owns its Tuya handshake; its ZCL list has no magic mapping.
+  magic_packet = true,
   package_group = "z2m-ef00-pres-hyb",
   named_datapoints = true,
   datapoints = {

@@ -1,0 +1,9 @@
+name: sensors-climax-rs23-core
+components:
+  - id: main
+    capabilities:
+      - {id: temperatureMeasurement, version: 1}
+      - {id: relativeHumidityMeasurement, version: 1}
+      - {id: refresh, version: 1}
+    categories:
+      - {name: TempHumiditySensor}

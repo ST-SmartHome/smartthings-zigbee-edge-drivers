@@ -293,7 +293,7 @@ register_device_definition(th_zg227zl, ef00_helpers.ts0601_fingerprints({
 }))
 
 local th_sensor3 = {
-  profile = "sensors-temp-humidity-battery",
+  profile = "sensors-th-three-unit",
   datapoints = {
     tuya.dp_temperature(1, {
       emit = emit.temperature("C"),
@@ -304,13 +304,14 @@ local th_sensor3 = {
     tuya.dp_humidity(2, { emit = emit.humidity(), scale = 1, read_only = true }),
     tuya.dp_battery(4, { emit = emit.battery(), read_only = true }),
     tuya.dp_enum(9, {
-      name = "temperature_unit",
+      name = "th_three_display_unit",
+      emit = emit.thThreeDisplayUnit(),
       converter = converter.lookup_from_to({ celsius = 0, fahrenheit = 1 }),
     }),
   },
   query_on_configure = true,
   time_start = "1970",
-  runtime_start = start_hourly_th_time_updates,
+  force_time_updates = true,
 }
 
 register_device_definition(th_sensor3, ef00_helpers.ts0601_fingerprints({
@@ -398,6 +399,7 @@ local th_rsh_hs06 = {
   profile = "sensors-temp-humidity-battery-calibration-zg227z",
   datapoints = zg227_calibration_datapoints,
   query_on_configure = true,
+  query_on_announce = true,
   respond_to_mcu_version_response = true,
 }
 
@@ -475,7 +477,7 @@ local pool_chlorine_meter = {
       read_only = true,
     }),
 
-    tuya.dp_numeric(11, { name = "ec", read_only = true }),              -- profile 미포함
+    tuya.dp_numeric(11, { name = "ec", emit = emit.ylPoolConductivity(), read_only = true }),
 
     tuya.dp_numeric(101, { name = "orp", emit = emit.poolOrpChlorineMeter(), read_only = true }),
 
@@ -486,23 +488,23 @@ local pool_chlorine_meter = {
       read_only = true,
     }),
 
-    tuya.dp_numeric(105, { name = "backlightvalue" }),                    -- profile 미포함
+    tuya.dp_numeric(105, { name = "backlightvalue", emit = emit.ylPoolBacklight() }),
 
-    tuya.dp_numeric(106, { name = "ph_max" }),                            -- profile 미포함
+    tuya.dp_numeric(106, { name = "ph_max", emit = emit.ylPoolPhMax("pH") }),
 
-    tuya.dp_numeric(107, { name = "ph_min" }),                            -- profile 미포함
+    tuya.dp_numeric(107, { name = "ph_min", emit = emit.ylPoolPhMin("pH") }),
 
-    tuya.dp_numeric(108, { name = "ec_max" }),                            -- profile 미포함
+    tuya.dp_numeric(108, { name = "ec_max", emit = emit.ylPoolEcMax("µS/cm") }),
 
-    tuya.dp_numeric(109, { name = "ec_min" }),                            -- profile 미포함
+    tuya.dp_numeric(109, { name = "ec_min", emit = emit.ylPoolEcMin("µS/cm") }),
 
-    tuya.dp_numeric(110, { name = "orp_max" }),                           -- profile 미포함
+    tuya.dp_numeric(110, { name = "orp_max", emit = emit.ylPoolOrpMax("mV") }),
 
-    tuya.dp_numeric(111, { name = "orp_min" }),                           -- profile 미포함
+    tuya.dp_numeric(111, { name = "orp_min", emit = emit.ylPoolOrpMin("mV") }),
 
-    tuya.dp_numeric(112, { name = "free_chlorine_max" }),                 -- profile 미포함
+    tuya.dp_numeric(112, { name = "free_chlorine_max", emit = emit.ylPoolChlorineMax("mg/L") }),
 
-    tuya.dp_numeric(113, { name = "free_chlorine_min" }),                 -- profile 미포함
+    tuya.dp_numeric(113, { name = "free_chlorine_min", emit = emit.ylPoolChlorineMin("mg/L") }),
 
     tuya.dp_numeric(117, { name = "salinity", emit = emit.salinityChlorineMeter(), read_only = true }),
 
@@ -510,6 +512,7 @@ local pool_chlorine_meter = {
 
   query_on_configure = false,
   query_interval_seconds = 10 * 60,
+  query_on_announce = true,
   respond_to_mcu_version_response = true,
   runtime_start = start_pool_chlorine_keepalive,
 

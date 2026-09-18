@@ -596,6 +596,9 @@ register_device_definition(presence_model_zy_hps01_entry, {
 local presence_model_zg_204zm = {
   profile = "safety-presence-zg204zm-illuminance-battery",
   package_group = "presence-general-2",
+  magic_packet = true,
+  query_on_configure = false,
+  time_start = "off",
 
   tuya.dp_presence(1, { emit = emit.presence(), converter = converter.true_false1() }),
 
@@ -649,6 +652,7 @@ presence_model_zg_204zm.zcl_clusters = {
 register_presence_definition(presence_model_zg_204zm, {
 
   device_helpers.create_fingerprint("AOYAN", "AY205Z"),
+  device_helpers.create_fingerprint("HOBEIAN", "ZG-204ZM"),
 
   device_helpers.create_fingerprint("_TZE200_2aaelwxk", "TS0601"),
 

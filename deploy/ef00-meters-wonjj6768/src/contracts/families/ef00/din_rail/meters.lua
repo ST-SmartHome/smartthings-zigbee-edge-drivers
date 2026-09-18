@@ -11,29 +11,41 @@ local IGNORE_ALARM_SETTING={ignore=0,alarm=1}
 local power_meter_model_sdm01={
 profile="meters-power-energy-voltage-current-sdm01",
 package_group="meters",
+capability_commands={
+{capability_id="concertmirror08464.sdm01ReportInterval",command_name="setReportInterval",
+argument_name="interval",mapping_name="sdm01_report_duration"},
+},
+tuya.dp_raw(18,{name="sdm01_report_duration",write_only=true,
+to_device=function(value)
+if type(value)~="number" or value % 1 ~=0 or value < 30 or value > 3600 then return nil end
+local duration=value * 2
+return string.char(1,1,0,60,2,0,0,10,3,1,0,253,4,0,0,180,5,1,0,0,7,1,0,0,
+8,1,math.floor(duration / 256),duration % 256,9,0,0,0)
+end,
+}),
 tuya.dp_energy(1,{emit=emit.energy(),scale=100}),
-tuya.dp_energy(2,{name="produced_energy",scale=100}),-- 프로파일 미포함
+tuya.dp_energy(2,{name="produced_energy",scale=100,read_only=true,emit=emit.sdm01TotalProduced("kWh")}),
 tuya.dp_power_factor(15,{name="power_factor",emit=emit.powerFactorSdm01Percent()}),
 tuya.dp_ac_frequency(101,{name="ac_frequency",emit=emit.acFrequencySdm01()}),
-tuya.dp_voltage(102,{name="voltage_a",emit=emit.voltage()}),
-tuya.dp_current(103,{name="current_a",emit=emit.current()}),
-tuya.dp_power(104,{name="power_a"}),-- 프로파일 미포함
-tuya.dp_voltage(105,{name="voltage_b"}),-- 프로파일 미포함
-tuya.dp_current(106,{name="current_b"}),-- 프로파일 미포함
-tuya.dp_power(107,{name="power_b"}),-- 프로파일 미포함
-tuya.dp_voltage(108,{name="voltage_c"}),-- 프로파일 미포함
-tuya.dp_current(109,{name="current_c"}),-- 프로파일 미포함
-tuya.dp_power(110,{name="power_c"}),-- 프로파일 미포함
-tuya.dp_power(111,{emit=emit.power()}),
-tuya.dp_energy(112,{name="energy_a",scale=100}),-- 프로파일 미포함
-tuya.dp_energy(113,{name="produced_energy_a",scale=100}),-- 프로파일 미포함
-tuya.dp_energy(114,{name="energy_b",scale=100}),-- 프로파일 미포함
-tuya.dp_energy(115,{name="produced_energy_b",scale=100}),-- 프로파일 미포함
-tuya.dp_energy(116,{name="energy_c",scale=100}),-- 프로파일 미포함
-tuya.dp_energy(117,{name="produced_energy_c",scale=100}),-- 프로파일 미포함
-tuya.dp_power_factor(118,{name="power_factor_a"}),-- 프로파일 미포함
-tuya.dp_power_factor(119,{name="power_factor_b"}),-- 프로파일 미포함
-tuya.dp_power_factor(120,{name="power_factor_c"}),-- 프로파일 미포함
+tuya.dp_voltage(102,{name="voltage_a",component="l1",emit=emit.voltage()}),
+tuya.dp_current(103,{name="current_a",component="l1",emit=emit.current()}),
+tuya.dp_power(104,{name="power_a",scale=1,component="l1",emit=emit.power()}),
+tuya.dp_voltage(105,{name="voltage_b",component="l2",emit=emit.voltage()}),
+tuya.dp_current(106,{name="current_b",component="l2",emit=emit.current()}),
+tuya.dp_power(107,{name="power_b",scale=1,component="l2",emit=emit.power()}),
+tuya.dp_voltage(108,{name="voltage_c",component="l3",emit=emit.voltage()}),
+tuya.dp_current(109,{name="current_c",component="l3",emit=emit.current()}),
+tuya.dp_power(110,{name="power_c",scale=1,component="l3",emit=emit.power()}),
+tuya.dp_power(111,{scale=1,emit=emit.power()}),
+tuya.dp_energy(112,{name="energy_a",scale=100,component="l1",emit=emit.energy()}),
+tuya.dp_energy(113,{name="produced_energy_a",scale=100,component="l1",read_only=true,emit=emit.sdm01PhaseAEnergy("kWh")}),
+tuya.dp_energy(114,{name="energy_b",scale=100,component="l2",emit=emit.energy()}),
+tuya.dp_energy(115,{name="produced_energy_b",scale=100,component="l2",read_only=true,emit=emit.sdm01PhaseBEnergy("kWh")}),
+tuya.dp_energy(116,{name="energy_c",scale=100,component="l3",emit=emit.energy()}),
+tuya.dp_energy(117,{name="produced_energy_c",scale=100,component="l3",read_only=true,emit=emit.sdm01PhaseCEnergy("kWh")}),
+tuya.dp_power_factor(118,{name="power_factor_a",component="l1",read_only=true,emit=emit.sdm01PhaseAFactor("%")}),
+tuya.dp_power_factor(119,{name="power_factor_b",component="l2",read_only=true,emit=emit.sdm01PhaseBFactor("%")}),
+tuya.dp_power_factor(120,{name="power_factor_c",component="l3",read_only=true,emit=emit.sdm01PhaseCFactor("%")}),
 }
 register_device_definition(power_meter_model_sdm01,device_helpers.create_fingerprints("TS0601",{
 "_TZE204_ugekduaj",
@@ -50,16 +62,19 @@ read_only=true,
 emit=emit.spm02ProducedEnergy(),
 }),
 tuya.dp_phase_variant2(6,{
+signed_power=true,
 phase="x",
 component="l1",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(7,{
+signed_power=true,
 phase="y",
 component="l2",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(8,{
+signed_power=true,
 phase="z",
 component="l3",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
@@ -152,14 +167,14 @@ emit=emit.spm02v2AcFrequency(),
 }),
 tuya.dp_voltage(102,{name="voltage_a",component="l1",emit=emit.voltage()}),
 tuya.dp_current(103,{name="current_a",component="l1",emit=emit.current()}),
-tuya.dp_power(104,{name="power_a",component="l1",emit=emit.power()}),
+tuya.dp_power(104,{name="power_a",scale=1,component="l1",emit=emit.power()}),
 tuya.dp_voltage(105,{name="voltage_b",component="l2",emit=emit.voltage()}),
 tuya.dp_current(106,{name="current_b",component="l2",emit=emit.current()}),
-tuya.dp_power(107,{name="power_b",component="l2",emit=emit.power()}),
+tuya.dp_power(107,{name="power_b",scale=1,component="l2",emit=emit.power()}),
 tuya.dp_voltage(108,{name="voltage_c",component="l3",emit=emit.voltage()}),
 tuya.dp_current(109,{name="current_c",component="l3",emit=emit.current()}),
-tuya.dp_power(110,{name="power_c",component="l3",emit=emit.power()}),
-tuya.dp_power(111,{emit=emit.power()}),
+tuya.dp_power(110,{name="power_c",scale=1,component="l3",emit=emit.power()}),
+tuya.dp_power(111,{scale=1,emit=emit.power()}),
 }
 register_device_definition(power_meter_model_spm02v2,device_helpers.create_fingerprints("TS0601",{
 "_TZE200_v9hkz2yn",
@@ -169,6 +184,17 @@ register_device_definition(power_meter_model_spm02v2,device_helpers.create_finge
 local power_meter_model_spm02v25={
 profile="meters-energy-3phase-spm02v25",
 package_group="meters",
+capability_commands={
+{capability_id="concertmirror08464.spm25ReportInterval",command_name="setReportInterval",
+argument_name="interval",mapping_name="spm25_report_duration"},
+},
+tuya.dp_raw(18,{name="spm25_report_duration",write_only=true,
+to_device=function(value)
+if type(value)~="number" or value % 1 ~=0 or value < 30 or value > 3600 then return nil end
+return string.char(1,1,0,60,2,0,0,10,3,1,0,253,4,0,0,180,5,1,0,0,7,1,0,0,
+8,1,math.floor(value / 256),value % 256,9,0,0,0)
+end,
+}),
 tuya.dp_energy(1,{emit=emit.energy(),scale=100}),
 tuya.dp_energy(23,{
 name="produced_energy",
@@ -176,7 +202,7 @@ scale=100,
 read_only=true,
 emit=emit.spm02v25ProducedEnergy(),
 }),
-tuya.dp_power(29,{emit=emit.power()}),
+tuya.dp_power(29,{scale=1,emit=emit.power()}),
 tuya.dp_ac_frequency(32,{
 name="ac_frequency",
 read_only=true,
@@ -189,13 +215,13 @@ emit=emit.spm02v25PowerFactor(),
 }),
 tuya.dp_voltage(102,{name="voltage_a",component="l1",emit=emit.voltage()}),
 tuya.dp_current(103,{name="current_a",component="l1",emit=emit.current()}),
-tuya.dp_power(104,{name="power_a",component="l1",emit=emit.power()}),
+tuya.dp_power(104,{name="power_a",scale=1,component="l1",emit=emit.power()}),
 tuya.dp_voltage(105,{name="voltage_b",component="l2",emit=emit.voltage()}),
 tuya.dp_current(106,{name="current_b",component="l2",emit=emit.current()}),
-tuya.dp_power(107,{name="power_b",component="l2",emit=emit.power()}),
+tuya.dp_power(107,{name="power_b",scale=1,component="l2",emit=emit.power()}),
 tuya.dp_voltage(108,{name="voltage_c",component="l3",emit=emit.voltage()}),
 tuya.dp_current(109,{name="current_c",component="l3",emit=emit.current()}),
-tuya.dp_power(110,{name="power_c",component="l3",emit=emit.power()}),
+tuya.dp_power(110,{name="power_c",scale=1,component="l3",emit=emit.power()}),
 }
 register_device_definition(power_meter_model_spm02v25,device_helpers.create_fingerprints("TS0601",{
 "_TZE200_ny94onlb",
@@ -212,7 +238,7 @@ scale=100,
 read_only=true,
 emit=emit.spm02v3ProducedEnergy(),
 }),
-tuya.dp_power(29,{emit=emit.power()}),
+tuya.dp_power(29,{scale=1,emit=emit.power()}),
 tuya.dp_ac_frequency(32,{
 name="ac_frequency",
 read_only=true,
@@ -226,22 +252,22 @@ emit=emit.spm02v3PowerFactor(),
 tuya.dp_numeric(102,{name="update_frequency",emit=emit.spm02v3UpdateFrequency()}),
 tuya.dp_voltage(103,{name="voltage_a",component="l1",emit=emit.voltage()}),
 tuya.dp_current(104,{name="current_a",component="l1",emit=emit.current()}),
-tuya.dp_power(105,{name="power_a",component="l1",emit=emit.power()}),
-tuya.dp_power_factor(108,{name="power_factor_a"}),-- 프로파일 미포함
+tuya.dp_power(105,{scale=1,name="power_a",component="l1",emit=emit.power()}),
+tuya.dp_power_factor(108,{name="power_factor_a",component="l1",read_only=true,emit=emit.spm02v3PhaseAFactor("%")}),
 tuya.dp_energy(109,{name="energy_a",scale=100,component="l1",emit=emit.energy()}),
-tuya.dp_energy(110,{name="energy_produced_a",scale=100}),-- 프로파일 미포함
+tuya.dp_energy(110,{name="energy_produced_a",scale=100,component="l1",read_only=true,emit=emit.spm02v3PhaseAEnergy("kWh")}),
 tuya.dp_voltage(112,{name="voltage_b",component="l2",emit=emit.voltage()}),
 tuya.dp_current(113,{name="current_b",component="l2",emit=emit.current()}),
-tuya.dp_power(114,{name="power_b",component="l2",emit=emit.power()}),
-tuya.dp_power_factor(117,{name="power_factor_b"}),-- 프로파일 미포함
+tuya.dp_power(114,{scale=1,name="power_b",component="l2",emit=emit.power()}),
+tuya.dp_power_factor(117,{name="power_factor_b",component="l2",read_only=true,emit=emit.spm02v3PhaseBFactor("%")}),
 tuya.dp_energy(118,{name="energy_b",scale=100,component="l2",emit=emit.energy()}),
-tuya.dp_energy(119,{name="energy_produced_b",scale=100}),-- 프로파일 미포함
+tuya.dp_energy(119,{name="energy_produced_b",scale=100,component="l2",read_only=true,emit=emit.spm02v3PhaseBEnergy("kWh")}),
 tuya.dp_voltage(121,{name="voltage_c",component="l3",emit=emit.voltage()}),
 tuya.dp_current(122,{name="current_c",component="l3",emit=emit.current()}),
-tuya.dp_power(123,{name="power_c",component="l3",emit=emit.power()}),
-tuya.dp_power_factor(126,{name="power_factor_c"}),-- 프로파일 미포함
+tuya.dp_power(123,{scale=1,name="power_c",component="l3",emit=emit.power()}),
+tuya.dp_power_factor(126,{name="power_factor_c",component="l3",read_only=true,emit=emit.spm02v3PhaseCFactor("%")}),
 tuya.dp_energy(127,{name="energy_c",scale=100,component="l3",emit=emit.energy()}),
-tuya.dp_energy(128,{name="energy_produced_c",scale=100}),-- 프로파일 미포함
+tuya.dp_energy(128,{name="energy_produced_c",scale=100,component="l3",read_only=true,emit=emit.spm02v3PhaseCEnergy("kWh")}),
 }
 register_device_definition(power_meter_model_spm02v3,device_helpers.create_fingerprints("TS0601",{
 "_TZE200_dikb3dp6",
@@ -259,21 +285,24 @@ read_only=true,
 emit=emit.spm02v1gtProducedEnergy(),
 }),
 tuya.dp_phase_variant2(6,{
+signed_power=true,
 phase="a",
 component="l1",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(7,{
+signed_power=true,
 phase="b",
 component="l2",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(8,{
+signed_power=true,
 phase="c",
 component="l3",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
-tuya.dp_power(29,{emit=emit.power()}),
+tuya.dp_power(29,{scale=1,emit=emit.power()}),
 tuya.dp_ac_frequency(32,{
 name="ac_frequency",
 read_only=true,
@@ -287,18 +316,18 @@ emit=emit.spm02v1gtPowerFactor(),
 tuya.dp_energy(53,{name="energy_a",scale=100,component="l1",emit=emit.energy()}),
 tuya.dp_energy(54,{name="energy_b",scale=100,component="l2",emit=emit.energy()}),
 tuya.dp_energy(55,{name="energy_c",scale=100,component="l3",emit=emit.energy()}),
-tuya.dp_energy(57,{name="energy_produced_a",scale=100}),-- 프로파일 미포함
-tuya.dp_energy(58,{name="energy_produced_b",scale=100}),-- 프로파일 미포함
-tuya.dp_energy(59,{name="energy_produced_c",scale=100}),-- 프로파일 미포함
+tuya.dp_energy(57,{name="energy_produced_a",scale=100,component="l1",read_only=true,emit=emit.spm02v1gtPhaseAEnergy("kWh")}),
+tuya.dp_energy(58,{name="energy_produced_b",scale=100,component="l2",read_only=true,emit=emit.spm02v1gtPhaseBEnergy("kWh")}),
+tuya.dp_energy(59,{name="energy_produced_c",scale=100,component="l3",read_only=true,emit=emit.spm02v1gtPhaseCEnergy("kWh")}),
 tuya.dp_on_off(101,{
 name="device_locating",
 emit=emit.spm02v1gtDeviceLocating(),
 converter=converter.lookup_from_to({off=false,on=true}),
 }),
 tuya.dp_numeric(102,{name="update_frequency",emit=emit.spm02v1gtUpdateFrequency()}),
-tuya.dp_power_factor(108,{name="power_factor_a"}),-- 프로파일 미포함
-tuya.dp_power_factor(117,{name="power_factor_b"}),-- 프로파일 미포함
-tuya.dp_power_factor(126,{name="power_factor_c"}),-- 프로파일 미포함
+tuya.dp_power_factor(108,{name="power_factor_a",component="l1",read_only=true,emit=emit.spm02v1gtPhaseAFactor("%")}),
+tuya.dp_power_factor(117,{name="power_factor_b",component="l2",read_only=true,emit=emit.spm02v1gtPhaseBFactor("%")}),
+tuya.dp_power_factor(126,{name="power_factor_c",component="l3",read_only=true,emit=emit.spm02v1gtPhaseCFactor("%")}),
 }
 register_device_definition(power_meter_model_spm02v1gt,device_helpers.create_fingerprints("TS0601",{
 "_TZE200_wjk6rurm",
@@ -316,21 +345,24 @@ read_only=true,
 emit=emit.sdm01v1gtProducedEnergy(),
 }),
 tuya.dp_phase_variant2(6,{
+signed_power=true,
 phase="a",
 component="l1",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(7,{
+signed_power=true,
 phase="b",
 component="l2",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(8,{
+signed_power=true,
 phase="c",
 component="l3",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
-tuya.dp_power(29,{emit=emit.power()}),
+tuya.dp_power(29,{scale=1,emit=emit.power()}),
 tuya.dp_ac_frequency(32,{
 name="ac_frequency",
 read_only=true,
@@ -344,18 +376,18 @@ emit=emit.sdm01v1gtPowerFactor(),
 tuya.dp_energy(53,{name="energy_a",scale=100,component="l1",emit=emit.energy()}),
 tuya.dp_energy(54,{name="energy_b",scale=100,component="l2",emit=emit.energy()}),
 tuya.dp_energy(55,{name="energy_c",scale=100,component="l3",emit=emit.energy()}),
-tuya.dp_energy(57,{name="energy_produced_a",scale=100}),-- 프로파일 미포함
-tuya.dp_energy(58,{name="energy_produced_b",scale=100}),-- 프로파일 미포함
-tuya.dp_energy(59,{name="energy_produced_c",scale=100}),-- 프로파일 미포함
+tuya.dp_energy(57,{name="energy_produced_a",scale=100,component="l1",read_only=true,emit=emit.sdm01v1gtPhaseAEnergy("kWh")}),
+tuya.dp_energy(58,{name="energy_produced_b",scale=100,component="l2",read_only=true,emit=emit.sdm01v1gtPhaseBEnergy("kWh")}),
+tuya.dp_energy(59,{name="energy_produced_c",scale=100,component="l3",read_only=true,emit=emit.sdm01v1gtPhaseCEnergy("kWh")}),
 tuya.dp_on_off(101,{
 name="device_locating",
 emit=emit.sdm01v1gtDeviceLocating(),
 converter=converter.lookup_from_to({off=false,on=true}),
 }),
 tuya.dp_numeric(102,{name="update_frequency",emit=emit.sdm01v1gtUpdateFrequency()}),
-tuya.dp_power_factor(108,{name="power_factor_a"}),-- 프로파일 미포함
-tuya.dp_power_factor(117,{name="power_factor_b"}),-- 프로파일 미포함
-tuya.dp_power_factor(126,{name="power_factor_c"}),-- 프로파일 미포함
+tuya.dp_power_factor(108,{name="power_factor_a",component="l1",read_only=true,emit=emit.sdm01v1gtPhaseAFactor("%")}),
+tuya.dp_power_factor(117,{name="power_factor_b",component="l2",read_only=true,emit=emit.sdm01v1gtPhaseBFactor("%")}),
+tuya.dp_power_factor(126,{name="power_factor_c",component="l3",read_only=true,emit=emit.sdm01v1gtPhaseCFactor("%")}),
 }
 register_device_definition(power_meter_model_sdm01v1gt,device_helpers.create_fingerprints("TS0601",{
 "_TZE200_s4sa1mcx",
@@ -382,16 +414,19 @@ emit=emit.temperature(),
 }),
 tuya.dp_current(131,{emit=emit.current()}),
 tuya.dp_phase_variant2(6,{
+signed_power=true,
 phase="a",
 component="l1",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(7,{
+signed_power=true,
 phase="b",
 component="l2",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(8,{
+signed_power=true,
 phase="c",
 component="l3",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
@@ -423,16 +458,19 @@ emit=emit.clamp3RelayProducedEnergy(),
 tuya.dp_on_off(16,{name="switch",emit=emit.switch()}),
 tuya.dp_power(9,{emit=emit.power()}),
 tuya.dp_phase_variant2(6,{
+signed_power=true,
 phase="a",
 component="l1",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(7,{
+signed_power=true,
 phase="b",
 component="l2",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(8,{
+signed_power=true,
 phase="c",
 component="l3",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
@@ -530,7 +568,7 @@ emit=emit.spm01v25PowerFactor(),
 }),
 tuya.dp_voltage(102,{emit=emit.voltage()}),
 tuya.dp_current(103,{emit=emit.current()}),
-tuya.dp_power(104,{emit=emit.power()}),
+tuya.dp_power(104,{emit=emit.power(),scale=1}),-- SPM01V2.5 DP104 is whole watts.
 }
 register_device_definition(power_meter_model_spm01v25,device_helpers.create_fingerprints("TS0601",{
 "_TZE200_iwn0gpzz",
@@ -717,16 +755,19 @@ profile="meters-energy-3phase-atms10013z3",
 package_group="meters",
 tuya.dp_energy(1,{emit=emit.energy(),scale=100}),
 tuya.dp_phase_variant2(6,{
+signed_power=true,
 phase="a",
 component="l1",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(7,{
+signed_power=true,
 phase="b",
 component="l2",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(8,{
+signed_power=true,
 phase="c",
 component="l3",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
@@ -885,11 +926,13 @@ read_only=true,
 emit=emit.sdm02v1gtProducedEnergy(),
 }),
 tuya.dp_phase_variant2(6,{
+signed_power=true,
 phase="l1",
 component="l1",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
 }),
 tuya.dp_phase_variant2(7,{
+signed_power=true,
 phase="l2",
 component="l2",
 emit=emit_metric_bundle({voltage=true,current=true,power=true}),
@@ -948,21 +991,21 @@ tuya.dp_numeric(102,{name="update_frequency",emit=emit.sdm01v15UpdateFrequency()
 tuya.dp_voltage(103,{name="voltage_a",component="l1",emit=emit.voltage(),scale=10}),
 tuya.dp_current(104,{name="current_a",component="l1",emit=emit.current(),scale=1000}),
 tuya.dp_power(105,{name="power_a",component="l1",emit=emit.power(),scale=1}),
-tuya.dp_power_factor(108,{name="power_factor_a"}),-- 프로파일 미포함
+tuya.dp_power_factor(108,{name="power_factor_a",component="l1",read_only=true,emit=emit.sdm01v15PhaseAFactor("%")}),
 tuya.dp_energy(109,{name="energy_a",scale=100,component="l1",emit=emit.energy()}),
-tuya.dp_energy(110,{name="energy_produced_a",scale=100}),-- 프로파일 미포함
+tuya.dp_energy(110,{name="energy_produced_a",scale=100,component="l1",read_only=true,emit=emit.sdm01v15PhaseAEnergy("kWh")}),
 tuya.dp_voltage(112,{name="voltage_b",component="l2",emit=emit.voltage(),scale=10}),
 tuya.dp_current(113,{name="current_b",component="l2",emit=emit.current(),scale=1000}),
 tuya.dp_power(114,{name="power_b",component="l2",emit=emit.power(),scale=1}),
-tuya.dp_power_factor(117,{name="power_factor_b"}),-- 프로파일 미포함
+tuya.dp_power_factor(117,{name="power_factor_b",component="l2",read_only=true,emit=emit.sdm01v15PhaseBFactor("%")}),
 tuya.dp_energy(118,{name="energy_b",scale=100,component="l2",emit=emit.energy()}),
-tuya.dp_energy(119,{name="energy_produced_b",scale=100}),-- 프로파일 미포함
+tuya.dp_energy(119,{name="energy_produced_b",scale=100,component="l2",read_only=true,emit=emit.sdm01v15PhaseBEnergy("kWh")}),
 tuya.dp_voltage(121,{name="voltage_c",component="l3",emit=emit.voltage(),scale=10}),
 tuya.dp_current(122,{name="current_c",component="l3",emit=emit.current(),scale=1000}),
 tuya.dp_power(123,{name="power_c",component="l3",emit=emit.power(),scale=1}),
-tuya.dp_power_factor(126,{name="power_factor_c"}),-- 프로파일 미포함
+tuya.dp_power_factor(126,{name="power_factor_c",component="l3",read_only=true,emit=emit.sdm01v15PhaseCFactor("%")}),
 tuya.dp_energy(127,{name="energy_c",scale=100,component="l3",emit=emit.energy()}),
-tuya.dp_energy(128,{name="energy_produced_c",scale=100}),-- 프로파일 미포함
+tuya.dp_energy(128,{name="energy_produced_c",scale=100,component="l3",read_only=true,emit=emit.sdm01v15PhaseCEnergy("kWh")}),
 }
 register_device_definition(power_meter_model_sdm01v15,device_helpers.create_fingerprints("TS0601",{
 "_TZE204_gomuk3dc",

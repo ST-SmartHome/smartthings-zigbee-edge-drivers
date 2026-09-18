@@ -67,6 +67,8 @@ end
 -- ══════════════════════════════════════════════════════════════
 local liquid_level_872wz = {
   profile = "sensors-liquid-level-872wz",
+  force_time_updates = true,
+  time_start = "1970",
   datapoints = {
     tuya.dp_enum(1, {
       name = "liquid_state",
@@ -121,6 +123,8 @@ register_sensor_definition(liquid_level_872wz, {
 -- ══════════════════════════════════════════════════════════════
 local liquid_level_me201wz = {
   profile = "sensors-liquid-level-me201wz",
+  force_time_updates = true,
+  time_start = "1970",
   datapoints = {
     tuya.dp_enum(1, {
       name = "liquid_state",
@@ -191,6 +195,8 @@ register_sensor_definition(liquid_level_me201wz, {
 -- ══════════════════════════════════════════════════════════════
 local liquid_level_tlc2206 = {
   profile = "sensors-liquid-level-tlc2206",
+  force_time_updates = true,
+  time_start = "1970",
   datapoints = {
     tuya.dp_enum(1, {
       name = "liquid_state",
@@ -239,6 +245,8 @@ register_sensor_definition(liquid_level_tlc2206, {
 -- ══════════════════════════════════════════════════════════════
 local liquid_level_me202wz = {
   profile = "sensors-liquid-level-me202wz",
+  force_time_updates = true,
+  time_start = "1970",
   datapoints = {
     tuya.dp_enum(1, {
       name = "liquid_state",

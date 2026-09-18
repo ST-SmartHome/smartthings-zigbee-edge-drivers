@@ -226,7 +226,7 @@ end
 end,
 }
 local dual_dimmer={
-profile="lights-dimmer-2",
+profile="lights-dimmer-2-zcl-basic",
 zcl_clusters={},
 }
 for _,cluster in ipairs(zcl.multi_switch(2,{component_prefix="switch"}))do

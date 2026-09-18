@@ -110,6 +110,7 @@ add(e_zero_two_c, binary(107, "e_zero_two_c_co_two_alarm", "eZeroTwoCCoTwoAlarm"
 
 register_device_definition(e_zero_two_c, device_helpers.create_fingerprints("TS0601", {
   "_TZE204_hyt4iucb",
+  "_TZE28C1000000_hyt4iucb",
 }))
 
 local ezc_zero_four = definition("sensors-wave16-lincukoo-ezc04")
@@ -134,6 +135,7 @@ add(ezc_zero_four, enum(101, "ezc_zero_four_reset_co_two", "ezcZeroFourResetCoTw
 
 register_device_definition(ezc_zero_four, device_helpers.create_fingerprints("TS0601", {
   "_TZE204_isvlaage",
+  "_TZE28C1000000_isvlaage",
 }))
 
 local ezcp_zero_four = definition("sensors-wave16-lincukoo-ezcp04")
@@ -158,6 +160,7 @@ add(ezcp_zero_four, numeric(101, "ezcp_zero_four_pm_two_five_alarm_value", "ezcp
 
 register_device_definition(ezcp_zero_four, device_helpers.create_fingerprints("TS0601", {
   "_TZE204_fpwtjlfh",
+  "_TZE28C1000000_fpwtjlfh",
 }))
 
 return {

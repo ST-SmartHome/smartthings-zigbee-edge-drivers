@@ -22,7 +22,7 @@ local function bind_on_off_endpoints(endpoint_count)
   end
 end
 
-local function build_switch(profile, count)
+local function build_switch(profile, count, options)
   if count == 1 then
     return {
       profile = profile,
@@ -34,7 +34,7 @@ local function build_switch(profile, count)
 
   return {
     profile = profile,
-    zcl_clusters = zcl.multi_switch(count),
+    zcl_clusters = zcl.multi_switch(count, options),
   }
 end
 
@@ -510,7 +510,8 @@ local single_power_outage_switch = build_single_power_switch("switches-switch-1-
 local dual_switch = build_switch("switches-switch-2", 2)
 local bound_dual_switch = build_switch("switches-switch-2", 2)
 bound_dual_switch.configure = bind_on_off_endpoints(2)
-local tuya_dual_switch = build_switch("switches-switch-2", 2)
+-- This profile numbers its second channel switch2, not switch1.
+local tuya_dual_switch = build_switch("switches-switch-2", 2, { index_offset = 1 })
 append_option_clusters(tuya_dual_switch.zcl_clusters, zcl.tuya_magic_packet())
 tuya_dual_switch.configure = bind_on_off_endpoints(2)
 local dual_power_switch = build_dual_power_switch("switches-switch-2-power-options")

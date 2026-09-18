@@ -9,10 +9,8 @@ local converter = tuya.converter
 local registrations, register_device_definition = common.isolated_definition_registry(device_helpers.definition_registry)
 local on_off_converter = converter.lookup_from_to({ ON = true, OFF = false })
 
-local function register(definition, manufacturer)
-  register_device_definition(definition, {
-    device_helpers.create_fingerprint(manufacturer, "TS0601"),
-  })
+local function register(definition, manufacturers)
+  register_device_definition(definition, device_helpers.create_fingerprints("TS0601", manufacturers))
 end
 
 -- Lincukoo R12LM-Z10T, lincukoo.ts:449.
@@ -58,7 +56,7 @@ local r_twelve_z_ten = {
   query_on_configure = false,
 }
 
-register(r_twelve_z_ten, "_TZE284_hqys6frs")
+register(r_twelve_z_ten, {"_TZE284_hqys6frs", "_TZE2841000000_hqys6frs"})
 
 -- Lincukoo R12LM-Z11T, lincukoo.ts:793.
 local r_twelve_z_eleven = {
@@ -118,7 +116,7 @@ local r_twelve_z_eleven = {
   query_on_configure = false,
 }
 
-register(r_twelve_z_eleven, "_TZE284_zzm83zpz")
+register(r_twelve_z_eleven, {"_TZE284_zzm83zpz", "_TZE2841000000_zzm83zpz"})
 
 return {
   id = "ef00.presence.wave11.general.2",

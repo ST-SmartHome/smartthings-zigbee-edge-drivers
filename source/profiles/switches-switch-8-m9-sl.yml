@@ -1,91 +1,312 @@
 name: switches-switch-8-m9-sl
 components:
-  - id: main
-    capabilities:
-      - id: switch
-        version: 1
-      - id: presenceSensor
-        version: 1
-      - id: concertmirror08464.m98gBacklightMode
-        version: 1
-      - id: concertmirror08464.m98gPowerOnBehavior1
-        version: 1
-      - id: concertmirror08464.m98gPowerOnBehavior2
-        version: 1
-      - id: concertmirror08464.m98gPowerOnBehavior3
-        version: 1
-      - id: concertmirror08464.m98gPowerOnBehavior4
-        version: 1
-      - id: concertmirror08464.m98gPowerOnBehavior5
-        version: 1
-      - id: concertmirror08464.m98gPowerOnBehavior6
-        version: 1
-      - id: concertmirror08464.m98gDelay
-        version: 1
-      - id: refresh
-        version: 1
-    categories:
-      - name: Switch
-  - id: switch2
-    capabilities:
-      - id: switch
-        version: 1
-    categories:
-      - name: Switch
-  - id: switch3
-    capabilities:
-      - id: switch
-        version: 1
-    categories:
-      - name: Switch
-  - id: switch4
-    capabilities:
-      - id: switch
-        version: 1
-    categories:
-      - name: Switch
-  - id: switch5
-    capabilities:
-      - id: switch
-        version: 1
-    categories:
-      - name: Switch
-  - id: switch6
-    capabilities:
-      - id: switch
-        version: 1
-    categories:
-      - name: Switch
-  - id: switch7
-    capabilities:
-      - id: switch
-        version: 1
-    categories:
-      - name: Switch
-  - id: switch8
-    capabilities:
-      - id: switch
-        version: 1
-    categories:
-      - name: Switch
+- id: main
+  capabilities:
+  - id: switch
+    version: 1
+  - id: presenceSensor
+    version: 1
+  - id: concertmirror08464.m98gBacklightMode
+    version: 1
+  - id: concertmirror08464.m98gPowerOnBehavior1
+    version: 1
+  - id: concertmirror08464.m98gPowerOnBehavior2
+    version: 1
+  - id: concertmirror08464.m98gPowerOnBehavior3
+    version: 1
+  - id: concertmirror08464.m98gPowerOnBehavior4
+    version: 1
+  - id: concertmirror08464.m98gPowerOnBehavior5
+    version: 1
+  - id: concertmirror08464.m98gPowerOnBehavior6
+    version: 1
+  - id: concertmirror08464.m98gDelay
+    version: 1
+  - id: refresh
+    version: 1
+  - id: button
+    version: 1
+  - id: concertmirror08464.m9EightModeOne
+    version: 1
+  - id: concertmirror08464.m9EightLightOne
+    version: 1
+  - id: concertmirror08464.m9EightModeTwo
+    version: 1
+  - id: concertmirror08464.m9EightLightTwo
+    version: 1
+  - id: concertmirror08464.m9EightModeThree
+    version: 1
+  - id: concertmirror08464.m9EightLightThree
+    version: 1
+  - id: concertmirror08464.m9EightModeFour
+    version: 1
+  - id: concertmirror08464.m9EightLightFour
+    version: 1
+  - id: concertmirror08464.m9EightModeFive
+    version: 1
+  - id: concertmirror08464.m9EightLightFive
+    version: 1
+  - id: concertmirror08464.m9EightModeSix
+    version: 1
+  - id: concertmirror08464.m9EightLightSix
+    version: 1
+  - id: concertmirror08464.m9EightModeSeven
+    version: 1
+  - id: concertmirror08464.m9EightLightSeven
+    version: 1
+  - id: concertmirror08464.m9EightPowerSeven
+    version: 1
+  - id: concertmirror08464.m9EightModeEight
+    version: 1
+  - id: concertmirror08464.m9EightLightEight
+    version: 1
+  - id: concertmirror08464.m9EightPowerEight
+    version: 1
+  categories:
+  - name: Switch
+- id: switch2
+  capabilities:
+  - id: switch
+    version: 1
+  categories:
+  - name: Switch
+- id: switch3
+  capabilities:
+  - id: switch
+    version: 1
+  categories:
+  - name: Switch
+- id: switch4
+  capabilities:
+  - id: switch
+    version: 1
+  categories:
+  - name: Switch
+- id: switch5
+  capabilities:
+  - id: switch
+    version: 1
+  categories:
+  - name: Switch
+- id: switch6
+  capabilities:
+  - id: switch
+    version: 1
+  categories:
+  - name: Switch
+- id: switch7
+  capabilities:
+  - id: switch
+    version: 1
+  categories:
+  - name: Switch
+- id: switch8
+  capabilities:
+  - id: switch
+    version: 1
+  categories:
+  - name: Switch
+- id: button2
+  label: Scene 2
+  capabilities:
+  - id: button
+    version: 1
+  categories:
+  - name: RemoteController
+- id: button3
+  label: Scene 3
+  capabilities:
+  - id: button
+    version: 1
+  categories:
+  - name: RemoteController
+- id: button4
+  label: Scene 4
+  capabilities:
+  - id: button
+    version: 1
+  categories:
+  - name: RemoteController
+- id: button5
+  label: Scene 5
+  capabilities:
+  - id: button
+    version: 1
+  categories:
+  - name: RemoteController
+- id: button6
+  label: Scene 6
+  capabilities:
+  - id: button
+    version: 1
+  categories:
+  - name: RemoteController
+- id: button7
+  label: Scene 7
+  capabilities:
+  - id: button
+    version: 1
+  categories:
+  - name: RemoteController
+- id: button8
+  label: Scene 8
+  capabilities:
+  - id: button
+    version: 1
+  categories:
+  - name: RemoteController
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: switch
-        version: 1
-        group: main
-        composite: true
+    - component: main
+      capability: switch
+      version: 1
+      group: main
+      composite: true
     actions:
-      - component: main
-        capability: switch
-        version: 1
-        group: main
-        values:
-          - command: "on"
-          - command: "off"
+    - component: main
+      capability: switch
+      version: 1
+      group: main
+      values:
+      - command: 'on'
+      - command: 'off'
     basicPlus: []
   detailView:
+  - component: main
+    capability: switch
+    version: 1
+  - component: main
+    capability: presenceSensor
+    version: 1
+  - component: main
+    capability: concertmirror08464.m98gBacklightMode
+    version: 1
+  - component: main
+    capability: concertmirror08464.m98gPowerOnBehavior1
+    version: 1
+  - component: main
+    capability: concertmirror08464.m98gPowerOnBehavior2
+    version: 1
+  - component: main
+    capability: concertmirror08464.m98gPowerOnBehavior3
+    version: 1
+  - component: main
+    capability: concertmirror08464.m98gPowerOnBehavior4
+    version: 1
+  - component: main
+    capability: concertmirror08464.m98gPowerOnBehavior5
+    version: 1
+  - component: main
+    capability: concertmirror08464.m98gPowerOnBehavior6
+    version: 1
+  - component: main
+    capability: concertmirror08464.m98gDelay
+    version: 1
+  - component: main
+    capability: refresh
+    version: 1
+  - component: switch2
+    capability: switch
+    version: 1
+  - component: switch3
+    capability: switch
+    version: 1
+  - component: switch4
+    capability: switch
+    version: 1
+  - component: switch5
+    capability: switch
+    version: 1
+  - component: switch6
+    capability: switch
+    version: 1
+  - component: switch7
+    capability: switch
+    version: 1
+  - component: switch8
+    capability: switch
+    version: 1
+  - component: main
+    capability: button
+    version: 1
+  - component: button2
+    capability: button
+    version: 1
+  - component: button3
+    capability: button
+    version: 1
+  - component: button4
+    capability: button
+    version: 1
+  - component: button5
+    capability: button
+    version: 1
+  - component: button6
+    capability: button
+    version: 1
+  - component: button7
+    capability: button
+    version: 1
+  - component: button8
+    capability: button
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightModeOne
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightLightOne
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightModeTwo
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightLightTwo
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightModeThree
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightLightThree
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightModeFour
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightLightFour
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightModeFive
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightLightFive
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightModeSix
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightLightSix
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightModeSeven
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightLightSeven
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightPowerSeven
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightModeEight
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightLightEight
+    version: 1
+  - component: main
+    capability: concertmirror08464.m9EightPowerEight
+    version: 1
+  automation:
+    conditions:
     - component: main
       capability: switch
       version: 1
@@ -116,8 +337,132 @@ deviceConfig:
     - component: main
       capability: concertmirror08464.m98gDelay
       version: 1
+    - component: switch2
+      capability: switch
+      version: 1
+    - component: switch3
+      capability: switch
+      version: 1
+    - component: switch4
+      capability: switch
+      version: 1
+    - component: switch5
+      capability: switch
+      version: 1
+    - component: switch6
+      capability: switch
+      version: 1
+    - component: switch7
+      capability: switch
+      version: 1
+    - component: switch8
+      capability: switch
+      version: 1
     - component: main
-      capability: refresh
+      capability: button
+      version: 1
+    - component: button2
+      capability: button
+      version: 1
+    - component: button3
+      capability: button
+      version: 1
+    - component: button4
+      capability: button
+      version: 1
+    - component: button5
+      capability: button
+      version: 1
+    - component: button6
+      capability: button
+      version: 1
+    - component: button7
+      capability: button
+      version: 1
+    - component: button8
+      capability: button
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeOne
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightOne
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeTwo
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightTwo
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeThree
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightThree
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeFour
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightFour
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeFive
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightFive
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeSix
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightSix
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeSeven
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightSeven
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightPowerSeven
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeEight
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightEight
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightPowerEight
+      version: 1
+    actions:
+    - component: main
+      capability: switch
+      version: 1
+    - component: main
+      capability: concertmirror08464.m98gBacklightMode
+      version: 1
+    - component: main
+      capability: concertmirror08464.m98gPowerOnBehavior1
+      version: 1
+    - component: main
+      capability: concertmirror08464.m98gPowerOnBehavior2
+      version: 1
+    - component: main
+      capability: concertmirror08464.m98gPowerOnBehavior3
+      version: 1
+    - component: main
+      capability: concertmirror08464.m98gPowerOnBehavior4
+      version: 1
+    - component: main
+      capability: concertmirror08464.m98gPowerOnBehavior5
+      version: 1
+    - component: main
+      capability: concertmirror08464.m98gPowerOnBehavior6
+      version: 1
+    - component: main
+      capability: concertmirror08464.m98gDelay
       version: 1
     - component: switch2
       capability: switch
@@ -140,105 +485,57 @@ deviceConfig:
     - component: switch8
       capability: switch
       version: 1
-  automation:
-    conditions:
-      - component: main
-        capability: switch
-        version: 1
-      - component: main
-        capability: presenceSensor
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gBacklightMode
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gPowerOnBehavior1
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gPowerOnBehavior2
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gPowerOnBehavior3
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gPowerOnBehavior4
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gPowerOnBehavior5
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gPowerOnBehavior6
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gDelay
-        version: 1
-      - component: switch2
-        capability: switch
-        version: 1
-      - component: switch3
-        capability: switch
-        version: 1
-      - component: switch4
-        capability: switch
-        version: 1
-      - component: switch5
-        capability: switch
-        version: 1
-      - component: switch6
-        capability: switch
-        version: 1
-      - component: switch7
-        capability: switch
-        version: 1
-      - component: switch8
-        capability: switch
-        version: 1
-    actions:
-      - component: main
-        capability: switch
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gBacklightMode
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gPowerOnBehavior1
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gPowerOnBehavior2
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gPowerOnBehavior3
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gPowerOnBehavior4
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gPowerOnBehavior5
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gPowerOnBehavior6
-        version: 1
-      - component: main
-        capability: concertmirror08464.m98gDelay
-        version: 1
-      - component: switch2
-        capability: switch
-        version: 1
-      - component: switch3
-        capability: switch
-        version: 1
-      - component: switch4
-        capability: switch
-        version: 1
-      - component: switch5
-        capability: switch
-        version: 1
-      - component: switch6
-        capability: switch
-        version: 1
-      - component: switch7
-        capability: switch
-        version: 1
-      - component: switch8
-        capability: switch
-        version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeOne
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightOne
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeTwo
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightTwo
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeThree
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightThree
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeFour
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightFour
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeFive
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightFive
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeSix
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightSix
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeSeven
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightSeven
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightPowerSeven
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightModeEight
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightLightEight
+      version: 1
+    - component: main
+      capability: concertmirror08464.m9EightPowerEight
+      version: 1

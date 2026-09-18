@@ -1,0 +1,9 @@
+name: safety-feibit-sga01zb-core
+components:
+  - id: main
+    capabilities:
+      - {id: gasDetector, version: 1}
+      - {id: tamperAlert, version: 1}
+      - {id: batteryLevel, version: 1}
+    categories:
+      - {name: GenericSensor}

@@ -1,0 +1,30 @@
+name: safety-aqara-motion-m11
+components:
+- id: main
+  capabilities:
+  - id: motionSensor
+    version: 1
+  - id: illuminanceMeasurement
+    version: 1
+  - id: battery
+    version: 1
+  - id: voltageMeasurement
+    version: 1
+  - id: concertmirror08464.aqM11DeviceTemp
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.aqM11Restarts
+    version: 1
+  categories:
+  - name: MotionSensor
+preferences:
+- name: occupancyTimeout
+  title: Motion reset time
+  description: Seconds before motion clears. Newer sensors use at least their reported
+    detection interval.
+  required: true
+  preferenceType: integer
+  definition:
+    minimum: 0
+    default: 90

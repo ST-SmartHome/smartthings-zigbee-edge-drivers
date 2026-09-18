@@ -1,0 +1,1 @@
+{name: sensors-slacky-co2-r01-core,components:[{id: main,capabilities:[{id: carbonDioxideMeasurement,version: 1},{id: refresh,version: 1}],categories:[{name: AirQualityDetector}]}]}

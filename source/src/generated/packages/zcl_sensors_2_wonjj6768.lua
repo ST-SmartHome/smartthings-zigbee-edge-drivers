@@ -59,4 +59,9 @@ for _, entry in ipairs(registrations(catalog_9, "zcl.sensors.hobeian", "contract
   entries[#entries + 1] = entry
 end
 
+local catalog_10 = require "contracts.families.zcl.sensors.zg204zl"
+for _, entry in ipairs(registrations(catalog_10, "zcl.sensors.zg204zl", "contracts.families.zcl.sensors.zg204zl")) do
+  entries[#entries + 1] = entry
+end
+
 return entries

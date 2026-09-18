@@ -141,13 +141,14 @@ converter=converter.from_only(converter.lookup_value({[0]="low",[1]="medium",[2]
 }),
 tuya.dp_battery(15,{emit=emit.battery()}),
 }
-register_device_definition(smoke_battery,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_t5p1vj8r",
-"_TZE200_uebojraa",
-"_TZE200_vzekyi4c",
-"_TZE200_yh7aoahi",
-"_TZE200_dq1mfjug",
-}))
+register_device_definition(smoke_battery,{
+device_helpers.create_fingerprint("_TZE200_t5p1vj8r","TS0601"),
+device_helpers.create_fingerprint("_TZE200_uebojraa","TS0601"),
+device_helpers.create_fingerprint("_TZE200_vzekyi4c","TS0601"),
+device_helpers.create_fingerprint("_TZE200_yh7aoahi","TS0601"),
+device_helpers.create_fingerprint("_TZE200_dq1mfjug","TS0601"),
+device_helpers.create_fingerprint("_TYST11_t5p1vj8r","5p1vj8r\0"),
+})
 local smoke_gsks_zb={
 profile="safety-smoke-tamper-battery",
 tuya.dp_smoke(1,{emit=emit.smoke()}),
@@ -1117,7 +1118,9 @@ converter=converter.lookup_from_to({off=0,on=1}),
 }),
 tuya.dp_enum(112,{
 name="battery_low",
-emit=emit.battery_low(),
+emit=function(_,low)
+return low and capabilities.batteryLevel.battery.critical()or capabilities.batteryLevel.battery.normal()
+end,
 read_only=true,
 converter=converter.from_only(converter.lookup_value({[0]=true,[1]=false})),
 }),

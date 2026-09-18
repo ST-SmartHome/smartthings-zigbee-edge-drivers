@@ -66,7 +66,24 @@ local frankever = {
 add(frankever, tuya.dp_on_off(1, { name = "switch", emit = emit.switch(), transaction = 1 }))
 add(frankever, numeric(2, "frank_bv_five_threshold", "frankBvFiveThreshold", false))
 add(frankever, numeric(3, "frank_bv_five_position", "frankBvFivePosition", true))
-add(frankever, numeric(5, "frank_bv_five_water_last", "frankBvFiveWaterLast", true))
+-- ZHC26.107: DP5 is decilitres; DP6 remains litres.
+add(frankever, tuya.dp_numeric(5, {
+  name = "frank_bv_last_volume", emit = emit.frankBvLastVolume("L"),
+  converter = converter.from_only(function(value) return value / 10 end),
+  read_only = true, transaction = 1,
+}))
+add(frankever, tuya.dp_bitmap(4, {
+  name = "frank_bv_fault", emit = emit.frankBvFault(), read_only = true,
+  converter = converter.from_only(function(value) return value == 0 and "clear" or "detected" end),
+}))
+add(frankever, tuya.dp_binary(114, {
+  name = "frank_bv_temp_alarm", emit = emit.frankBvTempAlarm(), read_only = true,
+  converter = converter.lookup_from_to({clear = false, detected = true}),
+}))
+add(frankever, tuya.dp_binary(115, {
+  name = "frank_bv_water_alarm", emit = emit.frankBvWaterAlarm(), read_only = true,
+  converter = converter.lookup_from_to({clear = false, detected = true}),
+}))
 add(frankever, numeric(6, "frank_bv_five_water_total", "frankBvFiveWaterTotal", true))
 add(frankever, enum(10, "frank_bv_five_weather_delay", "frankBvFiveWeatherDelay", {
   cancel = 0, ["24h"] = 1, ["48h"] = 2, ["72h"] = 3,

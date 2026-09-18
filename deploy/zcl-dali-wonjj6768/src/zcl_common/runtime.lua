@@ -197,7 +197,8 @@ end
 if expected_endpoint ~=nil and actual_endpoint ~=expected_endpoint then
 return -1
 end
-if expected_component_id ~=nil and actual_component_id ~=expected_component_id then
+local received_on_explicit_endpoint=expected_endpoint ~=nil and type(context)=="table" and context.zb_rx ~=nil
+if expected_component_id ~=nil and actual_component_id ~=expected_component_id and not received_on_explicit_endpoint then
 return -1
 end
 local strict_mfg_match=type(context)=="table" and(

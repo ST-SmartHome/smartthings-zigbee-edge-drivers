@@ -228,6 +228,7 @@ local thermostat_gtz10 = {
   profile = "thermostats-thermostat-gtz10",
   package_group = "trv-2",
   force_time_updates = true,
+  time_start = "1970",
   -- Z2M TS0601_GTZ10 (tuya.ts:21596).  DP2 packs system mode and preset, DP49 is
   -- the valve state exposed as running state and the Z2M "exposed but not used"
   -- DPs (1, 3, 8, 11, 12, 17, 18, 39..48, 112, 114, 116..121) stay unexposed.
@@ -279,7 +280,7 @@ local thermostat_gtz10 = {
   tuya.dp_numeric(35, {
     name = "error_status",
     read_only = true,
-    emit = emit.gtz10ErrorStatus(),
+    emit = emit.gtzFault(),
   }),
   tuya.dp_frost_protection(36, { emit = emit.gtz10FrostProtection() }),
   tuya.dp_boost_heating(37, { emit = emit.gtz10BoostHeating() }),
@@ -300,6 +301,12 @@ local thermostat_gtz10 = {
     converter = converter.lookup_from_to({ up = 0, down = 1, left = 2, right = 3 }),
   }),
 }
+for index, factory in ipairs({emit.gtzMonday, emit.gtzTuesday, emit.gtzWednesday, emit.gtzThursday,
+  emit.gtzFriday, emit.gtzSaturday, emit.gtzSunday}) do
+  thermostat_gtz10[#thermostat_gtz10 + 1] = tuya.dp_raw(27 + index, {
+    name = "gtz_schedule_" .. index, converter = thermostat_common.daily_schedule(index, 4), emit = factory(),
+  })
+end
 register_device_definition(thermostat_gtz10, ef00_helpers.ts0601_fingerprints( {
   "_TZE200_pbo8cj0z",
   "_TZE200_eo6xhfbo",
@@ -307,6 +314,7 @@ register_device_definition(thermostat_gtz10, ef00_helpers.ts0601_fingerprints( {
 local thermostat_tr_m3z = {
   profile = "thermostats-thermostat-tr-m3z",
   package_group = "trv-2",
+  time_start = "1970",
   -- Z2M TR-M3Z (tuya.ts:22563).  DP47 calibration is /10, DP35 is the shared
   -- error/battery-low bitmap and DP28..DP34 are packed schedule frames.
   tuya.dp_system_mode(101, {
@@ -354,6 +362,7 @@ local thermostat_tr_m3z = {
     emit = emit.trm3zBatteryLow(),
     converter = converter.from_only(thermostat_common.error_or_battery_low_state),
   }),
+  tuya.dp_bitmap(35, {name = "fault_alarm", read_only = true, emit = emit.trmFault()}),
   tuya.dp_frost_protection(36, { emit = emit.trm3zFrostProtection() }),
   tuya.dp_scale_protection(39, { emit = emit.trm3zScaleProtection() }),
   tuya.dp_local_temperature_calibration(47, { scale = 10, emit = emit.trm3zTempCalibration() }),
@@ -370,6 +379,12 @@ local thermostat_tr_m3z = {
     emit = emit.trm3zFrostTemperature(),
   }),
 }
+for index, factory in ipairs({emit.trmMonday, emit.trmTuesday, emit.trmWednesday, emit.trmThursday,
+  emit.trmFriday, emit.trmSaturday, emit.trmSunday}) do
+  thermostat_tr_m3z[#thermostat_tr_m3z + 1] = tuya.dp_raw(27 + index, {
+    name = "trm_schedule_" .. index, converter = thermostat_common.daily_schedule(index, 6), emit = factory(),
+  })
+end
 register_device_definition(thermostat_tr_m3z, ef00_helpers.ts0601_fingerprints( {
   "_TZE204_eekpf0ft",
   "_TZE284_eekpf0ft",
@@ -554,7 +569,10 @@ local function trv60x_definition(profile, emits)
       name = "alarm_switch",
       read_only = true,
       emit = emits.alarm_switch,
-      converter = converter.lookup_from_to({ off = false, on = true }),
+      converter = converter.from_only(function(value)
+        if value == true or value == 1 then return "on" end
+        if value == false or value == 0 then return "off" end
+      end),
     }),
     tuya.dp_min_temperature_limit(15, {
       name = "min_temperature",

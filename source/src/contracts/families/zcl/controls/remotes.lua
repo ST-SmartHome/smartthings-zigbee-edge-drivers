@@ -3,6 +3,7 @@
 local zcl = require "protocol.zcl"
 local device_helpers = require "contracts.helpers.family"
 local emit = require "capabilities.events.all"
+local capabilities = require "st.capabilities"
 
 local device_definitions, register_device_definition = device_helpers.definition_registry()
 
@@ -87,7 +88,6 @@ register_device_definition(remote_1, device_helpers.create_fingerprints("TS0041"
   "_TZ3000_6km7djcm",
   "_TZ3000_4upl1fcj",
   "_TZ3000_filhl5b7",
-  "_TZ3000_axpdxqgu",
   "_TZ3000_yj6k7vfo",
 }))
 
@@ -126,7 +126,6 @@ register_device_definition(remote_1_double_only_voltage, device_helpers.create_f
 
 register_device_definition(remote_2, device_helpers.create_fingerprints("TS0042", {
   "_TZ3000_dfgbtub0",
-  "_TZ3000_5e235jpa",
   "_TZ3000_cllghx1k",
 }))
 
@@ -147,13 +146,11 @@ register_device_definition(remote_2, device_helpers.create_fingerprints("TS0042"
 }))
 
 register_device_definition(remote_3, device_helpers.create_fingerprints("TS0043", {
-  "_TZ3000_gbm10jnj",
   "_TZ3000_1kmurvlx",
   "_TZ3000_9zc1limb",
 }))
 
 register_device_definition(remote_3, device_helpers.create_fingerprints("TS0043", {
-  "_TZ3000_sj7jbgks",
   "_TZ3000_vm5gcsdq",
   "_TZ3000_mutfmn4u",
   "_TZ3000_ngsph3oj",
@@ -209,6 +206,39 @@ register_device_definition(remote_6, device_helpers.create_fingerprints("TS0046"
   "_TZ3000_iszegwpd",
   "_TZ3000_nrfkrgf4",
 }))
+
+local function build_moes_remote(profile, button_count)
+  local definition = build_remote_definition(profile)
+  definition.zcl_clusters[2] = zcl.cluster_attribute(0x0001, 0x0021, {
+    name = "battery", endpoint = 1, read_only = true, read_on_configure = false,
+    emit = emit.battery(),
+    from_device = function(value)
+      value = type(value) == "table" and value.value or value
+      if value < 255 then return math.floor(value / 2 + 0.5) end
+    end,
+  })
+  definition.zcl_clusters[3] = nil -- Z2M has no voltage-to-percentage fallback for these exacts.
+  definition.datapoints = {}
+  for button = 1, button_count do
+    definition.datapoints[#definition.datapoints + 1] = {
+      dp = button, datatype = 2, receive_datatypes = {2, 4}, read_only = true,
+      name = "moes_button_" .. button,
+      component = button == 1 and "main" or "button" .. button,
+      from_device = function(value) return ({[0] = "pushed", [1] = "double", [2] = "held"})[value] end,
+      emit = function(_, value) return capabilities.button.button(value, {state_change = true}) end,
+    }
+  end
+  return definition
+end
+
+-- moes.ts ZT-B-EU1/2/3 accept numeric VALUE/ENUM action reports as well as OnOff actions.
+-- Keep these exact revisions separate from remotes that only use standard ZCL commands.
+local moes_remote_1 = build_moes_remote("buttons-button-1-battery", 1)
+local moes_remote_2 = build_moes_remote("buttons-button-2-battery", 2)
+local moes_remote_3 = build_moes_remote("buttons-button-3-battery", 3)
+register_device_definition(moes_remote_1, device_helpers.create_fingerprints("TS0041", {"_TZ3000_axpdxqgu"}))
+register_device_definition(moes_remote_2, device_helpers.create_fingerprints("TS0042", {"_TZ3000_5e235jpa"}))
+register_device_definition(moes_remote_3, device_helpers.create_fingerprints("TS0043", {"_TZ3000_gbm10jnj", "_TZ3000_sj7jbgks"}))
 
 return {
   id = "zcl.controls.remotes",

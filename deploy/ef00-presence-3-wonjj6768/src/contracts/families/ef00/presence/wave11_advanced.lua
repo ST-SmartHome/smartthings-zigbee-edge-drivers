@@ -21,6 +21,7 @@ return math.floor(10 ^((numeric - 1)/ 10000)+ 0.5)
 end
 local linptech_es_one={
 profile="safety-occupancy-wave11-linptech-es1",
+magic_packet=true,
 package_group="z2m-ef00-pres-hyb",
 named_datapoints=true,
 datapoints={

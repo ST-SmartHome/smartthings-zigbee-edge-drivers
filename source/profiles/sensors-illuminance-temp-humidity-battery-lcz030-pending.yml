@@ -12,6 +12,18 @@ components:
         version: 1
       - id: firmwareUpdate
         version: 1
+      - id: concertmirror08464.lczTempMax
+        version: 1
+      - id: concertmirror08464.lczTempMin
+        version: 1
+      - id: concertmirror08464.lczHumidityMax
+        version: 1
+      - id: concertmirror08464.lczHumidityMin
+        version: 1
+      - id: concertmirror08464.lczTempAlarm
+        version: 1
+      - id: concertmirror08464.lczHumidityAlarm
+        version: 1
       - id: refresh
         version: 1
     categories:

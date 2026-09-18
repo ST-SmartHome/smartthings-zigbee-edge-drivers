@@ -632,6 +632,7 @@ register_device_definition(snzb02_classic,{
 device_helpers.create_fingerprint("SONOFF","SNZB-02"),
 device_helpers.create_fingerprint("SONOFF","TH01"),
 device_helpers.create_fingerprint("SONOFF","CK-TLSR8656-SS5-01(7014)"),
+device_helpers.create_fingerprint("eWeLink","TH01"),
 })
 local function classic_zone_bit(bit)
 return function(value)

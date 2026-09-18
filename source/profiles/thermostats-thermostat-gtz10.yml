@@ -1,61 +1,161 @@
 name: thermostats-thermostat-gtz10
 components:
-  - id: main
-    capabilities:
-      - id: thermostatMode
-        version: 1
-      - id: thermostatHeatingSetpoint
-        version: 1
-      - id: thermostatOperatingState
-        version: 1
-      - id: temperatureMeasurement
-        version: 1
-      - id: battery
-        version: 1
-      - id: concertmirror08464.gtz10Preset
-        version: 1
-      - id: concertmirror08464.gtz10ChildLock
-        version: 1
-      - id: concertmirror08464.gtz10WindowDetection
-        version: 1
-      - id: concertmirror08464.gtz10WindowOpen
-        version: 1
-      - id: concertmirror08464.gtz10FrostProtection
-        version: 1
-      - id: concertmirror08464.gtz10BoostHeating
-        version: 1
-      - id: concertmirror08464.gtz10BoostCountdown
-        version: 1
-      - id: concertmirror08464.gtz10SwitchType
-        version: 1
-      - id: concertmirror08464.gtz10ScreenOrientation
-        version: 1
-      - id: concertmirror08464.gtz10MaxTemperature
-        version: 1
-      - id: concertmirror08464.gtz10MinTemperature
-        version: 1
-      - id: concertmirror08464.gtz10OpenWindowTemperature
-        version: 1
-      - id: concertmirror08464.gtz10TempCalibration
-        version: 1
-      - id: concertmirror08464.gtz10Position
-        version: 1
-      - id: concertmirror08464.gtz10ErrorStatus
-        version: 1
-      - id: refresh
-        version: 1
-    categories:
-      - name: Thermostat
+- id: main
+  capabilities:
+  - id: thermostatMode
+    version: 1
+  - id: thermostatHeatingSetpoint
+    version: 1
+  - id: thermostatOperatingState
+    version: 1
+  - id: temperatureMeasurement
+    version: 1
+  - id: battery
+    version: 1
+  - id: concertmirror08464.gtz10Preset
+    version: 1
+  - id: concertmirror08464.gtz10ChildLock
+    version: 1
+  - id: concertmirror08464.gtz10WindowDetection
+    version: 1
+  - id: concertmirror08464.gtz10WindowOpen
+    version: 1
+  - id: concertmirror08464.gtz10FrostProtection
+    version: 1
+  - id: concertmirror08464.gtz10BoostHeating
+    version: 1
+  - id: concertmirror08464.gtz10BoostCountdown
+    version: 1
+  - id: concertmirror08464.gtz10SwitchType
+    version: 1
+  - id: concertmirror08464.gtz10ScreenOrientation
+    version: 1
+  - id: concertmirror08464.gtz10MaxTemperature
+    version: 1
+  - id: concertmirror08464.gtz10MinTemperature
+    version: 1
+  - id: concertmirror08464.gtz10OpenWindowTemperature
+    version: 1
+  - id: concertmirror08464.gtz10TempCalibration
+    version: 1
+  - id: concertmirror08464.gtz10Position
+    version: 1
+  - id: concertmirror08464.gtzFault
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.gtzMonday
+    version: 1
+  - id: concertmirror08464.gtzTuesday
+    version: 1
+  - id: concertmirror08464.gtzWednesday
+    version: 1
+  - id: concertmirror08464.gtzThursday
+    version: 1
+  - id: concertmirror08464.gtzFriday
+    version: 1
+  - id: concertmirror08464.gtzSaturday
+    version: 1
+  - id: concertmirror08464.gtzSunday
+    version: 1
+  categories:
+  - name: Thermostat
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: thermostatHeatingSetpoint
-        version: 1
-        group: main
+    - component: main
+      capability: thermostatHeatingSetpoint
+      version: 1
+      group: main
     actions: []
     basicPlus: []
   detailView:
+  - component: main
+    capability: thermostatMode
+    version: 1
+  - component: main
+    capability: thermostatHeatingSetpoint
+    version: 1
+  - component: main
+    capability: thermostatOperatingState
+    version: 1
+  - component: main
+    capability: temperatureMeasurement
+    version: 1
+  - component: main
+    capability: battery
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10Preset
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10ChildLock
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10WindowDetection
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10WindowOpen
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10FrostProtection
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10BoostHeating
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10BoostCountdown
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10SwitchType
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10ScreenOrientation
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10MaxTemperature
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10MinTemperature
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10OpenWindowTemperature
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10TempCalibration
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtz10Position
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtzFault
+    version: 1
+  - component: main
+    capability: refresh
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtzMonday
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtzTuesday
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtzWednesday
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtzThursday
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtzFriday
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtzSaturday
+    version: 1
+  - component: main
+    capability: concertmirror08464.gtzSunday
+    version: 1
+  automation:
+    conditions:
     - component: main
       capability: thermostatMode
       version: 1
@@ -114,116 +214,93 @@ deviceConfig:
       capability: concertmirror08464.gtz10Position
       version: 1
     - component: main
-      capability: concertmirror08464.gtz10ErrorStatus
+      capability: concertmirror08464.gtzFault
       version: 1
     - component: main
-      capability: refresh
+      capability: concertmirror08464.gtzMonday
       version: 1
-  automation:
-    conditions:
-      - component: main
-        capability: thermostatMode
-        version: 1
-      - component: main
-        capability: thermostatHeatingSetpoint
-        version: 1
-      - component: main
-        capability: thermostatOperatingState
-        version: 1
-      - component: main
-        capability: temperatureMeasurement
-        version: 1
-      - component: main
-        capability: battery
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10Preset
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10ChildLock
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10WindowDetection
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10WindowOpen
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10FrostProtection
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10BoostHeating
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10BoostCountdown
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10SwitchType
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10ScreenOrientation
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10MaxTemperature
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10MinTemperature
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10OpenWindowTemperature
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10TempCalibration
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10Position
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10ErrorStatus
-        version: 1
+    - component: main
+      capability: concertmirror08464.gtzTuesday
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtzWednesday
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtzThursday
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtzFriday
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtzSaturday
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtzSunday
+      version: 1
     actions:
-      - component: main
-        capability: thermostatMode
-        version: 1
-      - component: main
-        capability: thermostatHeatingSetpoint
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10Preset
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10ChildLock
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10WindowDetection
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10FrostProtection
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10BoostHeating
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10BoostCountdown
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10SwitchType
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10ScreenOrientation
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10MaxTemperature
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10MinTemperature
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10OpenWindowTemperature
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10TempCalibration
-        version: 1
-      - component: main
-        capability: concertmirror08464.gtz10Position
-        version: 1
+    - component: main
+      capability: thermostatMode
+      version: 1
+    - component: main
+      capability: thermostatHeatingSetpoint
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10Preset
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10ChildLock
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10WindowDetection
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10FrostProtection
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10BoostHeating
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10BoostCountdown
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10SwitchType
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10ScreenOrientation
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10MaxTemperature
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10MinTemperature
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10OpenWindowTemperature
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10TempCalibration
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtz10Position
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtzMonday
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtzTuesday
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtzWednesday
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtzThursday
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtzFriday
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtzSaturday
+      version: 1
+    - component: main
+      capability: concertmirror08464.gtzSunday
+      version: 1

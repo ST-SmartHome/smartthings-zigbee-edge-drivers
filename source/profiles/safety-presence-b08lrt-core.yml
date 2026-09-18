@@ -1,0 +1,16 @@
+name: safety-presence-b08lrt-core
+components:
+  - id: main
+    capabilities:
+      - id: presenceSensor
+        version: 1
+      - id: illuminanceMeasurement
+        version: 1
+      - id: temperatureMeasurement
+        version: 1
+      - id: relativeHumidityMeasurement
+        version: 1
+      - id: refresh
+        version: 1
+    categories:
+      - name: PresenceSensor

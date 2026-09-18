@@ -1,0 +1,1 @@
+{name: safety-smoke-bitron-av2010-24-core,components:[{id: main,capabilities:[{id: smokeDetector,version: 1},{id: tamperAlert,version: 1},{id: batteryLevel,version: 1},{id: refresh,version: 1}],categories:[{name: SmokeDetector}]}]}

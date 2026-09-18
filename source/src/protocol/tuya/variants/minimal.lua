@@ -21,6 +21,7 @@ function tuya.build_base_preset(options)
   function preset:send_magic_packet(...) return false end
   function preset:send_state_request(...) return false end
   function preset:apply_message(...) return false end
+  function preset:apply_announce(...) return false end
   function preset:apply_preferences_changed(...) return false end
 
   return preset

@@ -6,7 +6,15 @@
 
 local battery_refresh = require "runtime.battery_refresh"
 
-local function load_read_only_datapoints(tuya)
+local function load_read_only_datapoints(tuya, allow_enum)
+  function tuya.build_named_map(mappings, key_field)
+    local named = {}
+    for _, mapping in ipairs(mappings or {}) do
+      local name = mapping[key_field or "name"]
+      if name ~= nil then named[name] = mapping end
+    end
+    return named
+  end
   local REPORT_COMMANDS = {
     [tuya.GET_DATA] = true,
     [tuya.SET_DATA_RESPONSE] = true,
@@ -64,6 +72,9 @@ local function load_read_only_datapoints(tuya)
     end
     if datatype == DP_TYPE_VALUE then
       return parse_uint(value_bytes)
+    end
+    if allow_enum and datatype == 0x04 and #value_bytes == 1 then
+      return string.byte(value_bytes, 1)
     end
     return nil
   end
@@ -138,7 +149,7 @@ local function load_read_only_datapoints(tuya)
 
   local function find_mapping(datapoints, dp)
     for _, mapping in ipairs(datapoints or {}) do
-      if mapping.dp == dp then
+      if mapping.dp == dp and mapping.write_only ~= true then
         return mapping
       end
     end
@@ -147,8 +158,8 @@ local function load_read_only_datapoints(tuya)
 
   local function mapping_context(device, mapping, frame, datapoint)
     local endpoint = datapoint.endpoint or frame.endpoint
-    local component_id = nil
-    if endpoint ~= nil and type(device.get_component_id_for_endpoint) == "function" then
+    local component_id = mapping.component
+    if component_id == nil and endpoint ~= nil and type(device.get_component_id_for_endpoint) == "function" then
       component_id = device:get_component_id_for_endpoint(endpoint)
     end
     return {
@@ -181,7 +192,11 @@ local function load_read_only_datapoints(tuya)
     -- A DP number alone is not enough to trust a report.  Keep malformed or
     -- contract-mismatched wire values from reaching converters, cached fields,
     -- or capability emitters.
-    if mapping.datatype ~= datapoint.datatype or datapoint.value == nil then
+    local datatype_matches = mapping.datatype == datapoint.datatype
+    for _, datatype in ipairs(mapping.receive_datatypes or {}) do
+      datatype_matches = datatype_matches or datatype == datapoint.datatype
+    end
+    if not datatype_matches or datapoint.value == nil then
       return
     end
 

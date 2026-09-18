@@ -3,6 +3,7 @@ local device_helpers = require "contracts.helpers.family"
 local capabilities = require "st.capabilities"
 local data_types = require "st.zigbee.data_types"
 local device_management = require "st.zigbee.device_management"
+local emit = require "capabilities.events.all"
 
 local device_definitions, register_device_definition = device_helpers.definition_registry()
 
@@ -112,7 +113,7 @@ register_device_definition(ac_fan_controller, device_helpers.create_fingerprints
 }))
 
 local fan_light_switch = {
-  profile = "fans-fan-light-switch",
+  profile = "fans-ts0004-backlight",
   component_to_endpoint_map = {
     main = 2,
     light = 1,
@@ -124,6 +125,18 @@ local fan_light_switch = {
     [4] = "main",
   },
   zcl_clusters = {
+    zcl.cluster_attribute(0x0006, 0x8001, {
+      name = "ts_fan_backlight", endpoint = 1, component = "light",
+      data_type = data_types.Enum8, write_type = data_types.Enum8,
+      read_on_configure = false, emit = emit.tsFanBacklight(),
+      from_device = function(value)
+        if type(value) == "table" then value = value.value end
+        return ({[0] = "red_when_on", "pink_when_on", "red_on_blue_off", "pink_on_blue_off"})[value]
+      end,
+      to_device = function(value)
+        return ({red_when_on = 0, pink_when_on = 1, red_on_blue_off = 2, pink_on_blue_off = 3})[value]
+      end,
+    }),
     zcl.tuya_magic_packet(),
     zcl.switch({ endpoint = 1, component = "light" }),
     fan_speed_mapping("high", 2, "fan_mode", send_fan_mode_command),

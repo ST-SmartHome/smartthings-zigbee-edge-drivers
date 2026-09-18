@@ -57,7 +57,19 @@ zcl.battery(),
 }
 local lyai14_valve={
 profile="valves-lyai14-minimal",
+datapoints={
+{dp=1,datatype=1,name="valve_report",read_only=true,
+from_device=function(value)return value and "open" or "closed" end,emit=emit.valve()},
+{dp=101,datatype=4,name="lyai_rain_state",read_only=true,
+from_device=function(value)return({[0]="rain",[1]="no_rain"})[value]end,emit=emit.lyaiRainState()},
+{dp=102,datatype=1,name="lyai_rain_enabled",read_only=false,
+from_device=function(value)return value and "on" or "off" end,
+to_device=function(value)return({on=true,off=false})[value]end,emit=emit.lyaiRainEnabled()},
+{dp=103,datatype=4,name="lyai_charge_state",read_only=true,
+from_device=function(value)return({[0]="no_charge",[1]="charging",[2]="charged"})[value]end,emit=emit.lyaiChargeState()},
+},
 zcl_clusters={
+zcl.tuya_magic_packet(),
 zcl.switch("valve",{
 emit=emit.valve(),
 from_device=function(value)

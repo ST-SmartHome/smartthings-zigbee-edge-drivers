@@ -2,7 +2,7 @@
 
 ## August 31, 2026 Update
 
-This release expands the public channel to 48 drivers and 3607 exact device fingerprints.
+This release expands the public channel to 49 drivers and 4068 exact device fingerprints.
 If a device that worked before no longer works after the August 31 update, please report it in [GitHub Issues](https://github.com/wonjj6768/smartthings-zigbee-edge-drivers/issues).
 Please include the manufacturer, model, current driver name, and hub logcat if available.
 
@@ -45,7 +45,7 @@ Open the invite link with the Samsung account used by your SmartThings hub, enro
 | EF00 Bridge wonjj6768 | `ef00-bridge-wonjj6768` | 2 |
 | EF00 Controls 2 wonjj6768 | `ef00-controls-2-wonjj6768` | 15 |
 | EF00 Controls wonjj6768 | `ef00-controls-wonjj6768` | 10 |
-| EF00 Covers 2 wonjj6768 | `ef00-covers-2-wonjj6768` | 18 |
+| EF00 Covers 2 wonjj6768 | `ef00-covers-2-wonjj6768` | 19 |
 | EF00 Covers wonjj6768 | `ef00-covers-wonjj6768` | 189 |
 | EF00 Energy wonjj6768 | `ef00-energy-wonjj6768` | 52 |
 | EF00 Garage Door wonjj6768 | `ef00-garage-door-wonjj6768` | 11 |
@@ -53,18 +53,18 @@ Open the invite link with the Samsung account used by your SmartThings hub, enro
 | EF00 Lights wonjj6768 | `ef00-lights-wonjj6768` | 111 |
 | EF00 Meters 2 wonjj6768 | `ef00-meters-2-wonjj6768` | 5 |
 | EF00 Meters wonjj6768 | `ef00-meters-wonjj6768` | 62 |
-| EF00 PIR Motion wonjj6768 | `ef00-pir-motion-wonjj6768` | 23 |
-| EF00 Presence 3 wonjj6768 | `ef00-presence-3-wonjj6768` | 21 |
+| EF00 PIR Motion wonjj6768 | `ef00-pir-motion-wonjj6768` | 25 |
+| EF00 Presence 3 wonjj6768 | `ef00-presence-3-wonjj6768` | 33 |
 | EF00 Presence Advanced wonjj6768 | `ef00-presence-advanced-wonjj6768` | 33 |
 | EF00 Presence General 1 wonjj6768 | `ef00-presence-general-1-wonjj6768` | 30 |
-| EF00 Presence General 2 wonjj6768 | `ef00-presence-general-2-wonjj6768` | 62 |
+| EF00 Presence General 2 wonjj6768 | `ef00-presence-general-2-wonjj6768` | 63 |
 | EF00 Presence Switch wonjj6768 | `ef00-presence-switch-wonjj6768` | 16 |
 | EF00 Safety 2 wonjj6768 | `ef00-safety-2-wonjj6768` | 22 |
-| EF00 Safety wonjj6768 | `ef00-safety-wonjj6768` | 100 |
+| EF00 Safety wonjj6768 | `ef00-safety-wonjj6768` | 101 |
 | EF00 Screen Switch wonjj6768 | `ef00-screen-switch-wonjj6768` | 8 |
-| EF00 Sensors 2 wonjj6768 | `ef00-sensors-2-wonjj6768` | 8 |
+| EF00 Sensors 2 wonjj6768 | `ef00-sensors-2-wonjj6768` | 20 |
 | EF00 Sensors wonjj6768 | `ef00-sensors-wonjj6768` | 155 |
-| EF00 Switch 2 wonjj6768 | `ef00-switch-2-wonjj6768` | 48 |
+| EF00 Switch 2 wonjj6768 | `ef00-switch-2-wonjj6768` | 49 |
 | EF00 Switch Panel wonjj6768 | `ef00-switch-panel-wonjj6768` | 38 |
 | EF00 Switch wonjj6768 | `ef00-switch-wonjj6768` | 111 |
 | EF00 Thermostat FCU wonjj6768 | `ef00-thermostat-fcu-wonjj6768` | 40 |
@@ -85,8 +85,9 @@ Open the invite link with the Samsung account used by your SmartThings hub, enro
 | ZCL Lights wonjj6768 | `zcl-lights-wonjj6768` | 692 |
 | ZCL Locks wonjj6768 | `zcl-locks-wonjj6768` | 2 |
 | ZCL Plugs wonjj6768 | `zcl-plugs-wonjj6768` | 110 |
-| ZCL Sensors 2 wonjj6768 | `zcl-sensors-2-wonjj6768` | 36 |
-| ZCL Sensors wonjj6768 | `zcl-sensors-wonjj6768` | 401 |
+| ZCL Sensors 2 wonjj6768 | `zcl-sensors-2-wonjj6768` | 339 |
+| ZCL Sensors 3 wonjj6768 | `zcl-sensors-3-wonjj6768` | 127 |
+| ZCL Sensors wonjj6768 | `zcl-sensors-wonjj6768` | 402 |
 | ZCL Switch 2 wonjj6768 | `zcl-switch-2-wonjj6768` | 12 |
 | ZCL Switch wonjj6768 | `zcl-switch-wonjj6768` | 501 |
 | ZCL Thermostat wonjj6768 | `zcl-thermostat-wonjj6768` | 2 |
@@ -151,7 +152,7 @@ Development driver; report issues with hub logcat. Supports EF00 scene remotes a
 </details>
 
 <details>
-<summary>EF00 Covers 2 wonjj6768 (18 fingerprints)</summary>
+<summary>EF00 Covers 2 wonjj6768 (19 fingerprints)</summary>
 
 Category driver for newly absorbed exact EF00 cover fingerprints.
 
@@ -175,6 +176,7 @@ Category driver for newly absorbed exact EF00 cover fingerprints.
 | `_TZE284_hbjwgkdh` | `TS0601` | `covers-wave10-xenon-x7726` |
 | `_TZE284_qoi1aqxg` | `TS0601` | `covers-wave10-moes-fwjzceh18a001` |
 | `_TZE284_upt8lzi0` | `TS0601` | `covers-cover-moes-zs-sf-euc-wh-ms` |
+| `_TZE28C1000000_i8sdouy0` | `TS0601` | `covers-cover-moes-zs-sf-euc-wh-ms` |
 
 </details>
 
@@ -218,10 +220,10 @@ Development driver; report issues with hub logcat. Supports EF00 curtains, blind
 | `_TZE200_cf1sl3tj` | `TS0601` | `covers-cover-battery-cover-three` |
 | `_TZE200_clm4gdw4` | `TS0601` | `covers-cover` |
 | `_TZE200_cowvfni3` | `TS0601` | `covers-cover` |
-| `_TZE200_cpbo62rn` | `TS0601` | `covers-cover` |
+| `_TZE200_cpbo62rn` | `TS0601` | `covers-cover-six` |
 | `_TZE200_cxu0jkjk` | `TS0601` | `covers-cover` |
 | `_TZE200_dng9fn0k` | `TS0601` | `covers-cover` |
-| `_TZE200_eatmkx5j` | `TS0301` | `covers-cover` |
+| `_TZE200_eatmkx5j` | `TS0301` | `covers-ts0301-combined-rail` |
 | `_TZE200_eegnwoyw` | `TS0601` | `covers-cover` |
 | `_TZE200_eevqq1uv` | `TS0601` | `covers-cover-battery-cover-three` |
 | `_TZE200_en3wvcbx` | `TS0601` | `covers-cover-cover-one` |
@@ -242,7 +244,7 @@ Development driver; report issues with hub logcat. Supports EF00 curtains, blind
 | `_TZE200_icka1clh` | `TS0601` | `covers-cover` |
 | `_TZE200_iossyxra` | `TS0601` | `covers-cover` |
 | `_TZE200_jhkttplm` | `TS0601` | `covers-cover-switch-1` |
-| `_TZE200_libht6ua` | `TS0601` | `covers-cover` |
+| `_TZE200_libht6ua` | `TS0601` | `covers-cover-six` |
 | `_TZE200_llm0epxg` | `TS0601` | `covers-cover-cover-one` |
 | `_TZE200_m6lwazh9` | `TS0601` | `covers-cover-cover-one` |
 | `_TZE200_mlglxwp3` | `TS0601` | `covers-cover` |
@@ -315,9 +317,9 @@ Development driver; report issues with hub logcat. Supports EF00 curtains, blind
 | `_TZE204_yrugsphv` | `TS0601` | `covers-cover-cover-one` |
 | `_TZE204_zuq5xxib` | `TS0601` | `covers-cover-cover-one` |
 | `_TZE20C_xbexmf8h` | `TS130F` | `covers-cover` |
-| `_TZE210_inpjmc0h` | `TS0301` | `covers-cover-2` |
-| `_TZE210_m6lwazh9` | `TS0301` | `covers-cover` |
-| `_TZE210_yqwse3h5` | `TS0301` | `covers-cover-2` |
+| `_TZE210_inpjmc0h` | `TS0301` | `covers-ts0301-dual-rail` |
+| `_TZE210_m6lwazh9` | `TS0301` | `covers-ts0301-one` |
+| `_TZE210_yqwse3h5` | `TS0301` | `covers-ts0301-dual-rail` |
 | `_TZE284_1fuxihti` | `TS0601` | `covers-cover-cover-one` |
 | `_TZE284_2gi1hy8s` | `TS0601` | `covers-cover-battery-mb60l` |
 | `_TZE284_3mzb0sdz` | `TS0601` | `covers-cover` |
@@ -329,8 +331,8 @@ Development driver; report issues with hub logcat. Supports EF00 curtains, blind
 | `_TZE284_clm4gdw4` | `TS0601` | `covers-cover` |
 | `_TZE284_fzo2pocs` | `TS0601` | `covers-cover` |
 | `_TZE284_gaj531w3` | `TS0601` | `covers-cover-cover-one` |
-| `_TZE284_koxaopnk` | `TS0601` | `covers-cover` |
-| `_TZE284_libht6ua` | `TS0601` | `covers-cover` |
+| `_TZE284_koxaopnk` | `TS0601` | `covers-cover-battery` |
+| `_TZE284_libht6ua` | `TS0601` | `covers-cover-six` |
 | `_TZE284_n73badib` | `TS0601` | `covers-cover-battery-cover-three` |
 | `_TZE284_r3szw0xr` | `TS0601` | `covers-cover` |
 | `_TZE284_udank5zs` | `TS0601` | `covers-cover-cover-one` |
@@ -503,11 +505,11 @@ Development driver; report issues with hub logcat. Supports EF00 dimmers, LED dr
 
 | Manufacturer | Model | Profile |
 | --- | --- | --- |
-| `_TZE200_0hb4rdnp` | `TS0601` | `lights-dimmer-options-ts0601` |
+| `_TZE200_0hb4rdnp` | `TS0601` | `lights-dimmer-ion` |
 | `_TZE200_0nauxa0p` | `TS0601` | `lights-dimmer-options-ts0601` |
 | `_TZE200_1agwnems` | `TS0601` | `lights-dimmer-options-ts0601` |
 | `_TZE200_3p5ydos3` | `TS0601` | `lights-dimmer-options-ts0601` |
-| `_TZE200_4mh6tyyo` | `TS0601` | `lights-dimmer-options-ts0601` |
+| `_TZE200_4mh6tyyo` | `TS0601` | `lights-dimmer-ion` |
 | `_TZE200_579lguh2` | `TS0601` | `lights-dimmer-options-ts0601` |
 | `_TZE200_86nbew0j` | `TS0601` | `lights-dimmer-ts0601-light` |
 | `_TZE200_9cxuhakf` | `TS0601` | `lights-dimmer-options-ts0601` |
@@ -522,12 +524,12 @@ Development driver; report issues with hub logcat. Supports EF00 dimmers, LED dr
 | `_TZE200_e3oitdyu` | `TS0601` | `lights-dimmer-2` |
 | `_TZE200_ebwgzdqq` | `TS0601` | `lights-dimmer-options-ts0601` |
 | `_TZE200_fjjbhx9d` | `TS0601` | `lights-dimmer-2` |
-| `_TZE200_gne0e6mk` | `TS0601` | `lights-dimmer-options-ts0601` |
+| `_TZE200_gne0e6mk` | `TS0601` | `lights-dimmer-ion` |
 | `_TZE200_gwkapsoq` | `TS0601` | `lights-dimmer-2` |
 | `_TZE200_hmqzfqml` | `TS0601` | `fans-fan-light-switch` |
 | `_TZE200_io0zdqh1` | `TS0601` | `lights-dimmer-ts0601-light` |
 | `_TZE200_ip2akl4w` | `TS0601` | `lights-dimmer-options-ts0601` |
-| `_TZE200_itp8dt7f` | `TS0601` | `lights-dimmer-options-ts0601` |
+| `_TZE200_itp8dt7f` | `TS0601` | `lights-dimmer-ion` |
 | `_TZE200_la2c2uo9` | `TS0601` | `lights-dimmer-options-ts0601-la2c2uo9` |
 | `_TZE200_lawxy9e2` | `TS0601` | `fans-fan-speed-light-switch-lawxy9e2` |
 | `_TZE200_ojzhk75b` | `TS0601` | `lights-dimmer-options-ts0601` |
@@ -545,7 +547,7 @@ Development driver; report issues with hub logcat. Supports EF00 dimmers, LED dr
 | `_TZE200_vucankjx` | `TS0601` | `lights-dimmer-options-ts0601` |
 | `_TZE200_w4cryh2i` | `TS0601` | `lights-dimmer-options-ts0601` |
 | `_TZE200_whpb9yts` | `TS0601` | `lights-dimmer-whpb9yts` |
-| `_TZE200_ykgar0ow` | `TS0601` | `lights-dimmer-options-ts0601` |
+| `_TZE200_ykgar0ow` | `TS0601` | `lights-dimmer-ion` |
 | `_TZE200_ywe90lt0` | `TS0601` | `lights-dimmer-ts0601-light` |
 | `_TZE204_1v1dxkck` | `TS0601` | `lights-dimmer-3` |
 | `_TZE204_2cyb66xl` | `TS0601` | `lights-dimmer-zdms16-1` |
@@ -588,9 +590,9 @@ Development driver; report issues with hub logcat. Supports EF00 dimmers, LED dr
 | `Earda` | `EDM-1ZAA-EU` | `lights-dimmer-options-ts0601` |
 | `Earda` | `EDM-1ZAB-EU` | `lights-dimmer-options-ts0601` |
 | `Earda` | `EDM-1ZBA-EU` | `lights-dimmer-options-ts0601` |
-| `ION Industries` | `90.500.040` | `lights-dimmer-options-ts0601` |
-| `ION Industries` | `90.500.090` | `lights-dimmer-options-ts0601` |
-| `ION Industries` | `ID200W-ZIGB` | `lights-dimmer-options-ts0601` |
+| `ION Industries` | `90.500.040` | `lights-dimmer-ion` |
+| `ION Industries` | `90.500.090` | `lights-dimmer-ion` |
+| `ION Industries` | `ID200W-ZIGB` | `lights-dimmer-ion` |
 | `KnockautX` | `FMD2C018` | `lights-dimmer-2` |
 | `Larkkey` | `ZSTY-SM-1DMZG-EU` | `lights-dimmer-options-ts0601` |
 | `Lerlink` | `T2-Z67/T2-W67` | `fans-fan-light-switch` |
@@ -705,7 +707,7 @@ Development driver; report issues with hub logcat. Supports EF00 single, two and
 </details>
 
 <details>
-<summary>EF00 PIR Motion wonjj6768 (23 fingerprints)</summary>
+<summary>EF00 PIR Motion wonjj6768 (25 fingerprints)</summary>
 
 Development driver; report issues with hub logcat. Supports EF00 PIR motion sensors.
 
@@ -728,6 +730,8 @@ Development driver; report issues with hub logcat. Supports EF00 PIR motion sens
 | `_TZE200_s6hzw8g2` | `TS0601` | `safety-motion-zg204zl-keep-illuminance-battery` |
 | `_TZE200_seq9cm6u` | `TS0601` | `safety-motion-bed-time-illuminance-battery` |
 | `_TZE200_ttcovulf` | `TS0601` | `safety-motion-zg204zl-keep-illuminance-battery` |
+| `_TZE2841000000_9ovska9w` | `TS0601` | `safety-motion-szlm04u-illuminance-battery` |
+| `_TZE2841000000_bquwrqh1` | `TS0601` | `safety-motion-szlm04u-illuminance-battery` |
 | `_TZE284_9ovska9w` | `TS0601` | `safety-motion-szlm04u-illuminance-battery` |
 | `_TZE284_bquwrqh1` | `TS0601` | `safety-motion-szlm04u-illuminance-battery` |
 | `_TZE284_tre6haif` | `TS0601` | `safety-motion-pir-solar-battery` |
@@ -738,7 +742,7 @@ Development driver; report issues with hub logcat. Supports EF00 PIR motion sens
 </details>
 
 <details>
-<summary>EF00 Presence 3 wonjj6768 (21 fingerprints)</summary>
+<summary>EF00 Presence 3 wonjj6768 (33 fingerprints)</summary>
 
 Category driver for newly absorbed exact EF00 presence and mmWave fingerprints.
 
@@ -751,18 +755,30 @@ Category driver for newly absorbed exact EF00 presence and mmWave fingerprints.
 | `_TZE200_i0b1dbqu` | `TS0601` | `safety-wave19-javis-microwave` |
 | `_TZE200_kagkgk0i` | `TS0601` | `safety-wave19-javis-microwave` |
 | `_TZE200_lgstepha` | `TS0601` | `safety-wave19-javis-microwave` |
+| `_TZE200_ops9sidw` | `TS0601` | `safety-presence-mw833p-core` |
 | `_TZE204_1youk3hj` | `TS0601` | `safety-presence-wave11-neo-nas-ps10b2` |
 | `_TZE204_b8vxct9l` | `TS0601` | `safety-presence-wave11-szlr08t` |
 | `_TZE204_bjf8qum1` | `TS0601` | `safety-presence-szlmr10-illuminance` |
 | `_TZE204_khoqss0a` | `TS0601` | `safety-presence-wave11-szr07` |
 | `_TZE204_lw5ny7tp` | `TS0601` | `safety-presence-wave11-szlr08` |
 | `_TZE204_sndkanfr` | `TS0601` | `safety-presence-szlmr10-illuminance` |
+| `_TZE2841000000_cipobaav` | `TS0601` | `safety-presence-b08lrt-core` |
+| `_TZE2841000000_h7oalfxa` | `TS0601` | `safety-presence-r12z20-core` |
+| `_TZE2841000000_hqys6frs` | `TS0601` | `safety-presence-wave11-r12lm-z10t` |
+| `_TZE2841000000_zzm83zpz` | `TS0601` | `safety-presence-wave11-r12lm-z11t` |
 | `_TZE284_1youk3hj` | `TS0601` | `safety-presence-wave11-neo-nas-ps10b2` |
+| `_TZE284_cipobaav` | `TS0601` | `safety-presence-b08lrt-core` |
+| `_TZE284_h7oalfxa` | `TS0601` | `safety-presence-r12z20-core` |
 | `_TZE284_hqys6frs` | `TS0601` | `safety-presence-wave11-r12lm-z10t` |
 | `_TZE284_sndkanfr` | `TS0601` | `safety-presence-szlmr10-illuminance` |
 | `_TZE284_zzm83zpz` | `TS0601` | `safety-presence-wave11-r12lm-z11t` |
+| `_TZE28C1000000_b8vxct9l` | `TS0601` | `safety-presence-wave11-szlr08t` |
+| `_TZE28C1000000_bjf8qum1` | `TS0601` | `safety-presence-szlmr10-illuminance` |
 | `_TZE28C1000000_ewn672ef` | `TS0601` | `safety-presence-zf24pro-temp-humidity` |
 | `_TZE28C1000000_jaunkx9g` | `TS0601` | `switches-presence-wave11-tuya-2gang` |
+| `_TZE28C1000000_khoqss0a` | `TS0601` | `safety-presence-wave11-szr07` |
+| `_TZE28C1000000_lw5ny7tp` | `TS0601` | `safety-presence-wave11-szlr08` |
+| `_TZE28C1000000_sndkanfr` | `TS0601` | `safety-presence-szlmr10-illuminance` |
 | `_TZE28C1000000_usmqzgdm` | `TS0601` | `switches-presence-wave11-tuya-3gang` |
 | `_TZE28C1000000_vosmoqsg` | `TS0601` | `safety-presence-zf24pro-temp-humidity` |
 
@@ -852,7 +868,7 @@ Development driver; report issues with hub logcat. Supports general EF00 presenc
 </details>
 
 <details>
-<summary>EF00 Presence General 2 wonjj6768 (62 fingerprints)</summary>
+<summary>EF00 Presence General 2 wonjj6768 (63 fingerprints)</summary>
 
 Development driver; report issues with hub logcat. Supports general EF00 presence, radar and mmWave sensors (group 2 of 2). See the README fingerprint table for the exact device list.
 
@@ -913,6 +929,7 @@ Development driver; report issues with hub logcat. Supports general EF00 presenc
 | `HOBEIAN` | `ZG-204ZE` | `safety-presence-zg204ze-illuminance-battery` |
 | `HOBEIAN` | `ZG-204ZH` | `safety-presence-zg204zh-illuminance-temp-humidity-battery` |
 | `HOBEIAN` | `ZG-204ZK` | `safety-presence-zg204zk-battery` |
+| `HOBEIAN` | `ZG-204ZM` | `safety-presence-zg204zm-illuminance-battery` |
 | `HOBEIAN` | `ZG-204ZV` | `safety-presence-zg204zv-illuminance-temp-humidity-battery` |
 | `iHseno` | `TY_24G_Sensor_V2` | `safety-presence-zym100s2-range-illuminance` |
 | `Moes` | `ZSS-QY-HP` | `safety-presence-zym100l-fixed-illuminance` |
@@ -982,13 +999,14 @@ Category driver for newly absorbed exact EF00 safety, alarm, and siren fingerpri
 </details>
 
 <details>
-<summary>EF00 Safety wonjj6768 (100 fingerprints)</summary>
+<summary>EF00 Safety wonjj6768 (101 fingerprints)</summary>
 
 Development driver; report issues with hub logcat. Supports EF00 smoke, CO, gas, water leak, contact, and vibration sensors.
 
 | Manufacturer | Model | Profile |
 | --- | --- | --- |
 | `_TYST11_qtbrwrfv` | `tbrwrfv\x00` | `safety-smoke-value-self-check-result-lifecycle-battery-silence-alecto` |
+| `_TYST11_t5p1vj8r` | `5p1vj8r\x00` | `safety-smoke-battery-state-battery-t5p1vj8r` |
 | `_TZE200_0zaf1cr8` | `TS0601` | `safety-smoke-tamper-battery-low` |
 | `_TZE200_2pddnnrk` | `TS0601` | `safety-water-leak-illuminance-battery-zg223z` |
 | `_TZE200_5d3vhjro` | `TS0601` | `safety-smoke-battery-silence-alarm-sa12izl` |
@@ -1110,20 +1128,32 @@ Development driver; report issues with hub logcat. Supports EF00 screen switch p
 </details>
 
 <details>
-<summary>EF00 Sensors 2 wonjj6768 (8 fingerprints)</summary>
+<summary>EF00 Sensors 2 wonjj6768 (20 fingerprints)</summary>
 
 Category driver for newly absorbed exact EF00 environment and sensor fingerprints.
 
 | Manufacturer | Model | Profile |
 | --- | --- | --- |
+| `_TYST11_i5j6ifxj` | `5j6ifxj` | `safety-motion-blitzwolf-bwis3-core` |
+| `_TYST11_i5j6ifxj` | `5j6ifxj\x00` | `safety-motion-blitzwolf-bwis3-core` |
+| `_TZE204_dak2k10o` | `TS0601` | `sensors-dak2k10o-air-core` |
 | `_TZE204_fpwtjlfh` | `TS0601` | `sensors-wave16-lincukoo-ezcp04` |
 | `_TZE204_hyt4iucb` | `TS0601` | `sensors-wave16-lincukoo-e02c-z10t` |
 | `_TZE204_isvlaage` | `TS0601` | `sensors-wave16-lincukoo-ezc04` |
 | `_TZE204_pkpfn9hc` | `TS0601` | `sensors-aq-co2-temp-humidity` |
+| `_TZE2841000000_4dosadbh` | `TS0601` | `sensors-lincukoo-szt04-long-core` |
+| `_TZE2841000000_mpzuabwk` | `TS0601` | `sensors-lincukoo-szt04-long-core` |
 | `_TZE2841000000_qf5mzewi` | `TS0601` | `sensors-temp-humidity-battery-alarm-onenuo-th05z` |
+| `_TZE2841000000_rs62zxk8` | `TS0601` | `sensors-lincukoo-szt04-long-core` |
+| `_TZE284_qf5mzewi` | `TS0601` | `sensors-onenuo-th05-core` |
+| `_TZE28C1000000_fpwtjlfh` | `TS0601` | `sensors-wave16-lincukoo-ezcp04` |
+| `_TZE28C1000000_hyt4iucb` | `TS0601` | `sensors-wave16-lincukoo-e02c-z10t` |
+| `_TZE28C1000000_isvlaage` | `TS0601` | `sensors-wave16-lincukoo-ezc04` |
 | `AIRPRS1` | `Excellux` | `sensors-wave16-excellux-airprs1` |
 | `EZ500FL` | `Excellux` | `sensors-wave16-excellux-ez500fl` |
 | `EZ500FS` | `Excellux` | `sensors-wave16-excellux-ez500fs` |
+| `HOBEIAN` | `ZG-227Z` | `sensors-hobeian-zg227-core` |
+| `HOBEIAN` | `ZG-227ZL` | `sensors-hobeian-zg227-core` |
 
 </details>
 
@@ -1177,9 +1207,9 @@ Development driver; report issues with hub logcat. Supports EF00 temperature, hu
 | `_TZE200_qyflbnbj` | `TS0601` | `sensors-temp-humidity-battery-state-qyfl` |
 | `_TZE200_rbbx5mfq` | `TS0601` | `sensors-illuminance-temp-humidity` |
 | `_TZE200_ryfmq5rl` | `TS0601` | `sensors-aq-co2-temp-humidity-voc-formaldehyde` |
-| `_TZE200_s1xgth2u` | `TS0601` | `sensors-temp-humidity-battery` |
+| `_TZE200_s1xgth2u` | `TS0601` | `sensors-th-three-unit` |
 | `_TZE200_snloy4rw` | `TS0601` | `sensors-temp-humidity-battery-alarm-sensitivity-nous-szt04` |
-| `_TZE200_t3xd7l44` | `TS0601` | `sensors-temp-humidity-battery` |
+| `_TZE200_t3xd7l44` | `TS0601` | `sensors-th-three-unit` |
 | `_TZE200_upagmta9` | `TS0601` | `sensors-temp-humidity-battery-state-unit-th2aaa` |
 | `_TZE200_utkemkbs` | `TS0601` | `sensors-temp-humidity-battery-state-unit-th2aaa` |
 | `_TZE200_v1jqz5cy` | `TS0601` | `sensors-temp-battery-pool-chlorine` |
@@ -1252,7 +1282,7 @@ Development driver; report issues with hub logcat. Supports EF00 temperature, hu
 | `_TZE284_hodyryli` | `TS0601` | `sensors-temp-humidity-probe-battery-state-clock-zt08` |
 | `_TZE284_it9utkro` | `TS0601` | `sensors-aq-co2-temp-humidity-voc-formaldehyde` |
 | `_TZE284_k7p2q5d9` | `TS0601` | `sensors-soil-temp-humidity-moisture-illuminance-battery-warning` |
-| `_TZE284_kdqrazmy` | `TS0601` | `sensors-temp-humidity-battery` |
+| `_TZE284_kdqrazmy` | `TS0601` | `sensors-th-three-unit` |
 | `_TZE284_ksz749x8` | `TS0601` | `sensors-temp-humidity-battery-state-unit-th2aaa` |
 | `_TZE284_kyyu8rbj` | `TS0601` | `sensors-liquid-level-me201wz` |
 | `_TZE284_locansqn` | `TS0601` | `sensors-temp-humidity-battery-alarm-sensitivity-nous-szt04` |
@@ -1293,7 +1323,7 @@ Development driver; report issues with hub logcat. Supports EF00 temperature, hu
 </details>
 
 <details>
-<summary>EF00 Switch 2 wonjj6768 (48 fingerprints)</summary>
+<summary>EF00 Switch 2 wonjj6768 (49 fingerprints)</summary>
 
 Category driver for newly absorbed exact EF00 switch, panel, and screen-switch fingerprints.
 
@@ -1337,6 +1367,7 @@ Category driver for newly absorbed exact EF00 switch, panel, and screen-switch f
 | `_TZE284_e4pf6l87` | `TS0601` | `switches-screen-zms206eu3` |
 | `_TZE284_esnu2jxv` | `TS0601` | `switches-wave13-manhot-mh03-4` |
 | `_TZE284_exfilann` | `TS0601` | `switches-wave13-nova-to-wk-two` |
+| `_TZE284_grxx6qek` | `TS0601` | `switches-switch-1-temp-humidity` |
 | `_TZE284_hwv3by9k` | `TS0601` | `switches-wave13-manhot-mh03-8` |
 | `_TZE284_k7v0eqke` | `TS0601` | `switches-screen-zms206eu3` |
 | `_TZE284_lnyz4a6v` | `TS0601` | `switches-screen-zms206us1` |
@@ -2361,7 +2392,7 @@ Development driver; report issues with hub logcat. Supports ZCL lights, dimmers,
 | `_TZ3000_7hcgjxpc` | `TS0505B` | `lights-color-temperature-color` |
 | `_TZ3000_7ysdnebc` | `TS1101` | `lights-dimmer-2-ts110-min` |
 | `_TZ3000_8uaoilu9` | `TS0502A` | `lights-color-temperature` |
-| `_TZ3000_92chsky7` | `TS110F` | `lights-dimmer-2` |
+| `_TZ3000_92chsky7` | `TS110F` | `lights-dimmer-2-lonsonho` |
 | `_TZ3000_9cpuaca6` | `TS0505A` | `lights-color-temperature-color` |
 | `_TZ3000_9evm3otq` | `TS0502A` | `lights-color-temperature` |
 | `_TZ3000_bumeauzp` | `TS0502B` | `lights-color-temperature` |
@@ -2373,7 +2404,7 @@ Development driver; report issues with hub logcat. Supports ZCL lights, dimmers,
 | `_TZ3000_g1glzzfk` | `TS0502B` | `lights-color-temperature` |
 | `_TZ3000_gb5gaeca` | `TS0505B` | `lights-color-temperature-color` |
 | `_TZ3000_gek6snaj` | `TS0505A` | `lights-color-temperature-color` |
-| `_TZ3000_hexqj6ls` | `TS110F` | `lights-dimmer-2` |
+| `_TZ3000_hexqj6ls` | `TS110F` | `lights-dimmer-2-zcl-basic` |
 | `_TZ3000_iivsrikg` | `TS0505B` | `lights-color-temperature-color` |
 | `_TZ3000_j0gtlepx` | `TS0505B` | `lights-color-temperature-color` |
 | `_TZ3000_j2w1dw29` | `TS0501A` | `lights-dimmer` |
@@ -2385,7 +2416,7 @@ Development driver; report issues with hub logcat. Supports ZCL lights, dimmers,
 | `_TZ3000_lxw3zcdk` | `TS0505B` | `lights-color-temperature-color` |
 | `_TZ3000_mgusv51k` | `TS0052` | `lights-dimmer` |
 | `_TZ3000_nbnmw9nc` | `TS0501A` | `lights-dimmer` |
-| `_TZ3000_ncb6mkx8` | `TS0004` | `fans-fan-light-switch` |
+| `_TZ3000_ncb6mkx8` | `TS0004` | `fans-ts0004-backlight` |
 | `_TZ3000_nosnx7im` | `TS0501A` | `lights-dimmer` |
 | `_TZ3000_obacbukl` | `TS0503A` | `lights-color` |
 | `_TZ3000_oborybow` | `TS0502A` | `lights-color-temperature` |
@@ -3016,7 +3047,7 @@ Development driver; report issues with hub logcat. Supports ZCL lights, dimmers,
 | `Smart Dim` | `Dimmer-Switch-ZB3.0` | `lights-dimmer` |
 | `Sunricher` | `3986` | `lights-color-temperature` |
 | `Sunricher` | `CCT Lighting` | `lights-color-temperature` |
-| `Sunricher` | `DIM` | `lights-dimmer-2` |
+| `Sunricher` | `DIM` | `lights-dimmer-2-zcl-basic` |
 | `Sunricher` | `DIM Lighting` | `lights-dimmer` |
 | `Sunricher` | `HK-DIM` | `lights-dimmer` |
 | `Sunricher` | `HK-SL-DIM-A` | `lights-dimmer` |
@@ -3179,14 +3210,144 @@ Development driver; report issues with hub logcat. Supports ZCL plugs, metered o
 </details>
 
 <details>
-<summary>ZCL Sensors 2 wonjj6768 (36 fingerprints)</summary>
+<summary>ZCL Sensors 2 wonjj6768 (339 fingerprints)</summary>
 
 Category driver for newly absorbed exact ZCL sensor, environment, smoke, and vibration fingerprints.
 
 | Manufacturer | Model | Profile |
 | --- | --- | --- |
 | `'_TZ32101000000_5oy7cysk'` | `TS0210` | `safety-wave19-tuya-ts0210-quoted` |
+| `_TYZB01_a476raq2` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TYZB01_dl7cejts` | `TS0202` | `safety-motion-tuya-ts0202-core` |
+| `_TYZB01_dsjszp0x` | `TS0205` | `safety-smoke-tuya-ts0205-core` |
+| `_TYZB01_hqbdru35` | `TS0202` | `safety-motion-tuya-ts0202-core` |
+| `_TYZB01_hr7c7xlf` | `TS0205` | `safety-smoke-tuya-ts0205-core` |
+| `_TYZB01_u6uejz21` | `SM0202` | `safety-motion-tuya-sm0202-core` |
+| `_TYZB01_yt1wd5db` | `TS0205` | `safety-smoke-tuya-ts0205-core` |
+| `_TZ2000_a476raq2` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ2000_hjsgdkfl` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ2000_lxvycln5` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ2000_zrl0mqre` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ2000_zsfvulde` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_0b0c7d6h` | `TS0202` | `safety-motion-tuya-ts0202-core` |
+| `_TZ3000_1o6x1bl0` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_2szo322m` | `TS0205` | `safety-smoke-tuya-ts0205-core` |
+| `_TZ3000_8fwzalxx` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_acklt5lf` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_c8ozah8n` | `TS0202` | `safety-motion-tuya-ts0202-core` |
+| `_TZ3000_cx6atb9s` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
 | `_TZ3000_eit7p838 ` | `TS0207` | `safety-water-leak-tamper-battery-low-battery` |
+| `_TZ3000_fejbrqvb` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_hgbahzmy` | `ZG-204Z` | `zg204zl-ias-motion-battery` |
+| `_TZ3000_hgu1dlak` | `TS0202` | `safety-motion-tuya-ts0202-core` |
+| `_TZ3000_hl7yraue` | `TS0205` | `safety-smoke-tuya-ts0205-core` |
+| `_TZ3000_i8jfiezr` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_k5wwrk7a` | `TS0202` | `safety-motion-tuya-ts0202-core` |
+| `_TZ3000_kchagk8y` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_kmh5qpmb` | `TS0202` | `safety-motion-tuya-ts0202-core` |
+| `_TZ3000_lfa05ajd` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_mmtwjmaq` | `TS0202` | `safety-motion-tuya-ts0202-core` |
+| `_TZ3000_nau60otv` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_qzvaivin` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_tiwq83wk` | `TS0202` | `safety-motion-tuya-ts0202-core` |
+| `_TZ3000_unw0hpdv` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_utwgoauk` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_vfpt3wk4` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_vira43zx` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3000_y56pgpgs` | `TS0202` | `safety-motion-tuya-ts0202-core` |
+| `_TZ3000_z1jcca2g` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3210_4c6b5m1e` | `TS0205` | `safety-smoke-tuya-ts0205-core` |
+| `_TZ3210_huzkzqyk` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3210_k3qngb7u` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `_TZ3210_ncw88jfq` | `TY0201` | `sensors-tuya-ty0201-ncw-core` |
+| `_TZ3210_qkj7rujp` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `ADEO` | `LDSENK10` | `safety-motion-adeo-ldsenk10-core` |
+| `ADUROLIGHT` | `VMS_ADUROLIGHT` | `safety-motion-trust-zpir-core` |
+| `AduroSmart Eria` | `VMS_ADUROLIGHT` | `safety-motion-trust-zpir-core` |
+| `AoYan  ` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `aqara` | `lumi.motion.ac01` | `safety-presence-aqara-fp1-core` |
+| `Aqara` | `lumi.sensor_occupy.acn1` | `safety-presence-aqara-fp310-core` |
+| `aqara` | `lumi.sensor_occupy.agl1` | `safety-presence-aqara-fp1e-core` |
+| `Aurora` | `MotionSensor51AU` | `safety-motion-aurora-51-core` |
+| `Bitron Home` | `902010/14` | `safety-motion-bitron-av2010-14-core` |
+| `Bitron Home` | `902010/22` | `safety-motion-bitron-av2010-22-core` |
+| `Bitron Home` | `902010/22A` | `safety-motion-bitron-av2010-14-core` |
+| `Bitron Home` | `902010/22B` | `safety-motion-bitron-av2010-22-core` |
+| `Bitron Home` | `902010/24` | `safety-smoke-bitron-av2010-24-core` |
+| `Bitron Home` | `902010/24A` | `safety-smoke-bitron-av2010-24-core` |
+| `Bitron Home` | `AV2010/14` | `safety-motion-bitron-av2010-14-core` |
+| `Bitron Home` | `AV2010/22` | `safety-motion-bitron-av2010-22-core` |
+| `Bitron Home` | `AV2010/22A` | `safety-motion-bitron-av2010-14-core` |
+| `Bitron Home` | `AV2010/22B` | `safety-motion-bitron-av2010-22-core` |
+| `Bitron Home` | `AV2010/24` | `safety-smoke-bitron-av2010-24-core` |
+| `Bitron Home` | `AV2010/24A` | `safety-smoke-bitron-av2010-24-core` |
+| `Bitron Video` | `902010/14` | `safety-motion-bitron-av2010-14-core` |
+| `Bitron Video` | `902010/22` | `safety-motion-bitron-av2010-22-core` |
+| `Bitron Video` | `902010/22A` | `safety-motion-bitron-av2010-14-core` |
+| `Bitron Video` | `902010/22B` | `safety-motion-bitron-av2010-22-core` |
+| `Bitron Video` | `902010/24` | `safety-smoke-bitron-av2010-24-core` |
+| `Bitron Video` | `902010/24A` | `safety-smoke-bitron-av2010-24-core` |
+| `Bitron Video` | `AV2010/14` | `safety-motion-bitron-av2010-14-core` |
+| `Bitron Video` | `AV2010/22` | `safety-motion-bitron-av2010-22-core` |
+| `Bitron Video` | `AV2010/22A` | `safety-motion-bitron-av2010-14-core` |
+| `Bitron Video` | `AV2010/22B` | `safety-motion-bitron-av2010-22-core` |
+| `Bitron Video` | `AV2010/24` | `safety-smoke-bitron-av2010-24-core` |
+| `Bitron Video` | `AV2010/24A` | `safety-smoke-bitron-av2010-24-core` |
+| `Bitron Video` | `IR_00.00.03.12TC` | `safety-motion-bitron-av2010-22-core` |
+| `BOSCH` | `ISW-ZPR1-WP13` | `safety-motion-bosch-isw-core` |
+| `Bosch` | `ISW-ZPR1-WP13` | `safety-motion-bosch-isw-core` |
+| `BOSCH` | `RFDL-ZB` | `safety-motion-bosch-radion-core` |
+| `BOSCH` | `RFDL-ZB-CHI` | `safety-motion-bosch-radion-core` |
+| `BOSCH` | `RFDL-ZB-ES` | `safety-motion-bosch-radion-core` |
+| `BOSCH` | `RFDL-ZB-EU` | `safety-motion-bosch-radion-core` |
+| `BOSCH` | `RFDL-ZB-H` | `safety-motion-bosch-radion-core` |
+| `BOSCH` | `RFDL-ZB-K` | `safety-motion-bosch-radion-core` |
+| `BOSCH` | `RFDL-ZB-MS` | `safety-motion-bosch-radion-core` |
+| `Bosch` | `RFDL-ZB-MS` | `safety-motion-bosch-radion-notification-core` |
+| `BOSCH` | `RFPR-ZB` | `safety-motion-bosch-radion-core` |
+| `Bosch` | `RFPR-ZB` | `safety-motion-bosch-radion-notification-core` |
+| `BOSCH` | `RFPR-ZB-CHI` | `safety-motion-bosch-radion-core` |
+| `BOSCH` | `RFPR-ZB-ES` | `safety-motion-bosch-radion-core` |
+| `BOSCH` | `RFPR-ZB-EU` | `safety-motion-bosch-radion-core` |
+| `BOSCH` | `RFPR-ZB-MS` | `safety-motion-bosch-radion-core` |
+| `Bosch` | `RFPR-ZB-MS` | `safety-motion-bosch-radion-notification-core` |
+| `CentraLite` | `3305` | `safety-motion-centralite-3305-core` |
+| `CentraLite` | `3305-S` | `safety-motion-centralite-3305-core` |
+| `CentraLite` | `3310-G` | `sensors-centralite-3310-core` |
+| `CentraLite` | `3310-S` | `sensors-centralite-3310-core` |
+| `CentraLite` | `3325-S` | `safety-motion-centralite-3325-core` |
+| `CentraLite` | `3326-L` | `safety-motion-iris-3326-core` |
+| `CentraLite` | `3328-G` | `safety-motion-centralite-3328-core` |
+| `CentraLite` | `Motion Sensor-A` | `safety-motion-centralite-a-core` |
+| `Computime` | `PS600` | `sensors-salus-ss909zb-core` |
+| `Computime` | `SS909ZB` | `sensors-salus-ss909zb-core` |
+| `DAWON_DNS` | `ZB30C2` | `sensors-dawon-th110-core` |
+| `Develco Products A/S` | `GWA1511_MotionSensor` | `safety-motion-moszb140-core` |
+| `Develco Products A/S` | `GWA1512_SmokeSensor` | `safety-smoke-smszb120-core` |
+| `Develco Products A/S` | `HMSZB-110` | `sensors-hmszb-core` |
+| `Develco Products A/S` | `HMSZB-120` | `sensors-hmszb-core` |
+| `Develco Products A/S` | `MOSZB-130` | `safety-motion-moszb130-core` |
+| `Develco Products A/S` | `MOSZB-140` | `safety-motion-moszb140-core` |
+| `Develco Products A/S` | `MOSZB-141` | `safety-motion-moszb141-core` |
+| `Develco Products A/S` | `MOSZB-153` | `safety-motion-moszb153-core` |
+| `Develco Products A/S` | `SMSZB-120` | `safety-smoke-smszb120-core` |
+| `EfektaLab` | `EFEKTA_eON29wz` | `sensors-efekta-eon29wz-core` |
+| `EfektaLab` | `EFEKTA_T1_MAX_E` | `sensors-efekta-t1-max-e-core` |
+| `EfektaLab` | `EFEKTA_T1_MAX_R` | `sensors-efekta-t1-max-e-core` |
+| `EfektaLab` | `EFEKTA_T1_v2` | `sensors-efekta-t1-v2-core` |
+| `EfektaLab` | `EFEKTA_T1_v2_LR` | `sensors-efekta-t1-v2-lr-core` |
+| `EfektaLab` | `EFEKTA_T1_Y` | `sensors-efekta-t1-y-core` |
+| `EfektaLab` | `EFEKTA_T1_Y_LR` | `sensors-efekta-t1-y-core` |
+| `EfektaLab` | `EFEKTA_TH_DUO_LR` | `sensors-efekta-th-duo-core` |
+| `EfektaLab` | `EFEKTA_TH_POW_E` | `sensors-efekta-th-pow-r-core` |
+| `EfektaLab` | `EFEKTA_TH_POW_R` | `sensors-efekta-th-pow-r-core` |
+| `EfektaLab` | `EFEKTA_TH_v1_LR` | `sensors-efekta-th-v1-lr-core` |
+| `EfektaLab` | `EFEKTA_TH_v2_LR` | `sensors-efekta-th-v2-lr-core` |
+| `efektalab.com` | `EFEKTA_eTH102z` | `sensors-efekta-eth102z-core` |
+| `EfektaLab_for_Zigbee-Shop.ru` | `EFEKTA_T1_v2_LR` | `sensors-efekta-t1-v2-lr-core` |
+| `EfektaLab_for_Zigbee-Shop.ru` | `EFEKTA_TH_POW_E` | `sensors-efekta-th-pow-r-core` |
+| `EfektaLab_for_Zigbee-Shop.ru` | `EFEKTA_TH_POW_R` | `sensors-efekta-th-pow-r-core` |
+| `EfektaLab_for_Zigbee-Shop.ru` | `EFEKTA_TH_v2_LR` | `sensors-efekta-th-v2-lr-core` |
 | `eWeLink` | `CK-BL702-MWS-01(7016)` | `sonoff-mg35rz-occupancy` |
 | `eWeLink` | `CK-TLSR8656-SS5-02(7014)` | `sonoff-ewelink-7014-temp-humidity` |
 | `eWeLink` | `CK-TLSR8656-Z123SE22DY-01(7035)` | `safety-wave19-ewelink-7035` |
@@ -3195,12 +3356,125 @@ Category driver for newly absorbed exact ZCL sensor, environment, smoke, and vib
 | `eWeLink` | `SNZB-02P` | `sonoff-snzb02p-temp-humidity` |
 | `eWeLink` | `SNZB-03P` | `sonoff-snzb03p-occupancy` |
 | `eWeLink` | `SNZB-04P` | `sonoff-safety-contact-04p` |
+| `eWeLink` | `TH01` | `sonoff-snzb02-classic-temp-humidity` |
 | `eWeLink` | `WS01` | `sonoff-ws01-rain` |
+| `fei` | `FNB54-THM17ML1.1` | `sensors-feibit-sth01-core` |
+| `feibit` | `FNB56-SMF06FB1.6` | `safety-smoke-feibit-ssa01-core` |
+| `Feibit Inc co.` | `FB56-THM12HM1.2` | `sensors-feibit-sth01-core` |
+| `Feibit Inc co.` | `FNB54-THM17ML1.1` | `sensors-feibit-sth01-core` |
+| `Feibit Inc co.` | `FNB56-SMF06FB1.6` | `safety-smoke-feibit-ssa01-core` |
+| `Feibit Inc co.` | `FNB56-SMF06FB2.0` | `safety-smoke-feibit-ssa01-core` |
+| `Feibit Inc co.` | `FNB56-THM14FB2.4` | `sensors-feibit-sth01-core` |
+| `Feibit Inc co.` | `FNB56-THM14FB2.5` | `sensors-feibit-sth01-core` |
+| `frient A/S` | `AQSZB-110` | `sensors-frient-aqszb110-core` |
+| `frient A/S` | `HMSZB-110` | `sensors-hmszb-core` |
+| `frient A/S` | `HMSZB-120` | `sensors-hmszb-core` |
+| `frient A/S` | `MOSZB-140` | `safety-motion-moszb140-core` |
+| `frient A/S` | `MOSZB-141` | `safety-motion-moszb141-core` |
+| `frient A/S` | `MOSZB-153` | `safety-motion-moszb153-core` |
+| `frient A/S` | `SMSZB-120` | `safety-smoke-smszb120-core` |
+| `GS` | `SSHM-I1` | `safety-smoke-gs-sshm-i1-core` |
+| `GS` | `STHM-I1H` | `sensors-gs-sthm-i1h-core` |
+| `HEIMAN` | `888a434f3cfc47f29ec4a3a03e9fc442` | `sensors-orvibo-st21-core` |
+| `Heiman` | `b467083cfc864f5e826459e5d8ea6079` | `sensors-orvibo-st20-core` |
 | `HEIMAN` | `HS2AQ-EF-3.0` | `sensors-wave19-heiman-hs2aq-ef-three` |
+| `Heimgard` | `HT-SMO-2` | `safety-smoke-heimgard-htsmo2-core` |
+| `HiveHome.com` | `MOT003` | `safety-motion-hive-mot003-core` |
+| `HOBEIAN` | `ZG-204Z` | `safety-motion-hobeian-zg204z-core` |
 | `HOBEIAN` | `ZG-222Z` | `hobeian-zg222z-water-leak` |
+| `IKEA of Sweden` | `VALLHORN Wireless Motion Sensor` | `safety-motion-ikea-vallhorn-core` |
+| `IKEA of Sweden` | `VINDSTYRKA` | `sensors-ikea-vindstyrka-core` |
+| `iMagic by GreatStar` | `1117-S` | `safety-motion-imagic-1117-core` |
+| `iMagic by GreatStar` | `3326-L` | `safety-motion-iris-3326-core` |
+| `Keen Home Inc` | `RS-THP-MP-1.0` | `sensors-keen-home-th-core` |
+| `KMPCIL` | `RES005` | `sensors-kmpcil-res005-core` |
+| `Konke` | `3AFE140103020000` | `sensors-konke-th-core` |
+| `Konke` | `3AFE14010402000D` | `safety-motion-konke-core` |
+| `Konke` | `3AFE220103020000` | `sensors-konke-th-core` |
+| `Konke` | `3AFE27010402000D` | `safety-motion-konke-core` |
+| `Konke` | `3AFE28010402000D` | `safety-motion-konke-core` |
 | `LinknLink` | `eMotion Air` | `sensors-linknlink-emotion-air` |
+| `lk` | `ZB-MotionSensor-D0003` | `safety-motion-linkind-core` |
+| `LUMI` | `lumi.motion.agl04` | `safety-motion-aqara-high-precision-core` |
+| `LUMI` | `lumi.sensor_smoke` | `safety-smoke-mijia-core` |
+| `LUMI` | `lumi.sensor_smoke.acn03` | `safety-smoke-aqara-acn03-core` |
+| `LUMI` | `RS-THP-MP-1.0` | `sensors-keen-home-th-core` |
+| `MiaMiaoCe` | `MHO-C401N` | `sensors-miamiaoce-mho-c401n-core` |
+| `MiaMiaoCe` | `MHO-C401N-z` | `sensors-zigbeetlc-mho-c401n-core` |
+| `MiaoMiaoCe` | `MHO-C122-bz` | `sensors-zigbeetlc-th05-core` |
+| `MiaoMiaoCe` | `MHO-C122-z` | `sensors-zigbeetlc-th05-core` |
+| `MiaoMiaoCe` | `MHO-C401-bz` | `sensors-zigbeetlc-th05-core` |
+| `MiaoMiaoCe` | `MHO-C401-z` | `sensors-zigbeetlc-th05-core` |
+| `MiaoMiaoCe` | `MHO-C401N-bz` | `sensors-zigbeetlc-th05-core` |
+| `MiaoMiaoCe` | `MHO-C401N-z` | `sensors-zigbeetlc-th05-core` |
+| `MultIR` | `MIR-SM100-E` | `safety-smoke-multir-sm100-core` |
+| `Namron AS` | `4512763` | `safety-motion-namron-4512763-core` |
+| `Namron AS` | `4512765` | `sensors-namron-4512765-core` |
+| `NAMRON AS` | `4512770` | `safety-motion-namron-4512770-core` |
+| `Namron AS` | `4512770` | `safety-motion-namron-4512770-core` |
+| `NAMRON AS` | `4512771` | `safety-motion-namron-4512770-core` |
+| `Namron AS` | `4512771` | `safety-motion-namron-4512770-core` |
+| `NodOn` | `STPH-4-1-00` | `sensors-nodon-stph-core` |
+| `NYCE` | `3041` | `safety-motion-nyce-3041-core` |
+| `NYCE` | `3043` | `safety-motion-nyce-3043-core` |
+| `NYCE` | `3045` | `safety-motion-nyce-3045-core` |
+| `ORVIBO` | `131c854783bc45c9b2ac58088d09571c` | `safety-motion-orvibo-sn10zw-core` |
+| `ORVIBO` | `888a434f3cfc47f29ec4a3a03e9fc442` | `sensors-orvibo-st21-core` |
+| `ORVIBO` | `895a2d80097f4ae2b2d40500d5e03dcc` | `safety-motion-livingwise-core` |
+| `ORVIBO` | `b2e57a0f606546cd879a1a54790827d6` | `safety-motion-orvibo-sn10zw-core` |
+| `ORVIBO` | `b467083cfc864f5e826459e5d8ea6079` | `sensors-orvibo-st20-core` |
+| `OWON` | `THS317-ET` | `sensors-owon-ths317-et` |
+| `Philips` | `SML001` | `safety-motion-hue-sml001-core` |
+| `Philips` | `SML002` | `safety-motion-hue-sml002-core` |
+| `Philips` | `SML003` | `safety-motion-hue-sml003-core` |
+| `Philips` | `SML004` | `safety-motion-hue-sml004-core` |
 | `PLAID SYSTEMS` | `PS-SPRZMS-SLP3` | `sensors-wave19-plaid-spruce` |
+| `PushOk Hardware` | `POK005` | `sensors-pushok-pok005-core` |
+| `PushOk Hardware` | `POK014` | `sensors-pushok-extended-probe-core` |
+| `PushOk Hardware` | `POK015` | `sensors-pushok-extended-probe-core` |
+| `Qingping` | `CGDK2-bz` | `sensors-zigbeetlc-display-core` |
+| `Qingping` | `CGDK2-z` | `sensors-zigbeetlc-display-core` |
+| `Qingping` | `CGG1-bz` | `sensors-zigbeetlc-th05-core` |
+| `Qingping` | `CGG1-z` | `sensors-zigbeetlc-th05-core` |
+| `Qingping` | `CGG1N-bz` | `sensors-zigbeetlc-th05-core` |
+| `Qingping` | `CGG1N-z` | `sensors-zigbeetlc-th05-core` |
+| `Samjin` | `motion` | `safety-motion-samjin-core` |
+| `Schneider Electric` | `CCT593011_AS` | `sensors-schneider-cct593011-core` |
+| `Schneider Electric` | `CCT595011_AS` | `safety-motion-schneider-cct595011-core` |
+| `sengled` | `E1M-G7H` | `safety-motion-sengled-e1m-core` |
+| `Sercomm Corp.` | `SZ-PIR02` | `safety-motion-sercomm-pir02-core` |
+| `Sercomm Corp.` | `SZ-PIR02_SF` | `safety-motion-sercomm-pir02-core` |
+| `Sercomm Corp.` | `SZ-PIR04N` | `safety-motion-sercomm-pir04-core` |
+| `Sercomm Corp.` | `SZ-PIR04N_EU` | `safety-motion-sercomm-pir04-core` |
 | `Shelly` | `Presence` | `sensors-shelly-presence-gen4` |
+| `ShinaSystem` | `TSM-300Z` | `sensors-sihas-tsm300-core` |
+| `Signify Netherlands B.V.` | `SML003` | `safety-motion-hue-sml003-core` |
+| `Signify Netherlands B.V.` | `SML004` | `safety-motion-hue-sml004-core` |
+| `Slacky-DIY` | `TS0201-z-SlD` | `sensors-slacky-ts0201-core` |
+| `Slacky-DIY` | `TS0201-z21-SlD` | `sensors-slacky-ts0201-core` |
+| `Slacky-DIY` | `TS0201-z22-SlD` | `sensors-slacky-ts0201-core` |
+| `Slacky-DIY` | `TS0201-z23-SlD` | `sensors-slacky-ts0201-core` |
+| `Slacky-DIY` | `TS0201-z24-SlD` | `sensors-slacky-ts0201-core` |
+| `Slacky-DIY` | `TS0201-z28-SlD` | `sensors-slacky-ts0201-core` |
+| `SMaBiT` | `902010/14` | `safety-motion-bitron-av2010-14-core` |
+| `SMaBiT` | `902010/22` | `safety-motion-bitron-av2010-22-core` |
+| `SMaBiT` | `902010/22A` | `safety-motion-bitron-av2010-14-core` |
+| `SMaBiT` | `902010/22B` | `safety-motion-bitron-av2010-22-core` |
+| `SMaBiT` | `902010/24` | `safety-smoke-bitron-av2010-24-core` |
+| `SMaBiT` | `902010/24A` | `safety-smoke-bitron-av2010-24-core` |
+| `SMaBiT` | `AV2010/14` | `safety-motion-bitron-av2010-14-core` |
+| `SMaBiT` | `AV2010/22` | `safety-motion-bitron-av2010-22-core` |
+| `SMaBiT` | `AV2010/22A` | `safety-motion-bitron-av2010-14-core` |
+| `SMaBiT` | `AV2010/22B` | `safety-motion-bitron-av2010-22-core` |
+| `SMaBiT` | `AV2010/24` | `safety-smoke-bitron-av2010-24-core` |
+| `SMaBiT` | `AV2010/24A` | `safety-smoke-bitron-av2010-24-core` |
+| `SmartThings` | `3305` | `safety-motion-centralite-3305-core` |
+| `SmartThings` | `3305-S` | `safety-motion-centralite-3305-core` |
+| `SmartThings` | `3310-S` | `sensors-centralite-3310-core` |
+| `SmartThings` | `3325-S` | `safety-motion-centralite-3325-core` |
+| `SmartThings` | `motion` | `safety-motion-samjin-core` |
+| `SmartThings` | `motionv4` | `safety-motion-smartthings-v4-core` |
+| `SmartThings` | `motionv5` | `safety-motion-smartthings-v5-core` |
 | `SONOFF` | `CK-TLSR8656-SS5-01(7003)` | `sonoff-snzb04-classic-contact` |
 | `SONOFF` | `CK-TLSR8656-SS5-01(7014)` | `sonoff-snzb02-classic-temp-humidity` |
 | `SONOFF` | `DS01` | `sonoff-snzb04-classic-contact` |
@@ -3208,6 +3482,7 @@ Category driver for newly absorbed exact ZCL sensor, environment, smoke, and vib
 | `SONOFF` | `SNZB-02` | `sonoff-snzb02-classic-temp-humidity` |
 | `SONOFF` | `SNZB-02B` | `sonoff-snzb02b-environment` |
 | `SONOFF` | `SNZB-02D` | `sonoff-snzb02d-temp-humidity-display` |
+| `SONOFF` | `SNZB-02DR2` | `sensors-sonoff-snzb02dr2-core` |
 | `SONOFF` | `SNZB-02LD` | `sonoff-snzb02ld-temperature-display` |
 | `SONOFF` | `SNZB-02M` | `sonoff-snzb02m-environment` |
 | `SONOFF` | `SNZB-02P` | `sonoff-snzb02p-temp-humidity` |
@@ -3219,13 +3494,209 @@ Category driver for newly absorbed exact ZCL sensor, environment, smoke, and vib
 | `SONOFF` | `SNZB-04PR2` | `sonoff-safety-contact-04p` |
 | `SONOFF` | `SNZB-05P` | `sonoff-safety-water-05p` |
 | `SONOFF` | `SNZB-06P` | `sonoff-safety-occupancy-06p` |
+| `SONOFF` | `SNZB-06P24` | `safety-presence-sonoff-snzb06p24-core` |
 | `SONOFF` | `SNZB-09P` | `sonoff-safety-siren-09p` |
 | `SONOFF` | `TH01` | `sonoff-snzb02-classic-temp-humidity` |
+| `Sonoff` | `ZG-204ZL-z` | `safety-motion-zg204zl-z-core` |
+| `SWANN` | `SWO-MOS1PA` | `safety-motion-swann-core` |
+| `TCL` | `MS01` | `safety-motion-tcl-ms01-core` |
+| `Third Reality, Inc` | `3RPL01084Z` | `safety-presence-third-reality-r3-core` |
+| `THIRDREALITY` | `3RMS16BZ` | `safety-motion-thirdreality-3rms-core` |
+| `Trust International B.V.` | `VMS_ADUROLIGHT` | `safety-motion-trust-zpir-core` |
+| `Tuya` | `LKTMZL02-z` | `sensors-zigbeetlc-display-core` |
+| `Tuya` | `TH03Z-bz` | `sensors-zigbeetlc-basic-core` |
+| `Tuya` | `TH03Z-z` | `sensors-zigbeetlc-basic-core` |
+| `Tuya` | `TH05-z` | `sensors-zigbeetlc-th05-core` |
+| `Tuya` | `TS0201-bz` | `sensors-zigbeetlc-basic-core` |
+| `Tuya` | `TS0201-z` | `sensors-zigbeetlc-basic-core` |
+| `Tuya` | `TS202PIR1-z` | `safety-motion-battery-voltage` |
+| `Tuya` | `ZG-227Z-z` | `sensors-zigbeetlc-zg227-core` |
+| `Tuya` | `ZTH01-bz` | `sensors-zigbeetlc-basic-core` |
+| `Tuya` | `ZTH01-z` | `sensors-zigbeetlc-basic-core` |
+| `Tuya` | `ZTH02-bz` | `sensors-zigbeetlc-basic-core` |
+| `Tuya` | `ZTH02-z` | `sensors-zigbeetlc-basic-core` |
+| `Tuya` | `ZY-ZTH02-z` | `sensors-zigbeetlc-basic-core` |
+| `TUYATEC-2gn2zf9e` | `RH3040` | `safety-motion-tuyatec-rh3040-core` |
+| `TUYATEC-4yn5mbem` | `RH3052` | `sensors-tuyatec-rh3052-core` |
+| `TUYATEC-53o41joc` | `RH3040` | `safety-motion-tuyatec-rh3040-core` |
+| `TUYATEC-b3ov3nor` | `RH3040` | `safety-motion-tuyatec-rh3040-core` |
+| `TUYATEC-b5g40alm` | `RH3040` | `safety-motion-tuyatec-rh3040-core` |
+| `TUYATEC-bd5faf9p` | `RH3040` | `safety-motion-tuyatec-rh3040-core` |
+| `TUYATEC-deetibst` | `RH3040` | `safety-motion-tuyatec-rh3040-core` |
+| `TUYATEC-dxnohkpd` | `RH3040` | `safety-motion-tuyatec-rh3040-core` |
+| `TUYATEC-ef6iwyfl` | `RH3052` | `sensors-tuyatec-rh3052-core` |
+| `TUYATEC-ehyenwmu` | `RH3052` | `sensors-tuyatec-rh3052-core` |
+| `TUYATEC-gqhxixyk` | `RH3052` | `sensors-tuyatec-rh3052-core` |
+| `TUYATEC-HaoiuWzy` | `RH3052` | `sensors-tuyatec-rh3052-core` |
+| `TUYATEC-jigsujrv` | `RH3052` | `sensors-tuyatec-rh3052-core` |
+| `TUYATEC-kmfarmcu` | `RH3040` | `safety-motion-tuyatec-rh3040-core` |
+| `TUYATEC-kpz6r4qx` | `RH3040` | `safety-motion-tuyatec-rh3040-core` |
+| `TUYATEC-lqyucvyd` | `RH3052` | `sensors-tuyatec-rh3052-core` |
+| `TUYATEC-prhs1rsd` | `RH3052` | `sensors-tuyatec-rh3052-core` |
+| `TUYATEC-vmgh3fxd` | `RH3052` | `sensors-tuyatec-rh3052-core` |
+| `TUYATEC-yg5dcbfu` | `RH3052` | `sensors-tuyatec-rh3052-core` |
+| `TUYATEC-zn9wyqtr` | `RH3040` | `safety-motion-tuyatec-rh3040-core` |
+| `TUYATEC-zw6hxafz` | `RH3040` | `safety-motion-tuyatec-rh3040-core` |
+| `Universal Electronics Inc` | `URC4470BC0-X-R` | `safety-motion-universal-xhs1-core` |
+| `Visonic` | `MP-840` | `safety-motion-visonic-mp840-core` |
+| `Visonic` | `MP-841` | `safety-motion-visonic-mp841-core` |
+| `Wing` | `TS0201` | `sensors-tuya-ts0201-standard-core` |
+| `Wing` | `TS0201-z` | `sensors-zigbeetlc-basic-core` |
+| `Xiaomi` | `LYWSD03MMC` | `sensors-devbis-lywsd03mmc-core` |
+| `Xiaomi` | `LYWSD03MMC-bz` | `sensors-zigbeetlc-th05-core` |
+| `Xiaomi` | `LYWSD03MMC-z` | `sensors-zigbeetlc-th05-core` |
+| `Xiaomi` | `MJWSD06MMC-bz` | `sensors-zigbeetlc-th05-core` |
+| `Xiaomi` | `MJWSD06MMC-z` | `sensors-zigbeetlc-th05-core` |
+| `xn0` | `TY0201` | `sensors-tuya-ts0201-standard-core` |
+| `Yandex` | `YNDX-00528` | `safety-motion-yandex-00528-core` |
+| `Yandex` | `YNDX-00529` | `sensors-yandex-00529-core` |
+| `ZBeacon` | `MC-z` | `sensors-zigbeetlc-zbeacon-core` |
+| `ZBeacon` | `TH01-2-z` | `sensors-zigbeetlc-zbeacon-core` |
+| `ZBeacon` | `TH01-z` | `sensors-zigbeetlc-zbeacon-core` |
+| `中性` | `700ae5aab3414ec09c1872efe7b8755a` | `safety-motion-livingwise-core` |
+| `欧瑞` | `585fdfb8c2304119a2432e9845cf2623` | `safety-motion-orvibo-sn10zw-core` |
 
 </details>
 
 <details>
-<summary>ZCL Sensors wonjj6768 (401 fingerprints)</summary>
+<summary>ZCL Sensors 3 wonjj6768 (127 fingerprints)</summary>
+
+Basic temperature, humidity, motion and safety sensors with explicit device fingerprints.
+
+| Manufacturer | Model | Profile |
+| --- | --- | --- |
+| `_TYZB01_18pkine6` | `TS0204` | `safety-tuya-ts0204-gas-core` |
+| `_TYZB01_3zv6oleo` | `TS0210` | `safety-tuya-ts0210-vibration-core` |
+| `_TYZB01_mfccmeio` | `TS0204` | `safety-tuya-ts0204-gas-core` |
+| `_TZ3000_bmfw9ykl` | `TS0210` | `safety-tuya-ts0210-vibration-core` |
+| `_TZ3000_fkxmyics` | `TS0210` | `safety-tuya-ts0210-vibration-core` |
+| `_TZ3000_jqge2fjx` | `TS0210` | `safety-tuya-ts0210-vibration-core` |
+| `_TZ3000_lqpt3mvr` | `TS0210` | `safety-tuya-ts0210-vibration-core` |
+| `_TZ3040_wc6kfjtc` | `TS020C` | `sensors-tuya-ts020c-core` |
+| `ADEO` | `ZB-SMART-PIRTH-V3` | `sensors-adeo-pirth-v3-core` |
+| `Aqara` | `lumi.sensor_ht.agl001` | `sensors-aqara-w100-core` |
+| `Aqara` | `lumi.sensor_occupy.agl8` | `sensors-aqara-fp300-core` |
+| `Bacchus` | `Presence_Sensor_v2` | `sensors-bacchus-presence2-core` |
+| `Bacchus` | `Presence_Sensor_v2.6` | `sensors-bacchus-presence26-core` |
+| `BOSCH` | `RBSH-SD-ZB-EU` | `sensors-bosch-bsd2-core` |
+| `CASAIA` | `CTHS317ET` | `sensors-casaia-probe-core` |
+| `CentraLite` | `3321-S` | `sensors-smartthings-3321s-core` |
+| `CentraLite` | `Contact Sensor-A` | `sensors-sylvania-contact-temperature-core` |
+| `Climax Technology Co.` | `RS_00.00.02.06TC` | `sensors-climax-rs23-core` |
+| `Climax Technology Co.` | `SD8SC_00.00.03.12TC` | `safety-smoke-climax-core` |
+| `Datek` | `Motion Sensor` | `sensors-datek-motion-core` |
+| `Develco Products A/S` | `GWA1513_WindowSensor` | `sensors-develco-gwa1513-core` |
+| `Develco Products A/S` | `WISZB-137` | `sensors-develco-wiszb137-core` |
+| `EFEKTA_FOR_BELOUSOV.A` | `EFEKTA_PWS_Max` | `sensors-efekta-pws-max-core` |
+| `EfektaLab` | `DIYRuZ_AirSense_Reloaded` | `sensors-airsense-reloaded-core` |
+| `EfektaLab` | `EFEKTA_Air_Quality_Station_2c` | `sensors-efekta-aqs2c-core` |
+| `EfektaLab` | `EFEKTA_AQ_Smart_Monitor` | `sensors-efekta-aq-smart-core` |
+| `EfektaLab` | `EFEKTA_eAir_Monitor` | `sensors-efekta-eair-core` |
+| `EfektaLab` | `EFEKTA_eFlora` | `sensors-efekta-eflora-core` |
+| `EfektaLab` | `EFEKTA_eFlora_Max_Pro` | `sensors-efekta-eflora-max-core` |
+| `EfektaLab` | `EFEKTA_eFlora_Pro` | `sensors-efekta-eflora-pro-core` |
+| `EfektaLab` | `EFEKTA_eTH_POW_E_LR` | `sensors-efekta-eth-pow-core` |
+| `EfektaLab` | `EFEKTA_eTH_POW_R_LR` | `sensors-efekta-eth-pow-core` |
+| `EfektaLab` | `EFEKTA_iAQ3` | `sensors-efekta-iaq3-core` |
+| `EfektaLab` | `EFEKTA_iAQ_S_II` | `sensors-efekta-iaqs2-core` |
+| `EfektaLab` | `EFEKTA_T1_NTC10K` | `sensors-efekta-t1-ntc10k-core` |
+| `EfektaLab` | `EFEKTA_T1_POW_NTC10K` | `sensors-efekta-t1-pow-ntc10k-core` |
+| `EfektaLab` | `EFEKTA_TH_DUO` | `sensors-efekta-th-duo-standard-core` |
+| `EfektaLab` | `EFEKTA_THP` | `sensors-efekta-thp-core` |
+| `EfektaLab` | `zFlora_Pro` | `sensors-efekta-zflora-pro-core` |
+| `EfektaLab` | `zFlora_ProMax` | `sensors-efekta-zflora-promax-core` |
+| `EfektaLab` | `zFlora_S` | `sensors-efekta-zflora-s-core` |
+| `EfektaLab` | `zFlora_S_Max` | `sensors-efekta-zflora-pro-core` |
+| `EfektaLab` | `zFlora_X_Max` | `sensors-efekta-zflora-x-max-core` |
+| `EfektaLab for you` | `EFEKTA_Pixel_Open_Air_II` | `sensors-efekta-pixel-air2-core` |
+| `efektalab.com` | `EFEKTA_eON213z` | `sensors-efekta-eon213z-core` |
+| `efektalab.ru` | `EFEKTA_PWS` | `sensors-efekta-pws-core` |
+| `EfektaLab_for_you` | `SNZB-02_EFEKTA` | `sensors-sonoff-snzb02-efekta-core` |
+| `EfektaLab_for_Zigbee-Shop.ru` | `EFEKTA_T1_NTC10K` | `sensors-efekta-t1-ntc10k-core` |
+| `EfektaLab_for_Zigbee-Shop.ru` | `EFEKTA_T1_POW_NTC10K` | `sensors-efekta-t1-pow-ntc10k-core` |
+| `EfektaLab_for_Zigbee-Shop.ru` | `EFEKTA_TH_DUO` | `sensors-efekta-th-duo-standard-core` |
+| `EfektaLab_for_Zigbee-Shop.ru` | `zFlora_S_Max` | `sensors-efekta-zflora-pro-core` |
+| `feibit` | `FNB56-COS06FB1.7` | `safety-feibit-sca01zb-core` |
+| `feibit` | `FNB56-GAS05FB1.4` | `safety-feibit-sga01zb-core` |
+| `Feibit Inc co.` | `FB56-BOT02HM1.2` | `safety-motion-feibit-sbm01zb-core` |
+| `Feibit Inc co.` | `FNB56-BOT06FB2.3` | `safety-motion-feibit-sbm01zb-core` |
+| `Feibit Inc co.` | `FNB56-BOT06FB2.8` | `safety-motion-feibit-sbm01zb-core` |
+| `frient A/S` | `HESZB-120` | `safety-frient-heszb120-core` |
+| `frient A/S` | `WISZB-120` | `sensors-frient-wiszb120-core` |
+| `frient A/S` | `WISZB-137` | `sensors-develco-wiszb137-core` |
+| `frient A/S` | `WISZB-138` | `sensors-frient-wiszb138-core` |
+| `GS` | `SMHM-I1` | `safety-motion-gs-smhm-core` |
+| `HaloSmartLabs` | `haloWX` | `safety-smoke-co-halo-wx-core` |
+| `Heiman` | `1ccaa94c49a84abaa9e38687913947ba` | `safety-feibit-sca01zb-core` |
+| `HEIMAN` | `HS2FD-EF1-3.0` | `sensors-heiman-hs2fd-presence-core` |
+| `HEIMAN` | `HS8MIS-86-EF1-3.0` | `sensors-heiman-hs8mis86-core` |
+| `HEIMAN` | `HS8MIS-EF1-3.0` | `sensors-heiman-hs8mis-core` |
+| `HEIMAN` | `HS8OS-EF1-3.0` | `sensors-heiman-hs8os-core` |
+| `iHorn` | `LH05121` | `safety-smoke-konke-core` |
+| `IKEA of Sweden` | `TRADFRI motion sensor` | `safety-motion-ikea-tradfri-core` |
+| `iMagic by GreatStar` | `1116-S` | `sensors-iris-1116-core` |
+| `iMagic by GreatStar` | `3320-L` | `sensors-iris-3320-core` |
+| `IMMAX` | `4in1-Sensor-ZB3.0` | `sensors-immax-four-core` |
+| `IMMAX` | `Motion-Sensor-ZB3.0` | `safety-motion-immax-core` |
+| `JHL` | `ED6XX` | `safety-motion-tis-ed6xx-core` |
+| `Konke` | `3AFE010104020028` | `safety-smoke-konke-core` |
+| `Konke` | `3AFE07010402100D` | `safety-motion-konke-kkbsj01w-core` |
+| `Konke` | `3AFE08010402100D` | `safety-motion-konke-kkbsj01w-core` |
+| `LDS` | `PFMOT001` | `safety-motion-lds-pfmot001-core` |
+| `Leedarson` | `ZB-MotionSensor-S0000` | `safety-motion-leedarson-s0000-core` |
+| `Leedarson` | `ZB-SMART-PIRTH-V1` | `sensors-leedarson-pirth-v1-core` |
+| `LUMI` | `lumi.sensor_gas.acn02` | `safety-aqara-gas-acn02-core` |
+| `LUMI` | `lumi.sensor_natgas` | `safety-lumi-natgas-core` |
+| `modkam.ru` | `DIYRuZ_AirSense` | `sensors-diyruz-airsense-core` |
+| `MultiIR` | `MIR-IR100-E` | `sensors-multir-ir100e-core` |
+| `MultIR` | `MIR-IR100` | `safety-motion-multir-ir100-core` |
+| `MultIR` | `MIR-IR100-E` | `sensors-multir-ir100e-core` |
+| `MultIR` | `MIR-SM200` | `safety-smoke-multir-sm200-core` |
+| `MultIR` | `ZP1-EN` | `safety-motion-imou-zp1-core` |
+| `MultIR` | `ZTM1-EN` | `sensors-imou-ztm1-core` |
+| `Nexelec` | `Air Quality Sensor Nexelec` | `sensors-nexelec-openr-core` |
+| `Nexturn` | `Motion_Sensor` | `safety-motion-lifecontrol-core` |
+| `Nexturn` | `VOC_Sensor` | `sensors-lifecontrol-mclh08-core` |
+| `Niko NV` | `Connectable motion sensor,Zigbee` | `safety-motion-niko-core` |
+| `ORVIBO` | `50938c4c3c0b4049923cd5afbc151bde` | `sensors-orvibo-st30-core` |
+| `ORVIBO` | `898ca74409a740b28d5841661e72268d` | `sensors-orvibo-st30-core` |
+| `OWON` | `PIR313-E` | `safety-motion-owon-pir313e-core` |
+| `OWON` | `PIR313-P` | `safety-motion-owon-pir313p-core` |
+| `OWON` | `PIR323-PTH` | `safety-motion-owon-pir323pth-core` |
+| `OWON` | `THS317` | `sensors-owon-ths317-core` |
+| `PushOk Hardware` | `POK002` | `sensors-pushok-soil-core` |
+| `PushOk Hardware` | `POK007` | `sensors-pushok-soil-core` |
+| `PushOk Hardware` | `POK010` | `sensors-pushok-contact-th-core` |
+| `ROBB smarrt` | `ROB_200-070-0` | `sensors-robb-presence-core` |
+| `Samjin` | `multi` | `sensors-samjin-multi-core` |
+| `Schneider Electric` | `W564100` | `sensors-schneider-w564100-core` |
+| `ShinaSystem` | `OSM-300Z` | `safety-motion-sihas-osm300z-core` |
+| `ShinaSystem` | `USM-300Z` | `sensors-sihas-usm300z-core` |
+| `Shyugj` | `TempAndHumSensor-ZB3.0` | `sensors-hzc-s093th-core` |
+| `Slacky-DIY` | `Smoke_Sensor_TLSR8258` | `safety-smoke-slacky-core` |
+| `Slacky-DIY` | `TS0201-z2C-SlD` | `sensors-slacky-lcd-core` |
+| `Slacky-DIY` | `Tuya_CO2Sensor_r01` | `sensors-slacky-co2-r01-core` |
+| `Slacky-DIY` | `Tuya_CO2Sensor_r02` | `sensors-slacky-co2-r02-core` |
+| `SmartThings` | `multiv4` | `sensors-smartthings-multiv4-core` |
+| `SmartThings` | `tagv4` | `sensors-smartthings-tagv4-core` |
+| `SOMFY` | `1811681` | `safety-motion-somfy-core` |
+| `Sunricher` | `HK-DIM-PIR` | `sensors-sunricher-dim-pir-core` |
+| `Sunricher` | `HK-SENSOR-PRE` | `sensors-sunricher-presence-core` |
+| `Tapestry` | `THPZ1` | `sensors-tapestry-thpz1-core` |
+| `Third Reality, Inc` | `3RAQ1096Z` | `sensors-thirdreality-air-core` |
+| `Third Reality, Inc` | `3RMS26Z` | `safety-motion-thirdreality-gen2-core` |
+| `Third Reality, Inc` | `3RSM0147Z` | `sensors-thirdreality-soil-core` |
+| `Third Reality, Inc` | `3RSM0347Z` | `sensors-thirdreality-soil-gen2-core` |
+| `Titan Products Ltd` | `TPZRCO2HT-Z3` | `sensors-titan-tpzrco2ht-core` |
+| `Trust` | `COSensor-EM` | `safety-trust-co-em-core` |
+| `Viessmann` | `7963223` | `sensors-viessmann-7963223-core` |
+| `Visonic` | `GB-540` | `safety-visonic-gb540-core` |
+| `Wiren Board` | `WB-MSW-ZIGBEE v.4` | `sensors-wirenboard-msw4-official-core` |
+
+</details>
+
+<details>
+<summary>ZCL Sensors wonjj6768 (402 fingerprints)</summary>
 
 Development driver; report issues with hub logcat. Supports ZCL sensors, safety devices, sirens, and repeaters.
 
@@ -3392,7 +3863,7 @@ Development driver; report issues with hub logcat. Supports ZCL sensors, safety 
 | `_TZ3040_wqmtjsyk` | `TS0202` | `safety-motion-tamper-battery-low-battery-voltage` |
 | `_TZ3210_0aqbrnts` | `TS0202` | `safety-motion-illuminance-temp-humidity-tamper-battery` |
 | `_TZ3210_alxkwn0h` | `TS0201` | `sensors-temp-humidity-battery-voltage` |
-| `_TZ3210_cwamkvua` | `TS0202` | `safety-motion-battery-voltage` |
+| `_TZ3210_cwamkvua` | `TS0202` | `safety-motion-scene-light-cwam` |
 | `_TZ3210_jijr1sss` | `TS0202` | `safety-motion-illuminance-temp-humidity-tamper-battery` |
 | `_TZ3210_jowhpxop` | `TS0203` | `safety-contact-tamper-battery-low-battery-tuya-scene-pending` |
 | `_TZ3210_kjafhwd2` | `TS0210` | `safety-acceleration-battery-tuya-pending` |
@@ -3544,9 +4015,9 @@ Development driver; report issues with hub logcat. Supports ZCL sensors, safety 
 | `LUMI` | `lumi.magnet.ac01` | `safety-contact-tamper-battery-voltage` |
 | `LUMI` | `lumi.magnet.acn001` | `safety-contact-battery-low-battery-voltage` |
 | `LUMI` | `lumi.magnet.agl02` | `safety-contact-battery-voltage` |
-| `LUMI` | `lumi.motion.ac02` | `safety-motion-illuminance-battery` |
-| `LUMI` | `lumi.motion.acn001` | `safety-motion-illuminance-battery` |
-| `LUMI` | `lumi.motion.agl02` | `safety-motion-illuminance-battery` |
+| `LUMI` | `lumi.motion.ac02` | `safety-aqara-motion-p1` |
+| `LUMI` | `lumi.motion.acn001` | `safety-aqara-motion-e1` |
+| `LUMI` | `lumi.motion.agl02` | `safety-aqara-motion-t1` |
 | `LUMI` | `lumi.sen_ill.agl01` | `sensors-illuminance-battery-voltage-lumi-pending` |
 | `LUMI` | `lumi.sen_ill.mgl01` | `sensors-illuminance-battery-voltage-lumi-pending` |
 | `LUMI` | `lumi.sens` | `sensors-temp-humidity-battery-voltage` |
@@ -3554,8 +4025,8 @@ Development driver; report issues with hub logcat. Supports ZCL sensors, safety 
 | `LUMI` | `lumi.sensor_ht.agl02` | `sensors-temp-humidity-pressure-battery-voltage` |
 | `LUMI` | `lumi.sensor_magnet` | `safety-contact-battery-voltage` |
 | `LUMI` | `lumi.sensor_magnet.aq2` | `safety-contact-battery-voltage` |
-| `LUMI` | `lumi.sensor_motion` | `safety-motion-battery-voltage` |
-| `LUMI` | `lumi.sensor_motion.aq2` | `safety-motion-illuminance-battery` |
+| `LUMI` | `lumi.sensor_motion` | `safety-lumi-motion` |
+| `LUMI` | `lumi.sensor_motion.aq2` | `safety-aqara-motion-m11` |
 | `LUMI` | `lumi.sensor_wleak.aq1` | `safety-water-leak-battery-low-battery-voltage` |
 | `LUMI` | `lumi.weather` | `sensors-temp-humidity-pressure-battery-voltage` |
 | `NabuCasa` | `SkyConnect` | `network-repeater` |
@@ -3570,6 +4041,7 @@ Development driver; report issues with hub logcat. Supports ZCL sensors, safety 
 | `Schneider Electric` | `CCTFR6700` | `thermostats-schneider-heating-power-energy-pending` |
 | `Schneider Electric` | `CCTFR6710` | `thermostats-schneider-heating-power-energy-pending` |
 | `Schneider Electric` | `Thermostat` | `thermostats-schneider-room-thermostat-pending` |
+| `Schneider Electric` | `W599001` | `safety-smoke-temp-tamper-battery-low-battery-voltage-schneider-pending` |
 | `Schneider Electric` | `W599501` | `safety-smoke-temp-tamper-battery-low-battery-voltage-schneider-pending` |
 | `Shelly` | `BLU DoorWindow ZB` | `safety-contact-illuminance-battery-low-handle-shelly` |
 | `Shelly` | `BLU H&T Display ZB` | `sensors-illuminance-temp-humidity-battery` |
