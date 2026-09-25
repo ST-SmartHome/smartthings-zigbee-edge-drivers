@@ -9,7 +9,7 @@ and supports every device the upstream driver does. On top of that it adds fixes
 
 | Change | Why |
 |---|---|
-| **Outlet 2 as its own device** (optional child device) | Upstream exposes outlet 2 only as a second component of one device. Alexa and Google Home only see a device's main switch, and the app's built-in device **Timer** only switches the main one, so outlet 2 couldn't be controlled from any of them. The child device is a plain switch that forwards to outlet 2 and mirrors its state. |
+| **Outlet 2 as its own device** (optional child device) | Upstream exposes outlet 2 only as a second component of one device. Alexa and Google Home only see a device's main switch, so outlet 2 couldn't be controlled from either of them. The child device is a plain switch that forwards to outlet 2 and mirrors its state. |
 | **Correct energy (kWh)** | The SPP02GIP reports a bogus SimpleMetering multiplier/divisor pair (a 0x200010 ratio). Upstream trusts it, so energy showed as billions of kWh (for example 61.63 kWh displayed as 12,924,846,384 kWh). This driver always uses ÷100 for this plug, as Zigbee2MQTT does. |
 | **Quieter, adjustable reporting** | Defaults: voltage on a 3 V change (at most once a minute), power on 5 W (the SmartThings default), current on 50 mA (Zigbee2MQTT's value for this plug), each with a 10-minute heartbeat. Upstream reported every 1 W / 1 mA / 1 V, up to every 5 s, which flooded device history. The thresholds and the minimum interval are adjustable in device Settings. The SPP02GIP firmware ignores the configured change threshold, so the driver also applies it itself: a reading within the threshold of the last one shown is dropped, except for a 10-minute heartbeat. |
 | **Reconfigure on driver switch** | Switching a device to this driver re-applies its reporting configuration and marks it provisioned. The default handler did neither for this driver. |
@@ -27,7 +27,7 @@ All other devices behave exactly as they do upstream.
 - **Reporting settings** (device → ⋮ → Settings): *Power report threshold* (1–100 W, default 5),
   *Current report threshold* (10–1000 mA, default 50), *Voltage report threshold* (1–20 V, default 3) and
   *Minimum report interval* for power and current (1–300 s, default 5). Changes are sent to the plug immediately.
-- After switching an existing plug to this driver, point Alexa, Google Home and any timers at the new
+- After switching an existing plug to this driver, point Alexa and Google Home at the new
   `Outlet 2` device (run device discovery in the Alexa app).
 
 ## Installing
