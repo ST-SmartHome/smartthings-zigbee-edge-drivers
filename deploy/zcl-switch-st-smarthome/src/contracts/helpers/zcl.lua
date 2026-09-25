@@ -38,6 +38,11 @@ end
 append_cluster(clusters,zcl.power({
 endpoint=endpoint,
 poll_interval=power_poll,
+minimum_interval=options.power_minimum_interval,
+maximum_interval=options.power_maximum_interval,
+reportable_change=options.power_reportable_change,
+reportable_change_preference=options.power_reportable_change_preference,
+minimum_interval_preference=options.power_minimum_interval_preference,
 }))
 append_cluster(clusters,zcl.voltage({
 endpoint=endpoint,
@@ -45,11 +50,17 @@ poll_interval=voltage_poll,
 minimum_interval=options.voltage_minimum_interval,
 maximum_interval=options.voltage_maximum_interval,
 reportable_change=options.voltage_reportable_change,
+reportable_change_preference=options.voltage_reportable_change_preference,
 }))
 if include_current then
 append_cluster(clusters,zcl.current({
 endpoint=endpoint,
 poll_interval=current_poll,
+minimum_interval=options.current_minimum_interval,
+maximum_interval=options.current_maximum_interval,
+reportable_change=options.current_reportable_change,
+reportable_change_preference=options.current_reportable_change_preference,
+minimum_interval_preference=options.current_minimum_interval_preference,
 }))
 end
 append_cluster(clusters,zcl.energy({

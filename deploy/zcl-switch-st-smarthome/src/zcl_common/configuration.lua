@@ -28,7 +28,17 @@ return data_type(reportable_change)
 end
 return reportable_change
 end
-local function build_configured_attribute(meta)
+-- ST-SmartHome: a mapping may name device preferences that override its
+-- reportable change / minimum interval (raw attribute units).
+local function preference_number(device,name)
+local preferences=device and device.preferences
+local value=type(preferences)=="table" and name and preferences[name]or nil
+if type(value)=="number" and value > 0 then
+return value
+end
+return nil
+end
+local function build_configured_attribute(meta,device)
 if meta.physical_reportable_change ~=nil then
 return nil
 end
@@ -41,17 +51,23 @@ end
 if meta.cluster_id==nil or meta.attribute_id==nil or meta.data_type==nil then
 return nil
 end
+local minimum_interval=preference_number(device,meta.minimum_interval_preference)or meta.minimum_interval or 0
+local maximum_interval=meta.maximum_interval or 300
+if minimum_interval > maximum_interval then
+minimum_interval=maximum_interval
+end
+local reportable_change=preference_number(device,meta.reportable_change_preference)or meta.reportable_change
 return{
 cluster=meta.cluster_id,
 attribute=meta.attribute_id,
-minimum_interval=meta.minimum_interval or 0,
-maximum_interval=meta.maximum_interval or 300,
+minimum_interval=minimum_interval,
+maximum_interval=maximum_interval,
 data_type=meta.data_type,
-reportable_change=normalize_reportable_change(meta.data_type,meta.reportable_change),
+reportable_change=normalize_reportable_change(meta.data_type,reportable_change),
 mfg_code=meta.mfg_code,
 }
 end
-function zcl.build_configured_attributes(zcl_clusters)
+function zcl.build_configured_attributes(zcl_clusters,device)
 if type(zcl_clusters)~="table" then
 return{}
 end
@@ -60,7 +76,7 @@ local seen={}
 for _,mapping in ipairs(zcl_clusters)do
 if type(mapping)=="table" then
 local meta=zcl.mapping_meta(mapping)
-local item=meta and build_configured_attribute(meta)or nil
+local item=meta and build_configured_attribute(meta,device)or nil
 if item ~=nil then
 local key=string.format("%04X:%04X",item.cluster,item.attribute)
 local existing_index=seen[key]
@@ -143,7 +159,7 @@ end
 if ias_configure_method ~=nil and type(device.set_ias_zone_config_method)=="function" then
 device:set_ias_zone_config_method(ias_configure_method)
 end
-local configured=zcl.build_configured_attributes(zcl_clusters)
+local configured=zcl.build_configured_attributes(zcl_clusters,device)
 if #configured > 0 and type(device.add_configured_attribute)=="function" then
 for _,item in ipairs(configured)do
 device:add_configured_attribute(item)

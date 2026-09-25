@@ -72,3 +72,39 @@ preferences:
     preferenceType: boolean
     definition:
       default: true
+  - name: powerReportChange
+    title: Power report threshold (W)
+    description: Report power when it changes by at least this many watts. Lower is more responsive but adds history noise. Default 5.
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 1
+      maximum: 100
+      default: 5
+  - name: currentReportChange
+    title: Current report threshold (mA)
+    description: Report current when it changes by at least this many milliamps (1000 mA = 1 A). Default 50.
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 10
+      maximum: 1000
+      default: 50
+  - name: voltageReportChange
+    title: Voltage report threshold (V)
+    description: Report voltage when it changes by at least this many volts. Voltage never reports more than once a minute. Default 3.
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 1
+      maximum: 20
+      default: 3
+  - name: reportMinInterval
+    title: Minimum report interval (s)
+    description: Shortest time between power or current reports. Default 5.
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 1
+      maximum: 300
+      default: 5

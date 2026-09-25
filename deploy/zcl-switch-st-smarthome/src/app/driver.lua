@@ -352,6 +352,24 @@ local function resolve_definition(device)
 return registry.find(device:get_manufacturer(),device:get_model())
 end
 child_outlets.set_definition_resolver(resolve_definition)
+-- ST-SmartHome: reporting preferences. Changing one reconfigures reporting.
+-- REPORTING_REVISION is bumped whenever a definition's reporting defaults
+-- change, so devices already on this driver reconfigure once after an update
+-- (a driver update does not run doConfigure).
+local REPORTING_PREFERENCES={"powerReportChange","currentReportChange","voltageReportChange","reportMinInterval"}
+local REPORTING_REVISION=2
+local REPORTING_REVISION_FIELD="st_smarthome_reporting_revision"
+local function reporting_preferences_changed(device,old_preferences)
+if type(old_preferences)~="table" or type(device.preferences)~="table" then
+return false
+end
+for _,name in ipairs(REPORTING_PREFERENCES)do
+if device.preferences[name]~=old_preferences[name]then
+return true
+end
+end
+return false
+end
 local function uses_zcl_on_off(device)
 local preset=get_preset(device)
 return preset ~=nil and preset.zcl_clusters ~=nil and zcl.has_cluster(preset.zcl_clusters,zcl.CLUSTER_ON_OFF)
@@ -866,6 +884,10 @@ emit_window_shade_preset_state(device)
 custom_capability_runtime.maybe_request_initial_custom_state(device,preset)
 custom_capability_runtime.schedule_placeholder_states(device,definition)
 child_outlets.sync_parent(driver,device)
+if preset and preset.zcl_clusters and device:get_field(REPORTING_REVISION_FIELD)~=REPORTING_REVISION then
+zcl.start_configuration(device,preset.zcl_clusters)
+device:set_field(REPORTING_REVISION_FIELD,REPORTING_REVISION,{persist=true})
+end
 end,
 doConfigure=function(driver,device)
 if is_child_device(device)then
@@ -880,6 +902,7 @@ if is_child_device(device)then
 return
 end
 configure_preset(driver,device,get_preset(device))
+device:set_field(REPORTING_REVISION_FIELD,REPORTING_REVISION,{persist=true})
 device.thread:queue_event(device.try_update_metadata,device,{provisioning_state="PROVISIONED"})
 end,
 infoChanged=function(driver,device,_,args)
@@ -896,6 +919,10 @@ component_mapping.apply(device,definition)
 configure_preset(driver,device,get_preset(device))
 end
 local preset=get_preset(device)
+if preset and preset.zcl_clusters and not profile_changed and
+reporting_preferences_changed(device,args.old_st_store.preferences)then
+zcl.start_configuration(device,preset.zcl_clusters)
+end
 if preset then
 preset:apply_preferences_changed(device,args.old_st_store.preferences)
 if preset.zcl_clusters then

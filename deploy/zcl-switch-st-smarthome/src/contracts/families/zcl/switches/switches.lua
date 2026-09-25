@@ -417,6 +417,17 @@ energy_ignore_reported_scaler=options.energy_ignore_reported_scaler,
 voltage_minimum_interval=options.voltage_minimum_interval,
 voltage_maximum_interval=options.voltage_maximum_interval,
 voltage_reportable_change=options.voltage_reportable_change,
+power_minimum_interval=options.power_minimum_interval,
+power_maximum_interval=options.power_maximum_interval,
+power_reportable_change=options.power_reportable_change,
+power_reportable_change_preference=options.power_reportable_change_preference,
+power_minimum_interval_preference=options.power_minimum_interval_preference,
+current_minimum_interval=options.current_minimum_interval,
+current_maximum_interval=options.current_maximum_interval,
+current_reportable_change=options.current_reportable_change,
+current_reportable_change_preference=options.current_reportable_change_preference,
+current_minimum_interval_preference=options.current_minimum_interval_preference,
+voltage_reportable_change_preference=options.voltage_reportable_change_preference,
 }),
 zcl.tuya_magic_packet()
 )
@@ -434,14 +445,28 @@ end
 local tuya_dual_metered=build_tuya_dual_metered_plug("plugs-dual-metered")
 -- ST-SmartHome: Mercator Ikuu SPP02GIP (IP54 double power point). One meter on
 -- endpoint 1 covers both outlets. Its reported SimpleMetering scaler pair is
--- bogus, so energy is always /100 (as Zigbee2MQTT does). Voltage reports only
--- on a 3 V change, at most once a minute. Outlet 2 can be a child device.
+-- bogus, so energy is always /100 (as Zigbee2MQTT does). Reporting defaults:
+-- voltage 3 V / >=60 s, power 5 W (the SmartThings default), current 50 mA
+-- (Zigbee2MQTT's value for this plug), 10 min heartbeat; the change
+-- thresholds and power/current minimum interval are device preferences.
+-- Outlet 2 can be a child device.
 local mercator_spp02gip=build_tuya_dual_metered_plug("plugs-dual-metered-outage-children",{
 outage_memory=true,
 energy_ignore_reported_scaler=true,
 voltage_minimum_interval=60,
 voltage_maximum_interval=600,
 voltage_reportable_change=3,
+voltage_reportable_change_preference="voltageReportChange",
+power_minimum_interval=5,
+power_maximum_interval=600,
+power_reportable_change=5,
+power_reportable_change_preference="powerReportChange",
+power_minimum_interval_preference="reportMinInterval",
+current_minimum_interval=5,
+current_maximum_interval=600,
+current_reportable_change=50,
+current_reportable_change_preference="currentReportChange",
+current_minimum_interval_preference="reportMinInterval",
 child_outlets={switch2="Outlet 2"},
 })
 local tuya_dual_metered_outage=build_tuya_dual_metered_plug("plugs-dual-metered-outage",{

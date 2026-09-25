@@ -54,6 +54,8 @@ local mapping_option_keys={
 "to_device",
 "scale",
 "ignore_reported_scaler",
+"reportable_change_preference",
+"minimum_interval_preference",
 "component",
 "endpoint",
 "read_only",
