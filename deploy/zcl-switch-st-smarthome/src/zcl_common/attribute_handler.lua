@@ -114,6 +114,33 @@ return
 end
 device:emit_event(event)
 end
+-- ST-SmartHome: some firmware (the Mercator SPP02GIP) ignores the configured
+-- reportable change and reports every minimum interval, so mappings with a
+-- reportable_change_preference also get a driver-side deadband: a value within
+-- the threshold of the last emitted one is dropped, unless the mapping's
+-- maximum interval has passed since then (heartbeat).
+local function within_deadband(device,meta,value)
+local name=meta.reportable_change_preference
+if name==nil or type(value)~="number" then
+return false
+end
+local preferences=device.preferences
+local threshold=type(preferences)=="table" and preferences[name]or nil
+if type(threshold)~="number" or threshold <=0 then
+return false
+end
+threshold=threshold/(meta.scale or 1)
+local key="st_smarthome_deadband_" .. tostring(meta.name)
+local last=device:get_field(key)
+local now=os.time()
+if type(last)=="table" and type(last.value)=="number" and
+math.abs(value-last.value)< threshold and
+now-last.time <(meta.maximum_interval or 600)then
+return true
+end
+device:set_field(key,{value=value,time=now})
+return false
+end
 local function emit_events(device,events,mapping_context)
 if events==nil then
 return
@@ -178,7 +205,7 @@ end
 if meta.handler ~=nil then
 meta.handler(device,value,mapping_context,mapping)
 end
-if meta.emit ~=nil then
+if meta.emit ~=nil and not within_deadband(device,meta,value)then
 emit_events(device,meta.emit(device,value,mapping_context,mapping),mapping_context)
 end
 return value
