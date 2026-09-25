@@ -1,3 +1,5 @@
+> **ST-SmartHome fork.** This fork adds one extra driver package, [`deploy/zcl-switch-st-smarthome`](deploy/zcl-switch-st-smarthome/README.md): a ZCL Switch variant with an optional separate device for outlet 2 on dual plugs, and an energy-scaling fix for the Mercator Ikuü SPP02GIP. Everything else below is the upstream README, unchanged.
+
 # SmartThings Zigbee Edge Drivers
 
 ## August 31, 2026 Update
