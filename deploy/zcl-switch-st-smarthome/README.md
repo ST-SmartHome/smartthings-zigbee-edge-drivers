@@ -44,7 +44,7 @@ changes above. The upstream package is left untouched so the fork can keep synci
 
 - `src/app/child_outlets.lua`: new child-device module
 - `src/app/driver.lua`: child lifecycle, command forwarding, `driverSwitched`
-- `src/zcl_common/attribute_handler.lua`: mirrors outlet-2 switch state to the child
+- `src/zcl_common/attribute_handler.lua`: mirrors outlet-2 switch state to the child, and applies the reporting deadband (the SPP02GIP ignores its configured change thresholds)
 - `src/zcl_common/metering.lua`, `runtime.lua`, `cluster_mapping.lua`: the `ignore_reported_scaler` option
 - `src/zcl_common/configuration.lua`: per-device preference overrides for reporting thresholds
 - `src/contracts/families/zcl/switches/switches.lua`, `src/contracts/helpers/zcl.lua`: the SPP02GIP definition
