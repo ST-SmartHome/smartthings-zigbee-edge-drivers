@@ -3,6 +3,7 @@ local custom_capabilities=require "runtime.capability_metadata"
 local capability_support=require "runtime.capability_support"
 local utf8_text=require "runtime.utf8_text"
 local log=require "log"
+local child_outlets=require "app.child_outlets"
 local tuya=require "protocol.tuya"
 local zcl=require "protocol.zcl"
 local MAIN_COMPONENT="main"
@@ -168,6 +169,7 @@ device:emit_event(event)
 else
 device:emit_component_event({id=component_id},event)
 end
+child_outlets.on_parent_event(device,component_id,event)
 end
 local function for_each_definition_group(callback)
 for _,group in ipairs(METADATA_GROUPS)do

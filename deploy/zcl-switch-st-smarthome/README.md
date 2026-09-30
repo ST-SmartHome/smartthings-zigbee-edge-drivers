@@ -12,6 +12,7 @@ and supports every device the upstream driver does. On top of that it adds fixes
 | **Outlet 2 as its own device** (optional child device) | Upstream exposes outlet 2 only as a second component of one device. Alexa and Google Home only see a device's main switch, so outlet 2 couldn't be controlled from either of them. The child device is a plain switch that forwards to outlet 2 and mirrors its state. |
 | **Correct energy (kWh)** | The SPP02GIP reports a bogus SimpleMetering multiplier/divisor pair (a 0x200010 ratio). Upstream trusts it, so energy showed as billions of kWh (for example 61.63 kWh displayed as 12,924,846,384 kWh). This driver always uses ÷100 for this plug, as Zigbee2MQTT does. |
 | **Quieter, adjustable reporting** | Defaults: voltage on a 3 V change (at most once a minute), power on 5 W (the SmartThings default), current on 50 mA (Zigbee2MQTT's value for this plug), each with a 10-minute heartbeat. Upstream reported every 1 W / 1 mA / 1 V, up to every 5 s, which flooded device history. The thresholds and the minimum interval are adjustable in device Settings. The SPP02GIP firmware ignores the configured change threshold, so the driver also applies it itself: a reading within the threshold of the last one shown is dropped, except for a 10-minute heartbeat. |
+| **Per-outlet countdown** | A *Countdown Timer* control on each outlet (and on the Outlet 2 device). Setting it turns the outlet on, and the plug itself turns it off again after that time, so the timer keeps running if the hub restarts. Routines can set it too. Upstream's countdown mapping sends a raw payload that the SmartThings SDK rejects, so it never reached the plug; this driver sends typed `OnWithTimedOff` arguments. |
 | **Reconfigure on driver switch** | Switching a device to this driver re-applies its reporting configuration and marks it provisioned. The default handler did neither for this driver. |
 
 All other devices behave exactly as they do upstream.
@@ -27,6 +28,13 @@ All other devices behave exactly as they do upstream.
 - **Reporting settings** (device → ⋮ → Settings): *Power report threshold* (1–100 W, default 5),
   *Current report threshold* (10–1000 mA, default 50), *Voltage report threshold* (1–20 V, default 3) and
   *Minimum report interval* for power and current (1–300 s, default 5). Changes are sent to the plug immediately.
+- **Countdown.** Each outlet has a *Countdown Timer* (0–43,200 s, i.e. up to 12 h), also on the Outlet 2 device
+  and in routine actions. Setting a value turns the outlet on and starts the countdown in the plug; the plug
+  reports the off itself. Setting it again restarts the countdown, and setting 0 or switching the outlet off
+  cancels it. The SPP02GIP counts in whole seconds (the ZCL spec says tenths). The tile shows the time last
+  set, not the time remaining: the plug's `onTime` attribute doesn't track it (it reports 0 mid-countdown),
+  so reports of it are ignored. It returns to 0 when the outlet turns off. The app's own Timer is separate
+  and run by SmartThings, not the plug.
 - After switching an existing plug to this driver, point Alexa and Google Home at the new
   `Outlet 2` device (run device discovery in the Alexa app).
 
@@ -42,12 +50,13 @@ All other devices behave exactly as they do upstream.
 This package (`deploy/zcl-switch-st-smarthome/`) is a copy of `deploy/zcl-switch-wonjj6768/` with the
 changes above. The upstream package is left untouched so the fork can keep syncing with upstream. Main changes:
 
-- `src/app/child_outlets.lua`: new child-device module
-- `src/app/driver.lua`: child lifecycle, command forwarding, `driverSwitched`
+- `src/app/child_outlets.lua`: new child-device module (mirrors switch and countdown to the child)
+- `src/app/driver.lua`: child lifecycle, command forwarding (switch, refresh, countdown), `driverSwitched`
+- `src/app/custom_capability_runtime.lua`: passes custom-capability events to the child mirror
 - `src/zcl_common/attribute_handler.lua`: mirrors outlet-2 switch state to the child, and applies the reporting deadband (the SPP02GIP ignores its configured change thresholds)
 - `src/zcl_common/metering.lua`, `runtime.lua`, `cluster_mapping.lua`: the `ignore_reported_scaler` option
 - `src/zcl_common/configuration.lua`: per-device preference overrides for reporting thresholds
-- `src/contracts/families/zcl/switches/switches.lua`, `src/contracts/helpers/zcl.lua`: the SPP02GIP definition
+- `src/contracts/families/zcl/switches/switches.lua`, `src/contracts/helpers/zcl.lua`: the SPP02GIP definition, including the per-endpoint countdown and its typed sender
 - `profiles/plugs-dual-metered-outage-children.yml`, `profiles/child-outlet.yml`: new profiles
 
 ## License

@@ -942,6 +942,7 @@ local handlers=build_capability_handlers()
 local forwarded={
 [capabilities.switch.ID]={capabilities.switch.commands.on.NAME,capabilities.switch.commands.off.NAME},
 [capabilities.refresh.ID]={capabilities.refresh.commands.refresh.NAME},
+[child_outlets.COUNTDOWN_ID]={child_outlets.COUNTDOWN_COMMAND},
 }
 for capability_id,command_names in pairs(forwarded)do
 for _,command_name in ipairs(command_names)do

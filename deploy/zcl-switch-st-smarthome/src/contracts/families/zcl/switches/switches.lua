@@ -4,6 +4,7 @@ local device_helpers=require "contracts.helpers.family"
 local zcl_device_helpers=require "contracts.helpers.zcl"
 local device_management=require "st.zigbee.device_management"
 local data_types=require "st.zigbee.data_types"
+local on_off_cluster=require "st.zigbee.zcl.clusters".OnOff
 local device_definitions,register_device_definition=device_helpers.definition_registry()
 local function bind_on_off_endpoints(endpoint_count)
 return function(driver,device)
@@ -401,6 +402,29 @@ driver.environment_info.hub_zigbee_eui,
 2
 ))
 end
+-- ST-SmartHome: countdown sender with typed OnWithTimedOff arguments (the
+-- generic countdown_timer mapping passes a raw payload, which the SDK's
+-- command constructor rejects). A value turns the outlet on and has the plug
+-- turn it off after that many seconds (Tuya firmware counts whole seconds,
+-- not the ZCL spec's tenths); 0 cancels the countdown and leaves the outlet
+-- as it is. Switching the outlet off also cancels it.
+local function send_countdown(device,_,value,mapping_context)
+local seconds=math.floor(math.max(0,math.min(tonumber(value)or 0,43200)))
+local component_id=type(mapping_context)=="table" and mapping_context.component_id or "main"
+local function send(command)
+device:send_to_component(component_id,command)
+end
+if seconds>0 then
+send(on_off_cluster.server.commands.On(device))
+end
+send(on_off_cluster.server.commands.OnWithTimedOff(
+device,
+data_types.Uint8(0),
+data_types.Uint16(seconds),
+data_types.Uint16(seconds)
+))
+return true
+end
 local function build_tuya_dual_metered_plug(profile,options)
 options=options or{}
 local clusters={
@@ -435,6 +459,18 @@ if options.outage_memory then append_option_clusters(clusters,zcl.tuya_power_out
 if options.indicator_mode then append_option_clusters(clusters,zcl.indicator_mode())end
 if options.child_lock then append_option_clusters(clusters,zcl.child_lock())end
 if options.countdown then append_option_clusters(clusters,zcl.countdown_timer())end
+-- ST-SmartHome: a per-outlet plug-side countdown (OnWithTimedOff) on each endpoint.
+for _,endpoint in ipairs(options.countdown_endpoints or{})do
+append_option_clusters(clusters,zcl.countdown_timer({
+endpoint=endpoint,
+component=endpoint==1 and "main" or("switch" .. tostring(endpoint)),
+sender=send_countdown,
+-- The plug's onTime attribute doesn't track the remaining time (it reports
+-- 0 mid-countdown), so the tile shows the time last set and ignores reports.
+write_only=true,
+read_on_configure=false,
+}))
+end
 return{
 profile=profile,
 zcl_clusters=clusters,
@@ -449,7 +485,8 @@ local tuya_dual_metered=build_tuya_dual_metered_plug("plugs-dual-metered")
 -- voltage 3 V / >=60 s, power 5 W (the SmartThings default), current 50 mA
 -- (Zigbee2MQTT's value for this plug), 10 min heartbeat; the change
 -- thresholds and power/current minimum interval are device preferences.
--- Outlet 2 can be a child device.
+-- Outlet 2 can be a child device. Each outlet has a countdown (0-12 h, whole
+-- seconds on this firmware) that turns it on and off again after that time.
 local mercator_spp02gip=build_tuya_dual_metered_plug("plugs-dual-metered-outage-children",{
 outage_memory=true,
 energy_ignore_reported_scaler=true,
@@ -468,6 +505,7 @@ current_reportable_change=50,
 current_reportable_change_preference="currentReportChange",
 current_minimum_interval_preference="reportMinInterval",
 child_outlets={switch2="Outlet 2"},
+countdown_endpoints={1,2},
 })
 local tuya_dual_metered_outage=build_tuya_dual_metered_plug("plugs-dual-metered-outage",{
 outage_memory=true,
