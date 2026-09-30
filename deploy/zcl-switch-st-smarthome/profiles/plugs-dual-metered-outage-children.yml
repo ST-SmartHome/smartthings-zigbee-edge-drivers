@@ -3,7 +3,7 @@ components:
   - id: main
     capabilities:
       - {id: switch, version: 1}
-      - {id: concertmirror08464.countdownTimerZclTwelveHours, version: 1}
+      - {id: aboutisland47519.autoOffTimer, version: 1}
       - {id: powerMeter, version: 1}
       - {id: energyMeter, version: 1}
       - {id: voltageMeasurement, version: 1}
@@ -17,7 +17,7 @@ components:
   - id: switch2
     capabilities:
       - {id: switch, version: 1}
-      - {id: concertmirror08464.countdownTimerZclTwelveHours, version: 1}
+      - {id: aboutisland47519.autoOffTimer, version: 1}
     categories:
       - name: SmartPlug
 deviceConfig:
@@ -42,7 +42,7 @@ deviceConfig:
     basicPlus: []
   detailView:
     - {component: main, capability: switch, version: 1}
-    - {component: main, capability: concertmirror08464.countdownTimerZclTwelveHours, version: 1}
+    - {component: main, capability: aboutisland47519.autoOffTimer, version: 1}
     - {component: main, capability: powerMeter, version: 1}
     - {component: main, capability: energyMeter, version: 1}
     - {component: main, capability: voltageMeasurement, version: 1}
@@ -52,7 +52,7 @@ deviceConfig:
     - {component: main, capability: concertmirror08464.powerOutageMemory, version: 1}
     - {component: main, capability: refresh, version: 1}
     - {component: switch2, capability: switch, version: 1}
-    - {component: switch2, capability: concertmirror08464.countdownTimerZclTwelveHours, version: 1}
+    - {component: switch2, capability: aboutisland47519.autoOffTimer, version: 1}
   automation:
     conditions:
       - {component: main, capability: switch, version: 1}
@@ -66,8 +66,8 @@ deviceConfig:
     actions:
       - {component: main, capability: switch, version: 1}
       - {component: switch2, capability: switch, version: 1}
-      - {component: main, capability: concertmirror08464.countdownTimerZclTwelveHours, version: 1}
-      - {component: switch2, capability: concertmirror08464.countdownTimerZclTwelveHours, version: 1}
+      - {component: main, capability: aboutisland47519.autoOffTimer, version: 1}
+      - {component: switch2, capability: aboutisland47519.autoOffTimer, version: 1}
       - {component: main, capability: concertmirror08464.powerPollIntervalV2, version: 1}
       - {component: main, capability: concertmirror08464.powerOutageMemory, version: 1}
 preferences:

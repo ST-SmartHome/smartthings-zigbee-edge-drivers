@@ -10,11 +10,10 @@ local log=require "log"
 local child_outlets={}
 local CHILD_PROFILE="child-outlet"
 local PREFERENCE="outletChildDevices"
--- Plug-side countdown (see the SPP02GIP definition); mirrored like switch.
-child_outlets.COUNTDOWN_ID="concertmirror08464.countdownTimerZclTwelveHours"
-local COUNTDOWN_ATTRIBUTE="countdownTimerZclTwelveHours"
-local COUNTDOWN_COMMAND="setCountdownTimerZclTwelveHours"
-child_outlets.COUNTDOWN_COMMAND=COUNTDOWN_COMMAND
+-- Plug-side countdown (app.outlet_countdown); mirrored like switch.
+local outlet_countdown=require "app.outlet_countdown"
+local COUNTDOWN_ID=outlet_countdown.ID
+local COUNTDOWN_ATTRIBUTE=outlet_countdown.ATTRIBUTE
 local resolve_definition=function()return nil end
 function child_outlets.set_definition_resolver(resolver)
 resolve_definition=resolver
@@ -48,22 +47,11 @@ elseif value=="off" then
 child:emit_event(capabilities.switch.switch.off())
 end
 end
-local function has_capability(device,component_id,capability_id)
-local component=device.profile and type(device.profile.components)=="table" and device.profile.components[component_id]or nil
-return component ~=nil and type(component.capabilities)=="table" and component.capabilities[capability_id]~=nil
-end
-local function countdown_event(value)
-local ok,capability=pcall(function()return capabilities[child_outlets.COUNTDOWN_ID]end)
-if not ok or capability==nil or capability[COUNTDOWN_ATTRIBUTE]==nil then
-return nil
-end
-return capability[COUNTDOWN_ATTRIBUTE]({value=value,unit="s"})
-end
 local function emit_child_countdown(child,value)
-if type(value)~="number" or not has_capability(child,"main",child_outlets.COUNTDOWN_ID)then
+if type(value)~="number" or not outlet_countdown.has_capability(child,"main")then
 return
 end
-local event=countdown_event(value)
+local event=outlet_countdown.event(value)
 if event ~=nil then
 child:emit_event(event)
 end
@@ -71,7 +59,7 @@ end
 local function mirror_current(parent,component_id,child)
 local value=parent:get_latest_state(component_id,capabilities.switch.ID,capabilities.switch.switch.NAME)
 emit_child_switch(child,value)
-emit_child_countdown(child,parent:get_latest_state(component_id,child_outlets.COUNTDOWN_ID,COUNTDOWN_ATTRIBUTE))
+emit_child_countdown(child,parent:get_latest_state(component_id,COUNTDOWN_ID,COUNTDOWN_ATTRIBUTE))
 end
 -- Create/remove children to match the definition and the parent's preference.
 function child_outlets.sync_parent(driver,device)
@@ -144,14 +132,14 @@ end
 -- The countdown tile shows the time last set; once the outlet is off
 -- (timer finished, or switched off) it goes back to 0.
 local function reset_countdown(device,component_id)
-if not has_capability(device,component_id,child_outlets.COUNTDOWN_ID)then
+if not outlet_countdown.has_capability(device,component_id)then
 return
 end
-local current=device:get_latest_state(component_id,child_outlets.COUNTDOWN_ID,COUNTDOWN_ATTRIBUTE)
+local current=device:get_latest_state(component_id,COUNTDOWN_ID,COUNTDOWN_ATTRIBUTE)
 if current==nil or current==0 then
 return
 end
-local event=countdown_event(0)
+local event=outlet_countdown.event(0)
 if event==nil then
 return
 end
@@ -185,12 +173,12 @@ end
 if is_switch then
 emit_child_switch(child,value)
 if value=="off" then
-local current=child:get_latest_state("main",child_outlets.COUNTDOWN_ID,COUNTDOWN_ATTRIBUTE)
+local current=child:get_latest_state("main",COUNTDOWN_ID,COUNTDOWN_ATTRIBUTE)
 if current ~=nil and current ~=0 then
 emit_child_countdown(child,0)
 end
 end
-elseif capability_id==child_outlets.COUNTDOWN_ID and attribute_id==COUNTDOWN_ATTRIBUTE then
+elseif capability_id==COUNTDOWN_ID and attribute_id==COUNTDOWN_ATTRIBUTE then
 emit_child_countdown(child,value)
 end
 end

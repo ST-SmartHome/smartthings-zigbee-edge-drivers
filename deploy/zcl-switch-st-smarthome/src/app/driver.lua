@@ -12,6 +12,7 @@ local battery_refresh=require "runtime.battery_refresh"
 local energy_reset=require "runtime.energy_reset"
 local switch_command_router=require "app.switch_command_router"
 local child_outlets=require "app.child_outlets"
+local outlet_countdown=require "app.outlet_countdown"
 local switch_default_on=require "st.zigbee.defaults.switch_defaults.on"
 local switch_default_off=require "st.zigbee.defaults.switch_defaults.off"
 local power_poll_interval_metadata=custom_capabilities.by_emit_name.power_poll_interval
@@ -939,10 +940,11 @@ end,
 },
 capability_handlers=(function()
 local handlers=build_capability_handlers()
+handlers[outlet_countdown.ID]={[outlet_countdown.COMMAND]=outlet_countdown.handle}
 local forwarded={
 [capabilities.switch.ID]={capabilities.switch.commands.on.NAME,capabilities.switch.commands.off.NAME},
 [capabilities.refresh.ID]={capabilities.refresh.commands.refresh.NAME},
-[child_outlets.COUNTDOWN_ID]={child_outlets.COUNTDOWN_COMMAND},
+[outlet_countdown.ID]={outlet_countdown.COMMAND},
 }
 for capability_id,command_names in pairs(forwarded)do
 for _,command_name in ipairs(command_names)do
