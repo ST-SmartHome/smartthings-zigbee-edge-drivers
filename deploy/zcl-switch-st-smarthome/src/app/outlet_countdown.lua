@@ -67,4 +67,19 @@ data_types.Uint16(seconds)
 log.info(string.format("[%s] auto-off %s: %d min",tostring(device.label),component_id,minutes))
 outlet_countdown.emit(device,component_id,minutes)
 end
+-- Give every outlet's Auto Off Timer a value at init: a never-emitted
+-- attribute leaves the app's slider blank ("-") and unmovable, as on a newly
+-- paired plug. 0 means no countdown and changes nothing on the plug.
+function outlet_countdown.seed(device)
+local components=type(device)=="table" and device.profile and device.profile.components or nil
+if type(components)~="table" then
+return
+end
+for component_id in pairs(components)do
+if outlet_countdown.has_capability(device,component_id)and
+device:get_latest_state(component_id,outlet_countdown.ID,outlet_countdown.ATTRIBUTE)==nil then
+outlet_countdown.emit(device,component_id,0)
+end
+end
+end
 return outlet_countdown

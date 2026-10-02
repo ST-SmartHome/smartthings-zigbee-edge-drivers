@@ -884,6 +884,7 @@ battery_refresh.start_daily(device)
 emit_window_shade_preset_state(device)
 custom_capability_runtime.maybe_request_initial_custom_state(device,preset)
 custom_capability_runtime.schedule_placeholder_states(device,definition)
+outlet_countdown.seed(device)
 child_outlets.sync_parent(driver,device)
 if preset and preset.zcl_clusters and device:get_field(REPORTING_REVISION_FIELD)~=REPORTING_REVISION then
 zcl.start_configuration(device,preset.zcl_clusters)

@@ -13,6 +13,7 @@ and supports every device the upstream driver does. On top of that it adds fixes
 | **Correct energy (kWh)** | The SPP02GIP reports a bogus SimpleMetering multiplier/divisor pair (a 0x200010 ratio). Upstream trusts it, so energy showed as billions of kWh (for example 61.63 kWh displayed as 12,924,846,384 kWh). This driver always uses ÷100 for this plug, as Zigbee2MQTT does. |
 | **Quieter, adjustable reporting** | Defaults: voltage on a 3 V change (at most once a minute), power on 5 W (the SmartThings default), current on 50 mA (Zigbee2MQTT's value for this plug), each with a 10-minute heartbeat. Upstream reported every 1 W / 1 mA / 1 V, up to every 5 s, which flooded device history. The thresholds and the minimum interval are adjustable in device Settings. The SPP02GIP firmware ignores the configured change threshold, so the driver also applies it itself: a reading within the threshold of the last one shown is dropped, except for a 10-minute heartbeat. |
 | **Per-outlet Auto Off Timer** | An *Auto Off Timer* control (minutes, 0–720) on each outlet and on the Outlet 2 device, also usable in routines. Setting it turns the outlet on, and the plug itself turns it off again after that time, so the timer keeps running if the hub restarts. (Upstream's seconds-based countdown mapping sends a raw payload that the SmartThings SDK rejects, so it never reaches the plug: wonjj6768/smartthings-zigbee-edge-drivers#29.) |
+| **No "Last Power Response Time" tile** | Upstream shows it as text, and Edge drivers only know UTC (they can't read the location's time zone), so it displayed the wrong time. The app's History tab shows the same report times, in local time. |
 | **Reconfigure on driver switch** | Switching a device to this driver re-applies its reporting configuration and marks it provisioned. The default handler did neither for this driver. |
 
 All other devices behave exactly as they do upstream.
@@ -34,7 +35,7 @@ All other devices behave exactly as they do upstream.
   switching the outlet off cancels it. The SPP02GIP counts `OnWithTimedOff` in whole seconds (the ZCL spec says
   tenths). The tile shows the time last set, not the time remaining: the plug's `onTime` attribute doesn't track
   it (it reports 0 mid-countdown). It returns to 0 when the outlet turns off. The app's own Timer is separate and
-  run by SmartThings, not the plug.
+  run by SmartThings, not the plug The timer starts at 0 (no countdown) on every outlet, so its slider works on a newly paired plug too.
 - After switching an existing plug to this driver, point Alexa and Google Home at the new
   `Outlet 2` device (run device discovery in the Alexa app).
 

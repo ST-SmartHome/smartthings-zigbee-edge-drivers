@@ -9,7 +9,6 @@ components:
       - {id: voltageMeasurement, version: 1}
       - {id: currentMeasurement, version: 1}
       - {id: concertmirror08464.powerPollIntervalV2, version: 1}
-      - {id: concertmirror08464.lastPowerResponseTime, version: 1}
       - {id: concertmirror08464.powerOutageMemory, version: 1}
       - {id: refresh, version: 1}
     categories:
@@ -48,7 +47,6 @@ deviceConfig:
     - {component: main, capability: voltageMeasurement, version: 1}
     - {component: main, capability: currentMeasurement, version: 1}
     - {component: main, capability: concertmirror08464.powerPollIntervalV2, version: 1}
-    - {component: main, capability: concertmirror08464.lastPowerResponseTime, version: 1}
     - {component: main, capability: concertmirror08464.powerOutageMemory, version: 1}
     - {component: main, capability: refresh, version: 1}
     - {component: switch2, capability: switch, version: 1}
@@ -114,3 +112,4 @@ preferences:
       minimum: 1
       maximum: 300
       default: 5
+
