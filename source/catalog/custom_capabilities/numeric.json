@@ -18907,5 +18907,41 @@
     255,
     1,
     null
+  ],
+  [
+    "gnpPirDelay",
+    true,
+    "pir_delay",
+    10,
+    180,
+    1,
+    "s"
+  ],
+  [
+    "gnpSensorSampling",
+    true,
+    "sensor_sampling",
+    1,
+    60,
+    1,
+    "min"
+  ],
+  [
+    "gnpTempCompensation",
+    true,
+    "temp_compensate",
+    -10,
+    10,
+    0.1,
+    "C"
+  ],
+  [
+    "gnpHumidityCompensation",
+    true,
+    "humidity_compensation",
+    -30,
+    30,
+    1,
+    "%"
   ]
 ]

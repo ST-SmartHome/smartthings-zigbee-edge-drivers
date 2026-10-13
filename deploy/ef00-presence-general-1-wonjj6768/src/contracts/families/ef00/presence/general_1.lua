@@ -87,8 +87,17 @@ name="duration_of_attendance",emit=emit.hpsAttendanceDuration(),read_only=true,}
 name="duration_of_absence",emit=emit.hpsAbsenceDuration(),read_only=true,}),tuya.dp_binary(103,{
 name="led_state",emit=emit.hpsLedState(),converter=on_off_bool_converter,}),},query_on_configure=false,}register_device_definition(presence_hps,ts0601_fingerprints({
 "_TZE200_0u3bj3rc","_TZE200_v6ossqfy","_TZE200_mx6u6l4y",}))local presence_model_gnpflcoq={
-profile="safety-presence-gnpflcoq-illuminance-temp-humidity-battery",package_group="presence-general-1",datapoints={
-tuya.dp_presence(1,{emit=emit.presence(),converter=converter.true_false0(),read_only=true}),tuya.dp_numeric(2,{name="sensitivity",emit=emit.presenceSensitivityGnpflcoq()}),tuya.dp_battery(4,{emit=emit.battery(),read_only=true}),tuya.dp_temperature(7,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_humidity(8,{emit=emit.humidity(),scale=1,read_only=true}),tuya.dp_illuminance(11,{emit=emit.illuminance(),read_only=true}),tuya.dp_fading_time(102,{name="fading_time",emit=emit.presenceFadingTimeGnpflcoq()}),},query_on_configure=false,}register_device_definition(presence_model_gnpflcoq,ts0601_fingerprints({
+placeholder_custom_states=false,profile="safety-presence-gnpflcoq-illuminance-temp-humidity-battery",package_group="presence-general-1",datapoints={
+tuya.dp_enum(1,{
+name="presence",read_only=true,converter=converter.true_false0(),
+emit=function(device,value)
+return{emit.presence()(device,value),emit.motion()(device,value)}
+end,
+}),tuya.dp_battery(4,{emit=emit.battery(),read_only=true}),tuya.dp_temperature(7,{
+emit=emit.temperature("C"),converter=converter.signed_number_pair(10),signed=true,read_only=true,}),tuya.dp_humidity(8,{emit=emit.humidity(),scale=1,read_only=true}),tuya.dp_enum(9,{
+name="pir_sensitivity",emit=emit.gnpPirSensitivity(),converter=converter.lookup_from_to({low=0,middle=1,high=2}),}),tuya.dp_illuminance(11,{emit=emit.illuminance(),read_only=true}),tuya.dp_numeric(12,{name="pir_delay",emit=emit.gnpPirDelay()}),tuya.dp_numeric(101,{name="sensor_sampling",emit=emit.gnpSensorSampling()}),tuya.dp_numeric(102,{
+name="temp_compensate",emit=emit.gnpTempCompensation(),converter=converter.signed_number_pair(10),signed=true,}),tuya.dp_numeric(103,{
+name="humidity_compensation",emit=emit.gnpHumidityCompensation(),converter=converter.signed_number_pair(1),signed=true,}),},query_on_configure=false,}register_device_definition(presence_model_gnpflcoq,ts0601_fingerprints({
 "_TZE284_gnpflcoq",}))local pir_model_sp02_zb001={
 profile="safety-motion-tamper-battery",package_group="presence-general-1",datapoints={
 tuya.dp_occupancy(1,{emit=emit.motion(),converter=converter.true_false0()}),tuya.dp_battery(4,{emit=emit.battery()}),tuya.dp_binary(5,{name="tamper",emit=emit.tamper(),converter=raw_non_zero_converter}),},query_on_configure=true,}register_device_definition(pir_model_sp02_zb001,ts0601_fingerprints({

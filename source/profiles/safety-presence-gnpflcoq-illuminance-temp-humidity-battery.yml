@@ -4,9 +4,17 @@ components:
     capabilities:
       - id: presenceSensor
         version: 1
-      - id: concertmirror08464.presenceSensitivityGnpflcoq
+      - id: motionSensor
         version: 1
-      - id: concertmirror08464.presenceFadingTimeGnpflcoq
+      - id: concertmirror08464.gnpPirSensitivity
+        version: 1
+      - id: concertmirror08464.gnpPirDelay
+        version: 1
+      - id: concertmirror08464.gnpSensorSampling
+        version: 1
+      - id: concertmirror08464.gnpTempCompensation
+        version: 1
+      - id: concertmirror08464.gnpHumidityCompensation
         version: 1
       - id: concertmirror08464.driverMessage
         version: 1
@@ -41,10 +49,22 @@ deviceConfig:
       capability: presenceSensor
       version: 1
     - component: main
-      capability: concertmirror08464.presenceSensitivityGnpflcoq
+      capability: motionSensor
       version: 1
     - component: main
-      capability: concertmirror08464.presenceFadingTimeGnpflcoq
+      capability: concertmirror08464.gnpPirSensitivity
+      version: 1
+    - component: main
+      capability: concertmirror08464.gnpPirDelay
+      version: 1
+    - component: main
+      capability: concertmirror08464.gnpSensorSampling
+      version: 1
+    - component: main
+      capability: concertmirror08464.gnpTempCompensation
+      version: 1
+    - component: main
+      capability: concertmirror08464.gnpHumidityCompensation
       version: 1
     - component: main
       capability: concertmirror08464.driverMessage
@@ -70,6 +90,9 @@ deviceConfig:
         capability: presenceSensor
         version: 1
       - component: main
+        capability: motionSensor
+        version: 1
+      - component: main
         capability: temperatureMeasurement
         version: 1
       - component: main
@@ -81,4 +104,19 @@ deviceConfig:
       - component: main
         capability: battery
         version: 1
-    actions: []
+    actions:
+      - component: main
+        capability: concertmirror08464.gnpPirSensitivity
+        version: 1
+      - component: main
+        capability: concertmirror08464.gnpPirDelay
+        version: 1
+      - component: main
+        capability: concertmirror08464.gnpSensorSampling
+        version: 1
+      - component: main
+        capability: concertmirror08464.gnpTempCompensation
+        version: 1
+      - component: main
+        capability: concertmirror08464.gnpHumidityCompensation
+        version: 1

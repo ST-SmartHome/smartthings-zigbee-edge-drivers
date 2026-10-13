@@ -2534,9 +2534,9 @@
   },
   {
     "name": "ef00-presence-general-1-wonjj6768",
-    "raw_size": 349424,
+    "raw_size": 351374,
     "under_limit": true,
-    "free_bytes": 174864,
+    "free_bytes": 172914,
     "meets_headroom": true,
     "profiles": [
       "safety-motion-nas-ps09b2",
@@ -2559,8 +2559,8 @@
     ],
     "fingerprints": 30,
     "custom_capabilities": {
-      "numeric": 94,
-      "enum": 46,
+      "numeric": 96,
+      "enum": 47,
       "text": 2
     },
     "pruned_lua": {

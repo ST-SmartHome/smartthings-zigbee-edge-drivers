@@ -4026,6 +4026,11 @@ local ATTRIBUTE_OVERRIDES = {
   tsfKnobColorDelta = "colorDelta",
   tsfKnobTransition = "transitionTime",
   tsfKnobRate = "rate",
+  gnpPirSensitivity = "sensitivity",
+  gnpPirDelay = "holdTime",
+  gnpSensorSampling = "samplingInterval",
+  gnpTempCompensation = "temperatureCompensation",
+  gnpHumidityCompensation = "humidityCompensation",
 }
 
 local function attribute_name(capability_id)
@@ -6170,6 +6175,10 @@ local numeric_rows = {
   {"tsfKnobColorDelta",false,"action_color_temperature_delta",-65535,65535,1,"mired"},
   {"tsfKnobTransition",false,"action_transition_time",0,6553.5,0.1,"s"},
   {"tsfKnobRate",false,"action_rate",0,255,1,nil},
+  {"gnpPirDelay",true,"pir_delay",10,180,1,"s"},
+  {"gnpSensorSampling",true,"sensor_sampling",1,60,1,"min"},
+  {"gnpTempCompensation",true,"temp_compensate",-10,10,0.1,"C"},
+  {"gnpHumidityCompensation",true,"humidity_compensation",-30,30,1,"%"},
 }
 local enum_rows = {
   {"zmsFourBacklightSetting",true,"zms206_backlight_mode",{"OFF","ON"}},
@@ -8077,6 +8086,7 @@ local enum_rows = {
   {"stredaSn3kButtonAction",false,"streda_sn3k_action",{"single_up_button_1","double_up_button_1","release_up_button_1","hold_up_button_1","single_down_button_1","double_down_button_1","release_down_button_1","hold_down_button_1","single_up_button_2","double_up_button_2","release_up_button_2","hold_up_button_2","single_down_button_2","double_down_button_2","release_down_button_2","hold_down_button_2","single_up_doorbell_button","double_up_doorbell_button","release_up_doorbell_button","hold_up_doorbell_button"}},
   {"tsfKnobAction",false,"tsf_knob_action",{"single","double","hold","rotate_left","rotate_right","toggle","brightness_step_up","brightness_step_down","color_temperature_step_up","color_temperature_step_down","hue_move","hue_down","hue_stop"}},
   {"tsfKnobMode",true,"operation_mode",{"command","event"}},
+  {"gnpPirSensitivity",true,"pir_sensitivity",{"low","middle","high"}},
 }
 local text_rows = {
   {"zmsFourSwitchName",true,"zms206_switch_name",12},

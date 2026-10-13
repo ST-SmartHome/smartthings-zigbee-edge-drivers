@@ -19400,5 +19400,15 @@
       "command",
       "event"
     ]
+  ],
+  [
+    "gnpPirSensitivity",
+    true,
+    "pir_sensitivity",
+    [
+      "low",
+      "middle",
+      "high"
+    ]
   ]
 ]

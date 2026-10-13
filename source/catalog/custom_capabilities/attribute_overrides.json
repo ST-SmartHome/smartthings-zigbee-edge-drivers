@@ -16038,5 +16038,25 @@
   [
     "tsfKnobRate",
     "rate"
+  ],
+  [
+    "gnpPirSensitivity",
+    "sensitivity"
+  ],
+  [
+    "gnpPirDelay",
+    "holdTime"
+  ],
+  [
+    "gnpSensorSampling",
+    "samplingInterval"
+  ],
+  [
+    "gnpTempCompensation",
+    "temperatureCompensation"
+  ],
+  [
+    "gnpHumidityCompensation",
+    "humidityCompensation"
   ]
 ]
