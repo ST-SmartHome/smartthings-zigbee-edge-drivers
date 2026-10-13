@@ -63,12 +63,15 @@ local door = {
 
 local motion = {
   profile = "safety-motion-illuminance-battery-low-battery",
+  configure = function(_, device)
+    device:remove_configured_attribute(0x0500, 0x0002)
+  end,
   zcl_clusters = {
-    zcl.motion(),
+    zcl.motion({ configure_reporting = false }),
     light_level("shelly_blu_motion_light_level", emit.shellyBluMotionLightLevel()),
     light_threshold("shelly_blu_motion_dark_threshold", 0x0001, emit.shellyBluMotionDarkThreshold()),
     light_threshold("shelly_blu_motion_bright_threshold", 0x0002, emit.shellyBluMotionBrightThreshold()),
-    zcl.battery_low(),
+    zcl.battery_low({ configure_reporting = false }),
     zcl.battery(),
     zcl.cluster_attribute(0x0500, 0x0013, {
       name = "shelly_blu_motion_sensitivity",

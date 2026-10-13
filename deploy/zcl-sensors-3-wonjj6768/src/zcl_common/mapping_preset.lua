@@ -222,20 +222,28 @@ return merge_defaults(
 {
 name="carbon_monoxide",emit=emit.carbon_monoxide(),converter=zone_status_pair(0x0001),ias_configure_method=zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0x00,command_extractor=extract_zone_status_from_command,},reporting_defaults(0,180,nil))
 end)
-define_preset("motion",zcl.ias_zone,function()
-return merge_defaults(
-{
-name="motion",emit=emit.motion(),converter=zone_status_pair(0x0001),ias_configure_method=zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0x00,command_extractor=extract_zone_status_from_command,},reporting_defaults(30,300,nil))
+define_preset("motion",zcl.ias_zone,function(options)
+local configure_reporting=options.configure_reporting
+options.configure_reporting=nil
+local defaults={
+name="motion",emit=emit.motion(),converter=zone_status_pair(0x0001),ias_configure_method=zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0x00,command_extractor=extract_zone_status_from_command,read_on_configure=true,}if configure_reporting==false then
+return defaults
+end
+return merge_defaults(defaults,reporting_defaults(30,300,nil))
 end)
 define_preset("tamper",zcl.ias_zone,function()
 return merge_defaults(
 {
 name="tamper",emit=emit.tamper(),converter=zone_status_pair(0x0004),ias_configure_method=zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0x00,command_extractor=extract_zone_status_from_command,},reporting_defaults(0,300,nil))
 end)
-define_preset("battery_low",zcl.ias_zone,function()
-return merge_defaults(
-{
-name="battery_low",emit=optional_emit("battery_low"),converter=zone_status_pair(0x0008),ias_configure_method=zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0x00,command_extractor=extract_zone_status_from_command,},reporting_defaults(0,300,nil))
+define_preset("battery_low",zcl.ias_zone,function(options)
+local configure_reporting=options.configure_reporting
+options.configure_reporting=nil
+local defaults={
+name="battery_low",emit=optional_emit("battery_low"),converter=zone_status_pair(0x0008),ias_configure_method=zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0x00,command_extractor=extract_zone_status_from_command,read_on_configure=true,}if configure_reporting==false then
+return defaults
+end
+return merge_defaults(defaults,reporting_defaults(0,300,nil))
 end)
 end
 return load_mapping_preset

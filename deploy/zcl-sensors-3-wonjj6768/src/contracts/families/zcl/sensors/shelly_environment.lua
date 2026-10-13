@@ -20,8 +20,12 @@ profile="sensors-illuminance-temp-humidity-battery-shelly-display",zcl_clusters=
 zcl.temperature(),zcl.humidity(),light_level("shelly_blu_display_light_level",emit.shellyBluDisplayLightLevel()),light_threshold("shelly_blu_display_dark_threshold",0x0001,emit.shellyBluDisplayDarkThreshold()),light_threshold("shelly_blu_display_bright_threshold",0x0002,emit.shellyBluDisplayBrightThreshold()),zcl.battery(),},}local door={
 profile="safety-contact-illuminance-battery-low-handle-shelly",zcl_clusters={
 zcl.contact(),zcl.shelly_handle_position(),zcl.battery_low(),light_level("shelly_blu_door_light_level",emit.shellyBluDoorLightLevel()),light_threshold("shelly_blu_door_dark_threshold",0x0001,emit.shellyBluDoorDarkThreshold()),light_threshold("shelly_blu_door_bright_threshold",0x0002,emit.shellyBluDoorBrightThreshold()),zcl.battery(),},}local motion={
-profile="safety-motion-illuminance-battery-low-battery",zcl_clusters={
-zcl.motion(),light_level("shelly_blu_motion_light_level",emit.shellyBluMotionLightLevel()),light_threshold("shelly_blu_motion_dark_threshold",0x0001,emit.shellyBluMotionDarkThreshold()),light_threshold("shelly_blu_motion_bright_threshold",0x0002,emit.shellyBluMotionBrightThreshold()),zcl.battery_low(),zcl.battery(),zcl.cluster_attribute(0x0500,0x0013,{
+profile="safety-motion-illuminance-battery-low-battery",
+configure=function(_,device)
+device:remove_configured_attribute(0x0500,0x0002)
+end,
+zcl_clusters={
+zcl.motion({configure_reporting=false}),light_level("shelly_blu_motion_light_level",emit.shellyBluMotionLightLevel()),light_threshold("shelly_blu_motion_dark_threshold",0x0001,emit.shellyBluMotionDarkThreshold()),light_threshold("shelly_blu_motion_bright_threshold",0x0002,emit.shellyBluMotionBrightThreshold()),zcl.battery_low({configure_reporting=false}),zcl.battery(),zcl.cluster_attribute(0x0500,0x0013,{
 name="shelly_blu_motion_sensitivity",endpoint=1,data_type=data_types.Uint8,write_type=data_types.Uint8,read_on_configure=true,emit=emit.shellyBluSensitivity(),
 from_device=function(value)
 return({"low","medium","high"})[value]

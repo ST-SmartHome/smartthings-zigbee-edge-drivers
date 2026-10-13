@@ -139,10 +139,14 @@ apply_defaults(resolved,merge_defaults(
 {
 emit=emit.occupancy(),},reporting_defaults(0,300,nil)))return zcl.occupancy_sensing(resolved)
 end
-define_preset("motion",zcl.ias_zone,function()
-return merge_defaults(
-{
-name="motion",emit=emit.motion(),converter=zone_status_pair(0x0001),ias_configure_method=zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0x00,command_extractor=extract_zone_status_from_command,},reporting_defaults(30,300,nil))
+define_preset("motion",zcl.ias_zone,function(options)
+local configure_reporting=options.configure_reporting
+options.configure_reporting=nil
+local defaults={
+name="motion",emit=emit.motion(),converter=zone_status_pair(0x0001),ias_configure_method=zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0x00,command_extractor=extract_zone_status_from_command,read_on_configure=true,}if configure_reporting==false then
+return defaults
+end
+return merge_defaults(defaults,reporting_defaults(30,300,nil))
 end)
 end
 return load_mapping_preset
