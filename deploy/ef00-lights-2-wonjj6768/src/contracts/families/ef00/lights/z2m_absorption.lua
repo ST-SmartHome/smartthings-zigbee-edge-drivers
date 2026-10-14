@@ -214,5 +214,31 @@ function(value)return round(value*10)end
 profile="lights-qa-qadz1lr",magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,query_on_announce=false,time_start="off",datapoints={
 tuya.dp_on_off(1,{name="switch",emit=emit.switch(),skip=tuya.skip.state_on_and_brightness_present()}),tuya.dp_numeric(2,{name="brightness",emit=emit.level(),converter=qadz1lr_brightness}),tuya.dp_numeric(3,{name="qadz1lr_min_brightness",emit=emit.qadz1lrMinBrightness(),converter=tuya_brightness_limit}),tuya.dp_numeric(5,{name="qadz1lr_max_brightness",emit=emit.qadz1lrMaxBrightness(),converter=tuya_brightness_limit}),tuya.dp_countdown(6,{name="qadz1lr_countdown",emit=emit.qadz1lrCountdown()}),tuya.dp_enum(14,{
 name="qadz1lr_power_on_behavior",emit=emit.qadz1lrPowerBehavior(),converter=converter.lookup_from_to({off=0,on=1,previous=2}),}),tuya.dp_enum(101,{
-name="qadz1lr_switch_type",emit=emit.qadz1lrSwitchType(),converter=converter.lookup_from_to({toggle=0,momentary=1}),}),tuya.dp_numeric(102,{name="qadz1lr_dimming_time",emit=emit.qadz1lrDimmingTime()}),},}register_device_definition(qadz1lr,device_helpers.create_fingerprints("TS0601",{"_TZE28C1000000_brx4eku5"}))return{
+name="qadz1lr_switch_type",emit=emit.qadz1lrSwitchType(),converter=converter.lookup_from_to({toggle=0,momentary=1}),}),tuya.dp_numeric(102,{name="qadz1lr_dimming_time",emit=emit.qadz1lrDimmingTime()}),},}register_device_definition(qadz1lr,device_helpers.create_fingerprints("TS0601",{"_TZE28C1000000_brx4eku5"}))
+local function sp107_color_part(value,offset,divisor)
+if type(value)~="string"or #value~=12 then return nil end
+local raw=tonumber(value:sub(offset,offset+3),16)return raw and raw/divisor or nil
+end
+local function sp107_color_write(device,value,context)
+local component=context and context.component_id or"main"
+local hue=value.hue or device:get_latest_state(component,"colorControl","hue")or 0
+local saturation=value.saturation or device:get_latest_state(component,"colorControl","saturation")or 100
+return{dp=component=="fallingDot"and 113 or 5,datatype=tuya.DP_TYPE_STRING,value=string.format("%04x%04x03e8",round(clamp(hue,0,100)*3.6),round(clamp(saturation,0,100)*10))}
+end
+local sp107e={
+profile="lights-sp107e",named_datapoints=true,placeholder_custom_states=false,magic_packet=true,query_on_configure=true,auto_on_before_light_command=false,datapoints={
+tuya.dp_on_off(1,{name="switch",emit=emit.switch()}),tuya.dp_numeric(106,{name="brightness",emit=emit.level()}),tuya.dp_numeric(101,{name="sp107_segment_count",emit=emit.sp107SegmentCount()}),tuya.dp_numeric(102,{name="sp107_segment_pixels",emit=emit.sp107SegmentPixels()}),tuya.dp_enum(103,{name="sp107_rgb_order",emit=emit.sp107RgbOrder(),converter=converter.lookup_from_to({RGB=0,RBG=1,GRB=2,GBR=3,BRG=4,BGR=5})}),tuya.dp_enum(104,{name="sp107_mode",emit=emit.sp107Mode(),converter=converter.lookup_from_to({solid=1,effects=2,music_strip=3,music_screen=4})}),tuya.dp_numeric(107,{name="sp107_speed",emit=emit.sp107Speed()}),tuya.dp_numeric(108,{name="sp107_effect",emit=emit.sp107Effect()}),tuya.dp_numeric(109,{name="sp107_strip_pattern",emit=emit.sp107StripPattern()}),tuya.dp_numeric(110,{name="sp107_sensitivity",emit=emit.sp107Sensitivity()}),tuya.dp_enum(112,{name="sp107_led_chip",emit=emit.sp107LedChip(),converter=converter.lookup_from_to({WS2811=0,DMX512=1,FW1935=2,APA102=3,SC6803=4,WS2801=5,UCS1903=6,TM1812=7,TM1814=8,SK6812=9})}),tuya.dp_numeric(114,{name="sp107_screen_pattern",emit=emit.sp107ScreenPattern()}),},named_mapping={named_mappings={
+color=sp107_color_write,
+color_hue=function(device,value,context)return sp107_color_write(device,{hue=value},context)end,
+color_saturation=function(device,value,context)return sp107_color_write(device,{saturation=value},context)end,
+}},}for _,item in ipairs({{5,"main"},{113,"fallingDot"}})do
+sp107e.datapoints[#sp107e.datapoints+1]=tuya.dp_string(item[1],{
+name="color_hue",component=item[2],read_only=true,
+converter=converter.from_only(function(value)return sp107_color_part(value,1,3.6)end),emit=emit.color_hue(),
+})sp107e.datapoints[#sp107e.datapoints+1]=tuya.dp_string(item[1],{
+name="color_saturation",component=item[2],read_only=true,
+converter=converter.from_only(function(value)return sp107_color_part(value,5,10)end),emit=emit.color_saturation(),
+})
+end
+register_device_definition(sp107e,device_helpers.create_fingerprints("TS0601",{"_TZE204_zajeikkt"}))return{
 id="ef00.lights.z2m_absorption",registrations=device_definitions,}

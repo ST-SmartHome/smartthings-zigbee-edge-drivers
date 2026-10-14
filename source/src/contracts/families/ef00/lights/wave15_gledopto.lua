@@ -1,7 +1,4 @@
--- Wave15 Gledopto GL-SPI-206P source-only candidate.
--- Frozen Zigbee2MQTT v26.99.0: src/devices/gledopto.ts:10-111,
--- 220-314 and 1243-1355.  Scene/music payloads and the extra DP61 color
--- writer are copied byte-for-byte from that definition.
+-- Gledopto GL-SPI-206P. Scene/music constants retain their original payloads.
 
 local capabilities = require "st.capabilities"
 local tuya = require "protocol.tuya"
@@ -99,68 +96,50 @@ local function scene_from_raw(value)
   return type(value) == "string" and SCENE_BY_DATA[value] or nil
 end
 
-local function send_on_and_mode(device, mode)
-  local switch_state = latest(device, "switch", "switch", "switch", nil)
-  if switch_state ~= "on" and switch_state ~= true then
-    if tuya.send_datapoint(device, 1, tuya.DP_TYPE_BOOL, true) == nil then return false end
-  end
+local function on_and_mode_items(device, mode)
+  local items = { { dp = 1, datatype = tuya.DP_TYPE_BOOL, value = true } }
   local work_mode = latest(device, "gl_spi_work_mode", "concertmirror08464.glSpiWorkMode", "workMode", nil)
   if work_mode ~= mode then
-    if tuya.send_datapoint(
-      device, 2, tuya.DP_TYPE_ENUM,
-      ({ white = 0, colour = 1, scene = 2, music = 3 })[mode]
-    ) == nil then return false end
+    items[#items + 1] = { dp = 2, datatype = tuya.DP_TYPE_ENUM,
+      value = ({ white = 0, colour = 1, scene = 2, music = 3 })[mode] }
     store(device, "gl_spi_work_mode", mode)
   end
-  return true
+  return items
 end
 
-local function brightness_write(device, value)
-  local level = clamp(tonumber(value) or 0, 0, 100)
-  local mode = latest(device, "gl_spi_work_mode", "concertmirror08464.glSpiWorkMode", "workMode", "colour")
-  if not send_on_and_mode(device, mode) then return nil end
-  return {
-    dp = 3, datatype = tuya.DP_TYPE_VALUE,
-    value = clamp(round(10 + level * 990 / 100), 10, 1000),
-  }
-end
-
--- DP 61 is write-only on this device (state requests echo it unhandled), so the
--- driver keeps optimistic colorControl state: without these events the stock app
--- color picker can hang on null hue/saturation.
 local function emit_color_state(device, hue_value, saturation_value)
   if type(device.emit_event) ~= "function" then return end
   device:emit_event(capabilities.colorControl.hue(clamp(round(hue_value), 0, 100)))
   device:emit_event(capabilities.colorControl.saturation(clamp(round(saturation_value), 0, 100)))
 end
 
-local function color_payload(device, hue, saturation)
+local function color_payload(device, hue, saturation, level)
   local hue_value = clamp(tonumber(hue) or 0, 0, 100)
   local saturation_value = clamp(tonumber(saturation) or 0, 0, 100)
   store(device, HUE_FIELD, hue_value)
   store(device, SATURATION_FIELD, saturation_value)
   emit_color_state(device, hue_value, saturation_value)
-  local degrees = clamp(round(hue_value * 3.6), 0, 360)
+  local degrees = round(hue_value * 3.6) % 360
   local saturation_raw = clamp(round(saturation_value * 10), 0, 1000)
+  local brightness_raw = clamp(round(10 + level * 990 / 100), 10, 1000)
   return string.char(
     0x00, 0x01, 0x01, 0x14, 0x00,
     math.floor(degrees / 256), degrees % 256,
     math.floor(saturation_raw / 256), saturation_raw % 256,
-    0x03, 0xE8
+    math.floor(brightness_raw / 256), brightness_raw % 256
   )
 end
 
--- The device only re-renders white from DP 4 while already in white mode, so the
--- color temperature slider must switch work mode first, mirroring the
--- colour/scene/music write paths.
-local function color_temp_raw_write(device, value)
-  if not send_on_and_mode(device, "white") then return nil end
+local function color_temp_raw_write(device, value, level)
+  local items = on_and_mode_items(device, "white")
   local raw = clamp(round(tonumber(value) or 0), 0, 1000)
   store(device, "gl_spi_color_temp_raw", raw)
-  return {
-    dp = 4, datatype = tuya.DP_TYPE_VALUE,
-    value = raw,
-  }
+  level = level or latest(device, "gl_spi_brightness", "switchLevel", "level", 100)
+  items[#items + 1] = { dp = 4, datatype = tuya.DP_TYPE_VALUE, value = raw }
+  items[#items + 1] = { dp = 3, datatype = tuya.DP_TYPE_VALUE,
+    value = clamp(round(10 + level * 990 / 100), 10, 1000) }
+  store(device, "gl_spi_brightness", level)
+  return items
 end
 
 local function color_write(device, value)
@@ -170,7 +149,7 @@ local function color_write(device, value)
   if hue == nil or saturation == nil then return nil end
   -- Saved white swatches carry an arbitrary hue and saturation zero.
   -- Reapply the last white temperature; use the DP midpoint on first use.
-  if tonumber(saturation) == 0 then
+  if tonumber(saturation) == 0 and not value.keep_colour then
     local payload = color_temp_raw_write(device, latest(
       device, "gl_spi_color_temp_raw", "concertmirror08464.glSpiColorTempRaw", "colorTempRaw", 500
     ))
@@ -180,11 +159,29 @@ local function color_write(device, value)
     emit_color_state(device, latest(device, HUE_FIELD, "colorControl", "hue", 0), 0)
     return payload
   end
-  if not send_on_and_mode(device, "colour") then return nil end
-  return {
+  local items = on_and_mode_items(device, "colour")
+  local level = value.level or latest(device, "gl_spi_brightness", "switchLevel", "level", 100)
+  items[#items + 1] = {
     dp = 61, datatype = tuya.DP_TYPE_RAW,
-    value = color_payload(device, hue, saturation),
+    value = color_payload(device, hue, saturation, level),
   }
+  store(device, "gl_spi_brightness", level)
+  return items
+end
+
+local function brightness_write(device, value)
+  local level = clamp(tonumber(value) or 0, 0, 100)
+  local mode = latest(device, "gl_spi_work_mode", "concertmirror08464.glSpiWorkMode", "workMode", "colour")
+  if mode == "white" then
+    return color_temp_raw_write(device, latest(
+      device, "gl_spi_color_temp_raw", "concertmirror08464.glSpiColorTempRaw", "colorTempRaw", 0
+    ), level)
+  end
+  return color_write(device, {
+    hue = latest(device, HUE_FIELD, "colorControl", "hue", 0),
+    saturation = latest(device, SATURATION_FIELD, "colorControl", "saturation", 100),
+    level = level, keep_colour = true,
+  })
 end
 
 local function hue_write(device, value)
@@ -214,8 +211,19 @@ local function music_write(device, name, value)
   store(device, MUSIC_MODE_FIELD, mode)
   store(device, MUSIC_SENSITIVITY_FIELD, sensitivity)
   local data = base:sub(1, 5) .. string.char(sensitivity) .. base:sub(7)
-  if not send_on_and_mode(device, "music") then return nil end
+  local items = on_and_mode_items(device, "music")
+  local switch_state = latest(device, "switch", "switch", "switch", nil)
+  for index, item in ipairs(items) do
+    if index ~= 1 or (switch_state ~= "on" and switch_state ~= true) then
+      if tuya.send_datapoint(device, item.dp, item.datatype, item.value) == nil then return nil end
+    end
+  end
   return { dp = 52, datatype = tuya.DP_TYPE_RAW, value = data }
+end
+
+local function paint_value(value, offset)
+  if type(value) ~= "string" or #value < 11 or value:byte(2) == 0 then return nil end
+  return value:byte(offset) * 256 + value:byte(offset + 1)
 end
 
 local sequence_values = {
@@ -251,8 +259,32 @@ local gl_spi = {
     }),
     tuya.dp_numeric(3, {
       name = "brightness", read_only = true, transaction = 1,
-      converter = converter.from_only(function(value) return clamp(round((tonumber(value) or 0) / 10), 0, 100) end),
+      converter = converter.from_only(function(value, device)
+        if latest(device, "gl_spi_work_mode", "concertmirror08464.glSpiWorkMode", "workMode", nil) ~= "white" then return nil end
+        return store(device, "gl_spi_brightness", clamp(round((value - 10) * 100 / 990), 0, 100))
+      end),
       emit = emit.level(),
+    }),
+    tuya.dp_raw(61, {
+      name = "paint_hue", read_only = true, transaction = 1, converter = converter.from_only(function(value, device)
+        local raw = paint_value(value, 6)
+        if raw then return store(device, HUE_FIELD, clamp(round(raw / 3.6), 0, 100)) end
+      end), emit = emit.color_hue(),
+    }),
+    tuya.dp_raw(61, {
+      name = "paint_saturation", read_only = true, transaction = 1, converter = converter.from_only(function(value, device)
+        local raw = paint_value(value, 8)
+        if raw then return store(device, SATURATION_FIELD, clamp(round(raw / 10), 0, 100)) end
+      end), emit = emit.color_saturation(),
+    }),
+    tuya.dp_raw(61, {
+      name = "paint_brightness", read_only = true, transaction = 1, converter = converter.from_only(function(value, device)
+        local raw = paint_value(value, 10)
+        if raw then
+          store(device, "gl_spi_work_mode", "colour")
+          return store(device, "gl_spi_brightness", clamp(round((raw - 10) * 100 / 990), 0, 100))
+        end
+      end), emit = emit.level(),
     }),
     tuya.dp_numeric(4, {
       name = "gl_spi_color_temp_raw", field = "gl_spi_color_temp_raw", transaction = 1,
@@ -268,6 +300,17 @@ local gl_spi = {
       name = "gl_spi_music_mode", transaction = 1,
       converter = converter.from_to(mode_from_raw, function(value) return MUSIC_DATA[value] end),
       emit = emit.glSpiMusicMode(),
+    }),
+    tuya.dp_raw(52, {
+      name = "gl_spi_music_sensitivity", read_only = true, transaction = 1,
+      converter = converter.from_only(function(value, device)
+        if type(value) ~= "string" or #value < 6 then return nil end
+        local sensitivity = value:byte(6)
+        if sensitivity >= 1 and sensitivity <= 100 then
+          return store(device, MUSIC_SENSITIVITY_FIELD, sensitivity)
+        end
+      end),
+      emit = emit.glSpiMusicSensitivity(),
     }),
     tuya.dp_numeric(53, {
       name = "gl_spi_pixel_count", transaction = 1,
@@ -292,7 +335,7 @@ local gl_spi = {
       color = color_write,
       color_hue = hue_write,
       color_saturation = saturation_write,
-      gl_spi_color_temp_raw = color_temp_raw_write,
+      gl_spi_color_temp_raw = function(device, value) return color_temp_raw_write(device, value) end,
       gl_spi_music_mode = function(device, value) return music_write(device, "gl_spi_music_mode", value) end,
       gl_spi_music_sensitivity = function(device, value) return music_write(device, "gl_spi_music_sensitivity", value) end,
     },

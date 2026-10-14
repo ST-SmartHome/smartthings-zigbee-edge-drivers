@@ -1613,6 +1613,28 @@
       "catalogModule": "contracts.families.ef00.thermostats.legacy",
       "profile": "thermostats-thermostat-saswell",
       "auditEvidence": "analysis/z2m_catchup_20261007.md#fingerprint-only-exact-aliases"
+    },
+    {
+      "manufacturer": "_TZE284_tdg4ckyh",
+      "manufacturerUtf8Hex": "5f545a453238345f74646734636b7968",
+      "model": "TS0601",
+      "modelUtf8Hex": "545330363031",
+      "owner": "ef00-controls-wonjj6768",
+      "catalogId": "ef00.controls",
+      "catalogModule": "contracts.families.ef00.controls",
+      "profile": "controllers-zrf01",
+      "auditEvidence": "analysis/z2m_catchup_20261014.md#current-owner-additions"
+    },
+    {
+      "manufacturer": "_TZE2841000000_nt4pquef",
+      "manufacturerUtf8Hex": "5f545a45323834313030303030305f6e74347071756566",
+      "model": "TS0601",
+      "modelUtf8Hex": "545330363031",
+      "owner": "ef00-sensors-wonjj6768",
+      "catalogId": "ef00.sensors",
+      "catalogModule": "contracts.families.ef00.sensors",
+      "profile": "sensors-soil-temp-moisture-battery-unit-illuminance-sgs02z",
+      "auditEvidence": "analysis/z2m_catchup_20261014.md#current-owner-additions"
     }
   ],
   "approvedFailClosedExacts": [
@@ -1802,7 +1824,7 @@
           "id": "moes.zs_d3"
         }
       ],
-      "exactCount": 24
+      "exactCount": 25
     },
     {
       "sourcePackage": "ef00-switch-wonjj6768",
@@ -7736,7 +7758,7 @@
           "id": "ef00.lights.wave19.exact"
         }
       ],
-      "exactCount": 31,
+      "exactCount": 32,
       "catalogMigrations": [
         {
           "catalogId": "ef00.lights.z2m_absorption",
@@ -7744,7 +7766,7 @@
           "oldOwner": "z2m-ef00-lights-wonjj6768",
           "newOwner": "ef00-lights-2-wonjj6768",
           "moved": false,
-          "exactCount": 20,
+          "exactCount": 21,
           "exacts": [
             {
               "manufacturer": "_TZE200_2gtsuokt",
@@ -7884,6 +7906,17 @@
               "model": "TS0601",
               "modelUtf8Hex": "545330363031",
               "profile": "lights-color-temperature-skydance-wz5-cct",
+              "oldOwner": "z2m-ef00-lights-wonjj6768",
+              "newOwner": "ef00-lights-2-wonjj6768",
+              "catalogId": "ef00.lights.z2m_absorption",
+              "catalogModule": "contracts.families.ef00.lights.z2m_absorption"
+            },
+            {
+              "manufacturer": "_TZE204_zajeikkt",
+              "manufacturerUtf8Hex": "5f545a453230345f7a616a65696b6b74",
+              "model": "TS0601",
+              "modelUtf8Hex": "545330363031",
+              "profile": "lights-sp107e",
               "oldOwner": "z2m-ef00-lights-wonjj6768",
               "newOwner": "ef00-lights-2-wonjj6768",
               "catalogId": "ef00.lights.z2m_absorption",
@@ -11880,7 +11913,7 @@
           "id": "zcl.sensors.sonoff_safety"
         }
       ],
-      "exactCount": 150,
+      "exactCount": 152,
       "catalogMigrations": [
         {
           "catalogId": "zcl.sensors.simple_sensors",
@@ -11888,7 +11921,7 @@
           "oldOwner": "zcl-sensors-3-wonjj6768",
           "newOwner": "zcl-sensors-3-wonjj6768",
           "moved": false,
-          "exactCount": 141,
+          "exactCount": 143,
           "exacts": [
             {
               "manufacturer": "ADEO",
@@ -13211,6 +13244,17 @@
               "catalogModule": "contracts.families.zcl.sensors.simple_sensors"
             },
             {
+              "manufacturer": "Zbeacon",
+              "manufacturerUtf8Hex": "5a626561636f6e",
+              "model": "SNZB-05P",
+              "modelUtf8Hex": "534e5a422d303550",
+              "profile": "sensors-besisglas-wl01",
+              "oldOwner": "zcl-sensors-3-wonjj6768",
+              "newOwner": "zcl-sensors-3-wonjj6768",
+              "catalogId": "zcl.sensors.simple_sensors",
+              "catalogModule": "contracts.families.zcl.sensors.simple_sensors"
+            },
+            {
               "manufacturer": "_TYZB01_18pkine6",
               "manufacturerUtf8Hex": "5f54595a4230315f3138706b696e6536",
               "model": "TS0204",
@@ -13440,6 +13484,17 @@
               "newOwner": "zcl-sensors-3-wonjj6768",
               "catalogId": "zcl.sensors.simple_sensors",
               "catalogModule": "contracts.families.zcl.sensors.simple_sensors"
+            },
+            {
+              "manufacturer": "zbeacon",
+              "manufacturerUtf8Hex": "7a626561636f6e",
+              "model": "MS01",
+              "modelUtf8Hex": "4d533031",
+              "profile": "sensors-besisglas-ms01",
+              "oldOwner": "zcl-sensors-3-wonjj6768",
+              "newOwner": "zcl-sensors-3-wonjj6768",
+              "catalogId": "zcl.sensors.simple_sensors",
+              "catalogModule": "contracts.families.zcl.sensors.simple_sensors"
             }
           ]
         },
@@ -13604,11 +13659,11 @@
     "legacyOwnerChangeCount": 0,
     "newPackageCount": 24,
     "newCatalogCount": 96,
-    "newExactCount": 915,
-    "fingerprintOnlyAliasCount": 94,
+    "newExactCount": 918,
+    "fingerprintOnlyAliasCount": 96,
     "failClosedExactCount": 1,
     "restoredLegacyExactCount": 4,
-    "runtimeExactCount": 4284,
+    "runtimeExactCount": 4289,
     "movedCatalogCount": 52,
     "movedExactCount": 502,
     "historicalPartitionCount": 17

@@ -1,0 +1,171 @@
+name: safety-presence-mtg275-entry-controls-illuminance
+components:
+- id: main
+  capabilities:
+  - id: presenceSensor
+    version: 1
+  - id: illuminanceMeasurement
+    version: 1
+  - id: concertmirror08464.mtg275TargetDistance
+    version: 1
+  - id: concertmirror08464.mtg275RadarSensitivity
+    version: 1
+  - id: concertmirror08464.mtg275DetectionRange
+    version: 1
+  - id: concertmirror08464.mtg275ShieldRange
+    version: 1
+  - id: concertmirror08464.mtg275EntrySensitivity
+    version: 1
+  - id: concertmirror08464.mtg275EntryIndentation
+    version: 1
+  - id: concertmirror08464.mtg275EntryFilterTime
+    version: 1
+  - id: concertmirror08464.mtg275DepartureDelay
+    version: 1
+  - id: concertmirror08464.mtg275BlockTime
+    version: 1
+  - id: concertmirror08464.mtg275IlluminanceThreshold
+    version: 1
+  - id: concertmirror08464.mtg275BreakerMode
+    version: 1
+  - id: concertmirror08464.mtg275BreakerStatus
+    version: 1
+  - id: concertmirror08464.mtg275StatusIndication
+    version: 1
+  - id: concertmirror08464.mtg275SensorState
+    version: 1
+  - id: concertmirror08464.mtg275DistanceReport
+    version: 1
+  - id: concertmirror08464.driverMessage
+    version: 1
+  - id: refresh
+    version: 1
+  categories:
+  - name: PresenceSensor
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: presenceSensor
+      version: 1
+      group: main
+    actions: []
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: presenceSensor
+    version: 1
+  - component: main
+    capability: illuminanceMeasurement
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275TargetDistance
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275RadarSensitivity
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275DetectionRange
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275ShieldRange
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275EntrySensitivity
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275EntryIndentation
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275EntryFilterTime
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275DepartureDelay
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275BlockTime
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275IlluminanceThreshold
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275BreakerMode
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275BreakerStatus
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275StatusIndication
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275SensorState
+    version: 1
+  - component: main
+    capability: concertmirror08464.mtg275DistanceReport
+    version: 1
+  - component: main
+    capability: concertmirror08464.driverMessage
+    version: 1
+  - component: main
+    capability: refresh
+    version: 1
+  automation:
+    conditions:
+    - component: main
+      capability: presenceSensor
+      version: 1
+    - component: main
+      capability: illuminanceMeasurement
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275TargetDistance
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275BreakerStatus
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275DistanceReport
+      version: 1
+    actions:
+    - component: main
+      capability: concertmirror08464.mtg275RadarSensitivity
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275DetectionRange
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275ShieldRange
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275EntrySensitivity
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275EntryIndentation
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275EntryFilterTime
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275DepartureDelay
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275BlockTime
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275IlluminanceThreshold
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275BreakerMode
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275BreakerStatus
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275StatusIndication
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275SensorState
+      version: 1
+    - component: main
+      capability: concertmirror08464.mtg275DistanceReport
+      version: 1

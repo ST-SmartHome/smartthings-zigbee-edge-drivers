@@ -58,7 +58,18 @@ zcl.cluster_attribute(LUMI_BASIC_CLUSTER,LUMI_BASIC_ATTR,{
 name="lumi_basic",emit=lumi_basic_events,read_only=true,}),zcl.temperature(),zcl.humidity(),zcl.battery(),},}local temp_humidity_pressure={
 profile="sensors-temp-humidity-pressure-battery-voltage",zcl_clusters={
 zcl.cluster_attribute(LUMI_BASIC_CLUSTER,LUMI_BASIC_ATTR,{
-name="lumi_basic",emit=lumi_basic_events,read_only=true,}),zcl.temperature(),zcl.humidity(),zcl.pressure(),zcl.battery(),zcl.battery_voltage(),},}local illuminance={
+name="lumi_basic",emit=lumi_basic_events,read_only=true,}),zcl.temperature(),zcl.humidity(),zcl.pressure(),zcl.cluster_attribute(0x0403,0x0014,{
+read_only=true,read_on_configure=true,configure_reporting=false,
+from_device=function(value,device)
+device:set_field("pressure_scale",value~=-128 and value or nil)
+end,
+}),zcl.cluster_attribute(0x0403,0x0010,{
+read_only=true,configure_reporting=false,
+from_device=function(value,device)
+local scale=device:get_field("pressure_scale")
+if scale and value~=-32768 then return value/(10 ^ scale)/1000 end
+end,
+emit=emit.atmospheric_pressure(),}),zcl.battery(),zcl.battery_voltage(),},}local illuminance={
 profile="sensors-illuminance-battery-voltage-lumi-pending",zcl_clusters={
 zcl.illuminance(),zcl.battery(),zcl.battery_voltage(),},}
 local function lumi_number(value)

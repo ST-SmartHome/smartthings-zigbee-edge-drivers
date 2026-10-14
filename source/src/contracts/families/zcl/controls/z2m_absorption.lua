@@ -939,7 +939,9 @@ for _, family in ipairs({
   definition.zcl_clusters[#definition.zcl_clusters + 1] = zcl.cluster_attribute(0x0006, 0xFFFF, {
     name = prefix .. "_doorbell", component = "main", write_only = true, suppress_optimistic_state = true,
     emit = family[4], sender = function(device)
-      device:send(zcl.get_generated_cluster(0x0006).commands.On(device):to_endpoint(6))
+      local request = zcl.get_generated_cluster(0x0006).commands.On(device):to_endpoint(6)
+      request.body.zcl_header.frame_ctrl:set_disable_default_response()
+      device:send(request)
     end,
   })
   streda_mains_hooks(definition, { { 2, "main" } }, { { 3, "socket" }, { 7, "light" } })

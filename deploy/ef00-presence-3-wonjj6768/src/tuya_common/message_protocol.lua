@@ -192,7 +192,7 @@ if datatype==DP_TYPE_VALUE then
 if type_check(value)~="number"then
 log.warn(string.format("Tuya VALUE expects number, got %s",type_check(value)))return nil
 end
-local int_value=math_floor(value)if signed then
+local int_value=math_floor(value+0.5)if signed then
 if int_value<-0x80000000 then int_value=-0x80000000 end
 if int_value>0x7FFFFFFF then int_value=0x7FFFFFFF end
 if int_value<0 then
@@ -254,9 +254,10 @@ log.warn(string.format("Tuya BOOL payload expects 0x00 or 0x01, got %s",tostring
 elseif datatype==DP_TYPE_VALUE then
 return parse_uint(value_bytes)elseif datatype==DP_TYPE_ENUM then
 return string_byte(value_bytes,1)elseif datatype==DP_TYPE_BITMAP then
-return parse_uint(value_bytes)
-end
+return parse_uint(value_bytes)elseif datatype==DP_TYPE_RAW or datatype==DP_TYPE_STRING then
 return value_bytes
+end
+return nil
 end
 function tuya.build_datapoint(dp,datatype,value,signed)
 if not is_byte(dp)or not is_byte(datatype)then

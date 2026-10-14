@@ -2834,6 +2834,47 @@ register_device_definition(nodieby_nd01_motion_core, {
   device_helpers.create_fingerprint("NoDieby","ND-01"),
 })
 
+local besisglas_ms01 = {
+  profile="sensors-besisglas-ms01",magic_packet=false,placeholder_custom_states=false,
+  zcl_clusters={
+    zcl.motion({endpoint=1,configure_reporting=false,read_on_configure=false,read_only=true,
+      emit=function(device,value)
+        return {emit.motion()(device,value),emit.presence()(device,value)}
+      end}),
+    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,
+      reportable_change=10,read_on_configure=true,from_device=battery_value}),
+    zcl.battery_low({endpoint=1,configure_reporting=false,read_on_configure=false,
+      emit=function(_,value)
+        return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
+      end}),
+  },
+  protocol_writers={
+    besis_ms01_identify=function(device)
+      device:send(clusters.Identify.commands.Identify(device,3):to_endpoint(1))
+      return true
+    end,
+  },
+}
+register_device_definition(besisglas_ms01,{
+  device_helpers.create_fingerprint("zbeacon","MS01"),
+})
+
+local besisglas_wl01 = {
+  profile="sensors-besisglas-wl01",magic_packet=false,
+  zcl_clusters={
+    passive(zcl.water({endpoint=1,read_only=true})),
+    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,
+      reportable_change=10,read_on_configure=true,from_device=battery_value}),
+    zcl.battery_low({endpoint=1,configure_reporting=false,read_on_configure=false,
+      emit=function(_,value)
+        return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
+      end}),
+  },
+}
+register_device_definition(besisglas_wl01,{
+  device_helpers.create_fingerprint("Zbeacon","SNZB-05P"),
+})
+
 return {
   id="zcl.sensors.simple_sensors",
   registrations=device_definitions,

@@ -94,6 +94,21 @@ local temp_humidity_pressure = {
     zcl.temperature(),
     zcl.humidity(),
     zcl.pressure(),
+    zcl.cluster_attribute(0x0403, 0x0014, {
+      read_only = true,
+      read_on_configure = true, configure_reporting = false,
+      from_device = function(value, device)
+        device:set_field("pressure_scale", value ~= -128 and value or nil)
+      end,
+    }),
+    zcl.cluster_attribute(0x0403, 0x0010, {
+      read_only = true, configure_reporting = false,
+      from_device = function(value, device)
+        local scale = device:get_field("pressure_scale")
+        if scale and value ~= -32768 then return value / (10 ^ scale) / 1000 end
+      end,
+      emit = emit.atmospheric_pressure(),
+    }),
     zcl.battery(),
     zcl.battery_voltage(),
   },

@@ -87,5 +87,13 @@ end}),
 "_TZE284_nj7sfid2",}))register_device_definition(scene_cube_6,device_helpers.create_fingerprints("TS0601",{
 "_TZE284_5ys44kzo",}))register_device_definition(sos_remote,device_helpers.create_fingerprints("TS0601",{
 "_TZE284_2baujqot",}))register_device_definition(zg101z_sos_remote,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_nojsjtj2","_TZE200_vrcfo4i0",}))return{
+"_TZE200_nojsjtj2","_TZE200_vrcfo4i0",}))local zrf01={
+profile="controllers-zrf01",placeholder_custom_states=false,magic_packet=true,query_on_configure=false,named_datapoints=true,datapoints={
+tuya.dp_binary(117,{name="zrf01_learning_mode",emit=emit.zrf01LearningMode(),converter=converter.lookup_from_to({on=true,off=false})}),tuya.dp_binary(118,{name="zrf01_packet_mode",emit=emit.zrf01PacketMode(),converter=converter.lookup_from_to({on=true,off=false})}),tuya.dp_illuminance(119,{name="illuminance",read_only=true,emit=emit.illuminance()}),},}for slot,item in ipairs({
+{"zrf01_code_1",emit.zrf01Code1(),"zrf01_transmit_1",emit.zrf01Transmit1()},{"zrf01_code_2",emit.zrf01Code2(),"zrf01_transmit_2",emit.zrf01Transmit2()},{"zrf01_code_3",emit.zrf01Code3(),"zrf01_transmit_3",emit.zrf01Transmit3()},{"zrf01_code_4",emit.zrf01Code4(),"zrf01_transmit_4",emit.zrf01Transmit4()},{"zrf01_code_5",emit.zrf01Code5(),"zrf01_transmit_5",emit.zrf01Transmit5()},{"zrf01_code_6",emit.zrf01Code6(),"zrf01_transmit_6",emit.zrf01Transmit6()},{"zrf01_code_7",emit.zrf01Code7(),"zrf01_transmit_7",emit.zrf01Transmit7()},{"zrf01_code_8",emit.zrf01Code8(),"zrf01_transmit_8",emit.zrf01Transmit8()},})do
+zrf01.datapoints[#zrf01.datapoints+1]=tuya.dp_enum(100+slot,{
+name=item[1],emit=item[2],converter=converter.lookup_from_to({Learn=0,Delete=2,Saved=1}),})zrf01.datapoints[#zrf01.datapoints+1]=tuya.dp_enum(108+slot,{
+name=item[3],emit=item[4],converter=converter.lookup_from_to({Transmit=0}),write_only=true,suppress_optimistic_state=true,})
+end
+register_device_definition(zrf01,device_helpers.create_fingerprints("TS0601",{"_TZE284_tdg4ckyh"}))return{
 id="ef00.controls",registrations=device_definitions,}

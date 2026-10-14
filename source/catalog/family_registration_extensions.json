@@ -98,7 +98,7 @@
           "device_helpers"
         ]
       },
-      "dynamicEventMemberSha256": "6fbddf128dc51707e8e153ca5a8f9f8f39d9c2490ab4526075ea6667a35f4aa4"
+      "dynamicEventMemberSha256": "8d9671731cbb38581ec012183a876bd943c840edb72294a7622ae4c33488a100"
     },
     "contracts.families.ef00.presence.z2m_absorption": {
       "id": "ef00.presence.z2m_absorption",
@@ -381,7 +381,7 @@
           "json"
         ]
       },
-      "dynamicEventMemberSha256": "8ee170da5cf590d96dc5ea0540ec1ad0219b17205a47939d9106081c7be99d81"
+      "dynamicEventMemberSha256": "8f9e6202ddea0c3d0773aae9fc5de5bc521afcbf56d057b3a16e8a1c59644806"
     },
     "contracts.families.zcl.lights.z2m_absorption": {
       "id": "zcl.lights.z2m_absorption",
@@ -1467,7 +1467,7 @@
         ]
       },
       "converterDeclarations": 0,
-      "dynamicEventMemberSha256": "e6677f1d5dbdb07a018bf028e73fa7dd60b23260ed719942105531fd2ccba495"
+      "dynamicEventMemberSha256": "d0b8903bb56e3039006c4f0e80a994d73cb53431426b9bb2d24aca95aa6288e7"
     },
     "contracts.families.ef00.presence.simple_sensors": {
       "id": "ef00.presence.simple_sensors",

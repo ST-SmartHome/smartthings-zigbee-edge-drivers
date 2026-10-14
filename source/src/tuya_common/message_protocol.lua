@@ -302,7 +302,7 @@ build_value_bytes = function(datatype, value, signed)
       return nil
     end
 
-    local int_value = math_floor(value)
+    local int_value = math_floor(value + 0.5)
     if signed then
       if int_value < -0x80000000 then int_value = -0x80000000 end
       if int_value > 0x7FFFFFFF then int_value = 0x7FFFFFFF end
@@ -396,9 +396,11 @@ parse_value = function(datatype, value_bytes)
     return string_byte(value_bytes, 1)
   elseif datatype == DP_TYPE_BITMAP then
     return parse_uint(value_bytes)
+  elseif datatype == DP_TYPE_RAW or datatype == DP_TYPE_STRING then
+    return value_bytes
   end
 
-  return value_bytes
+  return nil
 end
 
 -- 단일 DP payload 생성: tuya.build_datapoint(dp, datatype, value)

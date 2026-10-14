@@ -483,6 +483,7 @@ register_sensor_definition({
 }, ef00_helpers.ts0601_fingerprints( {
 
   "_TZE284_nt4pquef",
+  "_TZE2841000000_nt4pquef",
 
 }))
 
@@ -770,9 +771,10 @@ local soil_t10_h1_air_illum_warning = {
 
   tuya.dp_humidity(101, { emit = emit.humidity(), scale = 1, read_only = true }),
 
-  tuya.dp_soil_moisture(3, { emit = emit.soil_moisture(), read_only = true }),
+  tuya.dp_soil_moisture(3, { emit = emit.zs300zSoilMoisture(), read_only = true }),
 
-  tuya.dp_illuminance(102, { emit = emit.illuminance(), read_only = true }),
+  tuya.dp_illuminance(102, { emit = emit.illuminance(), read_only = true,
+    converter = converter.from_only(function(value) return value * 10 end) }),
 
   tuya.dp_enum(14, {
     name = "battery_state",
@@ -789,13 +791,17 @@ local soil_t10_h1_air_illum_warning = {
 
   tuya.dp_soil_calibration(104, { emit = emit.zs300zSoilCalibration() }),
 
-  tuya.dp_humidity_calibration(105, { emit = emit.humidityCalibrationZs301z() }),
+  tuya.dp_humidity_calibration(105, { emit = emit.zs300zHumidityCalibration(), signed = true }),
 
   tuya.dp_illuminance_calibration(106, { emit = emit.illuminanceCalibrationZs300z() }),
 
-  tuya.dp_temperature_calibration(107, { emit = emit.tempCalibrationSoilWarnC2() }),
+  tuya.dp_temperature_calibration(107, { emit = emit.zs300zTempCalibration(), signed = true }),
 
-  tuya.dp_soil_warning(110, { emit = emit.soilWarningThresholdLegacy() }),
+  tuya.dp_binary(110, { name = "soil_moisture_warning", read_only = true,
+    converter = converter.from_only(function(value) return (value == true or value == 1) and "on" or "off" end),
+    emit = emit.zs300zMoistureWarning() }),
+  tuya.dp_numeric(110, { name = "soil_moisture_warning_threshold", write_only = true,
+    suppress_optimistic_state = true, emit = emit.zs300zMoistureThreshold() }),
 
   tuya.dp_water_warning(111, { emit = emit.zs300zWaterWarning(), read_only = true }),
 
@@ -805,6 +811,7 @@ local soil_t10_h1_air_illum_warning = {
 
 register_sensor_definition({
   profile = "sensors-soil-temp-humidity-moisture-illuminance-battery-warning",
+  placeholder_custom_states = false,
   datapoints = soil_t10_h1_air_illum_warning,
   query_on_configure = false,
 }, ef00_helpers.ts0601_fingerprints( {
@@ -822,6 +829,7 @@ register_sensor_definition({
 
 register_sensor_definition({
   profile = "sensors-soil-temp-humidity-moisture-illuminance-battery-warning",
+  placeholder_custom_states = false,
   datapoints = soil_t10_h1_air_illum_warning,
   query_on_configure = false,
 }, {

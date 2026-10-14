@@ -542,5 +542,8 @@ end
 function tuya.dp_battery(dp,name_or_options,options)
 return build_divided_numeric_preset(dp,"battery",1,name_or_options,options)
 end
+function tuya.dp_illuminance(dp,name_or_options,options)
+local resolved=normalize_preset_options(name_or_options,options,"illuminance")return tuya.dp_numeric(dp,resolved)
+end
 end
 return load_datapoint_preset
