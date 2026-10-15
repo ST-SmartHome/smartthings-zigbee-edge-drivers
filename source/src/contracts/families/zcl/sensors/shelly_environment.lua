@@ -63,8 +63,9 @@ local door = {
 
 local motion = {
   profile = "safety-motion-illuminance-battery-low-battery",
-  configure = function(_, device)
+  configure = function(driver, device)
     device:remove_configured_attribute(0x0500, 0x0002)
+    zcl.bind_cluster(device, 0x0500, driver.environment_info.hub_zigbee_eui, 1)
   end,
   zcl_clusters = {
     zcl.motion({ configure_reporting = false }),

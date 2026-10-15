@@ -8210,7 +8210,7 @@ zigbeeManufacturer:
   - id: "fp_1292b21130"
     manufacturer: "_TZ3210_7jnk7l3k"
     model: "TS011F"
-    deviceProfileName: "plugs-dual-metered-outage"
+    deviceProfileName: "plugs-mercator-spp02gip"
   - id: "fp_dfddb70c5d"
     manufacturer: "_TZ3210_8n4dn1ne"
     model: "TS011F"

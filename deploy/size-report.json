@@ -1,9 +1,9 @@
 [
   {
     "name": "zcl-switch-wonjj6768",
-    "raw_size": 453362,
+    "raw_size": 463461,
     "under_limit": true,
-    "free_bytes": 70926,
+    "free_bytes": 60827,
     "meets_headroom": true,
     "profiles": [
       "controllers-easyiot-sp1000",
@@ -19,6 +19,7 @@
       "plugs-dual-metered-outage-indicator",
       "plugs-dual-metered-outage-indicator-lock",
       "plugs-dual-outage",
+      "plugs-mercator-spp02gip",
       "plugs-mercator-spp04g",
       "plugs-switch",
       "plugs-switch-2",
@@ -66,7 +67,7 @@
     ],
     "fingerprints": 505,
     "custom_capabilities": {
-      "numeric": 23,
+      "numeric": 32,
       "enum": 41,
       "text": 2
     },
@@ -6294,9 +6295,9 @@
   },
   {
     "name": "zcl-sensors-3-wonjj6768",
-    "raw_size": 461648,
+    "raw_size": 461725,
     "under_limit": true,
-    "free_bytes": 62640,
+    "free_bytes": 62563,
     "meets_headroom": true,
     "profiles": [
       "safety-aqara-gas-acn02-core",
@@ -6543,6 +6544,7 @@
         "battery",
         "battery_low",
         "battery_voltage",
+        "bind_cluster",
         "carbon_monoxide",
         "cluster_attribute",
         "contact",

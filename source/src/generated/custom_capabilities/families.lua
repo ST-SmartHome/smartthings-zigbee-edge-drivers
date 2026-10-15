@@ -4105,6 +4105,15 @@ local ATTRIBUTE_OVERRIDES = {
   terv119HeatToday = "heatToday",
   terv119HeatTotal = "heatTotal",
   terv119HeatMonth = "heatMonth",
+  sppPowerReportMin = "powerReportMin",
+  sppPowerReportMax = "powerReportMax",
+  sppPowerReportChange = "powerReportChange",
+  sppCurrentReportMin = "currentReportMin",
+  sppCurrentReportMax = "currentReportMax",
+  sppCurrentReportChange = "currentReportChange",
+  sppVoltageReportMin = "voltageReportMin",
+  sppVoltageReportMax = "voltageReportMax",
+  sppVoltageReportChange = "voltageReportChange",
 }
 
 local function attribute_name(capability_id)
@@ -6290,6 +6299,15 @@ local numeric_rows = {
   {"terv119HeatToday",false,"terv119_heat_today",nil,nil,nil,nil},
   {"terv119HeatTotal",false,"terv119_heat_total",nil,nil,nil,nil},
   {"terv119HeatMonth",false,"terv119_heat_month",nil,nil,nil,nil},
+  {"sppPowerReportMin",true,"spp02_power_report_min",0,65534,1,"s"},
+  {"sppPowerReportMax",true,"spp02_power_report_max",1,65534,1,"s"},
+  {"sppPowerReportChange",true,"spp02_power_report_change",0,32767,1,nil},
+  {"sppCurrentReportMin",true,"spp02_current_report_min",0,65534,1,"s"},
+  {"sppCurrentReportMax",true,"spp02_current_report_max",1,65534,1,"s"},
+  {"sppCurrentReportChange",true,"spp02_current_report_change",0,65535,1,nil},
+  {"sppVoltageReportMin",true,"spp02_voltage_report_min",0,65534,1,"s"},
+  {"sppVoltageReportMax",true,"spp02_voltage_report_max",1,65534,1,"s"},
+  {"sppVoltageReportChange",true,"spp02_voltage_report_change",0,65535,1,nil},
 }
 local enum_rows = {
   {"zmsFourBacklightSetting",true,"zms206_backlight_mode",{"OFF","ON"}},

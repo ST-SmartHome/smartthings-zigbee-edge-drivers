@@ -497,10 +497,101 @@ local tuya_dual_metered_outage = build_tuya_dual_metered_plug("plugs-dual-metere
 })
 -- Mercator Ikuu SPP02GIP: its reported SimpleMetering multiplier/divisor is
 -- bogus, so energy always uses the fixed /100 scale (matches Zigbee2MQTT).
-local mercator_spp02gip = build_tuya_dual_metered_plug("plugs-dual-metered-outage", {
+local mercator_spp02gip = build_tuya_dual_metered_plug("plugs-mercator-spp02gip", {
   outage_memory = true,
   energy_ignore_reported_scaler = true,
 })
+local spp02_reporting = {
+  {
+    kind = "power", attribute = 0x050B, data_type = data_types.Int16, maximum_change = 32767,
+    settings = {
+      { field = "minimum_interval", name = "spp02_power_report_min", emit = emit.sppPowerReportMin("s") },
+      { field = "maximum_interval", name = "spp02_power_report_max", emit = emit.sppPowerReportMax("s") },
+      { field = "reportable_change", name = "spp02_power_report_change", emit = emit.sppPowerReportChange() },
+    },
+  },
+  {
+    kind = "current", attribute = 0x0508, data_type = data_types.Uint16, maximum_change = 65535,
+    settings = {
+      { field = "minimum_interval", name = "spp02_current_report_min", emit = emit.sppCurrentReportMin("s") },
+      { field = "maximum_interval", name = "spp02_current_report_max", emit = emit.sppCurrentReportMax("s") },
+      { field = "reportable_change", name = "spp02_current_report_change", emit = emit.sppCurrentReportChange() },
+    },
+  },
+  {
+    kind = "voltage", attribute = 0x0505, data_type = data_types.Uint16, maximum_change = 65535,
+    settings = {
+      { field = "minimum_interval", name = "spp02_voltage_report_min", emit = emit.sppVoltageReportMin("s") },
+      { field = "maximum_interval", name = "spp02_voltage_report_max", emit = emit.sppVoltageReportMax("s") },
+      { field = "reportable_change", name = "spp02_voltage_report_change", emit = emit.sppVoltageReportChange() },
+    },
+  },
+}
+
+local function apply_spp02_reporting(device, spec, field, value)
+  local stored = device:get_field("spp02_reporting_" .. spec.kind) or {}
+  local settings = {
+    minimum_interval = stored.minimum_interval or 5,
+    maximum_interval = stored.maximum_interval or 300,
+    reportable_change = stored.reportable_change or 1,
+  }
+  local accepted = true
+  if field ~= nil then
+    local previous = settings[field]
+    settings[field] = value
+    if settings.minimum_interval > settings.maximum_interval then
+      settings[field] = previous
+      accepted = false
+    else
+      device:set_field("spp02_reporting_" .. spec.kind, settings, { persist = true })
+    end
+  end
+  local config = {
+    cluster = 0x0B04, attribute = spec.attribute, data_type = spec.data_type,
+    minimum_interval = settings.minimum_interval,
+    maximum_interval = settings.maximum_interval,
+    reportable_change = spec.data_type(settings.reportable_change),
+  }
+  device:add_configured_attribute(config)
+  if field ~= nil and accepted then
+    device:send(device_management.attr_config(device, config):to_endpoint(1))
+  end
+  for _, setting in ipairs(spec.settings) do
+    local event = setting.emit(device, settings[setting.field])
+    if event ~= nil then device:emit_event(event) end
+  end
+  return true
+end
+
+for _, mapping in ipairs(mercator_spp02gip.zcl_clusters) do
+  if mapping.metering_kind == "power" or mapping.metering_kind == "current" or mapping.metering_kind == "voltage" then
+    mapping.minimum_interval, mapping.maximum_interval, mapping.reportable_change = nil, nil, nil
+  end
+end
+for _, spec in ipairs(spp02_reporting) do
+  for _, setting in ipairs(spec.settings) do
+    mercator_spp02gip.zcl_clusters[#mercator_spp02gip.zcl_clusters + 1] = zcl.cluster_attribute(0x0B04, nil, {
+      name = setting.name, endpoint = 1, component = "main", write_only = true,
+      suppress_optimistic_state = true, emit = setting.emit,
+      numeric_range = {
+        minimum = setting.field == "maximum_interval" and 1 or 0,
+        maximum = setting.field == "reportable_change" and spec.maximum_change or 65534,
+        step = 1,
+      },
+      sender = function(device, _, value)
+        return apply_spp02_reporting(device, spec, setting.field, value)
+      end,
+    })
+  end
+end
+mercator_spp02gip.runtime_start = function(device)
+  for _, spec in ipairs(spp02_reporting) do apply_spp02_reporting(device, spec) end
+end
+mercator_spp02gip.zcl_refresh_before_read_all = mercator_spp02gip.runtime_start
+mercator_spp02gip.configure = function(driver, device)
+  bind_dual_metered_plug(driver, device)
+  mercator_spp02gip.runtime_start(device)
+end
 local mercator_spp04g = {
   profile = "plugs-mercator-spp04g",
   component_to_endpoint_map = { main = 1, switch2 = 2 },

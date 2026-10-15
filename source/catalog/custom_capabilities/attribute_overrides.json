@@ -16354,5 +16354,41 @@
   [
     "terv119HeatMonth",
     "heatMonth"
+  ],
+  [
+    "sppPowerReportMin",
+    "powerReportMin"
+  ],
+  [
+    "sppPowerReportMax",
+    "powerReportMax"
+  ],
+  [
+    "sppPowerReportChange",
+    "powerReportChange"
+  ],
+  [
+    "sppCurrentReportMin",
+    "currentReportMin"
+  ],
+  [
+    "sppCurrentReportMax",
+    "currentReportMax"
+  ],
+  [
+    "sppCurrentReportChange",
+    "currentReportChange"
+  ],
+  [
+    "sppVoltageReportMin",
+    "voltageReportMin"
+  ],
+  [
+    "sppVoltageReportMax",
+    "voltageReportMax"
+  ],
+  [
+    "sppVoltageReportChange",
+    "voltageReportChange"
   ]
 ]

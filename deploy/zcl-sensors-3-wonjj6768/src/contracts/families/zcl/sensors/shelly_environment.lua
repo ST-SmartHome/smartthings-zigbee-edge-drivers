@@ -21,8 +21,8 @@ zcl.temperature(),zcl.humidity(),light_level("shelly_blu_display_light_level",em
 profile="safety-contact-illuminance-battery-low-handle-shelly",zcl_clusters={
 zcl.contact(),zcl.shelly_handle_position(),zcl.battery_low(),light_level("shelly_blu_door_light_level",emit.shellyBluDoorLightLevel()),light_threshold("shelly_blu_door_dark_threshold",0x0001,emit.shellyBluDoorDarkThreshold()),light_threshold("shelly_blu_door_bright_threshold",0x0002,emit.shellyBluDoorBrightThreshold()),zcl.battery(),},}local motion={
 profile="safety-motion-illuminance-battery-low-battery",
-configure=function(_,device)
-device:remove_configured_attribute(0x0500,0x0002)
+configure=function(driver,device)
+device:remove_configured_attribute(0x0500,0x0002)zcl.bind_cluster(device,0x0500,driver.environment_info.hub_zigbee_eui,1)
 end,
 zcl_clusters={
 zcl.motion({configure_reporting=false}),light_level("shelly_blu_motion_light_level",emit.shellyBluMotionLightLevel()),light_threshold("shelly_blu_motion_dark_threshold",0x0001,emit.shellyBluMotionDarkThreshold()),light_threshold("shelly_blu_motion_bright_threshold",0x0002,emit.shellyBluMotionBrightThreshold()),zcl.battery_low({configure_reporting=false}),zcl.battery(),zcl.cluster_attribute(0x0500,0x0013,{
