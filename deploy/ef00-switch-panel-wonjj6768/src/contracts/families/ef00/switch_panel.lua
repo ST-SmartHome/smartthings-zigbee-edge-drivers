@@ -56,7 +56,7 @@ name="off_color",emit=emit.cb2gOffColor(),converter=backlight_color_warm_convert
 profile="switches-switch-1-touch-panel",package_group="switch-panel",datapoints={
 tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_power_on_behavior(14,{emit=emit.tp1gPowerOnBehavior()}),tuya.dp_backlight_mode_off_on(16,{
 emit=emit.tp1gBacklightMode(),converter=converter.lookup_from_to({off=false,on=true}),}),tuya.dp_child_lock(101,{
-name="child_lock",emit=emit.tp1gChildLock(),converter=converter.lookup_from_to({off=false,on=true}),}),},query_on_configure=true,}local switch_2gang_touch_panel={
+name="child_lock",emit=emit.tp1gChildLock(),converter=converter.lookup_from_to({off=false,on=true}),}),},magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,query_on_announce=false,time_start="off",}local switch_2gang_touch_panel={
 profile="switches-switch-2-touch-panel",package_group="switch-panel",datapoints={
 tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_power_on_behavior(14,{emit=emit.tp2gPowerOnBehavior()}),tuya.dp_backlight_mode_off_on(16,{
 emit=emit.tp2gBacklightMode(),converter=converter.lookup_from_to({off=false,on=true}),}),tuya.dp_child_lock(101,{
@@ -79,7 +79,7 @@ name="inching_switch",emit=emit.mf1gInchingSwitch(),converter=panel_off_on_conve
 name="child_lock",emit=emit.mf1gChildLock(),converter=panel_off_on_converter,}),tuya.dp_numeric(102,{name="backlight_brightness",emit=emit.mf1gBacklightBrightness()}),tuya.dp_enum(103,{
 name="on_color",emit=emit.mf1gOnColor(),converter=backlight_color_converter,}),tuya.dp_enum(104,{
 name="off_color",emit=emit.mf1gOffColor(),converter=backlight_color_converter,}),},query_on_configure=false,time_start="off",}register_device_definition(switch_1gang_touch_panel,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_gm8h14wy",}))register_device_definition(switch_2gang_touch_panel,device_helpers.create_fingerprints("TS0601",{
+"_TZE204_gm8h14wy","_TZE28C1000000_yxun3xvr",}))register_device_definition(switch_2gang_touch_panel,device_helpers.create_fingerprints("TS0601",{
 "_TZE204_he9apaui",}))register_device_definition(switch_3gang_touch_panel,device_helpers.create_fingerprints("TS0601",{
 "_TZE204_ccgyhbvd",}))register_device_definition(switch_6gang_touch_panel,device_helpers.create_fingerprints("TS0601",{
 "_TZE204_y8ficeai","_TZE284_hyssaqjk","_TZE284_tokhh9pf",}))register_device_definition(switch_1gang_stairwell,device_helpers.create_fingerprints("TS0601",{

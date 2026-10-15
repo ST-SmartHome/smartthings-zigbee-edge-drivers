@@ -276,7 +276,11 @@ local switch_1gang_touch_panel = {
       converter = converter.lookup_from_to({ off = false, on = true }),
     }),
   },
-  query_on_configure = true,
+  magic_packet = true,
+  mcu_version_request_on_configure = true,
+  query_on_configure = false,
+  query_on_announce = false,
+  time_start = "off",
 }
 
 local switch_2gang_touch_panel = {
@@ -400,6 +404,7 @@ local switch_1gang_multifunction = {
 
 register_device_definition(switch_1gang_touch_panel, device_helpers.create_fingerprints("TS0601", {
   "_TZE204_gm8h14wy",
+  "_TZE28C1000000_yxun3xvr",
 }))
 
 register_device_definition(switch_2gang_touch_panel, device_helpers.create_fingerprints("TS0601", {

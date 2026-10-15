@@ -1533,7 +1533,7 @@
         ]
       },
       "converterDeclarations": 1,
-      "dynamicEventMemberSha256": "07a7d44c8055ad19a8ae2f752ed61e57554031e5a03f368f33bd3468ddf57f20"
+      "dynamicEventMemberSha256": "29a0a60aae1492f4fafe37d2ff09295d645b26389b84c06fcbed309b357bd3a1"
     },
     "contracts.families.zcl.covers.z2m_absorption": {
       "id": "zcl.covers.z2m_absorption",

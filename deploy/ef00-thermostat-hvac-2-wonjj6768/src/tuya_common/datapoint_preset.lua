@@ -545,6 +545,9 @@ resolved.emit=emit.switch()
 end
 return tuya.dp_binary(dp,resolved)
 end
+function tuya.dp_humidity(dp,name_or_options,options)
+return build_scaled_numeric_preset(dp,"humidity",name_or_options,options)
+end
 function tuya.dp_battery(dp,name_or_options,options)
 return build_divided_numeric_preset(dp,"battery",1,name_or_options,options)
 end
@@ -559,6 +562,12 @@ return build_scaled_numeric_preset(dp,"current_heating_setpoint",name_or_options
 end
 function tuya.dp_local_temperature_calibration(dp,name_or_options,options)
 return build_signed_numeric_preset(dp,"local_temperature_calibration",10,name_or_options,options)
+end
+function tuya.dp_comfort_temperature(dp,name_or_options,options)
+return build_scaled_numeric_preset(dp,"comfort_temperature",name_or_options,options)
+end
+function tuya.dp_eco_temperature(dp,name_or_options,options)
+return build_scaled_numeric_preset(dp,"eco_temperature",name_or_options,options)
 end
 function tuya.dp_system_mode(dp,name_or_options,options)
 return tuya.dp_enum(dp,normalize_preset_options(name_or_options,options,"system_mode"))

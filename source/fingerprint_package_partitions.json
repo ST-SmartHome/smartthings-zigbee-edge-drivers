@@ -1635,6 +1635,17 @@
       "catalogModule": "contracts.families.ef00.sensors",
       "profile": "sensors-soil-temp-moisture-battery-unit-illuminance-sgs02z",
       "auditEvidence": "analysis/z2m_catchup_20261014.md#current-owner-additions"
+    },
+    {
+      "manufacturer": "_TZE28C1000000_yxun3xvr",
+      "manufacturerUtf8Hex": "5f545a45323843313030303030305f7978756e33787672",
+      "model": "TS0601",
+      "modelUtf8Hex": "545330363031",
+      "owner": "ef00-switch-panel-wonjj6768",
+      "catalogId": "ef00.switch.panel",
+      "catalogModule": "contracts.families.ef00.switch_panel",
+      "profile": "switches-switch-1-touch-panel",
+      "auditEvidence": "analysis/z2m_catchup_20261015.md#touch-panel-exact-alias"
     }
   ],
   "approvedFailClosedExacts": [
@@ -11192,7 +11203,7 @@
           "id": "ef00.thermostats.z2m_absorption_wall"
         }
       ],
-      "exactCount": 24,
+      "exactCount": 25,
       "catalogMigrations": [
         {
           "catalogId": "ef00.thermostats.wave6a_wall",
@@ -11472,7 +11483,7 @@
           "oldOwner": "ef00-thermostat-wall-wonjj6768",
           "newOwner": "ef00-thermostat-hvac-2-wonjj6768",
           "moved": true,
-          "exactCount": 2,
+          "exactCount": 3,
           "exacts": [
             {
               "manufacturer": "_TZE200_spyvfeti",
@@ -11491,6 +11502,17 @@
               "model": "TS0601",
               "modelUtf8Hex": "545330363031",
               "profile": "thermostats-beca-bvrf-l001",
+              "oldOwner": "ef00-thermostat-wall-wonjj6768",
+              "newOwner": "ef00-thermostat-hvac-2-wonjj6768",
+              "catalogId": "ef00.thermostats.z2m_absorption_wall",
+              "catalogModule": "contracts.families.ef00.thermostats.z2m_absorption_wall"
+            },
+            {
+              "manufacturer": "_TZE284_xr5yfele",
+              "manufacturerUtf8Hex": "5f545a453238345f7872357966656c65",
+              "model": "TS0601",
+              "modelUtf8Hex": "545330363031",
+              "profile": "thermostats-tervix-119710",
               "oldOwner": "ef00-thermostat-wall-wonjj6768",
               "newOwner": "ef00-thermostat-hvac-2-wonjj6768",
               "catalogId": "ef00.thermostats.z2m_absorption_wall",
@@ -13659,13 +13681,13 @@
     "legacyOwnerChangeCount": 0,
     "newPackageCount": 24,
     "newCatalogCount": 96,
-    "newExactCount": 918,
-    "fingerprintOnlyAliasCount": 96,
+    "newExactCount": 919,
+    "fingerprintOnlyAliasCount": 97,
     "failClosedExactCount": 1,
     "restoredLegacyExactCount": 4,
-    "runtimeExactCount": 4289,
+    "runtimeExactCount": 4291,
     "movedCatalogCount": 52,
-    "movedExactCount": 502,
+    "movedExactCount": 503,
     "historicalPartitionCount": 17
   }
 }

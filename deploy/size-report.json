@@ -1873,9 +1873,9 @@
   },
   {
     "name": "ef00-switch-panel-wonjj6768",
-    "raw_size": 429469,
+    "raw_size": 429714,
     "under_limit": true,
-    "free_bytes": 94819,
+    "free_bytes": 94574,
     "meets_headroom": true,
     "profiles": [
       "switches-eyzee-5gang-countdown",
@@ -1905,7 +1905,7 @@
       "switches-switch-8-adlblwab",
       "switches-switch-8-m9-sl"
     ],
-    "fingerprints": 41,
+    "fingerprints": 42,
     "custom_capabilities": {
       "numeric": 63,
       "enum": 133,
@@ -5861,9 +5861,9 @@
   },
   {
     "name": "ef00-thermostat-hvac-2-wonjj6768",
-    "raw_size": 371658,
+    "raw_size": 381473,
     "under_limit": true,
-    "free_bytes": 152630,
+    "free_bytes": 142815,
     "meets_headroom": true,
     "profiles": [
       "thermostats-beca-bvrf-l001",
@@ -5871,6 +5871,7 @@
       "thermostats-floor-hd-t1000-core",
       "thermostats-radiator-wsek35um-core",
       "thermostats-sauna-ae5503-core",
+      "thermostats-tervix-119710",
       "thermostats-wave12-beca-bht209",
       "thermostats-wave12-engo-e25-230",
       "thermostats-wave12-engo-e25-batb",
@@ -5886,10 +5887,10 @@
       "thermostats-wave6a-engo-eone230w",
       "thermostats-wave6a-futurehome"
     ],
-    "fingerprints": 24,
+    "fingerprints": 25,
     "custom_capabilities": {
-      "numeric": 115,
-      "enum": 83,
+      "numeric": 131,
+      "enum": 92,
       "text": 38
     },
     "pruned_lua": {
