@@ -47,6 +47,6 @@ changes above. The upstream package is left untouched so the fork can keep synci
   EC, ORP and conductivity rows point at the new capabilities, with decimal and signed ranges
 - `src/contracts/families/ef00/sensors/temp_humidity.lua`: `pool_limit_tenths()` converter on DP106/107/112/113;
   DP110/111 signed
-- `profiles/sensors-temp-battery-pool-chlorine.yml`: new capability IDs, limits grouped together, backlight
+- `profiles/sensors-temp-battery-pool-chlorine.yml`: new capability IDs, limits grouped together (min before max), backlight
   removed from the detail view
 - `config.yml`: package name and key
