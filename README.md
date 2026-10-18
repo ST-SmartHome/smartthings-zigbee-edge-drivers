@@ -1,4 +1,4 @@
-> **ST-SmartHome fork.** This fork adds one extra driver package, [`deploy/zcl-switch-st-smarthome`](deploy/zcl-switch-st-smarthome/README.md): a ZCL Switch variant with an optional separate device for outlet 2 on dual plugs, and an energy-scaling fix for the Mercator Ikuü SPP02GIP. Everything else below is the upstream README, unchanged.
+> **ST-SmartHome fork.** This fork adds two extra driver packages. [`deploy/zcl-switch-st-smarthome`](deploy/zcl-switch-st-smarthome/README.md) is a ZCL Switch variant with an optional separate device for outlet 2 on dual plugs, and an energy-scaling fix for the Mercator Ikuü SPP02GIP. [`deploy/ef00-sensors-st-smarthome`](deploy/ef00-sensors-st-smarthome/README.md) is an EF00 Sensors variant that shows the 7-in-1 pool meter's pH and chlorine limits as decimals, allows negative ORP limits and gives the pool rows readable labels. Everything else below is the upstream README, unchanged.
 
 # SmartThings Zigbee Edge Drivers
 

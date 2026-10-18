@@ -1,0 +1,6 @@
+name: "EF00 Sensors ST-SmartHome"
+packageKey: "ef00-sensors-st-smarthome"
+description: "Fork of wonjj6768's EF00 Sensors driver. Shows the 7-in-1 pool meter's pH and free chlorine limits as decimals (e.g. 7.8 pH, 3.0 mg/L)."
+vendorSupportInformation: "https://github.com/ST-SmartHome/smartthings-zigbee-edge-drivers"
+permissions:
+  zigbee: {}
