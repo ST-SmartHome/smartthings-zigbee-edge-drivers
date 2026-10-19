@@ -610,17 +610,18 @@ local thermostat_trv603_wz = {
 register_device_definition(thermostat_trv603_wz, ef00_helpers.ts0601_fingerprints( {
   "_TZE284_ymldrmzx",
 }))
-local thermostat_zht_002 = {
+local thermostat_zht_002 = thermostat_metadata.attach({
   profile = "thermostats-thermostat-zht002",
   package_group = "trv-1",
   time_start = "2000",
-  tuya.dp_binary(1, { name = "system_mode", converter = bool_heat_off }),
+  tuya.dp_on_off(1),
+  tuya.dp_binary(1, { name = "system_mode", converter = bool_heat_off, emit = emit.thermostat_mode() }),
   tuya.dp_enum(2, {
     name = "programming_mode",
     emit = emit.zht002ProgrammingMode(),
     converter = converter.lookup_from_to({ auto = 0, manual = 1 }),
   }),
-  tuya.dp_local_temperature(16, { scale = 10 }),
+  tuya.dp_local_temperature(16, { scale = 10, read_only = true, emit = emit.temperature("C") }),
   -- Z2M reads DP18, DP34, DP50, DP101 and DP102 raw (tuya.ts:10155) and DP19
   -- through localTemperatureCalibration, so none of them are divided by ten.
   tuya.dp_min_temperature_limit(18, {
@@ -654,14 +655,19 @@ local thermostat_zht_002 = {
       [1] = "open",
     })),
   }),
-  tuya.dp_current_heating_setpoint(50, { scale = 1 }),
+  tuya.dp_running_state(47, {
+    read_only = true,
+    emit = emit.thermostat_operating_state(),
+    converter = converter.lookup_from_to({ idle = 0, heating = 1 }),
+  }),
+  tuya.dp_current_heating_setpoint(50, { scale = 1, emit = emit.heating_setpoint("C") }),
   tuya.dp_max_temperature_limit(101, {
     name = "max_temperature_limit",
     scale = 1,
     emit = emit.maxTempLimitZhtCToSeventy(),
   }),
   tuya.dp_deadzone_temperature(102, { scale = 1, emit = emit.zht002DeadzoneTemperature() }),
-}
+}, { "off", "heat" }, 0, 50, 1)
 register_device_definition(thermostat_zht_002, ef00_helpers.ts0601_fingerprints( {
   "_TZE204_xalsoe3m",
 }))

@@ -2,11 +2,15 @@ name: thermostats-thermostat-zht002
 components:
   - id: main
     capabilities:
+      - id: switch
+        version: 1
       - id: thermostatMode
         version: 1
       - id: thermostatHeatingSetpoint
         version: 1
       - id: temperatureMeasurement
+        version: 1
+      - id: thermostatOperatingState
         version: 1
       - id: concertmirror08464.zht002ProgrammingMode
         version: 1
@@ -41,9 +45,16 @@ deviceConfig:
         capability: thermostatHeatingSetpoint
         version: 1
         group: main
-    actions: []
+    actions:
+      - component: main
+        capability: switch
+        version: 1
+        group: main
     basicPlus: []
   detailView:
+    - component: main
+      capability: switch
+      version: 1
     - component: main
       capability: thermostatMode
       version: 1
@@ -52,6 +63,9 @@ deviceConfig:
       version: 1
     - component: main
       capability: temperatureMeasurement
+      version: 1
+    - component: main
+      capability: thermostatOperatingState
       version: 1
     - component: main
       capability: concertmirror08464.zht002ProgrammingMode
@@ -92,6 +106,9 @@ deviceConfig:
   automation:
     conditions:
       - component: main
+        capability: switch
+        version: 1
+      - component: main
         capability: thermostatMode
         version: 1
       - component: main
@@ -99,6 +116,9 @@ deviceConfig:
         version: 1
       - component: main
         capability: temperatureMeasurement
+        version: 1
+      - component: main
+        capability: thermostatOperatingState
         version: 1
       - component: main
         capability: concertmirror08464.zht002ProgrammingMode
@@ -134,6 +154,9 @@ deviceConfig:
         capability: concertmirror08464.zht002DeadzoneTemperature
         version: 1
     actions:
+      - component: main
+        capability: switch
+        version: 1
       - component: main
         capability: thermostatMode
         version: 1

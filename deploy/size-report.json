@@ -94195,9 +94195,9 @@
   },
   {
     "name": "ef00-thermostat-trv-1-wonjj6768",
-    "raw_size": 262557,
+    "raw_size": 263223,
     "under_limit": true,
-    "free_bytes": 261731,
+    "free_bytes": 261065,
     "meets_headroom": true,
     "profiles": [
       "thermostats-alecto-smart-heat10",
@@ -94228,7 +94228,7 @@
     },
     "lua_local_compaction": {
       "schemaVersion": 1,
-      "savedBytes": 105578,
+      "savedBytes": 105622,
       "files": {
         "app/component_mapping.lua": {
           "schemaVersion": 1,
@@ -94912,9 +94912,9 @@
         },
         "contracts/families/ef00/thermostats/trv_1.lua": {
           "schemaVersion": 1,
-          "inputSha256": "b141a6e5fd7a19c453f8cdd4073118e87bda9d1eb336d5549631d050b54ec0fa",
-          "outputSha256": "8ed25c94e615b54b5df9262e9683bc3ef62add4acb4795f1698d87bbef0cc21c",
-          "strippedBytecodeSha256": "fb1bb7603ce4998cf3cae4f697f85197f7b27a56643c0dad739e08b58c41a63d",
+          "inputSha256": "bba7a0aa0d9caeec30511987caf0b46694891387173e7b74ad7d611ac879f377",
+          "outputSha256": "f4cd0f04640dcc050c95c36ed53993b0e045de2c7d9ec671a929f64a8ad38c2c",
+          "strippedBytecodeSha256": "46ffaa5bcbd0c4fec6f33b8b0d0d5cdd5eab161baa098f67ab3d171b8a65f459",
           "luaVersion": "Lua 5.4",
           "aliases": {
             "tuya": "a",
@@ -94937,20 +94937,20 @@
             "thaleos_thah202001_mode_to_device": "t",
             "valve_position_to_running_state": "u",
             "thermostat_thaleos_thah202001": "v",
-            "hour": "w",
-            "bool_heat_off": "y",
-            "gs361a_on_off": "z",
-            "lookup": "A",
-            "enum_heat_idle_inverted": "B",
-            "first": "C",
-            "timestamp": "D",
-            "month": "E",
-            "thermostat_trv603_wz": "F",
-            "alecto_on_off": "G",
-            "alecto_smart_heat10": "H",
-            "enum_heat_idle_bool": "I",
-            "thermostat_bab_1413": "J",
-            "thermostat_metadata": "K",
+            "thermostat_metadata": "w",
+            "hour": "x",
+            "bool_heat_off": "z",
+            "gs361a_on_off": "A",
+            "lookup": "B",
+            "enum_heat_idle_inverted": "C",
+            "first": "D",
+            "timestamp": "E",
+            "month": "F",
+            "thermostat_trv603_wz": "G",
+            "alecto_on_off": "H",
+            "alecto_smart_heat10": "I",
+            "enum_heat_idle_bool": "J",
+            "thermostat_bab_1413": "K",
             "thermostat_variant1": "L",
             "thermostat_variant3": "M",
             "thermostat_variant5": "N",
@@ -94990,7 +94990,7 @@
             "Z": "trv603_utc"
           },
           "numerals": [],
-          "savedBytes": 4808
+          "savedBytes": 4852
         },
         "contracts/helpers/ef00.lua": {
           "schemaVersion": 1,
