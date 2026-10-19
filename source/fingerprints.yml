@@ -1,4 +1,8 @@
 zigbeeManufacturer:
+  - id: "eway-vertical-cs05mqku"
+    manufacturer: "_TZE200_cs05mqku"
+    model: "TS0601"
+    deviceProfileName: "covers-eway-vertical"
   - id: "somfy-glydea2-ultra"
     manufacturer: "SOMFY"
     model: "Glydea 2 Ultra WF Curtain"

@@ -1809,7 +1809,7 @@
           "id": "ef00.covers.wave10"
         }
       ],
-      "exactCount": 19
+      "exactCount": 20
     },
     {
       "sourcePackage": "ef00-lights-wonjj6768",
@@ -7444,7 +7444,7 @@
           "id": "ef00.covers.wave19_legacy"
         }
       ],
-      "exactCount": 23,
+      "exactCount": 24,
       "catalogMigrations": [
         {
           "catalogId": "ef00.covers.z2m_absorption",
@@ -7452,8 +7452,19 @@
           "oldOwner": "z2m-ef00-covers-wonjj6768",
           "newOwner": "ef00-covers-2-wonjj6768",
           "moved": false,
-          "exactCount": 9,
+          "exactCount": 10,
           "exacts": [
+            {
+              "manufacturer": "_TZE200_cs05mqku",
+              "manufacturerUtf8Hex": "5f545a453230305f637330356d716b75",
+              "model": "TS0601",
+              "modelUtf8Hex": "545330363031",
+              "profile": "covers-eway-vertical",
+              "oldOwner": "z2m-ef00-covers-wonjj6768",
+              "newOwner": "ef00-covers-2-wonjj6768",
+              "catalogId": "ef00.covers.z2m_absorption",
+              "catalogModule": "contracts.families.ef00.covers.z2m_absorption"
+            },
             {
               "manufacturer": "_TZE200_xtrnjaoz",
               "manufacturerUtf8Hex": "5f545a453230305f7874726e6a616f7a",
@@ -13681,11 +13692,11 @@
     "legacyOwnerChangeCount": 0,
     "newPackageCount": 24,
     "newCatalogCount": 96,
-    "newExactCount": 919,
+    "newExactCount": 920,
     "fingerprintOnlyAliasCount": 97,
     "failClosedExactCount": 1,
     "restoredLegacyExactCount": 4,
-    "runtimeExactCount": 4291,
+    "runtimeExactCount": 4292,
     "movedCatalogCount": 52,
     "movedExactCount": 503,
     "historicalPartitionCount": 17

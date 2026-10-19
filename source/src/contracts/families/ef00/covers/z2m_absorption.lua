@@ -405,6 +405,27 @@ register_device_definition(fwjz_16eb, {
   device_helpers.create_fingerprint("_TZE2841000000_u68q868h", "TS0601"),
 })
 
+local eway_vertical_blind = {
+  profile = "covers-eway-vertical",
+  magic_packet = true,
+  query_on_configure = false,
+  query_on_announce = false,
+  refresh_state = false,
+  refresh_state_query = false,
+  time_start = "off",
+  datapoints = {
+    tuya.dp_enum(1, {name = "cover_state", converter = cover_state_standard, write_only = true}),
+    tuya.dp_cover_position_inverted(2, {emit = emit.shade_level()}),
+    tuya.dp_numeric(2, {name = "window_shade_state", emit = emit.shade_state(), converter = window_shade_state_from_position_inverted(), read_only = true}),
+    tuya.dp_cover_position_inverted(3, {name = "cover_position_report", emit = emit.shade_level(), read_only = true}),
+    tuya.dp_numeric(3, {name = "window_shade_state_report", emit = emit.shade_state(), converter = window_shade_state_from_position_inverted(), read_only = true}),
+  },
+}
+
+register_device_definition(eway_vertical_blind, {
+  device_helpers.create_fingerprint("_TZE200_cs05mqku", "TS0601"),
+})
+
 return {
   id = "ef00.covers.z2m_absorption",
   registrations = device_definitions,

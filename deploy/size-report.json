@@ -143488,13 +143488,14 @@
   },
   {
     "name": "ef00-covers-2-wonjj6768",
-    "raw_size": 268585,
+    "raw_size": 270144,
     "under_limit": true,
-    "free_bytes": 255703,
+    "free_bytes": 254144,
     "meets_headroom": true,
     "profiles": [
       "covers-cover-gm25teq",
       "covers-cover-moes-zs-sf-euc-wh-ms",
+      "covers-eway-vertical",
       "covers-moes-fwjz-16eb",
       "covers-nova-zcmr1-core",
       "covers-tuya-cover14-a0",
@@ -143513,7 +143514,7 @@
       "covers-wave19-legacy-tuya",
       "rpt-thj"
     ],
-    "fingerprints": 25,
+    "fingerprints": 26,
     "custom_capabilities": {
       "numeric": 11,
       "enum": 42,
@@ -143525,7 +143526,7 @@
     },
     "lua_local_compaction": {
       "schemaVersion": 1,
-      "savedBytes": 147519,
+      "savedBytes": 147719,
       "files": {
         "app/component_mapping.lua": {
           "schemaVersion": 1,
@@ -144425,21 +144426,21 @@
         },
         "contracts/families/ef00/covers/z2m_absorption.lua": {
           "schemaVersion": 1,
-          "inputSha256": "92e5e00302dd9d4a2b38791abe0e6c69b618082c7ed206c290b63b2960c0da17",
-          "outputSha256": "d206a374220f1df842b1eed3e8cf95c72f4d73432bbb12e787075b338461fcdd",
-          "strippedBytecodeSha256": "edfc9ce1130da9d10c7cd16df33a85dc0ef6f5a0e33e7611e27be4ec0d1005f9",
+          "inputSha256": "22f080fe5fb0bdf87293f05de37ea4a8863f8e021db6551f6ffd32b6873fd42f",
+          "outputSha256": "9844e1a6b273d5800d42520e30a45e7fb0d847d19db6f6f78e3b0a39616b1421",
+          "strippedBytecodeSha256": "004083532c195a72a740e9101fc154bdfce3b43da428392b254882ec22afecc1",
           "luaVersion": "Lua 5.4",
           "aliases": {
             "tuya": "a",
-            "value": "b",
-            "register_device_definition": "c",
-            "converter": "d",
+            "register_device_definition": "b",
+            "value": "c",
+            "window_shade_state_from_position_inverted": "d",
             "emit": "e",
-            "cover_action_shade_state": "f",
-            "number_value": "g",
-            "cover_state_standard": "h",
-            "device_helpers": "i",
-            "window_shade_state_from_position_inverted": "j",
+            "converter": "f",
+            "cover_state_standard": "g",
+            "cover_action_shade_state": "h",
+            "number_value": "i",
+            "device_helpers": "j",
             "moes_zs_sf_position": "k",
             "moes_zs_sf_shade_state": "l",
             "tubular_motor_direction": "m",
@@ -144450,15 +144451,16 @@
             "device": "r",
             "limited_cover_switch": "s",
             "cover_model_gm25teq": "t",
-            "device_definitions": "u",
-            "position": "v",
-            "cover14_a0": "w",
-            "cover5_px": "x",
-            "fwjz_16eb": "y",
-            "zcl": "z"
+            "eway_vertical_blind": "u",
+            "device_definitions": "v",
+            "position": "w",
+            "cover14_a0": "x",
+            "cover5_px": "y",
+            "fwjz_16eb": "z",
+            "zcl": "A"
           },
           "upvalueAliases": {
-            "d": "converter",
+            "f": "converter",
             "k": "moes_zs_sf_position",
             "n": "moes_zs_sf_reverse_enabled"
           },
@@ -144474,7 +144476,7 @@
               "33"
             ]
           ],
-          "savedBytes": 2366
+          "savedBytes": 2566
         },
         "contracts/helpers/family.lua": {
           "schemaVersion": 1,

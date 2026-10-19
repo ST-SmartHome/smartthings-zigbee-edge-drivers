@@ -32,7 +32,7 @@
           "zcl"
         ]
       },
-      "dynamicEventMemberSha256": "1539681b227413c813002b7d6f6a2e4c4c24048c3f9daad120e037345b449d54"
+      "dynamicEventMemberSha256": "50bb2c7659f81b35ad804c5a9f8e242e9d649dac44343014dcfebb4815674d40"
     },
     "contracts.families.ef00.din_rail.meters_z2m_absorption": {
       "id": "ef00.din_rail.meters.z2m_absorption",
