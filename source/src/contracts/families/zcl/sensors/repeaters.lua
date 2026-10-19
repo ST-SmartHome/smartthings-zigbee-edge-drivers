@@ -1,12 +1,14 @@
 local device_helpers = require "contracts.helpers.family"
+local fps = device_helpers.create_fingerprints
+local fp = device_helpers.create_fingerprint
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 local repeater = {
   profile = "network-repeater",
 }
 
-register_device_definition(repeater, device_helpers.create_fingerprints("TS0207", {
+register(repeater, fps("TS0207", {
   "_TZ3000_5k5vh43t",
   "_TZ3000_gszjt2xx",
   "_TZ3000_kxlmv9ag",
@@ -26,43 +28,43 @@ register_device_definition(repeater, device_helpers.create_fingerprints("TS0207"
   "_TZ3000_wmlc9p9z",
 }))
 
-register_device_definition(repeater, device_helpers.create_fingerprints("TS0001", {
+register(repeater, fps("TS0001", {
   "_TZ3000_gdsvhfao",
   "_TZ3000_n0lphcok",
   "_TZ3000_trdx8uxs",
   "_TZ3000_wn65ixz9",
 }))
 
-register_device_definition(repeater, {
-  device_helpers.create_fingerprint("Aeotec", "ZGA008"),
-  device_helpers.create_fingerprint("eWeLink", "CK-BL702-ROUTER-01(7018)"),
-  device_helpers.create_fingerprint("Espressif", "ZigbeeRangeExtender"),
-  device_helpers.create_fingerprint("NabuCasa", "SkyConnect"),
-  device_helpers.create_fingerprint("NabuCasa", "ZBT-2"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-06M"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-06MU"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-06MG24"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-06MG24U"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-06MG26"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-06MG26U"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-07"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-07MG24"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-MR1U"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-MR2U"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-MR3U"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-MR4U"),
-  device_helpers.create_fingerprint("SMLIGHT", "SLZB-MR5U"),
-  device_helpers.create_fingerprint("Inswift", "ZBM-MG24"),
-  device_helpers.create_fingerprint("SONOFF", "DONGLE-E"),
-  device_helpers.create_fingerprint("SONOFF", "Dongle-LMG21"),
-  device_helpers.create_fingerprint("SONOFF", "Dongle-M"),
-  device_helpers.create_fingerprint("SONOFF", "Dongle-PMG24"),
-  device_helpers.create_fingerprint("SparkFun", "MGM240P"),
-  device_helpers.create_fingerprint("TubesZB", "BM24"),
-  device_helpers.create_fingerprint("TubesZB", "MGM24"),
-  device_helpers.create_fingerprint("easyiot", "ZB-GW04"),
-  device_helpers.create_fingerprint("easyiot", "ZB-GW04-1v1"),
-  device_helpers.create_fingerprint("easyiot", "ZB-GW04-1v2"),
+register(repeater, {
+  fp("Aeotec", "ZGA008"),
+  fp("eWeLink", "CK-BL702-ROUTER-01(7018)"),
+  fp("Espressif", "ZigbeeRangeExtender"),
+  fp("NabuCasa", "SkyConnect"),
+  fp("NabuCasa", "ZBT-2"),
+  fp("SMLIGHT", "SLZB-06M"),
+  fp("SMLIGHT", "SLZB-06MU"),
+  fp("SMLIGHT", "SLZB-06MG24"),
+  fp("SMLIGHT", "SLZB-06MG24U"),
+  fp("SMLIGHT", "SLZB-06MG26"),
+  fp("SMLIGHT", "SLZB-06MG26U"),
+  fp("SMLIGHT", "SLZB-07"),
+  fp("SMLIGHT", "SLZB-07MG24"),
+  fp("SMLIGHT", "SLZB-MR1U"),
+  fp("SMLIGHT", "SLZB-MR2U"),
+  fp("SMLIGHT", "SLZB-MR3U"),
+  fp("SMLIGHT", "SLZB-MR4U"),
+  fp("SMLIGHT", "SLZB-MR5U"),
+  fp("Inswift", "ZBM-MG24"),
+  fp("SONOFF", "DONGLE-E"),
+  fp("SONOFF", "Dongle-LMG21"),
+  fp("SONOFF", "Dongle-M"),
+  fp("SONOFF", "Dongle-PMG24"),
+  fp("SparkFun", "MGM240P"),
+  fp("TubesZB", "BM24"),
+  fp("TubesZB", "MGM24"),
+  fp("easyiot", "ZB-GW04"),
+  fp("easyiot", "ZB-GW04-1v1"),
+  fp("easyiot", "ZB-GW04-1v2"),
 })
 
 return {

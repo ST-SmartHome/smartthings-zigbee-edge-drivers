@@ -1,416 +1,327 @@
-local zcl=require"protocol.zcl"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local zcl_device_helpers=require"contracts.helpers.zcl"
-local device_management=require"st.zigbee.device_management"
-local data_types=require"st.zigbee.data_types"
-local cluster_base=require"st.zigbee.cluster_base"
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local function bind_on_off_endpoints(endpoint_count)
-return function(driver,device)
-for endpoint=1,endpoint_count do
-device:send(device_management.build_bind_request(
-device,zcl.CLUSTER_ON_OFF,driver.environment_info.hub_zigbee_eui,endpoint))
+local h=require"protocol.zcl"
+local t=require"capabilities.events.all"
+local ak=require"contracts.helpers.family"
+local m=ak.create_fingerprints
+local p=ak.create_fingerprint
+local i=require"contracts.helpers.zcl"
+local G=require"st.zigbee.device_management"
+local y=require"st.zigbee.data_types"
+local bt=require"st.zigbee.cluster_base"
+local am,b=ak.definition_registry()
+local function c(bo)
+return function(aa,r)
+for endpoint=1,bo do
+r:send(G.build_bind_request(
+r,h.CLUSTER_ON_OFF,aa.environment_info.hub_zigbee_eui,endpoint))
 end
 end
 end
-local function build_switch(profile,count,options)
-if count==1 then
+local function f(q,Z,e)
+if Z==1 then
 return{
-profile=profile,zcl_clusters={
-zcl_device_helpers.switch_cluster(),},}
+profile=q,zcl_clusters={
+i.switch_cluster(),},}
 end
 return{
-profile=profile,zcl_clusters=zcl.multi_switch(count,options),}
+profile=q,zcl_clusters=h.multi_switch(Z,e),}
 end
-local function append_option_clusters(clusters,...)
-return zcl_device_helpers.append_clusters(clusters,...)
+local function a(g,...)
+return i.append_clusters(g,...)
 end
-local function build_tuya_on_off_switch(profile,count)
-local clusters=build_switch(profile,count).zcl_clusters
-append_option_clusters(clusters,zcl.tuya_magic_packet(),zcl.tuya_power_outage_memory(),zcl.child_lock())return{
-profile=profile,zcl_clusters=clusters,configure=bind_on_off_endpoints(count),}
+local function av(q,Z,e)
+local g=f(q,Z,e).zcl_clusters
+a(g,h.tuya_magic_packet(),h.tuya_power_outage_memory(),h.child_lock())return{
+profile=q,zcl_clusters=g,configure=c(Z),}
 end
-local function build_switch_module(profile,count)
-local clusters=build_switch(profile,count).zcl_clusters
-append_option_clusters(clusters,zcl.tuya_magic_packet(),zcl.switch_type(),zcl.countdown_timer())return{
-profile=profile,zcl_clusters=clusters,configure=bind_on_off_endpoints(count),}
+local function L(q,Z,e)
+local g=f(q,Z,e).zcl_clusters
+a(g,h.tuya_magic_packet(),h.switch_type(),h.countdown_timer())return{
+profile=q,zcl_clusters=g,configure=c(Z),}
 end
-local function tuya_power_on_behavior_2()
-return zcl.cluster_attribute(0xE001,0xD010,{
-name="power_on_behavior",emit=emit.power_on_behavior(),
-from_device=function(value)
-return({[0]="off",[1]="on",[2]="previous"})[value]
+local function N()
+return h.cluster_attribute(57345,53264,{
+name="power_on_behavior",emit=t.power_on_behavior(),
+from_device=function(v)
+return({[0]="off",[1]="on",[2]="previous"})[v]
 end,
-to_device=function(value)
-return({off=0,on=1,previous=2})[value]
+to_device=function(v)
+return({off=0,on=1,previous=2})[v]
 end,
-data_type=data_types.Enum8,write_type=data_types.Enum8,read_on_configure=true,})
+data_type=y.Enum8,write_type=y.Enum8,read_on_configure=true,})
 end
-local function tuya_enum_mapping(name,cluster_id,attribute_id,emitter,from_values,to_values,options)
-options=options or{}return zcl.cluster_attribute(cluster_id,attribute_id,{
-name=name,endpoint=options.endpoint,component=options.component,emit=emitter,
-from_device=function(value)
-if type(value)=="table"then value=value.value end
-return from_values[value]
+local function j(bJ,Y,bs,bn,bu,bA,e)
+e=e or{}return h.cluster_attribute(Y,bs,{
+name=bJ,endpoint=e.endpoint,component=e.component,emit=bn,
+from_device=function(v)
+if type(v)=="table"then v=v.value end
+return bu[v]
 end,
-to_device=function(value)return to_values[value]end,
-data_type=options.data_type or data_types.Enum8,write_type=options.write_type or options.data_type or data_types.Enum8,mfg_code=options.mfg_code,read_on_configure=options.read_on_configure~=false,})
+to_device=function(v)return bA[v]end,
+data_type=e.data_type or y.Enum8,write_type=e.write_type or e.data_type or y.Enum8,mfg_code=e.mfg_code,read_on_configure=e.read_on_configure~=false,})
 end
-local function latest_state(device,capability_id,attribute,default)
-return device:get_latest_state("main",capability_id,attribute)or default
+local function aY(r,bp,bx,bE)
+return r:get_latest_state("main",bp,bx)or bE
 end
-local NFZB_INCHING={
-[1]={enabled_capability="concertmirror08464.nfzb03InchingControlOne",enabled_attribute="inchingControlOne",time_capability="concertmirror08464.nfzb03InchingTimeOne",time_attribute="inchingTimeOne"},[2]={enabled_capability="concertmirror08464.nfzb03InchingControlTwo",enabled_attribute="inchingControlTwo",time_capability="concertmirror08464.nfzb03InchingTimeTwo",time_attribute="inchingTimeTwo"},[3]={enabled_capability="concertmirror08464.nfzb03InchingControlThree",enabled_attribute="inchingControlThree",time_capability="concertmirror08464.nfzb03InchingTimeThree",time_attribute="inchingTimeThree"},}local NFZB03_EMITTERS={
+local br={
+[1]={enabled_capability="concertmirror08464.nfzb03InchingControlOne",enabled_attribute="inchingControlOne",time_capability="concertmirror08464.nfzb03InchingTimeOne",time_attribute="inchingTimeOne"},[2]={enabled_capability="concertmirror08464.nfzb03InchingControlTwo",enabled_attribute="inchingControlTwo",time_capability="concertmirror08464.nfzb03InchingTimeTwo",time_attribute="inchingTimeTwo"},[3]={enabled_capability="concertmirror08464.nfzb03InchingControlThree",enabled_attribute="inchingControlThree",time_capability="concertmirror08464.nfzb03InchingTimeThree",time_attribute="inchingTimeThree"},}local bi={
 [1]={
-countdown=emit.nfzb03CountdownOne(),control=emit.nfzb03InchingControlOne(),time=emit.nfzb03InchingTimeOne(),},[2]={
-countdown=emit.nfzb03CountdownTwo(),control=emit.nfzb03InchingControlTwo(),time=emit.nfzb03InchingTimeTwo(),},[3]={
-countdown=emit.nfzb03CountdownThree(),control=emit.nfzb03InchingControlThree(),time=emit.nfzb03InchingTimeThree(),},}local NFZB_TWO_INCHING={
-[1]={enabled_capability="concertmirror08464.nfzbTwoInchingEnabledOne",enabled_attribute="nfzbTwoInchingEnabledOne",time_capability="concertmirror08464.nfzbTwoInchingTimeOne",time_attribute="nfzbTwoInchingTimeOne"},[2]={enabled_capability="concertmirror08464.nfzbTwoInchingEnabledTwo",enabled_attribute="nfzbTwoInchingEnabledTwo",time_capability="concertmirror08464.nfzbTwoInchingTimeTwo",time_attribute="nfzbTwoInchingTimeTwo"},}local BASE64_ALPHABET="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-local function encode_base64_bytes(bytes)
-local encoded={}for offset=1,#bytes,3 do
-local first=bytes[offset]local second=bytes[offset+1]local third=bytes[offset+2]local first_index=math.floor(first/4)local second_index=((first%4)*16)+math.floor((second or 0)/16)local third_index=(((second or 0)%16)*4)+math.floor((third or 0)/64)local fourth_index=(third or 0)%64
-encoded[#encoded+1]=BASE64_ALPHABET:sub(first_index+1,first_index+1)encoded[#encoded+1]=BASE64_ALPHABET:sub(second_index+1,second_index+1)encoded[#encoded+1]=second and BASE64_ALPHABET:sub(third_index+1,third_index+1)or"="
-encoded[#encoded+1]=third and BASE64_ALPHABET:sub(fourth_index+1,fourth_index+1)or"="
+countdown=t.nfzb03CountdownOne(),control=t.nfzb03InchingControlOne(),time=t.nfzb03InchingTimeOne(),},[2]={
+countdown=t.nfzb03CountdownTwo(),control=t.nfzb03InchingControlTwo(),time=t.nfzb03InchingTimeTwo(),},[3]={
+countdown=t.nfzb03CountdownThree(),control=t.nfzb03InchingControlThree(),time=t.nfzb03InchingTimeThree(),},}local bB={
+[1]={enabled_capability="concertmirror08464.nfzbTwoInchingEnabledOne",enabled_attribute="nfzbTwoInchingEnabledOne",time_capability="concertmirror08464.nfzbTwoInchingTimeOne",time_attribute="nfzbTwoInchingTimeOne"},[2]={enabled_capability="concertmirror08464.nfzbTwoInchingEnabledTwo",enabled_attribute="nfzbTwoInchingEnabledTwo",time_capability="concertmirror08464.nfzbTwoInchingTimeTwo",time_attribute="nfzbTwoInchingTimeTwo"},}local C="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+local function aS(F)
+local O={}for ac=1,#F,3 do
+local bj=F[ac]local ay=F[ac+1]local aM=F[ac+2]local be=math.floor(bj/4)local aZ=((bj%4)*16)+math.floor((ay or 0)/16)local bg=(((ay or 0)%16)*4)+math.floor((aM or 0)/64)local aX=(aM or 0)%64
+O[#O+1]=C:sub(be+1,be+1)O[#O+1]=C:sub(aZ+1,aZ+1)O[#O+1]=ay and C:sub(bg+1,bg+1)or"="
+O[#O+1]=aM and C:sub(aX+1,aX+1)or"="
 end
-return table.concat(encoded)
+return table.concat(O)
 end
-local function encode_inching_block(state,seconds_high,seconds_low)
-local utf8_bytes={}for _,code_unit in ipairs({state,seconds_high,seconds_low})do
-if code_unit<0x80 then
-utf8_bytes[#utf8_bytes+1]=code_unit
-else
-utf8_bytes[#utf8_bytes+1]=0xC0+math.floor(code_unit/0x40)utf8_bytes[#utf8_bytes+1]=0x80+(code_unit%0x40)
+local function aK(aC,az,aE)
+return aS({aC,az,aE})
 end
+local function X(by)
+local ac=C:find(by,1,true)return ac and(ac-1)or nil
 end
-return encode_base64_bytes(utf8_bytes)
+local function aR(ba)
+if type(ba)~="string"or #ba~=4 then return nil end
+local bj=X(ba:sub(1,1))local ay=X(ba:sub(2,2))local aN=ba:sub(3,3)local aD=ba:sub(4,4)local aM=aN=="="and 0 or X(aN)local bz=aD=="="and 0 or X(aD)
+if bj==nil or ay==nil or aM==nil or bz==nil then return nil end
+local F={
+(bj*4)+math.floor(ay/16),}if aN~="="then
+F[#F+1]=((ay%16)*16)+math.floor(aM/4)
 end
-local function base64_value(character)
-local offset=BASE64_ALPHABET:find(character,1,true)return offset and(offset-1)or nil
+if aD~="="then
+F[#F+1]=((aM%4)*64)+bz
 end
-local function decode_base64_chunk(chunk)
-if type(chunk)~="string"or #chunk~=4 then return nil end
-local first=base64_value(chunk:sub(1,1))local second=base64_value(chunk:sub(2,2))local third_char=chunk:sub(3,3)local fourth_char=chunk:sub(4,4)local third=third_char=="="and 0 or base64_value(third_char)local fourth=fourth_char=="="and 0 or base64_value(fourth_char)
-if first==nil or second==nil or third==nil or fourth==nil then return nil end
-local bytes={
-(first*4)+math.floor(second/16),}if third_char~="="then
-bytes[#bytes+1]=((second%16)*16)+math.floor(third/4)
+return F
 end
-if fourth_char~="="then
-bytes[#bytes+1]=((third%4)*64)+fourth
-end
-return bytes
-end
-local function decode_utf8_code_units(bytes)
-local code_units={}local offset=1
-while offset<=#bytes do
-local first=bytes[offset]if first<0x80 then
-code_units[#code_units+1]=first
-offset=offset+1
-elseif first>=0xC2 and first<=0xDF then
-local second=bytes[offset+1]if second~=nil and second>=0x80 and second<=0xBF then
-code_units[#code_units+1]=((first-0xC0)*0x40)+(second-0x80)offset=offset+2
-else
-code_units[#code_units+1]=0xFFFD
-offset=offset+1
-end
-elseif first>=0xE0 and first<=0xEF then
-local second=bytes[offset+1]local third=bytes[offset+2]local second_valid=second~=nil and second>=0x80 and second<=0xBF and
-not(first==0xE0 and second<0xA0)and not(first==0xED and second>0x9F)if second_valid and third~=nil and third>=0x80 and third<=0xBF then
-code_units[#code_units+1]=((first-0xE0)*0x1000)+
-((second-0x80)*0x40)+(third-0x80)offset=offset+3
-else
-code_units[#code_units+1]=0xFFFD
-offset=offset+1
-end
-else
-code_units[#code_units+1]=0xFFFD
-offset=offset+1
-end
-end
-return code_units
-end
-local function decode_inching_blocks(value)
-if type(value)~="string"or(#value%4)~=0 then
+local function aG(v)
+if type(v)~="string"or(#v%4)~=0 then
 return nil
 end
-local decoded={}for offset=1,#value,4 do
-local bytes=decode_base64_chunk(value:sub(offset,offset+3))
-if bytes==nil then return nil end
-local code_units=decode_utf8_code_units(bytes)local state=code_units[1]
-if state==nil then return nil end
-local channel=1
-local channel_bits=state
-while channel_bits>=2 do
-channel=channel+1
-channel_bits=math.floor(channel_bits/2)
+local aH={}for ac=1,#v,4 do
+local F=aR(v:sub(ac,ac+3))
+if F==nil or #F~=3 then return nil end
+local aC=F[1]local u=1
+local aw=aC
+while aw>=2 do
+u=u+1
+aw=math.floor(aw/2)
 end
-decoded[channel]={
-enabled=state%2==1 and"enabled"or"disabled",time=code_units[3]==nil and(math.huge-math.huge)or
-((code_units[2]or 0)*256)+code_units[3],}
+aH[u]={
+enabled=aC%2==1 and"enabled"or"disabled",time=(F[2]*256)+F[3],}
 end
-return decoded
+return aH
 end
-local function nfzb_inching_from_device(value,_device,_mapping_context,mapping)
-local decoded=decode_inching_blocks(value)local channel=decoded and decoded[mapping.inching_channel]or nil
-if channel==nil then return nil end
-if mapping.inching_kind=="enabled"and mapping.inching_enabled_values~=nil then
-return channel.enabled=="enabled"and mapping.inching_enabled_values.enabled or
-mapping.inching_enabled_values.disabled
+local function ax(v,bL,bC,l)
+local aH=aG(v)local u=aH and aH[l.inching_channel]or nil
+if u==nil then return nil end
+if l.inching_kind=="enabled"and l.inching_enabled_values~=nil then
+return u.enabled=="enabled"and l.inching_enabled_values.enabled or
+l.inching_enabled_values.disabled
 end
-return channel[mapping.inching_kind]
+return u[l.inching_kind]
 end
-local function nfzb_inching_sender(device,mapping,value)
-local channel=mapping.inching_channel
-local contract=mapping.inching_contract or NFZB_INCHING[channel]local disabled_value=mapping.inching_enabled_values and mapping.inching_enabled_values.disabled or"disabled"
-local enabled=latest_state(device,contract.enabled_capability,contract.enabled_attribute,disabled_value)local seconds=tonumber(latest_state(device,contract.time_capability,contract.time_attribute,1))or 1
-if mapping.inching_kind=="enabled"then enabled=value end
-if mapping.inching_kind=="time"then seconds=tonumber(value)or seconds end
-seconds=math.max(1,math.min(65535,math.floor(seconds+0.5)))local enabled_value=mapping.inching_enabled_values and mapping.inching_enabled_values.enabled or"enabled"
-local state=enabled==enabled_value and 1 or 0
-if channel>1 then state=state+(2 ^(channel-1))end
-local seconds_high=math.floor(seconds/256)local seconds_low=seconds%256
-return zcl.send_raw_cluster_command(
-device,0xE000,0xFB,encode_inching_block(state,seconds_high,seconds_low),1)
+local function aU(r,l,v)
+local u=l.inching_channel
+local aJ=l.inching_contract or br[u]local bm=l.inching_enabled_values and l.inching_enabled_values.disabled or"disabled"
+local bv=aY(r,aJ.enabled_capability,aJ.enabled_attribute,bm)local au=tonumber(aY(r,aJ.time_capability,aJ.time_attribute,1))or 1
+if l.inching_kind=="enabled"then bv=v end
+if l.inching_kind=="time"then au=tonumber(v)or au end
+au=math.max(1,math.min(65535,math.floor(au+0.5)))local bq=l.inching_enabled_values and l.inching_enabled_values.enabled or"enabled"
+local aC=bv==bq and 1 or 0
+if u>1 then aC=aC+(2 ^(u-1))end
+local az=math.floor(au/256)local aE=au%256
+return h.send_raw_cluster_command(
+r,57344,251,aK(aC,az,aE),1)
 end
-local function nfzb_inching_mapping(channel,kind,emitter,options)
-options=options or{}local names={
-enabled=(options.name_prefix or"nfzb03").."_inching_enabled_"..({"one","two","three"})[channel],time=(options.name_prefix or"nfzb03").."_inching_time_"..({"one","two","three"})[channel],}local mapping=zcl.cluster_attribute(0xE000,0xD003,{
-name=names[kind],emit=emitter,from_device=nfzb_inching_from_device,data_type=data_types.CharString,read_on_configure=false,sender=nfzb_inching_sender,})mapping.inching_channel=channel
-mapping.inching_kind=kind
-mapping.inching_contract=options.contracts and options.contracts[channel]or nil
-mapping.inching_enabled_values=options.enabled_values
-return mapping
+local function ab(u,bF,bn,e)
+e=e or{}local bI={
+enabled=(e.name_prefix or"nfzb03").."_inching_enabled_"..({"one","two","three"})[u],time=(e.name_prefix or"nfzb03").."_inching_time_"..({"one","two","three"})[u],}local l=h.cluster_attribute(57344,53251,{
+name=bI[bF],emit=bn,from_device=ax,data_type=y.CharString,read_on_configure=false,sender=aU,})l.inching_channel=u
+l.inching_kind=bF
+l.inching_contract=e.contracts and e.contracts[u]or nil
+l.inching_enabled_values=e.enabled_values
+return l
 end
-local lellki_wp33_power_on_behavior_emit=emit.lellkiWp33PowerOnBehavior()
-local function lellki_wp33_power_on_behavior()
-local mapping=tuya_power_on_behavior_2()mapping.name="lellki_wp33_power_on_behavior"
-mapping.emit=lellki_wp33_power_on_behavior_emit
-return mapping
+local R=t.lellkiWp33PowerOnBehavior()
+local function af()
+local l=N()l.name="lellki_wp33_power_on_behavior"
+l.emit=R
+return l
 end
-local function build_tuya_single_switch_options(profile,options)
-options=options or{}local clusters=build_switch("switches-switch-1",1).zcl_clusters
-append_option_clusters(clusters,zcl.tuya_magic_packet())
-if options.power_outage_memory then append_option_clusters(clusters,zcl.tuya_power_outage_memory())end
-if options.power_on_behavior_2 then append_option_clusters(clusters,tuya_power_on_behavior_2())end
-if options.switch_type then append_option_clusters(clusters,zcl.switch_type())end
-if options.gen_on_off_switch_type then append_option_clusters(clusters,zcl.gen_on_off_switch_type())end
-if options.countdown then append_option_clusters(clusters,zcl.countdown_timer())end
-if options.indicator_mode then append_option_clusters(clusters,zcl.indicator_mode())end
+local function d(q,e)
+e=e or{}local g=f("switches-switch-1",1).zcl_clusters
+a(g,h.tuya_magic_packet())
+if e.power_outage_memory then a(g,h.tuya_power_outage_memory())end
+if e.power_on_behavior_2 then a(g,N())end
+if e.switch_type then a(g,h.switch_type())end
+if e.gen_on_off_switch_type then a(g,h.gen_on_off_switch_type())end
+if e.countdown then a(g,h.countdown_timer())end
+if e.indicator_mode then a(g,h.indicator_mode())end
 return{
-profile=profile,zcl_clusters=clusters,configure=bind_on_off_endpoints(1),}
+profile=q,zcl_clusters=g,configure=c(1),}
 end
-local function build_single_power_switch(profile,include_switch_type)
-local clusters=zcl_device_helpers.metering_clusters({
-include_switch=true,include_current=true,energy_scale=100,})append_option_clusters(clusters,zcl.power_outage_memory(),zcl.tuya_magic_packet())
-if include_switch_type~=false then append_option_clusters(clusters,zcl.switch_type())end
+local function M(q,aT)
+local g=i.metering_clusters({
+include_switch=true,include_current=true,energy_scale=100,})a(g,h.power_outage_memory(),h.tuya_magic_packet())
+if aT~=false then a(g,h.switch_type())end
 return{
-profile=profile,zcl_clusters=clusters,
-configure=function(driver,device)
-for _,cluster_id in ipairs({zcl.CLUSTER_ON_OFF,0x0B04,0x0702})do
-device:send(device_management.build_bind_request(
-device,cluster_id,driver.environment_info.hub_zigbee_eui,1))
+profile=q,zcl_clusters=g,
+configure=function(aa,r)
+for _,Y in ipairs({h.CLUSTER_ON_OFF,2820,1794})do
+r:send(G.build_bind_request(
+r,Y,aa.environment_info.hub_zigbee_eui,1))
 end
 end,
 }
 end
-local function build_relay_switch(profile,count)
-local clusters=build_switch(profile,count).zcl_clusters
-append_option_clusters(clusters,zcl.tuya_magic_packet(),zcl.power_outage_memory(),zcl.gen_on_off_switch_type())return{
-profile=profile,zcl_clusters=clusters,configure=bind_on_off_endpoints(count),}
+local function al(q,Z)
+local g=f(q,Z).zcl_clusters
+a(g,h.tuya_magic_packet(),h.power_outage_memory(),h.gen_on_off_switch_type())return{
+profile=q,zcl_clusters=g,configure=c(Z),}
 end
-local function build_dual_power_switch(profile)
-local clusters={
-zcl_device_helpers.switch_cluster(1),zcl_device_helpers.switch_cluster(2,"switch2"),}append_option_clusters(clusters,zcl.power({endpoint=1,component="main",minimum_interval=5,maximum_interval=3600,reportable_change=10,poll_interval=300}),zcl.voltage({endpoint=1,component="main",minimum_interval=5,maximum_interval=3600,reportable_change=5,poll_interval=300}),zcl.current({endpoint=1,component="main",scale=1000,ignore_reported_scaler=true,minimum_interval=5,maximum_interval=3600,reportable_change=50,poll_interval=300}),zcl.energy({endpoint=1,component="main",scale=100,ignore_reported_scaler=true,minimum_interval=5,maximum_interval=3600,reportable_change=257,poll_interval=900}),zcl.tuya_magic_packet(),zcl.power_outage_memory({endpoint=1,name="nous_b3z_power_behavior",emit=emit.nousB3zPowerBehavior()}),zcl.switch_type({endpoint=1,name="nous_b3z_switch_type",emit=emit.nousB3zSwitchType(),
-sender=function(device,mapping,value)
-local request=cluster_base.write_attribute(device,data_types.ClusterId(0xE001),data_types.AttributeId(0xD030),data_types.Enum8(mapping.converter.to(value)))request.body.zcl_header.frame_ctrl:set_disable_default_response()device:send(request:to_endpoint(1));return true
+local function aB(q)
+local g={
+i.switch_cluster(1),i.switch_cluster(2,"switch2"),}a(g,h.power({endpoint=1,component="main",minimum_interval=5,maximum_interval=3600,reportable_change=10,poll_interval=300}),h.voltage({endpoint=1,component="main",minimum_interval=5,maximum_interval=3600,reportable_change=5,poll_interval=300}),h.current({endpoint=1,component="main",scale=1000,ignore_reported_scaler=true,minimum_interval=5,maximum_interval=3600,reportable_change=50,poll_interval=300}),h.energy({endpoint=1,component="main",scale=100,ignore_reported_scaler=true,minimum_interval=5,maximum_interval=3600,reportable_change=257,poll_interval=900}),h.tuya_magic_packet(),h.tuya_power_outage_memory({endpoint=1,name="nous_b3z_power_behavior",emit=t.nousB3zPowerBehavior()}),h.switch_type({endpoint=1,name="nous_b3z_switch_type",emit=t.nousB3zSwitchType(),
+sender=function(r,l,v)
+local bw=bt.write_attribute(r,y.ClusterId(57345),y.AttributeId(53296),y.Enum8(l.converter.to(v)))bw.body.zcl_header.frame_ctrl:set_disable_default_response()r:send(bw:to_endpoint(1));return true
 end}),
-zcl.countdown_timer({endpoint=1,component="main",name="nous_b3z_countdown1",emit=emit.nousB3zCountdown1()}),zcl.countdown_timer({endpoint=2,component="switch2",name="nous_b3z_countdown2",emit=emit.nousB3zCountdown2()}))return{
-profile=profile,zcl_clusters=clusters,component_to_endpoint_map={main=1,switch2=2},
-configure=function(driver,device)
-for _,cluster in ipairs({6,0x0B04,0x0702})do
-zcl.bind_cluster(device,cluster,driver.environment_info.hub_zigbee_eui,1)
+h.countdown_timer({endpoint=1,component="main",name="nous_b3z_countdown1",emit=t.nousB3zCountdown1()}),h.countdown_timer({endpoint=2,component="switch2",name="nous_b3z_countdown2",emit=t.nousB3zCountdown2()}))return{
+profile=q,zcl_clusters=g,component_to_endpoint_map={main=1,switch2=2},
+configure=function(aa,r)
+for _,bD in ipairs({6,2820,1794})do
+h.bind_cluster(r,bD,aa.environment_info.hub_zigbee_eui,1)
 end
-zcl.bind_cluster(device,6,driver.environment_info.hub_zigbee_eui,2)
+h.bind_cluster(r,6,aa.environment_info.hub_zigbee_eui,2)
 end,
 }
 end
-local metered_dual_plug={
+local as={
 profile="plugs-switch-2-power-energy-voltage",zcl_clusters={
-zcl_device_helpers.switch_cluster(1),zcl_device_helpers.switch_cluster(2,"switch2"),},}append_option_clusters(metered_dual_plug.zcl_clusters,zcl_device_helpers.metering_clusters({
+i.switch_cluster(1),i.switch_cluster(2,"switch2"),},}a(as.zcl_clusters,i.metering_clusters({
 endpoint=1,include_switch=false,include_current=false,}))
-local function bind_dual_metered_plug(driver,device)
-for _,cluster_id in ipairs({zcl.CLUSTER_ON_OFF,0x0B04,0x0702})do
-device:send(device_management.build_bind_request(
-device,cluster_id,driver.environment_info.hub_zigbee_eui,1))
+local function U(aa,r)
+for _,Y in ipairs({h.CLUSTER_ON_OFF,2820,1794})do
+r:send(G.build_bind_request(
+r,Y,aa.environment_info.hub_zigbee_eui,1))
 end
-device:send(device_management.build_bind_request(
-device,zcl.CLUSTER_ON_OFF,driver.environment_info.hub_zigbee_eui,2))
+r:send(G.build_bind_request(
+r,h.CLUSTER_ON_OFF,aa.environment_info.hub_zigbee_eui,2))
 end
-local function build_tuya_dual_metered_plug(profile,options)
-options=options or{}local clusters={
-zcl_device_helpers.switch_cluster(1),zcl_device_helpers.switch_cluster(2,"switch2"),}append_option_clusters(clusters,zcl_device_helpers.metering_clusters({
-endpoint=1,include_switch=false,include_current=true,energy_scale=100,energy_ignore_reported_scaler=options.energy_ignore_reported_scaler,}),zcl.tuya_magic_packet())
-if options.outage_memory then append_option_clusters(clusters,zcl.tuya_power_outage_memory())end
-if options.indicator_mode then append_option_clusters(clusters,zcl.indicator_mode())end
-if options.child_lock then append_option_clusters(clusters,zcl.child_lock())end
-if options.countdown then append_option_clusters(clusters,zcl.countdown_timer())end
+local function k(q,e)
+e=e or{}local g={
+i.switch_cluster(1),i.switch_cluster(2,"switch2"),}a(g,i.metering_clusters({
+endpoint=1,include_switch=false,include_current=true,energy_scale=100,energy_ignore_reported_scaler=e.energy_ignore_reported_scaler,}),h.tuya_magic_packet())
+if e.outage_memory then a(g,h.tuya_power_outage_memory())end
+if e.indicator_mode then a(g,h.indicator_mode())end
+if e.child_lock then a(g,h.child_lock())end
+if e.countdown then a(g,h.countdown_timer())end
 return{
-profile=profile,zcl_clusters=clusters,configure=bind_dual_metered_plug,}
+profile=q,zcl_clusters=g,configure=U,}
 end
-local tuya_dual_metered=build_tuya_dual_metered_plug("plugs-dual-metered")local tuya_dual_metered_outage=build_tuya_dual_metered_plug("plugs-dual-metered-outage",{
-outage_memory=true,})local mercator_spp02gip=build_tuya_dual_metered_plug("plugs-mercator-spp02gip",{
-outage_memory=true,energy_ignore_reported_scaler=true,})local spp02_reporting={
-{
-kind="power",attribute=0x050B,data_type=data_types.Int16,maximum_change=32767,settings={
-{field="minimum_interval",name="spp02_power_report_min",emit=emit.sppPowerReportMin("s")},{field="maximum_interval",name="spp02_power_report_max",emit=emit.sppPowerReportMax("s")},{field="reportable_change",name="spp02_power_report_change",emit=emit.sppPowerReportChange()},},},{
-kind="current",attribute=0x0508,data_type=data_types.Uint16,maximum_change=65535,settings={
-{field="minimum_interval",name="spp02_current_report_min",emit=emit.sppCurrentReportMin("s")},{field="maximum_interval",name="spp02_current_report_max",emit=emit.sppCurrentReportMax("s")},{field="reportable_change",name="spp02_current_report_change",emit=emit.sppCurrentReportChange()},},},{
-kind="voltage",attribute=0x0505,data_type=data_types.Uint16,maximum_change=65535,settings={
-{field="minimum_interval",name="spp02_voltage_report_min",emit=emit.sppVoltageReportMin("s")},{field="maximum_interval",name="spp02_voltage_report_max",emit=emit.sppVoltageReportMax("s")},{field="reportable_change",name="spp02_voltage_report_change",emit=emit.sppVoltageReportChange()},},},}
-local function apply_spp02_reporting(device,spec,field,value)
-local stored=device:get_field("spp02_reporting_"..spec.kind)or{}local settings={
-minimum_interval=stored.minimum_interval or 5,maximum_interval=stored.maximum_interval or 300,reportable_change=stored.reportable_change or 1,}local accepted=true
-if field~=nil then
-local previous=settings[field]settings[field]=value
-if settings.minimum_interval>settings.maximum_interval then
-settings[field]=previous
-accepted=false
-else
-device:set_field("spp02_reporting_"..spec.kind,settings,{persist=true})
-end
-end
-local config={
-cluster=0x0B04,attribute=spec.attribute,data_type=spec.data_type,minimum_interval=settings.minimum_interval,maximum_interval=settings.maximum_interval,reportable_change=spec.data_type(settings.reportable_change),}device:add_configured_attribute(config)if field~=nil and accepted then
-device:send(device_management.attr_config(device,config):to_endpoint(1))
-end
-for _,setting in ipairs(spec.settings)do
-local event=setting.emit(device,settings[setting.field])
-if event~=nil then device:emit_event(event)end
-end
-return true
-end
-for _,mapping in ipairs(mercator_spp02gip.zcl_clusters)do
-if mapping.metering_kind=="power"or mapping.metering_kind=="current"or mapping.metering_kind=="voltage"then
-mapping.minimum_interval,mapping.maximum_interval,mapping.reportable_change=nil,nil,nil
-end
-end
-for _,spec in ipairs(spp02_reporting)do
-for _,setting in ipairs(spec.settings)do
-mercator_spp02gip.zcl_clusters[#mercator_spp02gip.zcl_clusters+1]=zcl.cluster_attribute(0x0B04,nil,{
-name=setting.name,endpoint=1,component="main",write_only=true,suppress_optimistic_state=true,emit=setting.emit,numeric_range={
-minimum=setting.field=="maximum_interval"and 1 or 0,maximum=setting.field=="reportable_change"and spec.maximum_change or 65534,step=1,},
-sender=function(device,_,value)
-return apply_spp02_reporting(device,spec,setting.field,value)
-end,
-})
-end
-end
-mercator_spp02gip.runtime_start=function(device)
-for _,spec in ipairs(spp02_reporting)do apply_spp02_reporting(device,spec)end
-end
-mercator_spp02gip.zcl_refresh_before_read_all=mercator_spp02gip.runtime_start
-mercator_spp02gip.configure=function(driver,device)
-bind_dual_metered_plug(driver,device)mercator_spp02gip.runtime_start(device)
-end
-local mercator_spp04g={
+local bd=k("plugs-dual-metered")local aA=k("plugs-dual-metered-outage",{
+outage_memory=true,})local bc=k("plugs-mercator-spp02gip",{
+outage_memory=true,energy_ignore_reported_scaler=true,})local bk={
 profile="plugs-mercator-spp04g",component_to_endpoint_map={main=1,switch2=2},zcl_clusters={
-zcl.switch({endpoint=1,component="main",minimum_interval=0,maximum_interval=3600}),zcl.switch({endpoint=2,component="switch2",minimum_interval=0,maximum_interval=3600}),zcl.power({endpoint=1,minimum_interval=5,maximum_interval=3600,reportable_change=1,poll_interval=300}),zcl.voltage({endpoint=1,minimum_interval=5,maximum_interval=3600,reportable_change=5,poll_interval=300}),zcl.current({endpoint=1,scale=1000,ignore_reported_scaler=true,minimum_interval=5,maximum_interval=3600,reportable_change=50,poll_interval=300}),zcl.energy({endpoint=1,scale=100,ignore_reported_scaler=true,poll_interval=900}),zcl.tuya_magic_packet(),zcl.tuya_power_outage_memory({endpoint=1,name="spp04_power_behavior",emit=emit.spp04PowerBehavior()}),},configure=bind_dual_metered_plug,}local tuya_dual_metered_outage_indicator=build_tuya_dual_metered_plug("plugs-dual-metered-outage-indicator",{
-outage_memory=true,indicator_mode=true,})local tuya_dual_metered_outage_indicator_lock=build_tuya_dual_metered_plug("plugs-dual-metered-outage-indicator-lock",{
-outage_memory=true,indicator_mode=true,child_lock=true,})local tuya_dual_metered_full_options=build_tuya_dual_metered_plug("plugs-dual-metered-full-options",{
-outage_memory=true,indicator_mode=true,child_lock=true,countdown=true,})local zemismart_dual_outlet=build_switch("plugs-dual-outage",2)append_option_clusters(zemismart_dual_outlet.zcl_clusters,zcl.tuya_magic_packet(),zcl.tuya_power_outage_memory())zemismart_dual_outlet.configure=bind_on_off_endpoints(2)local single_switch=build_switch("switches-switch-1",1)local tuya_single_switch=build_switch("switches-switch-1",1)append_option_clusters(tuya_single_switch.zcl_clusters,zcl.tuya_magic_packet())tuya_single_switch.configure=bind_on_off_endpoints(1)local single_power_switch=build_single_power_switch("switches-switch-1-power-options")local single_power_outage_switch=build_single_power_switch("switches-switch-1-power-outage",false)local dual_switch=build_switch("switches-switch-2",2)local bound_dual_switch=build_switch("switches-switch-2",2)bound_dual_switch.configure=bind_on_off_endpoints(2)local tuya_dual_switch=build_switch("switches-switch-2",2,{index_offset=1})append_option_clusters(tuya_dual_switch.zcl_clusters,zcl.tuya_magic_packet())tuya_dual_switch.configure=bind_on_off_endpoints(2)local ts0002_rux=build_switch("switches-ts0002-rux",2,{index_offset=1})append_option_clusters(ts0002_rux.zcl_clusters,zcl.tuya_magic_packet(),tuya_enum_mapping("ts0002_rux_power_outage_memory",zcl.CLUSTER_ON_OFF,0x8002,emit.ts0002RuxPowerOutageMemory(),{[0]="off",[1]="on",[2]="restore"},{off=0,on=1,restore=2}),tuya_enum_mapping("ts0002_rux_switch_type",0xE001,0xD030,emit.ts0002RuxSwitchType(),{[0]="toggle",[1]="state",[2]="momentary"},{toggle=0,state=1,momentary=2}))ts0002_rux.configure=bind_on_off_endpoints(2)local dual_power_switch=build_dual_power_switch("switches-nous-b3z")local bound_triple_switch=build_switch("switches-switch-3",3)bound_triple_switch.configure=bind_on_off_endpoints(3)local tuya_triple_switch=build_switch("switches-switch-3",3)append_option_clusters(tuya_triple_switch.zcl_clusters,zcl.tuya_magic_packet())tuya_triple_switch.configure=bind_on_off_endpoints(3)local quad_switch=build_switch("switches-switch-4",4)quad_switch.configure=bind_on_off_endpoints(4)local tuya_quad_reporting_switch=build_switch("switches-switch-4",4)append_option_clusters(tuya_quad_reporting_switch.zcl_clusters,zcl.tuya_magic_packet())tuya_quad_reporting_switch.configure=bind_on_off_endpoints(4)local tuya_quad_bind_only_switch={
-profile="switches-switch-4",zcl_clusters=zcl.multi_switch(4,{configure_reporting=false}),configure=bind_on_off_endpoints(4),}append_option_clusters(tuya_quad_bind_only_switch.zcl_clusters,zcl.tuya_magic_packet())local tuya_quad_magic_only_switch={
-profile="switches-switch-4",zcl_clusters=zcl.multi_switch(4,{configure_reporting=false}),}append_option_clusters(tuya_quad_magic_only_switch.zcl_clusters,zcl.tuya_magic_packet())local quint_switch=build_switch("switches-switch-5",5)local quint_tuya_switch=build_tuya_on_off_switch("switches-switch-5-tuya-options",5)local lellki_wp33_switch=build_switch("switches-lellki-wp33-5",5)append_option_clusters(lellki_wp33_switch.zcl_clusters,zcl.tuya_magic_packet(),lellki_wp33_power_on_behavior())local six_switch=build_switch("switches-switch-6-basic",6)append_option_clusters(six_switch.zcl_clusters,zcl.tuya_magic_packet())six_switch.configure=bind_on_off_endpoints(6)local wall_switch_module=build_switch_module("switches-switch-1-countdown-switch-type",1)local dual_switch_module=build_switch_module("switches-switch-2-countdown-switch-type",2)local triple_switch_module=build_switch_module("switches-switch-3-countdown-switch-type",3)local relay_1_poweron_switch_type=build_relay_switch("switches-switch-1-poweron-switch-type",1)local relay_2_poweron_switch_type=build_relay_switch("switches-switch-2-poweron-switch-type",2)local bound_single_switch=build_switch("switches-switch-1",1)bound_single_switch.configure=bind_on_off_endpoints(1)local tuya_single_countdown=build_tuya_single_switch_options("switches-switch-1-countdown",{
-countdown=true,})local tuya_single_switch_type=build_tuya_single_switch_options("switches-switch-1-switch-type",{
-switch_type=true,})local tuya_single_outage_switch_type=build_tuya_single_switch_options("switches-switch-1-outage-switch-type",{
-power_outage_memory=true,switch_type=true,})local tuya_single_outage_gen_switch_type=build_tuya_single_switch_options("switches-switch-1-outage-switch-type",{
-power_outage_memory=true,gen_on_off_switch_type=true,})local tuya_single_module_options=build_tuya_single_switch_options("switches-switch-1-module-options",{
-power_outage_memory=true,switch_type=true,countdown=true,indicator_mode=true,})local tuya_single_countdown_switch_type_indicator=build_tuya_single_switch_options(
-"switches-switch-1-countdown-switch-type-indicator",{switch_type=true,countdown=true,indicator_mode=true})local tuya_single_countdown_indicator=build_tuya_single_switch_options(
-"switches-switch-1-countdown-indicator",{countdown=true,indicator_mode=true})local tuya_single_poweron_indicator=build_tuya_single_switch_options(
-"switches-switch-1-poweron-indicator",{power_on_behavior_2=true,indicator_mode=true})local tuya_single_poweron=build_tuya_single_switch_options(
-"switches-switch-1-poweron",{power_on_behavior_2=true})local tuya_single_poweron_countdown=build_tuya_single_switch_options(
-"switches-switch-1-poweron-countdown",{power_on_behavior_2=true,countdown=true})local tuya_single_poweron_countdown_switch_type_indicator=build_tuya_single_switch_options(
-"switches-switch-1-poweron-countdown-switch-type-indicator",{power_on_behavior_2=true,switch_type=true,countdown=true,indicator_mode=true})local ts0001_bbeb=build_switch("switches-switch-1-ts0001-bbeb",1)append_option_clusters(ts0001_bbeb.zcl_clusters,zcl.tuya_magic_packet(),tuya_enum_mapping("ts0001_bbeb_power_on_behavior",0xE001,0xD010,emit.ts0001BbebPowerOnBehavior(),{[0]="off",[1]="on",[2]="previous"},{off=0,on=1,previous=2}),tuya_enum_mapping("ts0001_bbeb_backlight_mode",zcl.CLUSTER_ON_OFF,0x5000,emit.ts0001BbebBacklightMode(),{[0]="off",[1]="on",[false]="off",[true]="on"},{off=false,on=true},{data_type=data_types.Boolean}),tuya_enum_mapping("ts0001_bbeb_indicator_mode",zcl.CLUSTER_ON_OFF,0x8001,emit.ts0001BbebIndicatorPattern(),{[0]="off",[1]="off/on",[2]="on/off",[3]="on"},{off=0,["off/on"]=1,["on/off"]=2,on=3}))ts0001_bbeb.configure=bind_on_off_endpoints(1)local ts0003_module2=build_switch("switches-switch-3-ts0003-module2",3)local ts0003_module2_countdown_emitters={
-emit.ts0003Module2CountdownOne(),emit.ts0003Module2CountdownTwo(),emit.ts0003Module2CountdownThree(),}append_option_clusters(ts0003_module2.zcl_clusters,zcl.tuya_magic_packet(),tuya_enum_mapping("ts0003_module2_switch_type",0xE001,0xD030,emit.ts0003Module2SwitchType(),{[0]="toggle",[1]="state",[2]="momentary"},{toggle=0,state=1,momentary=2},{mfg_code=0x1141}),tuya_enum_mapping("ts0003_module2_indicator_mode",zcl.CLUSTER_ON_OFF,0x8001,emit.ts0003Module2IndicatorMode(),{[0]="off",[1]="off_on",[2]="on_off",[3]="on"},{off=0,off_on=1,on_off=2,on=3}))for endpoint=1,3 do
-local word=({"One","Two","Three"})[endpoint]append_option_clusters(ts0003_module2.zcl_clusters,zcl.countdown_timer({
-name="ts0003_module2_countdown_"..word:lower(),endpoint=endpoint,component=endpoint==1 and"main"or("switch"..endpoint),emit=ts0003_module2_countdown_emitters[endpoint],}))
+h.switch({endpoint=1,component="main",maximum_interval=3600}),h.switch({endpoint=2,component="switch2",maximum_interval=3600}),h.power({endpoint=1,minimum_interval=5,maximum_interval=3600,reportable_change=1,poll_interval=300}),h.voltage({endpoint=1,minimum_interval=5,maximum_interval=3600,reportable_change=5,poll_interval=300}),h.current({endpoint=1,scale=1000,ignore_reported_scaler=true,minimum_interval=5,maximum_interval=3600,reportable_change=50,poll_interval=300}),h.energy({endpoint=1,scale=100,ignore_reported_scaler=true,poll_interval=900}),h.tuya_magic_packet(),h.tuya_power_outage_memory({endpoint=1,name="spp04_power_behavior",emit=t.spp04PowerBehavior()}),},configure=U,}local S=k("plugs-dual-metered-outage-indicator",{
+outage_memory=true,indicator_mode=true,})local J=k("plugs-dual-metered-outage-indicator-lock",{
+outage_memory=true,indicator_mode=true,child_lock=true,})local ad=k("plugs-dual-metered-full-options",{
+outage_memory=true,indicator_mode=true,child_lock=true,countdown=true,})local H=f("plugs-dual-outage",2)a(H.zcl_clusters,h.tuya_magic_packet(),h.tuya_power_outage_memory())H.configure=c(2)local aQ=f("switches-switch-1",1)local n=f("switches-switch-1",1)a(n.zcl_clusters,h.tuya_magic_packet())n.configure=c(1)local aj=M("switches-switch-1-power-options")local aq=M("switches-switch-1-power-outage",false)local bH=f("switches-switch-2",2)local A=f("switches-switch-2",2)A.configure=c(2)local o=f("switches-switch-2",2,{index_offset=1})a(o.zcl_clusters,h.tuya_magic_packet())o.configure=c(2)local aP=f("switches-ts0002-rux",2,{index_offset=1})a(aP.zcl_clusters,h.tuya_magic_packet(),j("ts0002_rux_power_outage_memory",h.CLUSTER_ON_OFF,32770,t.ts0002RuxPowerOutageMemory(),{[0]="off",[1]="on",[2]="restore"},{off=0,on=1,restore=2}),j("ts0002_rux_switch_type",57345,53296,t.ts0002RuxSwitchType(),{[0]="toggle",[1]="state",[2]="momentary"},{toggle=0,state=1,momentary=2}))aP.configure=c(2)local bb=aB("switches-nous-b3z")local ai=f("switches-switch-3",3,{index_offset=1})ai.configure=c(3)local z=f("switches-switch-3",3,{index_offset=1})a(z.zcl_clusters,h.tuya_magic_packet())z.configure=c(3)local bf=f("switches-switch-4",4,{index_offset=1})bf.configure=c(4)local s=f("switches-switch-4",4,{index_offset=1})a(s.zcl_clusters,h.tuya_magic_packet())s.configure=c(4)local K={
+profile="switches-switch-4",zcl_clusters=h.multi_switch(4,{configure_reporting=false,index_offset=1}),configure=c(4),}a(K.zcl_clusters,h.tuya_magic_packet())local I={
+profile="switches-switch-4",zcl_clusters=h.multi_switch(4,{configure_reporting=false,index_offset=1}),}a(I.zcl_clusters,h.tuya_magic_packet())local bG=f("switches-switch-5",5)local at=av("switches-switch-5-tuya-options",5,{index_offset=1})local an=f("switches-lellki-wp33-5",5,{index_offset=1})a(an.zcl_clusters,h.tuya_magic_packet(),af())local aL=f("switches-switch-6-basic",6,{index_offset=1})a(aL.zcl_clusters,h.tuya_magic_packet())aL.configure=c(6)local D=L("switches-switch-1-countdown-switch-type",1)local aW=L("switches-switch-2-countdown-switch-type",2)local aO=L("switches-switch-3-countdown-switch-type",3,{index_offset=1})local ao=al("switches-switch-1-poweron-switch-type",1)local ap=al("switches-switch-2-poweron-switch-type",2)local w=f("switches-switch-1",1)w.configure=c(1)local aI=d("switches-switch-1-countdown",{
+countdown=true,})local Q=d("switches-switch-1-switch-type",{
+switch_type=true,})local ae=d("switches-switch-1-outage-switch-type",{
+power_outage_memory=true,switch_type=true,})local T=d("switches-switch-1-outage-switch-type",{
+power_outage_memory=true,gen_on_off_switch_type=true,})local ar=d("switches-switch-1-module-options",{
+power_outage_memory=true,switch_type=true,countdown=true,indicator_mode=true,})local E=d(
+"switches-switch-1-countdown-switch-type-indicator",{switch_type=true,countdown=true,indicator_mode=true})local W=d(
+"switches-switch-1-countdown-indicator",{countdown=true,indicator_mode=true})local ah=d(
+"switches-switch-1-poweron-indicator",{power_on_behavior_2=true,indicator_mode=true})local aV=d(
+"switches-switch-1-poweron",{power_on_behavior_2=true})local ag=d(
+"switches-switch-1-poweron-countdown",{power_on_behavior_2=true,countdown=true})local B=d(
+"switches-switch-1-poweron-countdown-switch-type-indicator",{power_on_behavior_2=true,switch_type=true,countdown=true,indicator_mode=true})local aF=f("switches-switch-1-ts0001-bbeb",1)a(aF.zcl_clusters,h.tuya_magic_packet(),j("ts0001_bbeb_power_on_behavior",57345,53264,t.ts0001BbebPowerOnBehavior(),{[0]="off",[1]="on",[2]="previous"},{off=0,on=1,previous=2}),j("ts0001_bbeb_backlight_mode",h.CLUSTER_ON_OFF,20480,t.ts0001BbebBacklightMode(),{[0]="off",[1]="on",[false]="off",[true]="on"},{off=false,on=true},{data_type=y.Boolean}),j("ts0001_bbeb_indicator_mode",h.CLUSTER_ON_OFF,32769,t.ts0001BbebIndicatorPattern(),{[0]="off",[1]="off/on",[2]="on/off",[3]="on"},{off=0,["off/on"]=1,["on/off"]=2,on=3}))aF.configure=c(1)local P=f("switches-switch-3-ts0003-module2",3,{index_offset=1})local V={
+t.ts0003Module2CountdownOne(),t.ts0003Module2CountdownTwo(),t.ts0003Module2CountdownThree(),}a(P.zcl_clusters,h.tuya_magic_packet(),j("ts0003_module2_switch_type",57345,53296,t.ts0003Module2SwitchType(),{[0]="toggle",[1]="state",[2]="momentary"},{toggle=0,state=1,momentary=2},{mfg_code=4417}),j("ts0003_module2_indicator_mode",h.CLUSTER_ON_OFF,32769,t.ts0003Module2IndicatorMode(),{[0]="off",[1]="off_on",[2]="on_off",[3]="on"},{off=0,off_on=1,on_off=2,on=3}))for endpoint=1,3 do
+local word=({"One","Two","Three"})[endpoint]a(P.zcl_clusters,h.countdown_timer({
+name="ts0003_module2_countdown_"..word:lower(),endpoint=endpoint,component=endpoint==1 and"main"or("switch"..endpoint),emit=V[endpoint],}))
 end
-ts0003_module2.configure=bind_on_off_endpoints(3)local nfzb03=build_switch("switches-switch-3-nfzb03",3)append_option_clusters(nfzb03.zcl_clusters,zcl.tuya_magic_packet(),tuya_enum_mapping("nfzb03_power_outage_memory",zcl.CLUSTER_ON_OFF,0x8002,emit.nfzb03PowerOutageMemory(),{[0]="off",[1]="on",[2]="restore"},{off=0,on=1,restore=2}),tuya_enum_mapping("nfzb03_switch_type",0xE001,0xD030,emit.nfzb03SwitchType(),{[0]="toggle",[1]="state",[2]="momentary"},{toggle=0,state=1,momentary=2},{mfg_code=0x1141}),tuya_enum_mapping("nfzb03_indicator_mode",zcl.CLUSTER_ON_OFF,0x8001,emit.nfzb03IndicatorMode(),{[0]="off",[1]="off_on",[2]="on_off",[3]="on"},{off=0,off_on=1,on_off=2,on=3}),tuya_enum_mapping("nfzb03_backlight_mode",zcl.CLUSTER_ON_OFF,0x5000,emit.nfzb03BacklightMode(),{[0]="off",[1]="on",[false]="off",[true]="on"},{off=false,on=true},{data_type=data_types.Boolean}))for endpoint=1,3 do
-local word=({"One","Two","Three"})[endpoint]local emitters=NFZB03_EMITTERS[endpoint]append_option_clusters(nfzb03.zcl_clusters,zcl.countdown_timer({name="nfzb03_countdown_"..word:lower(),endpoint=endpoint,component=endpoint==1 and"main"or("switch"..endpoint),emit=emitters.countdown}),nfzb_inching_mapping(endpoint,"enabled",emitters.control,{
-enabled_values={enabled="ENABLE",disabled="DISABLE"},}),nfzb_inching_mapping(endpoint,"time",emitters.time,{
+P.configure=c(3)local bl=f("switches-switch-3-nfzb03",3,{index_offset=1})a(bl.zcl_clusters,h.tuya_magic_packet(),j("nfzb03_power_outage_memory",h.CLUSTER_ON_OFF,32770,t.nfzb03PowerOutageMemory(),{[0]="off",[1]="on",[2]="restore"},{off=0,on=1,restore=2}),j("nfzb03_switch_type",57345,53296,t.nfzb03SwitchType(),{[0]="toggle",[1]="state",[2]="momentary"},{toggle=0,state=1,momentary=2},{mfg_code=4417}),j("nfzb03_indicator_mode",h.CLUSTER_ON_OFF,32769,t.nfzb03IndicatorMode(),{[0]="off",[1]="off_on",[2]="on_off",[3]="on"},{off=0,off_on=1,on_off=2,on=3}),j("nfzb03_backlight_mode",h.CLUSTER_ON_OFF,20480,t.nfzb03BacklightMode(),{[0]="off",[1]="on",[false]="off",[true]="on"},{off=false,on=true},{data_type=y.Boolean}))for endpoint=1,3 do
+local word=({"One","Two","Three"})[endpoint]local bh=bi[endpoint]a(bl.zcl_clusters,h.countdown_timer({name="nfzb03_countdown_"..word:lower(),endpoint=endpoint,component=endpoint==1 and"main"or("switch"..endpoint),emit=bh.countdown}),ab(endpoint,"enabled",bh.control,{
+enabled_values={enabled="ENABLE",disabled="DISABLE"},}),ab(endpoint,"time",bh.time,{
 enabled_values={enabled="ENABLE",disabled="DISABLE"},}))
 end
-nfzb03.configure=bind_on_off_endpoints(3)register_device_definition(ts0001_bbeb,device_helpers.create_fingerprints("TS0001",{"_TZ3000_bbebkwjk"}))register_device_definition(ts0003_module2,device_helpers.create_fingerprints("TS0003",{"_TZ3000_bu47m8pv"}))register_device_definition(nfzb03,device_helpers.create_fingerprints("TS0003",{
-"_TZ3000_fawk5xjv","_TZ3000_bvij6kod","_TZ3000_aracgljk","_TZ3210_fawk5xjv",}))register_device_definition(single_power_switch,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_xkap8wtb","_TZ3000_qnejhcsu","_TZ3000_x3ewpzyr","_TZ3000_mkhkxx1p","_TZ3000_tgddllx4","_TZ3000_kqvb5akv","_TZ3000_q8r0bbvy","_TZ3000_g92baclx","_TZ3000_qlai3277","_TZ3000_qaabwu5c","_TZ3000_qorepo2x","_TZ3000_ikuxinvo","_TZ3000_hzlsaltw","_TZ3000_jsfzkftc","_TZ3000_0ghwhypc","_TZ3000_1adss9de","_TZ3000_x8mbwtsz","_TZ3000_iktiy8ue","_TZ3000_zojh9vz7","_TZ3000_gsat0axs","_TZ3000_olo5jhjk",}))register_device_definition(dual_power_switch,device_helpers.create_fingerprints("TS0002",{
-"_TZ3000_aaifmpuq","_TZ3000_irrmjcgi","_TZ3000_huvxrx4i","_TZ3000_pxfjrzyj","_TZ3000_hopb2kjm",}))register_device_definition(single_power_switch,device_helpers.create_fingerprints("TS000F",{
-"_TZ3000_xkap8wtb",}))register_device_definition(tuya_single_switch,device_helpers.create_fingerprints("SM0001",{
-"_TZ3000_jcqs2mrv",}))register_device_definition(bound_single_switch,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_bezfthwc",}))register_device_definition(wall_switch_module,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_hktqahrq","_TZ3000_q6a3tepg","_TZ3000_skueekg3","_TZ3000_npzfdcof","_TZ3000_5ng23zjs","_TZ3000_rmjr4ufz","_TZ3000_v7gnj3ad","_TZ3000_3a9beq8a","_TZ3000_ark8nv4y","_TZ3000_mx3vgyea","_TZ3000_fdxihpp7","_TZ3000_qsp2pwtf","_TZ3000_kycczpw8","_TZ3000_46t1rvdu","_TZ3000_bhcpnvud","_TZ3000_i9oy2rdq",}))register_device_definition(tuya_single_switch,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_8n7lqbm0","_TZ3000_cb3aangp","_TZ3000_ctftgjwb","_TZ3000_g8n1n7lg","_TZ3000_udl7uyd2",}))register_device_definition(tuya_single_poweron,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_bmqxalil","_TZ3000_w1tcofu8","_TZ3000_ma3mhpx2","_TZ3000_wijoqjk1",}))register_device_definition(tuya_single_poweron_countdown_switch_type_indicator,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_5rpu3r0d",}))register_device_definition(tuya_single_module_options,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_tqlv4ug4","_TZ3210_tqlv4ug4","_TZ3000_gjrubzje","_TZ3000_tygpxwqa","_TZ3000_4rbqgcuv","_TZ3000_veu2v775","_TZ3000_prits6g4","_TZ3210_9hbau615","_TZ3000_afgzktgb","_TZ3000_qamj2vnn","_TZ3000_n6fqajob",}))register_device_definition(tuya_single_outage_switch_type,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_xfxpoxe0",}))register_device_definition(tuya_single_countdown_indicator,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_myaaknbq","_TZ3000_cpozgbrx","_TZ3000_drc9tuqb",}))register_device_definition(tuya_single_poweron_indicator,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_gbshwgag","_TZ3000_blhvsaqf","_TZ3000_65ajyxua","_TZ3000_qq9ahj6z",}))register_device_definition(tuya_single_countdown_switch_type_indicator,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_pgq7ormg",}))register_device_definition(tuya_single_poweron_countdown,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_qvmiyxuk",}))register_device_definition(tuya_single_countdown,device_helpers.create_fingerprints("TS0001",{
-"_TZ3210_fhx7lk3d",}))register_device_definition(bound_single_switch,device_helpers.create_fingerprints("TS0001",{
-"_TYZB01_4vgantdz","_TYZB01_reyozfcg","_TZ3000_wrhhi5h2",}))register_device_definition(tuya_single_switch_type,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_6axxqqi2","_TZ3000_gtdswg8k","_TZ3000_majwnphg","_TZ3000_qh6qjuan","_TZ3000_zw7yf6yk",}))register_device_definition(tuya_single_switch,device_helpers.create_fingerprints("TS0001",{
-"_TZ3000_dov0a3p1","_TZ3000_t3s9qmmg","_TZ3000_ehgouyvu",}))register_device_definition(tuya_single_switch,device_helpers.create_fingerprints("TS0011",{
-"_TZ3000_uaa34g7v","_TZ3000_l8fsgo6p","_TZ3000_abjodzas","_TZ3000_hhiodade",}))register_device_definition(wall_switch_module,device_helpers.create_fingerprints("TS0011",{
-"_TZ3000_hbxsdd6k",}))register_device_definition(wall_switch_module,device_helpers.create_fingerprints("TS0011",{
-"_TZ3000_qmi1cfuq","_TZ3000_txpirhfq","_TZ3000_ji4araar","_TZ3000_tw4ztbp4",}))register_device_definition(bound_single_switch,device_helpers.create_fingerprints("TS011F",{
-"_TZ3000_twqctvna",}))register_device_definition(tuya_single_switch,{
-device_helpers.create_fingerprint("_TYZB01_iuepbmpv","TS0121"),device_helpers.create_fingerprint("_TZ3000_bkfe0bab","TS011F"),device_helpers.create_fingerprint("_TZ3000_zmy1waw6","TS011F"),})register_device_definition(single_power_outage_switch,device_helpers.create_fingerprints("TS011F",{
-"_TZ3000_z6fgd73r",}))register_device_definition(wall_switch_module,device_helpers.create_fingerprints("TS000F",{
-"_TZ3000_hktqahrq","_TZ3000_m9af2l6g","_TZ3000_mx3vgyea","_TZ3000_skueekg3","_TZ3000_dlhhrhs8","_TZ3000_fdxihpp7",}))register_device_definition(tuya_single_switch,device_helpers.create_fingerprints("TS000F",{
-"_TZ3210_a2erlvb8",}))register_device_definition(single_switch,{
-{manufacturer="_TZ3210_hjxqqofs"..string.char(0),model="TS000F"},})register_device_definition(tuya_single_switch_type,device_helpers.create_fingerprints("TS000F",{
-"_TZ3000_hdc8bbha",}))register_device_definition(tuya_single_outage_gen_switch_type,device_helpers.create_fingerprints("TS000F",{
-"_TZ3218_hdc8bbha",}))register_device_definition(relay_1_poweron_switch_type,device_helpers.create_fingerprints("TS000F",{
-"_TZ3218_n0jsuogs",}))register_device_definition(tuya_dual_metered,device_helpers.create_fingerprints("TS011F",{
-"_TZ3000_bep7ccew",}))register_device_definition(mercator_spp02gip,device_helpers.create_fingerprints("TS011F",{
-"_TZ3210_7jnk7l3k",}))register_device_definition(tuya_dual_metered_outage,device_helpers.create_fingerprints("TS011F",{
-"_TZ3210_raqjcxo5","_TZ3210_pfbzs1an",}))register_device_definition(mercator_spp04g,{
-device_helpers.create_fingerprint("_TZ3210_yvxjawlt","TS011F"),})register_device_definition(tuya_dual_metered_outage_indicator,device_helpers.create_fingerprints("TS011F",{
-"_TZ3000_dd8wwzcy",}))register_device_definition(tuya_dual_metered_outage_indicator_lock,device_helpers.create_fingerprints("TS011F",{
-"_TZ3000_jak16dll","_TZ3000_rqbjepe8","_TZ3000_uwkja6z1",}))register_device_definition(tuya_dual_metered_full_options,device_helpers.create_fingerprints("TS011F",{
-"_TZ3210_bep7ccew","_TZ3210_qlmnxmac",}))register_device_definition(zemismart_dual_outlet,device_helpers.create_fingerprints("TS011F",{
-"_TZ3000_gazjngjl",}))register_device_definition(metered_dual_plug,{
-device_helpers.create_fingerprint("LUMI","lumi.plug.acn005"),device_helpers.create_fingerprint("LUMI","lumi.plug.sacn03"),})register_device_definition(single_switch,{
-device_helpers.create_fingerprint("Aqara","lumi.switch.acn048"),device_helpers.create_fingerprint("LUMI","lumi.ctrl_ln1"),device_helpers.create_fingerprint("LUMI","lumi.ctrl_ln1.aq1"),device_helpers.create_fingerprint("LUMI","lumi.ctrl_neutral1"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn029"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn048"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn056"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn061"),device_helpers.create_fingerprint("LUMI","lumi.switch.b1laus01"),device_helpers.create_fingerprint("LUMI","lumi.switch.b1lacn01"),device_helpers.create_fingerprint("LUMI","lumi.switch.b1nacn01"),device_helpers.create_fingerprint("LUMI","lumi.switch.b1nacn02"),device_helpers.create_fingerprint("LUMI","lumi.switch.b1naus01"),device_helpers.create_fingerprint("LUMI","lumi.switch.b1lc04"),device_helpers.create_fingerprint("LUMI","lumi.switch.b1nc01"),device_helpers.create_fingerprint("LUMI","lumi.switch.l0acn1"),device_helpers.create_fingerprint("LUMI","lumi.switch.l0agl1"),device_helpers.create_fingerprint("LUMI","lumi.switch.l1acn1"),device_helpers.create_fingerprint("LUMI","lumi.switch.l1aeu1"),device_helpers.create_fingerprint("LUMI","lumi.switch.n0acn2"),device_helpers.create_fingerprint("LUMI","lumi.switch.n0agl1"),device_helpers.create_fingerprint("LUMI","lumi.switch.n1acn1"),device_helpers.create_fingerprint("LUMI","lumi.switch.n1aeu1"),})register_device_definition(bound_dual_switch,{
-device_helpers.create_fingerprint("Aqara","lumi.switch.acn047"),device_helpers.create_fingerprint("Aqara","lumi.switch.acn049"),device_helpers.create_fingerprint("Aqara","lumi.switch.acn057"),device_helpers.create_fingerprint("LUMI","lumi.ctrl_ln2"),device_helpers.create_fingerprint("LUMI","lumi.ctrl_ln2.aq1"),device_helpers.create_fingerprint("LUMI","lumi.ctrl_neutral2"),device_helpers.create_fingerprint("LUMI","lumi.relay.c2acn01"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn030"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn047"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn049"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn057"),device_helpers.create_fingerprint("LUMI","lumi.switch.b2laus01"),device_helpers.create_fingerprint("LUMI","lumi.switch.b2lacn01"),device_helpers.create_fingerprint("LUMI","lumi.switch.b2nacn01"),device_helpers.create_fingerprint("LUMI","lumi.switch.b2nacn02"),device_helpers.create_fingerprint("LUMI","lumi.switch.b2naus01"),device_helpers.create_fingerprint("LUMI","lumi.switch.b2lc04"),device_helpers.create_fingerprint("LUMI","lumi.switch.b2nc01"),device_helpers.create_fingerprint("LUMI","lumi.switch.l2acn1"),device_helpers.create_fingerprint("LUMI","lumi.switch.l2aeu1"),device_helpers.create_fingerprint("LUMI","lumi.switch.n2acn1"),device_helpers.create_fingerprint("LUMI","lumi.switch.n2aeu1"),})register_device_definition(bound_triple_switch,{
-device_helpers.create_fingerprint("Aqara","lumi.switch.acn055"),device_helpers.create_fingerprint("Aqara","lumi.switch.acn059"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn031"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn040"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn054"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn055"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn058"),device_helpers.create_fingerprint("LUMI","lumi.switch.acn059"),device_helpers.create_fingerprint("LUMI","lumi.switch.b3l01"),device_helpers.create_fingerprint("LUMI","lumi.switch.b3n01"),device_helpers.create_fingerprint("LUMI","lumi.switch.l3acn1"),device_helpers.create_fingerprint("LUMI","lumi.switch.l3acn3"),device_helpers.create_fingerprint("LUMI","lumi.switch.n3acn1"),device_helpers.create_fingerprint("LUMI","lumi.switch.n3acn3"),device_helpers.create_fingerprint("LUMI","lumi.switch.n4acn4"),})register_device_definition(tuya_dual_switch,device_helpers.create_fingerprints("TS011F",{
-"_TZ3000_46vasa5h","_TZ3000_mvn6jl7x","_TZ3000_raviyuvk","_TYZB01_hlla45kx","_TZ3000_92qd4sqa","_TZ3000_zwaadvus","_TZ3000_k6fvknrr","_TZ3000_6s5dc9lx","_TZ3000_helyqdvs","_TZ3000_rgpqqmbj","_TZ3000_8nyaanzb","_TZ3000_iy2c3n6p","_TZ3000_qlmnxmac","_TZ3000_sgb0xhwn","_TZ3210_ph1joc22","_TZ3210_sgb0xhwn","_TZ3000_iv6ph5tr","_TZ3000_pmz6mjyu","_TZ3000_rul9yxcc","_TZ3000_mlswgkc3","_TZ3000_v4mevirn","_TZ3000_zigisuyh","_TZ3000_xeumnff9","_TZ3000_2xlvlnez","_TZ3000_cymsnfvf","_TZ3210_2uk4z8ce",}))register_device_definition(tuya_dual_switch,{
-device_helpers.create_fingerprint("HOBEIAN","ZG-305Z"),})register_device_definition(tuya_dual_switch,device_helpers.create_fingerprints("TS000F",{
-"_TZ3000_m8f3z8ju",}))register_device_definition(relay_2_poweron_switch_type,device_helpers.create_fingerprints("TS000F",{
-"_TZ3218_sgbsg6mr",}))register_device_definition(ts0002_rux,device_helpers.create_fingerprints("TS0002",{
-"_TZ3000_ruxexjfz",}))register_device_definition(tuya_dual_switch,device_helpers.create_fingerprints("TS0002",{
-"_TZ3000_01gpyda5","_TZ3000_bvrlqyj7","_TZ3000_7ed9cqgi","_TZ3000_zmy4lslw","_TZ3000_4xfqlgqo","_TZ3000_hojntt34","_TZ3000_eei0ubpy","_TZ3000_qaa59zqd","_TZ3000_lmlsduws","_TZ3000_fbjdkph9","_TZ3000_zbfya6h0","_TZ3000_hznzbl0x","_TZ3000_fisb3ajo","_TZ3000_5gey1ohx","_TZ3000_mtnpt6ws","_TZ3000_mufwv0ry","_TZ3000_54hjn4vs","_TZ3000_aa5t61rh","_TZ3000_in5qxhtt","_TZ3000_ogpla3lh","_TZ3000_i9w5mehz","_TZ3000_dershnvx","_TZ3000_ywubfuvt","_TZ3000_wnzoyohq","_TZ3000_5ksufhqi","_TZ3210_nuenzetq","_TZ3000_zxrfobzw","_TZ3000_criiahcg","_TZ3000_lugaswf8","_TZ3000_nuenzetq","_TZ3000_ruldv5dt","_TZ3000_gkesadus","_TZ3000_rfjctviq","_TZ3000_yxmafzmd","_TZ3210_a2erlvb8","_TZ3210_pdnwpnz5",}))register_device_definition(tuya_dual_switch,{
-device_helpers.create_fingerprint("HOBEIAN","ZG-301Z-2CH"),})register_device_definition(tuya_dual_switch,device_helpers.create_fingerprints("TS0012",{
-"_TZ3000_biakwrag","_TZ3000_18ejxno0",}))register_device_definition(bound_dual_switch,device_helpers.create_fingerprints("TS0003",{
-"_TYZB01_digziiav","_TYZB01_zsl6z0pw","_TYZB01_uqkphoed",}))register_device_definition(bound_dual_switch,device_helpers.create_fingerprints("TS0002",{
-"_TYZB01_digziiav","_TYZB01_zsl6z0pw","_TYZB01_uqkphoed","_TZ3000_iwtv2jwo","_TZ3000_h1ipgkwn","_TZ3000_tas0zemd",}))register_device_definition(tuya_dual_switch,device_helpers.create_fingerprints("TS0002",{
-"_TZ3210_6smingw0",}))register_device_definition(bound_dual_switch,{
-device_helpers.create_fingerprint("Somfy","ON/OFF (2CH)"),device_helpers.create_fingerprint("Sunricher","ON/OFF (2CH)"),})register_device_definition(dual_switch_module,device_helpers.create_fingerprints("TS0012",{
-"_TZ3000_jl7qyupf","_TZ3000_nPGIPl5D","_TZ3000_kpatq5pq","_TZ3000_ljhbw1c9","_TZ3000_4zf0crgo",}))register_device_definition(tuya_triple_switch,device_helpers.create_fingerprints("TS0003",{
-"_TZ3000_vjhcenzo","_TZ3000_f09j9qjb","_TZ3000_rhkfbfcv","_TZ3000_empogkya","_TZ3000_lubfc1t5","_TZ3000_lsunm46z","_TZ3000_v4l4b0lp","_TZ3000_uilitwsy","_TZ3000_66fekqhh","_TZ3000_ok0ggpk7","_TZ3210_ok0ggpk7","_TZ3000_aknpkt02","_TZ3210_aksyshpw","_TZ3000_nwidmc4n","_TZ3000_pfc7i3kt","_TZ3000_dyzkbcip","_TZ3000_ouwfc1qj","_TZ3000_eqsair32","_TZ3000_4o16jdca","_TZ3000_odzoiovu","_TZ3000_hbic3ka3","_TZ3000_lvhy15ix","_TZ3000_mhhxxjrs","_TZ3000_iv4eq7eh","_TZ3000_mzcp0of6","_TZ3000_pf7swkqp","_TZ3000_ju82pu2b","_TZ3000_vsasbzkf","_TZ3000_nnwehhst","_TZ3000_mw1pqqqt","_TZ3000_pv4puuxi","_TZ3000_avky2mvc","_TZ3000_785olaiq","_TZ3000_qxcnwv26","_TZ3000_g9chy2ib","_TZ3000_0q5fjqgw","_TZ3000_pmsxmttq","_TZ3000_zeuulson","_TZ33000_d9yfgzur",}))register_device_definition(triple_switch_module,device_helpers.create_fingerprints("TS0013",{
-"_TZ3000_ypgri8yz","_TZ3000_sznawwyw","_TZ3000_avotanj3","_TZ3000_t7ugva7q",}))register_device_definition(tuya_triple_switch,{
-device_helpers.create_fingerprint("HOBEIAN","ZG-301Z-3CH"),})register_device_definition(bound_single_switch,device_helpers.create_fingerprints("TS0003",{
-"_TYZB01_aneiicmq","_TYZB01_ncutbjdi","_TYZB01_u9kkqh5o",}))register_device_definition(tuya_quad_bind_only_switch,device_helpers.create_fingerprints("TS0004",{
-"_TZ3000_ltt60asa","_TZ3000_mmkbptmx","_TZ3000_liygxtcq","_TZ3000_mdj7kra9","_TZ3000_u3oupgdy","_TZ3000_imaccztn","_TZ3000_iymfxdis","_TZ3000_nivavasg","_TZ3000_gexniqbq","_TZ3000_r9e2w7dn","_TZ3000_5ajpkyq6","_TZ3000_knoj8lpk","_TZ3000_3n2minvf","_TZ3000_tyg4yiat","_TZ3210_imaccztn","_TZ3210_wts1g2oh",}))register_device_definition(tuya_quad_reporting_switch,{
-device_helpers.create_fingerprint("_TZ3210_iymfxdis","TS0004"),})register_device_definition(tuya_quad_magic_only_switch,device_helpers.create_fingerprints("TS0004",{
-"_TZ3000_a37eix1s","_TZ3000_nsa76jai","_TZ3000_wwtnshol",}))register_device_definition(six_switch,device_helpers.create_fingerprints("TS0006",{
-"_TZ3000_cvis4qmw",}))register_device_definition(tuya_quad_reporting_switch,device_helpers.create_fingerprints("TS011F",{
-"_TZ3000_3zofvcaa","_TZ3000_pvlvoxvt","_TZ3000_lqb7lcq9","_TZ3210_lqb7lcq9","_TZ3210_urjf5u18","_TZ3210_8n4dn1ne",}))register_device_definition(quad_switch,{
-device_helpers.create_fingerprint("_TZ3000_qiutut5y","TS011F"),})register_device_definition(tuya_triple_switch,device_helpers.create_fingerprints("TS011F",{
-"_TZ3000_wzauvbcs","_TZ3000_oznonj5q","_TZ3000_1obwwnmq","_TZ3000_4uf3d0ax","_TZ3000_vzopcetz","_TZ3000_vmpbygs5","_TZ3000_dlug3kbc","_TZ3000_9tg32trw",}))register_device_definition(lellki_wp33_switch,device_helpers.create_fingerprints("TS011F",{
-"_TZ3000_air9m6af","_TZ3000_9djocypn","_TZ3000_bppxj3sf",}))register_device_definition(quint_tuya_switch,device_helpers.create_fingerprints("TS011F",{
-"_TZ3000_in5s3wn1","_TZ3000_wbloefbf",}))register_device_definition(quint_tuya_switch,device_helpers.create_fingerprints("TS011F",{
-"_TZ3000_cfnprab5","_TZ3000_o005nuxx","_TZ3000_gdyjfvgm","_TZ3000_pl5v1yyy","_TZ3000_djgzdba9",}))return{
-id="zcl.switches.switches",registrations=device_definitions,}
+bl.configure=c(3)b(aF,m("TS0001",{"_TZ3000_bbebkwjk"}))b(P,m("TS0003",{"_TZ3000_bu47m8pv"}))b(bl,m("TS0003",{
+"_TZ3000_fawk5xjv","_TZ3000_bvij6kod","_TZ3000_aracgljk","_TZ3210_fawk5xjv",}))b(aj,m("TS0001",{
+"_TZ3000_xkap8wtb","_TZ3000_qnejhcsu","_TZ3000_x3ewpzyr","_TZ3000_mkhkxx1p","_TZ3000_tgddllx4","_TZ3000_kqvb5akv","_TZ3000_q8r0bbvy","_TZ3000_g92baclx","_TZ3000_qlai3277","_TZ3000_qaabwu5c","_TZ3000_qorepo2x","_TZ3000_ikuxinvo","_TZ3000_hzlsaltw","_TZ3000_jsfzkftc","_TZ3000_0ghwhypc","_TZ3000_1adss9de","_TZ3000_x8mbwtsz","_TZ3000_iktiy8ue","_TZ3000_zojh9vz7","_TZ3000_gsat0axs","_TZ3000_olo5jhjk",}))b(bb,m("TS0002",{
+"_TZ3000_aaifmpuq","_TZ3000_irrmjcgi","_TZ3000_huvxrx4i","_TZ3000_pxfjrzyj","_TZ3000_hopb2kjm",}))b(aj,m("TS000F",{
+"_TZ3000_xkap8wtb",}))b(n,m("SM0001",{
+"_TZ3000_jcqs2mrv",}))b(w,m("TS0001",{
+"_TZ3000_bezfthwc",}))b(D,m("TS0001",{
+"_TZ3000_hktqahrq","_TZ3000_q6a3tepg","_TZ3000_skueekg3","_TZ3000_npzfdcof","_TZ3000_5ng23zjs","_TZ3000_rmjr4ufz","_TZ3000_v7gnj3ad","_TZ3000_3a9beq8a","_TZ3000_ark8nv4y","_TZ3000_mx3vgyea","_TZ3000_fdxihpp7","_TZ3000_qsp2pwtf","_TZ3000_kycczpw8","_TZ3000_46t1rvdu","_TZ3000_bhcpnvud","_TZ3000_i9oy2rdq",}))b(n,m("TS0001",{
+"_TZ3000_8n7lqbm0","_TZ3000_cb3aangp","_TZ3000_ctftgjwb","_TZ3000_g8n1n7lg","_TZ3000_udl7uyd2",}))b(aV,m("TS0001",{
+"_TZ3000_bmqxalil","_TZ3000_w1tcofu8","_TZ3000_ma3mhpx2","_TZ3000_wijoqjk1",}))b(B,m("TS0001",{
+"_TZ3000_5rpu3r0d",}))b(ar,m("TS0001",{
+"_TZ3000_tqlv4ug4","_TZ3210_tqlv4ug4","_TZ3000_gjrubzje","_TZ3000_tygpxwqa","_TZ3000_4rbqgcuv","_TZ3000_veu2v775","_TZ3000_prits6g4","_TZ3210_9hbau615","_TZ3000_afgzktgb","_TZ3000_qamj2vnn","_TZ3000_n6fqajob",}))b(ae,m("TS0001",{
+"_TZ3000_xfxpoxe0",}))b(W,m("TS0001",{
+"_TZ3000_myaaknbq","_TZ3000_cpozgbrx","_TZ3000_drc9tuqb",}))b(ah,m("TS0001",{
+"_TZ3000_gbshwgag","_TZ3000_blhvsaqf","_TZ3000_65ajyxua","_TZ3000_qq9ahj6z",}))b(E,m("TS0001",{
+"_TZ3000_pgq7ormg",}))b(ag,m("TS0001",{
+"_TZ3000_qvmiyxuk",}))b(aI,m("TS0001",{
+"_TZ3210_fhx7lk3d",}))b(w,m("TS0001",{
+"_TYZB01_4vgantdz","_TYZB01_reyozfcg","_TZ3000_wrhhi5h2",}))b(Q,m("TS0001",{
+"_TZ3000_6axxqqi2","_TZ3000_gtdswg8k","_TZ3000_majwnphg","_TZ3000_qh6qjuan","_TZ3000_zw7yf6yk",}))b(n,m("TS0001",{
+"_TZ3000_dov0a3p1","_TZ3000_t3s9qmmg","_TZ3000_ehgouyvu",}))b(n,m("TS0011",{
+"_TZ3000_uaa34g7v","_TZ3000_l8fsgo6p","_TZ3000_abjodzas","_TZ3000_hhiodade",}))b(D,m("TS0011",{
+"_TZ3000_hbxsdd6k",}))b(D,m("TS0011",{
+"_TZ3000_qmi1cfuq","_TZ3000_txpirhfq","_TZ3000_ji4araar","_TZ3000_tw4ztbp4",}))b(w,m("TS011F",{
+"_TZ3000_twqctvna",}))b(n,{
+p("_TYZB01_iuepbmpv","TS0121"),p("_TZ3000_bkfe0bab","TS011F"),p("_TZ3000_zmy1waw6","TS011F"),})b(aq,m("TS011F",{
+"_TZ3000_z6fgd73r",}))b(D,m("TS000F",{
+"_TZ3000_hktqahrq","_TZ3000_m9af2l6g","_TZ3000_mx3vgyea","_TZ3000_skueekg3","_TZ3000_dlhhrhs8","_TZ3000_fdxihpp7",}))b(n,m("TS000F",{
+"_TZ3210_a2erlvb8",}))b(aQ,{
+{manufacturer="_TZ3210_hjxqqofs"..string.char(0),model="TS000F"},})b(Q,m("TS000F",{
+"_TZ3000_hdc8bbha",}))b(T,m("TS000F",{
+"_TZ3218_hdc8bbha",}))b(ao,m("TS000F",{
+"_TZ3218_n0jsuogs",}))b(bd,m("TS011F",{
+"_TZ3000_bep7ccew",}))b(bc,m("TS011F",{
+"_TZ3210_7jnk7l3k",}))b(aA,m("TS011F",{
+"_TZ3210_raqjcxo5","_TZ3210_pfbzs1an",}))b(bk,{
+p("_TZ3210_yvxjawlt","TS011F"),})b(S,m("TS011F",{
+"_TZ3000_dd8wwzcy",}))b(J,m("TS011F",{
+"_TZ3000_jak16dll","_TZ3000_rqbjepe8","_TZ3000_uwkja6z1",}))b(ad,m("TS011F",{
+"_TZ3210_bep7ccew","_TZ3210_qlmnxmac",}))b(H,m("TS011F",{
+"_TZ3000_gazjngjl",}))b(as,{
+p("LUMI","lumi.plug.acn005"),p("LUMI","lumi.plug.sacn03"),})b(aQ,{
+p("Aqara","lumi.switch.acn048"),p("LUMI","lumi.ctrl_ln1"),p("LUMI","lumi.ctrl_ln1.aq1"),p("LUMI","lumi.ctrl_neutral1"),p("LUMI","lumi.switch.acn029"),p("LUMI","lumi.switch.acn048"),p("LUMI","lumi.switch.acn056"),p("LUMI","lumi.switch.acn061"),p("LUMI","lumi.switch.b1laus01"),p("LUMI","lumi.switch.b1lacn01"),p("LUMI","lumi.switch.b1nacn01"),p("LUMI","lumi.switch.b1nacn02"),p("LUMI","lumi.switch.b1naus01"),p("LUMI","lumi.switch.b1lc04"),p("LUMI","lumi.switch.b1nc01"),p("LUMI","lumi.switch.l0acn1"),p("LUMI","lumi.switch.l0agl1"),p("LUMI","lumi.switch.l1acn1"),p("LUMI","lumi.switch.l1aeu1"),p("LUMI","lumi.switch.n0acn2"),p("LUMI","lumi.switch.n0agl1"),p("LUMI","lumi.switch.n1acn1"),p("LUMI","lumi.switch.n1aeu1"),})b(A,{
+p("Aqara","lumi.switch.acn047"),p("Aqara","lumi.switch.acn049"),p("Aqara","lumi.switch.acn057"),p("LUMI","lumi.ctrl_ln2"),p("LUMI","lumi.ctrl_ln2.aq1"),p("LUMI","lumi.ctrl_neutral2"),p("LUMI","lumi.relay.c2acn01"),p("LUMI","lumi.switch.acn030"),p("LUMI","lumi.switch.acn047"),p("LUMI","lumi.switch.acn049"),p("LUMI","lumi.switch.acn057"),p("LUMI","lumi.switch.b2laus01"),p("LUMI","lumi.switch.b2lacn01"),p("LUMI","lumi.switch.b2nacn01"),p("LUMI","lumi.switch.b2nacn02"),p("LUMI","lumi.switch.b2naus01"),p("LUMI","lumi.switch.b2lc04"),p("LUMI","lumi.switch.b2nc01"),p("LUMI","lumi.switch.l2acn1"),p("LUMI","lumi.switch.l2aeu1"),p("LUMI","lumi.switch.n2acn1"),p("LUMI","lumi.switch.n2aeu1"),})b(ai,{
+p("Aqara","lumi.switch.acn055"),p("Aqara","lumi.switch.acn059"),p("LUMI","lumi.switch.acn031"),p("LUMI","lumi.switch.acn040"),p("LUMI","lumi.switch.acn054"),p("LUMI","lumi.switch.acn055"),p("LUMI","lumi.switch.acn058"),p("LUMI","lumi.switch.acn059"),p("LUMI","lumi.switch.b3l01"),p("LUMI","lumi.switch.b3n01"),p("LUMI","lumi.switch.l3acn1"),p("LUMI","lumi.switch.l3acn3"),p("LUMI","lumi.switch.n3acn1"),p("LUMI","lumi.switch.n3acn3"),p("LUMI","lumi.switch.n4acn4"),})b(o,m("TS011F",{
+"_TZ3000_46vasa5h","_TZ3000_mvn6jl7x","_TZ3000_raviyuvk","_TYZB01_hlla45kx","_TZ3000_92qd4sqa","_TZ3000_zwaadvus","_TZ3000_k6fvknrr","_TZ3000_6s5dc9lx","_TZ3000_helyqdvs","_TZ3000_rgpqqmbj","_TZ3000_8nyaanzb","_TZ3000_iy2c3n6p","_TZ3000_qlmnxmac","_TZ3000_sgb0xhwn","_TZ3210_ph1joc22","_TZ3210_sgb0xhwn","_TZ3000_iv6ph5tr","_TZ3000_pmz6mjyu","_TZ3000_rul9yxcc","_TZ3000_mlswgkc3","_TZ3000_v4mevirn","_TZ3000_zigisuyh","_TZ3000_xeumnff9","_TZ3000_2xlvlnez","_TZ3000_cymsnfvf","_TZ3210_2uk4z8ce",}))b(o,{
+p("HOBEIAN","ZG-305Z"),})b(o,m("TS000F",{
+"_TZ3000_m8f3z8ju",}))b(ap,m("TS000F",{
+"_TZ3218_sgbsg6mr",}))b(aP,m("TS0002",{
+"_TZ3000_ruxexjfz",}))b(o,m("TS0002",{
+"_TZ3000_01gpyda5","_TZ3000_bvrlqyj7","_TZ3000_7ed9cqgi","_TZ3000_zmy4lslw","_TZ3000_4xfqlgqo","_TZ3000_hojntt34","_TZ3000_eei0ubpy","_TZ3000_qaa59zqd","_TZ3000_lmlsduws","_TZ3000_fbjdkph9","_TZ3000_zbfya6h0","_TZ3000_hznzbl0x","_TZ3000_fisb3ajo","_TZ3000_5gey1ohx","_TZ3000_mtnpt6ws","_TZ3000_mufwv0ry","_TZ3000_54hjn4vs","_TZ3000_aa5t61rh","_TZ3000_in5qxhtt","_TZ3000_ogpla3lh","_TZ3000_i9w5mehz","_TZ3000_dershnvx","_TZ3000_ywubfuvt","_TZ3000_wnzoyohq","_TZ3000_5ksufhqi","_TZ3210_nuenzetq","_TZ3000_zxrfobzw","_TZ3000_criiahcg","_TZ3000_lugaswf8","_TZ3000_nuenzetq","_TZ3000_ruldv5dt","_TZ3000_gkesadus","_TZ3000_rfjctviq","_TZ3000_yxmafzmd","_TZ3210_a2erlvb8","_TZ3210_pdnwpnz5",}))b(o,{
+p("HOBEIAN","ZG-301Z-2CH"),})b(o,m("TS0012",{
+"_TZ3000_biakwrag","_TZ3000_18ejxno0",}))b(A,m("TS0003",{
+"_TYZB01_digziiav","_TYZB01_zsl6z0pw","_TYZB01_uqkphoed",}))b(A,m("TS0002",{
+"_TYZB01_digziiav","_TYZB01_zsl6z0pw","_TYZB01_uqkphoed","_TZ3000_iwtv2jwo","_TZ3000_h1ipgkwn","_TZ3000_tas0zemd",}))b(o,m("TS0002",{
+"_TZ3210_6smingw0",}))b(A,{
+p("Somfy","ON/OFF (2CH)"),p("Sunricher","ON/OFF (2CH)"),})b(aW,m("TS0012",{
+"_TZ3000_jl7qyupf","_TZ3000_nPGIPl5D","_TZ3000_kpatq5pq","_TZ3000_ljhbw1c9","_TZ3000_4zf0crgo",}))b(z,m("TS0003",{
+"_TZ3000_vjhcenzo","_TZ3000_f09j9qjb","_TZ3000_rhkfbfcv","_TZ3000_empogkya","_TZ3000_lubfc1t5","_TZ3000_lsunm46z","_TZ3000_v4l4b0lp","_TZ3000_uilitwsy","_TZ3000_66fekqhh","_TZ3000_ok0ggpk7","_TZ3210_ok0ggpk7","_TZ3000_aknpkt02","_TZ3210_aksyshpw","_TZ3000_nwidmc4n","_TZ3000_pfc7i3kt","_TZ3000_dyzkbcip","_TZ3000_ouwfc1qj","_TZ3000_eqsair32","_TZ3000_4o16jdca","_TZ3000_odzoiovu","_TZ3000_hbic3ka3","_TZ3000_lvhy15ix","_TZ3000_mhhxxjrs","_TZ3000_iv4eq7eh","_TZ3000_mzcp0of6","_TZ3000_pf7swkqp","_TZ3000_ju82pu2b","_TZ3000_vsasbzkf","_TZ3000_nnwehhst","_TZ3000_mw1pqqqt","_TZ3000_pv4puuxi","_TZ3000_avky2mvc","_TZ3000_785olaiq","_TZ3000_qxcnwv26","_TZ3000_g9chy2ib","_TZ3000_0q5fjqgw","_TZ3000_pmsxmttq","_TZ3000_zeuulson","_TZ33000_d9yfgzur",}))b(aO,m("TS0013",{
+"_TZ3000_ypgri8yz","_TZ3000_sznawwyw","_TZ3000_avotanj3","_TZ3000_t7ugva7q",}))b(z,{
+p("HOBEIAN","ZG-301Z-3CH"),})b(w,m("TS0003",{
+"_TYZB01_aneiicmq","_TYZB01_ncutbjdi","_TYZB01_u9kkqh5o",}))b(K,m("TS0004",{
+"_TZ3000_ltt60asa","_TZ3000_mmkbptmx","_TZ3000_liygxtcq","_TZ3000_mdj7kra9","_TZ3000_u3oupgdy","_TZ3000_imaccztn","_TZ3000_iymfxdis","_TZ3000_nivavasg","_TZ3000_gexniqbq","_TZ3000_r9e2w7dn","_TZ3000_5ajpkyq6","_TZ3000_knoj8lpk","_TZ3000_3n2minvf","_TZ3000_tyg4yiat","_TZ3210_imaccztn","_TZ3210_wts1g2oh",}))b(s,{
+p("_TZ3210_iymfxdis","TS0004"),})b(I,m("TS0004",{
+"_TZ3000_a37eix1s","_TZ3000_nsa76jai","_TZ3000_wwtnshol",}))b(aL,m("TS0006",{
+"_TZ3000_cvis4qmw",}))b(s,m("TS011F",{
+"_TZ3000_3zofvcaa","_TZ3000_pvlvoxvt","_TZ3000_lqb7lcq9","_TZ3210_lqb7lcq9","_TZ3210_urjf5u18","_TZ3210_8n4dn1ne",}))b(bf,{
+p("_TZ3000_qiutut5y","TS011F"),})b(z,m("TS011F",{
+"_TZ3000_wzauvbcs","_TZ3000_oznonj5q","_TZ3000_1obwwnmq","_TZ3000_4uf3d0ax","_TZ3000_vzopcetz","_TZ3000_vmpbygs5","_TZ3000_dlug3kbc","_TZ3000_9tg32trw",}))b(an,m("TS011F",{
+"_TZ3000_air9m6af","_TZ3000_9djocypn","_TZ3000_bppxj3sf",}))b(at,m("TS011F",{
+"_TZ3000_in5s3wn1","_TZ3000_wbloefbf",}))b(at,m("TS011F",{
+"_TZ3000_cfnprab5","_TZ3000_o005nuxx","_TZ3000_gdyjfvgm","_TZ3000_pl5v1yyy","_TZ3000_djgzdba9",}))h.attach_reporting_capabilities(am,{
+{1,"rpt-tuj"},{2,"rpt-tkg",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree"}},{3,"rpt-tcm",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree"}},{4,"rpt-tzt"},{5,"rpt-tkp",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{6,"rpt-tzt"},{7,"rpt-sit"},{8,"rpt-sit"},{9,"rpt-tss"},{10,"rpt-sit"},{11,"rpt-tbx"},{12,"rpt-tpl"},{13,"rpt-tmp"},{14,"rpt-tks"},{15,"rpt-tet"},{16,"rpt-tlp"},{17,"rpt-tma"},{18,"rpt-tce"},{19,"rpt-twp"},{20,"rpt-sit"},{21,"rpt-tlc"},{22,"rpt-sit"},{23,"rpt-sit"},{24,"rpt-tss"},{25,"rpt-tss"},{26,"rpt-sit"},{27,"rpt-sit"},{28,"rpt-txu"},{29,"rpt-tss"},{30,"rpt-sit"},{31,"rpt-sit"},{32,"rpt-tlc"},{33,"rpt-tks"},{34,"rpt-tpe"},{35,"rpt-tye",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{36,"rpt-too",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{37,"rpt-too",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{38,"rpt-tve",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{39,"rpt-tfo",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{40,"rpt-tzz",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{41,"rpt-tum",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{42,"rpt-tev",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{43,"rpt-lvk",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{44,"rpt-sit"},{45,"rpt-lpm",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{46,"rpt-lek",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree"}},{47,"rpt-lpm",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{48,"rpt-lpm",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{49,"rpt-lpm",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{50,"rpt-tsl",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{51,"rpt-tqv",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{52,"rpt-lpm",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{53,"rpt-lpm",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{54,"rpt-lpm",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{55,"rpt-lpm",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{56,"rpt-lpm",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{57,"rpt-lpm",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{58,"rpt-lpm",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{59,"rpt-tkw",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo"}},{60,"rpt-lek",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree"}},{61,"rpt-tiu",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree"}},{62,"rpt-lek",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree"}},{63,"rpt-sit"},{65,"rpt-tmr",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree",["zr000600004"]="SwitchFour"}},{67,"rpt-tqvv",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree",["zr000600004"]="SwitchFour",["zr000600005"]="SwitchFive",["zr000600006"]="SwitchSix"}},{68,"rpt-tmr",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree",["zr000600004"]="SwitchFour"}},{69,"rpt-tmr",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree",["zr000600004"]="SwitchFour"}},{70,"rpt-lek",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree"}},{71,"rpt-tsh",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree",["zr000600004"]="SwitchFour",["zr000600005"]="SwitchFive"}},{72,"rpt-tfx",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree",["zr000600004"]="SwitchFour",["zr000600005"]="SwitchFive"}},{73,"rpt-tfx",{["zr000600001"]="Switch",["zr000600002"]="SwitchTwo",["zr000600003"]="SwitchThree",["zr000600004"]="SwitchFour",["zr000600005"]="SwitchFive"}},})return{
+id="zcl.switches.switches",registrations=am,}

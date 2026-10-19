@@ -1,0 +1,18 @@
+name: rpt-oyj
+components:
+- id: main
+  capabilities:
+  - id: temperatureMeasurement
+    version: 1
+  - id: refresh
+    version: 1
+  - id: signalStrength
+    version: 1
+  - id: concertmirror08464.zclDeviceTmpReportMin
+    version: 1
+  - id: concertmirror08464.zclDeviceTmpReportMax
+    version: 1
+  - id: concertmirror08464.zclDeviceTmpReportChange29
+    version: 1
+  categories:
+  - name: TempHumiditySensor

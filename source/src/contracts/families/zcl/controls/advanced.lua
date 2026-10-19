@@ -1101,6 +1101,25 @@ register_device_definition(ts004f_knob, device_helpers.create_fingerprints("TS00
   "_TZ3000_gwkzibhs",
 }))
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-top"},
+  {2, "rpt-tew"},
+  {3, "rpt-toe"},
+  {4, "rpt-tnc"},
+  {5, "rpt-tfs"},
+  {6, "rpt-tfs"},
+  {7, "rpt-tyq"},
+  {8, "rpt-tom"},
+  {9, "rpt-tom"},
+  {10, "rpt-tfs"},
+  {11, "rpt-tom"},
+  {13, "rpt-chu"},
+  {16, "rpt-tnc"},
+  {17, "rpt-teb"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.controls.advanced",
   registrations = device_definitions,

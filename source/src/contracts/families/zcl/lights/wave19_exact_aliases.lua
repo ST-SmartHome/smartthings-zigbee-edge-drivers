@@ -40,6 +40,14 @@ register_device_definition(dimmer_light, {
   ),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(registrations, {
+  {1, "rpt-tmf"},
+  {2, "rpt-tkj"},
+  {3, "rpt-tmf"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.lights.wave19_exact_aliases",
   registrations = registrations,

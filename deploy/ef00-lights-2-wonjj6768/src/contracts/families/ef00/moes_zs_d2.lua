@@ -1,24 +1,24 @@
-local tuya=require"protocol.tuya"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local converter=tuya.converter
-local device_definitions,register_device_definition=device_helpers.definition_registry()local relay_status_converter=converter.lookup_from_to({
-off=0,on=1,memory=2,})local light_mode_converter=converter.lookup_from_to({
-none=0,relay=1,pos=2,})local backlight_converter=converter.lookup_from_to({
-OFF=false,ON=true,})local definition={
-profile="lights-moes-zs-d2",query_on_configure=false,time_start="off",initial_custom_state_query=false,refresh_state_query=false,placeholder_custom_states=false,tuya.dp_on_off(1,{
-name="switch",component="main",emit=emit.switch(),}),tuya.dp_numeric(2,{
-name="moes_zs_d_two_brightness_one",component="main",emit=emit.moesZsDTwoBrightnessOne(),}),tuya.dp_numeric(3,{
-name="moes_zs_d_two_brightness_min_one",component="main",emit=emit.moesZsDTwoBrightnessMinOne(),}),tuya.dp_numeric(5,{
-name="moes_zs_d_two_brightness_max_one",component="main",emit=emit.moesZsDTwoBrightnessMaxOne(),}),tuya.dp_numeric(6,{
-name="moes_zs_d_two_countdown_one",component="main",emit=emit.moesZsDTwoCountdownOne(),}),tuya.dp_on_off(7,{
-name="switch",component="switch2",emit=emit.switch(),}),tuya.dp_numeric(8,{
-name="moes_zs_d_two_brightness_two",component="switch2",emit=emit.moesZsDTwoBrightnessTwo(),}),tuya.dp_numeric(9,{
-name="moes_zs_d_two_brightness_min_two",component="switch2",emit=emit.moesZsDTwoBrightnessMinTwo(),}),tuya.dp_numeric(11,{
-name="moes_zs_d_two_brightness_max_two",component="switch2",emit=emit.moesZsDTwoBrightnessMaxTwo(),}),tuya.dp_numeric(12,{
-name="moes_zs_d_two_countdown_two",component="switch2",emit=emit.moesZsDTwoCountdownTwo(),}),tuya.dp_enum(14,{
-name="moes_zs_d_two_relay_status",component="main",emit=emit.moesZsDTwoRelayStatus(),converter=relay_status_converter,}),tuya.dp_enum(21,{
-name="moes_zs_d_two_light_mode",component="main",emit=emit.moesZsDTwoLightMode(),converter=light_mode_converter,}),tuya.dp_binary(26,{
-name="moes_zs_d_two_backlight",component="main",emit=emit.moesZsDTwoBacklight(),converter=backlight_converter,}),}register_device_definition(definition,{
+local a=require"protocol.tuya"
+local b=require"capabilities.events.all"
+local i=require"contracts.helpers.family"
+local g=a.converter
+local h,c=i.definition_registry()local d=g.lookup_from_to({
+off=0,on=1,memory=2,})local e=g.lookup_from_to({
+none=0,relay=1,pos=2,})local f=g.lookup_from_to({
+OFF=false,ON=true,})local j={
+profile="lights-moes-zs-d2",query_on_configure=false,time_start="off",initial_custom_state_query=false,refresh_state_query=false,placeholder_custom_states=false,a.dp_on_off(1,{
+name="switch",component="main",emit=b.switch(),}),a.dp_numeric(2,{
+name="moes_zs_d_two_brightness_one",component="main",emit=b.moesZsDTwoBrightnessOne(),}),a.dp_numeric(3,{
+name="moes_zs_d_two_brightness_min_one",component="main",emit=b.moesZsDTwoBrightnessMinOne(),}),a.dp_numeric(5,{
+name="moes_zs_d_two_brightness_max_one",component="main",emit=b.moesZsDTwoBrightnessMaxOne(),}),a.dp_numeric(6,{
+name="moes_zs_d_two_countdown_one",component="main",emit=b.moesZsDTwoCountdownOne(),}),a.dp_on_off(7,{
+name="switch",component="switch2",emit=b.switch(),}),a.dp_numeric(8,{
+name="moes_zs_d_two_brightness_two",component="switch2",emit=b.moesZsDTwoBrightnessTwo(),}),a.dp_numeric(9,{
+name="moes_zs_d_two_brightness_min_two",component="switch2",emit=b.moesZsDTwoBrightnessMinTwo(),}),a.dp_numeric(11,{
+name="moes_zs_d_two_brightness_max_two",component="switch2",emit=b.moesZsDTwoBrightnessMaxTwo(),}),a.dp_numeric(12,{
+name="moes_zs_d_two_countdown_two",component="switch2",emit=b.moesZsDTwoCountdownTwo(),}),a.dp_enum(14,{
+name="moes_zs_d_two_relay_status",component="main",emit=b.moesZsDTwoRelayStatus(),converter=d,}),a.dp_enum(21,{
+name="moes_zs_d_two_light_mode",component="main",emit=b.moesZsDTwoLightMode(),converter=e,}),a.dp_binary(26,{
+name="moes_zs_d_two_backlight",component="main",emit=b.moesZsDTwoBacklight(),converter=f,}),}c(j,{
 {manufacturer="_TZE200_rlqamjhp",model="TS0601"},})return{
-id="moes.zs_d2",registrations=device_definitions,}
+id="moes.zs_d2",registrations=h,}

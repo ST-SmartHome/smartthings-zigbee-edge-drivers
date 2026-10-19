@@ -1,131 +1,132 @@
-local zcl=require"protocol.zcl"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local capabilities=require"st.capabilities"
-local data_types=require"st.zigbee.data_types"
-local device_management=require"st.zigbee.device_management"
-local device_definitions,register_device_definition=device_helpers.definition_registry()local CLUSTER_ANALOG_INPUT=0x000C
-local CLUSTER_THERMOSTAT=0x0201
-local ATTR_POWER=0xF000
-local ATTR_MODE=0xF001
-local ATTR_FAN_MODE=0xF002
-local ATTR_SWING_MODE=0xF003
-local ATTR_PRESET=0xF004
-local ATTR_DISPLAY=0xF005
-local ATTR_INDOOR_TEMPERATURE=0xF006
-local ATTR_OUTDOOR_TEMPERATURE=0xF007
-local ATTR_TARGET_TEMPERATURE=0xF008
-local ATTR_FIRMWARE_VERSION=0xF009
-local ATTR_THERMOSTAT_LOCAL_TEMPERATURE=0x0000
-local ATTR_THERMOSTAT_OUTDOOR_TEMPERATURE=0x0001
-local ATTR_THERMOSTAT_OCCUPIED_HEATING_SETPOINT=0x0012
-local ATTR_THERMOSTAT_SYSTEM_MODE=0x001C
-local function custom(capability_id)
-return assert(emit[capability_id],"missing Wave19 PirogovX emitter: "..capability_id)()
+local i=require"protocol.zcl"
+local J=require"capabilities.events.all"
+local n=require"contracts.helpers.family"
+local B=require"st.capabilities"
+local b=require"st.zigbee.data_types"
+local E=require"st.zigbee.device_management"
+local q,h=n.definition_registry()local a=12
+local d=513
+local Z=61440
+local ab=61441
+local L=61442
+local H=61443
+local T=61444
+local Q=61445
+local s=61446
+local r=61447
+local t=61448
+local w=61449
+local l=0
+local k=1
+local g=18
+local p=28
+local function j(capability_id)
+return assert(J[capability_id],"missing Wave19 PirogovX emitter: "..capability_id)()
 end
-local system_mode_emit=custom("pirogovMideaSystemMode")
-local function truthy(value)
-if value==true then return true end
-local numeric=tonumber(value)return numeric~=nil and numeric~=0
+local G=j("pirogovMideaSystemMode")
+local function af(c)
+if c==true then return true end
+local Y=tonumber(c)return Y~=nil and Y~=0
 end
-local function boolean_state(value)
-return truthy(value)and"ON"or"OFF"
+local function y(c)
+return af(c)and"ON"or"OFF"
 end
-local function boolean_write(value)
-return value==true or value=="ON"
+local function z(c)
+return c==true or c=="ON"
 end
-local function power_write(value,device)
-local enabled=boolean_write(value)
-if device~=nil and type(device.emit_event)=="function"then
-device:emit_event(system_mode_emit(device,enabled and"cool"or"off"))
+local function V(c,f)
+local X=z(c)
+if f~=nil and type(f.emit_event)=="function"then
+f:emit_event(G(f,X and"cool"or"off"))
 end
-return enabled
+return X
 end
-local function valid_physical_temperature(value)
-if type(value)~="number"or value<-273.15 then return nil end
-return value
+local function e(c)
+if type(c)~="number"or c<-273.15 then return nil end
+return c
 end
-local function heating_setpoint_write(value)
-if type(value)~="number"or value<16 or value>30 then return nil end
-local doubled_one_decimal=math.floor((value*20)+0.5)/10
-return math.floor(doubled_one_decimal+0.5)/2
+local function v(c)
+if type(c)~="number"or c<16 or c>30 then return nil end
+local A=math.floor((c*20)+0.5)/10
+return math.floor(A+0.5)/2
 end
-local function lookup_from(values,fallback)
-return function(value)
-return values[tonumber(value)]or fallback
-end
-end
-local function lookup_to(values)
-return function(value)
-return values[value]
+local function m(S,ad)
+return function(c)
+return S[tonumber(c)]or ad
 end
 end
-local analog_mode_from=lookup_from({
-[0]="off",[1]="auto",[2]="cool",[3]="heat",[4]="dry",[5]="fan_only",},"auto")local thermostat_mode_from=lookup_from({
-[0]="off",[1]="auto",[3]="cool",[4]="heat",[7]="fan_only",[8]="dry",},nil)local thermostat_mode_to=lookup_to({
-off=0,auto=1,cool=3,heat=4,fan_only=7,dry=8,})local fan_mode_from=lookup_from({
-[0]="auto",[1]="low",[2]="medium",[3]="high",[4]="quiet",},"auto")local fan_mode_to=lookup_to({
-auto=0,low=1,medium=2,high=3,quiet=4,})local swing_mode_from=lookup_from({
-[0]="off",[1]="horizontal",[2]="vertical",[3]="both",},"off")local swing_mode_to=lookup_to({
-off=0,horizontal=1,vertical=2,both=3,})local preset_from=lookup_from({
-[0]="none",[1]="sleep",[2]="turbo",},"none")local preset_to=lookup_to({
+local function u(S)
+return function(c)
+return S[c]
+end
+end
+local F=m({
+[0]="off",[1]="auto",[2]="cool",[3]="heat",[4]="dry",[5]="fan_only",},"auto")local x=m({
+[0]="off",[1]="auto",[3]="cool",[4]="heat",[7]="fan_only",[8]="dry",},nil)local C=u({
+off=0,auto=1,cool=3,heat=4,fan_only=7,dry=8,})local N=m({
+[0]="auto",[1]="low",[2]="medium",[3]="high",[4]="quiet",},"auto")local U=u({
+auto=0,low=1,medium=2,high=3,quiet=4,})local I=m({
+[0]="off",[1]="horizontal",[2]="vertical",[3]="both",},"off")local P=u({
+off=0,horizontal=1,vertical=2,both=3,})local W=m({
+[0]="none",[1]="sleep",[2]="turbo",},"none")local ac=u({
 none=0,sleep=1,turbo=2,})
-local function firmware_text(value)
-if value==nil then return nil end
-return tostring(value)
+local function O(c)
+if c==nil then return nil end
+return tostring(c)
 end
-local function configure_pirogov(driver,device)
-for _,cluster_id in ipairs({CLUSTER_ANALOG_INPUT,CLUSTER_THERMOSTAT})do
-device:send(device_management.build_bind_request(
-device,cluster_id,driver.environment_info.hub_zigbee_eui,1))
+local function D(R,f)
+for _,aa in ipairs({a,d})do
+f:send(E.build_bind_request(
+f,aa,R.environment_info.hub_zigbee_eui,1))
 end
 end
-local pirogov={
-profile="thermostats-wave19-pirogov-zb-midea-ac",package_group="wave19-hvac",transport_classification="CUSTOM_PAYLOAD",z2m_converter_source="fzLocal.acAnalog + fz.thermostat / tzLocal + thermostat writers",wire_cluster="0x000C attrs 0xF000-0xF009 + 0x0201",configure=configure_pirogov,zcl_clusters={
-zcl.cluster_attribute(CLUSTER_ANALOG_INPUT,ATTR_POWER,{
-name="pirogov_midea_power",emit=custom("pirogovMideaPower"),data_type=data_types.Boolean,write_type=data_types.Boolean,from_device=boolean_state,to_device=power_write,endpoint=1,}),zcl.cluster_attribute(CLUSTER_THERMOSTAT,ATTR_THERMOSTAT_SYSTEM_MODE,{
-name="pirogov_midea_system_mode",emit=custom("pirogovMideaSystemMode"),data_type=data_types.Enum8,write_type=data_types.Enum8,from_device=thermostat_mode_from,to_device=thermostat_mode_to,endpoint=1,}),zcl.cluster_attribute(CLUSTER_ANALOG_INPUT,ATTR_MODE,{
-name="pirogov_midea_analog_system_mode_report",emit=custom("pirogovMideaSystemMode"),from_device=analog_mode_from,endpoint=1,read_only=true,}),zcl.cluster_attribute(CLUSTER_ANALOG_INPUT,ATTR_FAN_MODE,{
-name="pirogov_midea_fan_mode",emit=custom("pirogovMideaFanMode"),data_type=data_types.Uint8,write_type=data_types.Uint8,from_device=fan_mode_from,to_device=fan_mode_to,endpoint=1,}),zcl.cluster_attribute(CLUSTER_ANALOG_INPUT,ATTR_SWING_MODE,{
-name="pirogov_midea_swing_mode",emit=custom("pirogovMideaSwingMode"),data_type=data_types.Uint8,write_type=data_types.Uint8,from_device=swing_mode_from,to_device=swing_mode_to,endpoint=1,}),zcl.cluster_attribute(CLUSTER_ANALOG_INPUT,ATTR_PRESET,{
-name="pirogov_midea_preset",emit=custom("pirogovMideaPreset"),data_type=data_types.Uint8,write_type=data_types.Uint8,from_device=preset_from,to_device=preset_to,endpoint=1,}),zcl.cluster_attribute(CLUSTER_ANALOG_INPUT,ATTR_DISPLAY,{
-name="pirogov_midea_display",emit=custom("pirogovMideaDisplay"),data_type=data_types.Boolean,write_type=data_types.Boolean,from_device=boolean_state,to_device=boolean_write,endpoint=1,}),zcl.cluster_attribute(CLUSTER_THERMOSTAT,ATTR_THERMOSTAT_LOCAL_TEMPERATURE,{
-name="pirogov_midea_standard_local_temperature_report",emit=emit.temperature("C"),data_type=data_types.Int16,scale=100,from_device=valid_physical_temperature,endpoint=1,read_only=true,}),zcl.cluster_attribute(CLUSTER_ANALOG_INPUT,ATTR_INDOOR_TEMPERATURE,{
-name="pirogov_midea_analog_local_temperature_report",emit=emit.temperature("C"),endpoint=1,read_only=true,}),zcl.cluster_attribute(CLUSTER_THERMOSTAT,ATTR_THERMOSTAT_OUTDOOR_TEMPERATURE,{
-name="pirogov_midea_outdoor_temperature",emit=custom("pirogovMideaOutdoorTemperature"),data_type=data_types.Int16,scale=100,from_device=valid_physical_temperature,endpoint=1,read_only=true,}),zcl.cluster_attribute(CLUSTER_ANALOG_INPUT,ATTR_OUTDOOR_TEMPERATURE,{
-name="pirogov_midea_analog_outdoor_temperature_report",emit=custom("pirogovMideaOutdoorTemperature"),endpoint=1,read_only=true,}),zcl.cluster_attribute(CLUSTER_THERMOSTAT,ATTR_THERMOSTAT_OCCUPIED_HEATING_SETPOINT,{
-name="current_heating_setpoint",emit=emit.heating_setpoint("C"),data_type=data_types.Int16,write_type=data_types.Int16,scale=100,from_device=valid_physical_temperature,to_device=heating_setpoint_write,endpoint=1,}),zcl.cluster_attribute(CLUSTER_ANALOG_INPUT,ATTR_TARGET_TEMPERATURE,{
-name="pirogov_midea_analog_target_temperature_report",emit=emit.heating_setpoint("C"),endpoint=1,read_only=true,}),zcl.cluster_attribute(CLUSTER_ANALOG_INPUT,ATTR_FIRMWARE_VERSION,{
-name="pirogov_midea_firmware_version",emit=custom("pirogovMideaFirmwareVersion"),from_device=firmware_text,endpoint=1,read_only=true,}),},}pirogov.heating_setpoint_range={
+local o={
+profile="thermostats-wave19-pirogov-zb-midea-ac",package_group="wave19-hvac",transport_classification="CUSTOM_PAYLOAD",z2m_converter_source="fzLocal.acAnalog + fz.thermostat / tzLocal + thermostat writers",wire_cluster="0x000C attrs 0xF000-0xF009 + 0x0201",configure=D,zcl_clusters={
+i.cluster_attribute(a,Z,{
+name="pirogov_midea_power",emit=j("pirogovMideaPower"),data_type=b.Boolean,write_type=b.Boolean,from_device=y,to_device=V,endpoint=1,}),i.cluster_attribute(d,p,{
+name="pirogov_midea_system_mode",emit=j("pirogovMideaSystemMode"),data_type=b.Enum8,write_type=b.Enum8,from_device=x,to_device=C,endpoint=1,}),i.cluster_attribute(a,ab,{
+name="pirogov_midea_analog_system_mode_report",emit=j("pirogovMideaSystemMode"),from_device=F,endpoint=1,read_only=true,}),i.cluster_attribute(a,L,{
+name="pirogov_midea_fan_mode",emit=j("pirogovMideaFanMode"),data_type=b.Uint8,write_type=b.Uint8,from_device=N,to_device=U,endpoint=1,}),i.cluster_attribute(a,H,{
+name="pirogov_midea_swing_mode",emit=j("pirogovMideaSwingMode"),data_type=b.Uint8,write_type=b.Uint8,from_device=I,to_device=P,endpoint=1,}),i.cluster_attribute(a,T,{
+name="pirogov_midea_preset",emit=j("pirogovMideaPreset"),data_type=b.Uint8,write_type=b.Uint8,from_device=W,to_device=ac,endpoint=1,}),i.cluster_attribute(a,Q,{
+name="pirogov_midea_display",emit=j("pirogovMideaDisplay"),data_type=b.Boolean,write_type=b.Boolean,from_device=y,to_device=z,endpoint=1,}),i.cluster_attribute(d,l,{
+name="pirogov_midea_standard_local_temperature_report",emit=J.temperature("C"),data_type=b.Int16,scale=100,from_device=e,endpoint=1,read_only=true,}),i.cluster_attribute(a,s,{
+name="pirogov_midea_analog_local_temperature_report",emit=J.temperature("C"),endpoint=1,read_only=true,}),i.cluster_attribute(d,k,{
+name="pirogov_midea_outdoor_temperature",emit=j("pirogovMideaOutdoorTemperature"),data_type=b.Int16,scale=100,from_device=e,endpoint=1,read_only=true,}),i.cluster_attribute(a,r,{
+name="pirogov_midea_analog_outdoor_temperature_report",emit=j("pirogovMideaOutdoorTemperature"),endpoint=1,read_only=true,}),i.cluster_attribute(d,g,{
+name="current_heating_setpoint",emit=J.heating_setpoint("C"),data_type=b.Int16,write_type=b.Int16,scale=100,from_device=e,to_device=v,endpoint=1,}),i.cluster_attribute(a,t,{
+name="pirogov_midea_analog_target_temperature_report",emit=J.heating_setpoint("C"),endpoint=1,read_only=true,}),i.cluster_attribute(a,w,{
+name="pirogov_midea_firmware_version",emit=j("pirogovMideaFirmwareVersion"),from_device=O,endpoint=1,read_only=true,}),},}o.heating_setpoint_range={
 minimum=16,maximum=30,step=1,unit="C",}
-pirogov.runtime_start=function(device)
-device:emit_component_event(
-{id="main"},capabilities.thermostatHeatingSetpoint.heatingSetpointRange({
+o.runtime_start=function(f)
+f:emit_component_event(
+{id="main"},B.thermostatHeatingSetpoint.heatingSetpointRange({
 value={
-minimum=pirogov.heating_setpoint_range.minimum,maximum=pirogov.heating_setpoint_range.maximum,step=pirogov.heating_setpoint_range.step,},unit=pirogov.heating_setpoint_range.unit,}))
+minimum=o.heating_setpoint_range.minimum,maximum=o.heating_setpoint_range.maximum,step=o.heating_setpoint_range.step,},unit=o.heating_setpoint_range.unit,}))
 end
-register_device_definition(pirogov,{
-device_helpers.create_fingerprint("PirogovX","ZB-MIDEA-AC"),})local topband_trv602={
+h(o,{
+n.create_fingerprint("PirogovX","ZB-MIDEA-AC"),})local K={
 profile="thermostats-topband-trv602",magic_packet=false,placeholder_custom_states=false,component_to_endpoint_map={main=1},heating_setpoint_range={minimum=7,maximum=30,step=0.5,unit="C"},capability_commands={
 {capability_id="concertmirror08464.trv602Identify",command_name="identify",mapping_name="trv602_identify",value=true},},zcl_clusters={
-zcl.battery({endpoint=1,scale=2,read_only=true,minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true}),zcl.switch({endpoint=1,minimum_interval=0,maximum_interval=65000,reportable_change=1,read_on_configure=true}),zcl.local_temperature({endpoint=1,read_only=true,minimum_interval=0,maximum_interval=3600,reportable_change=10,read_on_configure=true}),zcl.heating_setpoint({endpoint=1,minimum_interval=0,maximum_interval=3600,reportable_change=10,read_on_configure=true}),zcl.system_mode({endpoint=1,minimum_interval=0,maximum_interval=3600,reportable_change=0,read_on_configure=true,
-to_device=function(value)return({off=0,heat=4})[value]end}),
-zcl.thermostat_operating_state({endpoint=1,read_only=true,minimum_interval=0,maximum_interval=3600,reportable_change=0,read_on_configure=true}),zcl.cluster_attribute(6,0x4003,{name="trv602_power_behavior",endpoint=1,data_type=data_types.Enum8,read_on_configure=true,
-from_device=function(value)
-value=type(value)=="table"and value.value or value
-return({[0]="off",[1]="on",[2]="toggle",[255]="previous"})[value]
+i.battery({endpoint=1,scale=2,read_only=true,minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true}),i.switch({endpoint=1,minimum_interval=0,maximum_interval=65000,reportable_change=1,read_on_configure=true}),i.local_temperature({endpoint=1,read_only=true,minimum_interval=0,maximum_interval=3600,reportable_change=10,read_on_configure=true}),i.heating_setpoint({endpoint=1,minimum_interval=0,maximum_interval=3600,reportable_change=10,read_on_configure=true}),i.system_mode({endpoint=1,minimum_interval=0,maximum_interval=3600,reportable_change=0,read_on_configure=true,
+to_device=function(c)return({off=0,heat=4})[c]end}),
+i.thermostat_operating_state({endpoint=1,read_only=true,minimum_interval=0,maximum_interval=3600,reportable_change=0,read_on_configure=true}),i.cluster_attribute(6,16387,{name="trv602_power_behavior",endpoint=1,data_type=b.Enum8,read_on_configure=true,
+from_device=function(c)
+c=type(c)=="table"and c.value or c
+return({[0]="off",[1]="on",[2]="toggle",[255]="previous"})[c]
 end,
-to_device=function(value)return({off=0,on=1,toggle=2,previous=255})[value]end,
-emit=emit.trv602PowerBehavior()}),zcl.cluster_attribute(3,nil,{name="trv602_identify",endpoint=1,write_only=true,
-sender=function(device)
-return zcl.send_raw_cluster_command(device,3,0,string.pack("<I2",device.preferences.identifyTimeout or 3),1)
+to_device=function(c)return({off=0,on=1,toggle=2,previous=255})[c]end,
+emit=J.trv602PowerBehavior()}),i.cluster_attribute(3,nil,{name="trv602_identify",endpoint=1,write_only=true,
+sender=function(f)
+return i.send_raw_cluster_command(f,3,0,string.pack("<I2",f.preferences.identifyTimeout or 3),1)
 end}),
 },
-configure=function(driver,device)
-for _,cluster in ipairs({1,6,0x0201})do zcl.bind_cluster(device,cluster,driver.environment_info.hub_zigbee_eui,1)end
+configure=function(R,f)
+for _,ae in ipairs({1,6,513})do i.bind_cluster(f,ae,R.environment_info.hub_zigbee_eui,1)end
 end,
-runtime_start=function(device)
-device:emit_component_event({id="main"},capabilities.thermostatMode.supportedThermostatModes({"off","heat"}))
+runtime_start=function(f)
+f:emit_component_event({id="main"},B.thermostatMode.supportedThermostatModes({"off","heat"}))
 end,
-}register_device_definition(topband_trv602,{device_helpers.create_fingerprint("Topband","TRV602WZ")})return{
-id="zcl.sensors.wave19_hvac",registrations=device_definitions,}
+}h(K,{n.create_fingerprint("Topband","TRV602WZ")})i.attach_reporting_capabilities(q,{
+{2,"rpt-txc"},})return{
+id="zcl.sensors.wave19_hvac",registrations=q,}

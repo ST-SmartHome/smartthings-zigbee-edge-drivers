@@ -1,27 +1,27 @@
-local function registrations(catalog,expected_id,module_name)
-assert(type(catalog)=="table","Canonical catalog must return a table: "..module_name)for key in next,catalog do
-assert(key=="id"or key=="registrations","Canonical catalog has extra key: "..module_name ..":"..tostring(key))
+local function b(d,e,module_name)
+assert(type(d)=="table","Canonical catalog must return a table: "..module_name)for k in next,d do
+assert(k=="id"or k=="registrations","Canonical catalog has extra key: "..module_name ..":"..tostring(k))
 end
-assert(catalog.id==expected_id,"Canonical catalog id mismatch: "..module_name)assert(type(catalog.registrations)=="table","Canonical catalog registrations missing: "..module_name)return catalog.registrations
+assert(d.id==e,"Canonical catalog id mismatch: "..module_name)assert(type(d.registrations)=="table","Canonical catalog registrations missing: "..module_name)return d.registrations
 end
-local entries={}local catalog_1=require"contracts.families.zcl.lights.z2m_absorption"
-for _,entry in ipairs(registrations(catalog_1,"zcl.lights.z2m_absorption","contracts.families.zcl.lights.z2m_absorption"))do
-entries[#entries+1]=entry
+local a={}local f=require"contracts.families.zcl.lights.z2m_absorption"
+for _,c in ipairs(b(f,"zcl.lights.z2m_absorption","contracts.families.zcl.lights.z2m_absorption"))do
+a[#a+1]=c
 end
-local catalog_2=require"contracts.families.zcl.lights.shelly_dimmer"
-for _,entry in ipairs(registrations(catalog_2,"zcl.lights.shelly_dimmer","contracts.families.zcl.lights.shelly_dimmer"))do
-entries[#entries+1]=entry
+local g=require"contracts.families.zcl.lights.shelly_dimmer"
+for _,c in ipairs(b(g,"zcl.lights.shelly_dimmer","contracts.families.zcl.lights.shelly_dimmer"))do
+a[#a+1]=c
 end
-local catalog_3=require"contracts.families.zcl.lights.wave19_exact_aliases"
-for _,entry in ipairs(registrations(catalog_3,"zcl.lights.wave19_exact_aliases","contracts.families.zcl.lights.wave19_exact_aliases"))do
-entries[#entries+1]=entry
+local h=require"contracts.families.zcl.lights.wave19_exact_aliases"
+for _,c in ipairs(b(h,"zcl.lights.wave19_exact_aliases","contracts.families.zcl.lights.wave19_exact_aliases"))do
+a[#a+1]=c
 end
-local catalog_4=require"contracts.families.zcl.lights.wave19_exact"
-for _,entry in ipairs(registrations(catalog_4,"zcl.lights.wave19.exact","contracts.families.zcl.lights.wave19_exact"))do
-entries[#entries+1]=entry
+local i=require"contracts.families.zcl.lights.wave19_exact"
+for _,c in ipairs(b(i,"zcl.lights.wave19.exact","contracts.families.zcl.lights.wave19_exact"))do
+a[#a+1]=c
 end
-local catalog_5=require"contracts.families.zcl.lights.philips_flux"
-for _,entry in ipairs(registrations(catalog_5,"zcl.lights.philips_flux","contracts.families.zcl.lights.philips_flux"))do
-entries[#entries+1]=entry
+local j=require"contracts.families.zcl.lights.philips_flux"
+for _,c in ipairs(b(j,"zcl.lights.philips_flux","contracts.families.zcl.lights.philips_flux"))do
+a[#a+1]=c
 end
-return entries
+return a

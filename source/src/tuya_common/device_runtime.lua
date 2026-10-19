@@ -11,7 +11,7 @@ local function load_runtime(tuya, shared)
   local SET_TIME = shared.SET_TIME
   local CONNECTION_STATUS = shared.CONNECTION_STATUS
   local REPORT_COMMANDS = shared.REPORT_COMMANDS
-  local cluster_base = shared.cluster_base
+  local device_management = require "st.zigbee.device_management"
 
   local string_byte = shared.string_byte
   local string_len = shared.string_len
@@ -114,7 +114,7 @@ local function send_basic_bind_request(device, bind_target_eui)
     return false
   end
 
-  local request = cluster_base.build_bind_request(device, BASIC_CLUSTER, bind_target_eui)
+  local request = device_management.build_bind_request(device, BASIC_CLUSTER, bind_target_eui)
   if request == nil then
     log.warn("Tuya bind_basic_on_configure failed to build bind request")
     return false

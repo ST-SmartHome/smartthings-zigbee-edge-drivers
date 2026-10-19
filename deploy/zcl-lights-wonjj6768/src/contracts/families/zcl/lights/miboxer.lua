@@ -1,13 +1,14 @@
-local zcl=require"protocol.zcl"
-local device_helpers=require"contracts.helpers.family"
-local device_definitions,register_device_definition=device_helpers.definition_registry()local single_color_controller={
+local b=require"protocol.zcl"
+local d=require"contracts.helpers.family"
+local a,c=d.definition_registry()local f={
 profile="lights-dimmer",zcl_clusters={
-zcl.switch(),zcl.level(),},}local dual_white_controller={
+b.switch(),b.level(),},}local g={
 profile="lights-color-temperature",zcl_clusters={
-zcl.switch(),zcl.level(),zcl.color_temperature(),},}local rgb_controller={
+b.switch(),b.level(),b.color_temperature(),},}local e={
 profile="lights-color",zcl_clusters={
-zcl.switch(),zcl.level(),zcl.color_hue(),zcl.color_saturation(),zcl.color(),},}local rgb_cct_controller={
+b.switch(),b.level(),b.color_hue(),b.color_saturation(),b.color(),},}local h={
 profile="lights-color-temperature-color",zcl_clusters={
-zcl.switch(),zcl.level(),zcl.color_temperature(),zcl.color_hue(),zcl.color_saturation(),zcl.color(),},}register_device_definition(rgb_controller,{
-device_helpers.create_fingerprint("_TZ3210_778drfdt","TS0503B"),})return{
-id="zcl.lights.miboxer",registrations=device_definitions,}
+b.switch(),b.level(),b.color_temperature(),b.color_hue(),b.color_saturation(),b.color(),},}c(e,{
+d.create_fingerprint("_TZ3210_778drfdt","TS0503B"),})b.attach_reporting_capabilities(a,{
+{1,"rpt-tot"},})return{
+id="zcl.lights.miboxer",registrations=a,}

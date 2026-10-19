@@ -527,6 +527,12 @@ zmp_one.datapoints[#zmp_one.datapoints + 1] = tuya.dp_enum(7, {
 append_battery(zmp_one, 13)
 register_device_definition(zmp_one, exacts("TS0601", { "_TZE284_6hrnp30w" }))
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-thj"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "ef00.covers.wave10",
   registrations = device_definitions,

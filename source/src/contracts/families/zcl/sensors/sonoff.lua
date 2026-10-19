@@ -5,10 +5,11 @@ local zcl = require "protocol.zcl"
 local emit = require "capabilities.events.all"
 local capabilities = require "st.capabilities"
 local device_helpers = require "contracts.helpers.family"
+local fp = device_helpers.create_fingerprint
 local device_management = require "st.zigbee.device_management"
 local data_types = require "st.zigbee.data_types"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 local CLUSTER_POWER_CONFIGURATION = 0x0001
 local CLUSTER_POLL_CONTROL = 0x0020
@@ -47,7 +48,6 @@ local function battery(options)
     minimum_interval = options.minimum_interval or 3600,
     maximum_interval = options.maximum_interval or 65000,
     reportable_change = options.reportable_change == nil and 10 or options.reportable_change,
-    read_on_configure = true,
     read_only = true,
   })
 end
@@ -59,7 +59,6 @@ local function battery_voltage(options)
     minimum_interval = options.minimum_interval or 3600,
     maximum_interval = options.maximum_interval or 65000,
     reportable_change = options.reportable_change == nil and 10 or options.reportable_change,
-    read_on_configure = true,
     read_only = true,
   })
 end
@@ -71,7 +70,6 @@ local function temperature(options)
     minimum_interval = options.minimum_interval or 10,
     maximum_interval = options.maximum_interval or 3600,
     reportable_change = options.reportable_change == nil and 100 or options.reportable_change,
-    read_on_configure = true,
     read_only = true,
     handler = options.handler,
   })
@@ -84,7 +82,6 @@ local function humidity(options)
     minimum_interval = options.minimum_interval or 10,
     maximum_interval = options.maximum_interval or 3600,
     reportable_change = options.reportable_change == nil and 100 or options.reportable_change,
-    read_on_configure = true,
     read_only = true,
     handler = options.handler,
   })
@@ -152,10 +149,10 @@ local snzb02p = {
   configure = bind_poll_control,
 }
 
-register_device_definition(snzb02p, {
-  device_helpers.create_fingerprint("eWeLink", "SNZB-02P"),
+register(snzb02p, {
+  fp("eWeLink", "SNZB-02P"),
   -- Explicit identity authority: user-directed SONOFF Basic alias (2026-09-05).
-  device_helpers.create_fingerprint("SONOFF", "SNZB-02P"),
+  fp("SONOFF", "SNZB-02P"),
 })
 
 local snzb02d = {
@@ -223,8 +220,8 @@ local snzb02d = {
   configure = bind_poll_control,
 }
 
-register_device_definition(snzb02d, {
-  device_helpers.create_fingerprint("SONOFF", "SNZB-02D"),
+register(snzb02d, {
+  fp("SONOFF", "SNZB-02D"),
 })
 
 local snzb02ld = {
@@ -246,8 +243,8 @@ local snzb02ld = {
   configure = bind_poll_control,
 }
 
-register_device_definition(snzb02ld, {
-  device_helpers.create_fingerprint("SONOFF", "SNZB-02LD"),
+register(snzb02ld, {
+  fp("SONOFF", "SNZB-02LD"),
 })
 
 local snzb02wd = {
@@ -280,8 +277,8 @@ local snzb02wd = {
   configure = bind_poll_control,
 }
 
-register_device_definition(snzb02wd, {
-  device_helpers.create_fingerprint("SONOFF", "SNZB-02WD"),
+register(snzb02wd, {
+  fp("SONOFF", "SNZB-02WD"),
 })
 
 local ewelink_7014 = {
@@ -293,8 +290,8 @@ local ewelink_7014 = {
   },
 }
 
-register_device_definition(ewelink_7014, {
-  device_helpers.create_fingerprint("eWeLink", "CK-TLSR8656-SS5-02(7014)"),
+register(ewelink_7014, {
+  fp("eWeLink", "CK-TLSR8656-SS5-02(7014)"),
 })
 
 local snzb03p = {
@@ -326,16 +323,17 @@ local snzb03p = {
       from_device = function(value) return ({ [0] = "dim", [1] = "bright" })[value] end,
       read_only = true,
       read_on_configure = false,
+      read_on_refresh = false,
     }),
     battery({ maximum_interval = 7200, reportable_change = 2 }),
     battery_voltage({ maximum_interval = 7200, reportable_change = 100 }),
   },
 }
 
-register_device_definition(snzb03p, {
-  device_helpers.create_fingerprint("eWeLink", "SNZB-03P"),
+register(snzb03p, {
+  fp("eWeLink", "SNZB-03P"),
   -- Explicit identity authority: user-directed SONOFF Basic alias (2026-09-05).
-  device_helpers.create_fingerprint("SONOFF", "SNZB-03P"),
+  fp("SONOFF", "SNZB-03P"),
 })
 
 local mg35rz = {
@@ -386,10 +384,10 @@ local mg35rz = {
   },
 }
 
-register_device_definition(mg35rz, {
-  device_helpers.create_fingerprint("eWeLink", "CK-BL702-MWS-01(7016)"),
+register(mg35rz, {
+  fp("eWeLink", "CK-BL702-MWS-01(7016)"),
   -- Explicit identity authority: user-directed SONOFF Basic exact (2026-09-05).
-  device_helpers.create_fingerprint("SONOFF", "MG1_5RZ"),
+  fp("SONOFF", "MG1_5RZ"),
 })
 
 local function remember(field)
@@ -517,8 +515,8 @@ local snzb02m = {
   configure = bind_poll_control,
 }
 
-register_device_definition(snzb02m, {
-  device_helpers.create_fingerprint("SONOFF", "SNZB-02M"),
+register(snzb02m, {
+  fp("SONOFF", "SNZB-02M"),
 })
 
 local SNZB02B_TEMPERATURE_FIELD = "__sonoff_snzb02b_temperature"
@@ -583,8 +581,8 @@ local snzb02b = {
   configure = bind_poll_control,
 }
 
-register_device_definition(snzb02b, {
-  device_helpers.create_fingerprint("SONOFF", "SNZB-02B"),
+register(snzb02b, {
+  fp("SONOFF", "SNZB-02B"),
 })
 
 local function extract_zone_status(zb_rx)
@@ -619,8 +617,8 @@ local ws01 = {
   },
 }
 
-register_device_definition(ws01, {
-  device_helpers.create_fingerprint("eWeLink", "WS01"),
+register(ws01, {
+  fp("eWeLink", "WS01"),
 })
 
 -- Classic models have different reporting and GET contracts from the P/D series.
@@ -635,7 +633,6 @@ local function classic_battery(maximum_interval, change)
     minimum_interval = 3600,
     maximum_interval = maximum_interval,
     reportable_change = change,
-    read_on_configure = true,
     read_only = true,
     from_device = function(value)
       -- Conversion runs after /2. ZHC ignores the Uint8 unknown sentinel 255.
@@ -650,7 +647,6 @@ local function classic_voltage(maximum_interval, change)
     minimum_interval = 3600,
     maximum_interval = maximum_interval,
     reportable_change = change,
-    read_on_configure = true,
     read_only = true,
     from_device = function(value)
       -- ZHC mV is represented by the standard SmartThings V attribute (/10).
@@ -691,11 +687,11 @@ local snzb02_classic = {
   parent_refresh = classic_refresh,
 }
 
-register_device_definition(snzb02_classic, {
-  device_helpers.create_fingerprint("SONOFF", "SNZB-02"),
-  device_helpers.create_fingerprint("SONOFF", "TH01"),
-  device_helpers.create_fingerprint("SONOFF", "CK-TLSR8656-SS5-01(7014)"),
-  device_helpers.create_fingerprint("eWeLink", "TH01"),
+register(snzb02_classic, {
+  fp("SONOFF", "SNZB-02"),
+  fp("SONOFF", "TH01"),
+  fp("SONOFF", "CK-TLSR8656-SS5-01(7014)"),
+  fp("eWeLink", "TH01"),
 })
 
 local function classic_zone_bit(bit)
@@ -743,11 +739,26 @@ local snzb04_classic = {
   parent_refresh = classic_refresh,
 }
 
-register_device_definition(snzb04_classic, {
-  device_helpers.create_fingerprint("SONOFF", "SNZB-04"),
-  device_helpers.create_fingerprint("SONOFF", "DS01"),
-  device_helpers.create_fingerprint("SONOFF", "CK-TLSR8656-SS5-01(7003)"),
+register(snzb04_classic, {
+  fp("SONOFF", "SNZB-04"),
+  fp("SONOFF", "DS01"),
+  fp("SONOFF", "CK-TLSR8656-SS5-01(7003)"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-slf"},
+  {2, "rpt-spr"},
+  {3, "rpt-sxo"},
+  {4, "rpt-swu"},
+  {5, "rpt-lrf"},
+  {6, "rpt-smq"},
+  {8, "rpt-son"},
+  {9, "rpt-scz"},
+  {11, "rpt-sxh"},
+  {12, "rpt-svu"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.sonoff",

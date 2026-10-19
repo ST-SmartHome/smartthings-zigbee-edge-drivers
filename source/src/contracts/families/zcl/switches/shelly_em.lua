@@ -104,6 +104,12 @@ register_device_definition(shelly_em, {
   device_helpers.create_fingerprint("Shelly", "EM"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-eqx", {["zr070200002"] = "Energy", ["zr070200003"] = "EnergyTwo", ["zr0b0403002"] = "Frequency", ["zr0b0403003"] = "FrequencyTwo", ["zr0b0405052"] = "Voltage", ["zr0b0405053"] = "VoltageTwo", ["zr0b0405082"] = "Current", ["zr0b0405083"] = "CurrentTwo", ["zr0b04050b2"] = "Power", ["zr0b04050b3"] = "PowerTwo"}},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.switches.shelly_em",
   registrations = device_definitions,

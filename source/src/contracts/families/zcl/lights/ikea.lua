@@ -172,6 +172,14 @@ register_device_definition(color_cct_light, {
   device_helpers.create_fingerprint("IKEA of Sweden", "JETSTROM 3030 ceiling"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tmf"},
+  {2, "rpt-txx"},
+  {3, "rpt-tkj"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.lights.ikea",
   registrations = device_definitions,

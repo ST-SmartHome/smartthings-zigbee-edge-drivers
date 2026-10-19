@@ -334,6 +334,12 @@ for slot, item in ipairs({
 end
 register_device_definition(zrf01, device_helpers.create_fingerprints("TS0601", { "_TZE284_tdg4ckyh" }))
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {8, "rpt-til"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "ef00.controls",
   registrations = device_definitions,

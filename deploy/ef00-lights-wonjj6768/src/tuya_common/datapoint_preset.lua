@@ -1,650 +1,650 @@
-local function load_datapoint_preset(tuya,shared,emit)
-emit=emit or{switch=function()return nil end}
-local type_check=shared.type_check
-local table_insert=shared.table_insert
-local tonumber_check=shared.tonumber_check
-local merge_options=shared.merge_options
-local copy_keys=shared.copy_keys
-local converter=tuya.converter
-local function apply_defaults(target,defaults)
-if type_check(target)~="table"or type_check(defaults)~="table"then
-return target
+local function av(m,aI,bA)
+bA=bA or{switch=function()return nil end}
+local e=aI.type_check
+local N=aI.table_insert
+local aY=aI.tonumber_check
+local n=aI.merge_options
+local bt=aI.copy_keys
+local l=m.converter
+local function as(aa,K)
+if e(aa)~="table"or e(K)~="table"then
+return aa
 end
-for key,value in pairs(defaults)do
-if target[key]==nil then
-target[key]=value
+for au,R in pairs(K)do
+if aa[au]==nil then
+aa[au]=R
 end
 end
-return target
+return aa
 end
-local function normalize_preset_options(name_or_options,options,default_name)
-local resolved={}if type_check(name_or_options)=="string"then
-resolved.name=name_or_options
+local function d(c,b,h)
+local a={}if e(c)=="string"then
+a.name=c
 else
-merge_options(resolved,name_or_options)
+n(a,c)
 end
-merge_options(resolved,options)if resolved.name==nil and default_name~=nil then
-resolved.name=default_name
+n(a,b)if a.name==nil and h~=nil then
+a.name=h
 end
-return resolved
+return a
 end
-local send_policy_option_keys={
+local ap={
 "send_policy","command_id","transaction","batch_key","match_transaction","response_dp","response_dps","match_response",}
-local function has_send_policy_options(options)
-if type_check(options)~="table"then
+local function ao(b)
+if e(b)~="table"then
 return false
 end
-for _,key in ipairs(send_policy_option_keys)do
-if options[key]~=nil then
+for _,au in ipairs(ap)do
+if b[au]~=nil then
 return true
 end
 end
 return false
 end
-local function apply_default_fixed_send_policy(mapping,options)
-if has_send_policy_options(options)then
-return mapping
+local function g(bo,b)
+if ao(b)then
+return bo
 end
-return tuya.apply_fixed_send_policy(mapping)
+return m.apply_fixed_send_policy(bo)
 end
-local function build_scaled_numeric_preset(dp,default_name,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,default_name)local scale=resolved.scale
-if scale==nil then
-scale=10
+local function ba(t,h,c,b)
+local a=d(c,b,h)local w=a.scale
+if w==nil then
+w=10
 end
-if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil and scale~=1 then
-resolved.converter=converter.divide_by_pair(scale)
+if a.converter==nil and a.from_device==nil and a.to_device==nil and w~=1 then
+a.converter=l.divide_by_pair(w)
 end
-resolved.scale=nil
-return tuya.dp_numeric(dp,resolved)
+a.scale=nil
+return m.dp_numeric(t,a)
 end
-local function build_divided_numeric_preset(dp,default_name,default_scale,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,default_name)local scale=resolved.scale
-if scale==nil then
-scale=default_scale
+local function y(t,h,C,c,b)
+local a=d(c,b,h)local w=a.scale
+if w==nil then
+w=C
 end
-if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil and scale~=1 then
-resolved.converter=converter.divide_by_pair(scale)
+if a.converter==nil and a.from_device==nil and a.to_device==nil and w~=1 then
+a.converter=l.divide_by_pair(w)
 end
-resolved.scale=nil
-return tuya.dp_numeric(dp,resolved)
+a.scale=nil
+return m.dp_numeric(t,a)
 end
-local function build_power_numeric_preset(dp,default_name,default_scale,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,default_name)local scale=resolved.scale
-if scale==nil then
-scale=default_scale
+local function ae(t,h,C,c,b)
+local a=d(c,b,h)local w=a.scale
+if w==nil then
+w=C
 end
-if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil then
-local power_converter=converter.power()local from_device=power_converter.from
-if scale~=1 then
-resolved.from_device=converter.pipe(
-from_device,converter.divide_by(scale))else
-resolved.converter=power_converter
+if a.converter==nil and a.from_device==nil and a.to_device==nil then
+local ar=l.power()local bl=ar.from
+if w~=1 then
+a.from_device=l.pipe(
+bl,l.divide_by(w))else
+a.converter=ar
 end
 end
-resolved.scale=nil
-return tuya.dp_numeric(dp,resolved)
+a.scale=nil
+return m.dp_numeric(t,a)
 end
-local function build_signed_numeric_preset(dp,default_name,default_scale,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,default_name)local scale=resolved.scale
-if scale==nil then
-scale=default_scale
+local function bb(t,h,C,c,b)
+local a=d(c,b,h)local w=a.scale
+if w==nil then
+w=C
 end
-if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil then
-resolved.converter=converter.signed_number_pair(scale)
+if a.converter==nil and a.from_device==nil and a.to_device==nil then
+a.converter=l.signed_number_pair(w)
 end
-if resolved.signed==nil then
-resolved.signed=true
+if a.signed==nil then
+a.signed=true
 end
-resolved.scale=nil
-return tuya.dp_numeric(dp,resolved)
+a.scale=nil
+return m.dp_numeric(t,a)
 end
-local function build_raw_aware_numeric_preset(dp,default_name,default_scale,raw_defaults,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,default_name)local scale=resolved.scale
-if scale==nil then
-scale=default_scale
+local function aM(t,h,C,bi,c,b)
+local a=d(c,b,h)local w=a.scale
+if w==nil then
+w=C
 end
-local wants_raw=
-resolved.datatype==tuya.DP_TYPE_RAW or
-resolved.raw==true or
-resolved.raw_bytes~=nil or
-resolved.raw_length~=nil or
-resolved.raw_from_tail~=nil or
-resolved.raw_start~=nil or
-resolved.raw_offset~=nil
-if wants_raw and resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil then
-local raw_options={
-bytes=resolved.raw_bytes or resolved.raw_length,length=resolved.raw_length,from_tail=resolved.raw_from_tail,start=resolved.raw_start,offset=resolved.raw_offset,}apply_defaults(raw_options,raw_defaults)resolved.converter=converter.raw_uint_be(scale,raw_options)if resolved.datatype==nil then
-resolved.datatype=tuya.DP_TYPE_RAW
+local bz=
+a.datatype==m.DP_TYPE_RAW or
+a.raw==true or
+a.raw_bytes~=nil or
+a.raw_length~=nil or
+a.raw_from_tail~=nil or
+a.raw_start~=nil or
+a.raw_offset~=nil
+if bz and a.converter==nil and a.from_device==nil and a.to_device==nil then
+local aK={
+bytes=a.raw_bytes or a.raw_length,length=a.raw_length,from_tail=a.raw_from_tail,start=a.raw_start,offset=a.raw_offset,}as(aK,bi)a.converter=l.raw_uint_be(w,aK)if a.datatype==nil then
+a.datatype=m.DP_TYPE_RAW
 end
-elseif resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil and scale~=1 then
-resolved.converter=converter.divide_by_pair(scale)
+elseif a.converter==nil and a.from_device==nil and a.to_device==nil and w~=1 then
+a.converter=l.divide_by_pair(w)
 end
-resolved.scale=nil
-resolved.raw=nil
-resolved.raw_bytes=nil
-resolved.raw_length=nil
-resolved.raw_from_tail=nil
-resolved.raw_start=nil
-resolved.raw_offset=nil
-return tuya.dp_numeric(dp,resolved)
+a.scale=nil
+a.raw=nil
+a.raw_bytes=nil
+a.raw_length=nil
+a.raw_from_tail=nil
+a.raw_start=nil
+a.raw_offset=nil
+return m.dp_numeric(t,a)
 end
-local function invert_numeric_value(value,min_value,max_value)
-local number_value=tonumber_check(value)if number_value==nil then
+local function X(R,bx,bw)
+local aH=aY(R)if aH==nil then
 return nil
 end
-return min_value+max_value-number_value
+return bx+bw-aH
 end
-local function build_ranged_numeric_preset(dp,default_name,defaults,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,default_name)local raw_min=resolved.raw_min
-if raw_min==nil then
-raw_min=defaults.raw_min
+local function B(t,h,K,c,b)
+local a=d(c,b,h)local ai=a.raw_min
+if ai==nil then
+ai=K.raw_min
 end
-local raw_max=resolved.raw_max
-if raw_max==nil then
-raw_max=defaults.raw_max
+local ah=a.raw_max
+if ah==nil then
+ah=K.raw_max
 end
-local value_min=resolved.value_min
-if value_min==nil then
-value_min=defaults.value_min
+local I=a.value_min
+if I==nil then
+I=K.value_min
 end
-local value_max=resolved.value_max
-if value_max==nil then
-value_max=defaults.value_max
+local H=a.value_max
+if H==nil then
+H=K.value_max
 end
-local invert=resolved.invert==true or resolved.invert_position==true
-if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil then
-if invert then
-local from_scale=converter.scale(raw_min,raw_max,value_min,value_max)local to_scale=converter.scale(value_min,value_max,raw_min,raw_max)resolved.converter=converter.from_to(
-function(value,device,context)
-local scaled=from_scale(value,device,context)if scaled==nil then
+local bD=a.invert==true or a.invert_position==true
+if a.converter==nil and a.from_device==nil and a.to_device==nil then
+if bD then
+local bq=l.scale(ai,ah,I,H)local bB=l.scale(I,H,ai,ah)a.converter=l.from_to(
+function(R,be,aV)
+local by=bq(R,be,aV)if by==nil then
 return nil
 end
-return invert_numeric_value(scaled,value_min,value_max)
+return X(by,I,H)
 end,
-function(value,device,context)
-local inverted=invert_numeric_value(value,value_min,value_max)if inverted==nil then
+function(R,be,aV)
+local bg=X(R,I,H)if bg==nil then
 return nil
 end
-return to_scale(inverted,device,context)
+return bB(bg,be,aV)
 end
-)elseif raw_min~=value_min or raw_max~=value_max then
-resolved.converter=converter.scale_pair(raw_min,raw_max,value_min,value_max)
+)elseif ai~=I or ah~=H then
+a.converter=l.scale_pair(ai,ah,I,H)
 end
 end
-resolved.raw_min=nil
-resolved.raw_max=nil
-resolved.value_min=nil
-resolved.value_max=nil
-resolved.invert=nil
-resolved.invert_position=nil
-return tuya.dp_numeric(dp,resolved)
+a.raw_min=nil
+a.raw_max=nil
+a.value_min=nil
+a.value_max=nil
+a.invert=nil
+a.invert_position=nil
+return m.dp_numeric(t,a)
 end
-local function phase_name(phase,fallback)
-if type_check(phase)=="string"and phase~=""then
-return(fallback or"phase").."_"..phase
+local function bs(phase,bf)
+if e(phase)=="string"and phase~=""then
+return(bf or"phase").."_"..phase
 end
-return fallback or"phase"
+return bf or"phase"
 end
-local function phase_fields(keys,phase)
-local fields={}for _,key in ipairs(keys or{})do
-local field_name=key
-if type_check(phase)=="string"and phase~=""then
-field_name=key.."_"..phase
+local function bh(bF,phase)
+local bv={}for _,au in ipairs(bF or{})do
+local aO=au
+if e(phase)=="string"and phase~=""then
+aO=au.."_"..phase
 end
-fields[field_name]=true
+bv[aO]=true
 end
-return fields
+return bv
 end
-local function build_phase_raw_preset(dp,default_name,parser_builder,field_keys,name_or_options,options)
-local explicit_name=
-type_check(name_or_options)=="string"or
-(type_check(name_or_options)=="table"and name_or_options.name~=nil)or
-(type_check(options)=="table"and options.name~=nil)local resolved=normalize_preset_options(name_or_options,options,default_name)local phase=resolved.phase
-if not explicit_name and resolved.name==default_name then
-resolved.name=phase_name(phase,default_name)
+local function bj(t,h,aX,bp,c,b)
+local bd=
+e(c)=="string"or
+(e(c)=="table"and c.name~=nil)or
+(e(b)=="table"and b.name~=nil)local a=d(c,b,h)local phase=a.phase
+if not bd and a.name==h then
+a.name=bs(phase,h)
 end
-if resolved.read_only==nil then
-resolved.read_only=true
+if a.read_only==nil then
+a.read_only=true
 end
-if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil then
-resolved.converter=parser_builder(resolved)
+if a.converter==nil and a.from_device==nil and a.to_device==nil then
+a.converter=aX(a)
 end
-if resolved.field==nil and resolved.fields==nil then
-resolved.fields=phase_fields(field_keys,phase)
+if a.field==nil and a.fields==nil then
+a.fields=bh(bp,phase)
 end
-return tuya.dp_raw(dp,resolved)
+return m.dp_raw(t,a)
 end
-local function build_threshold_preset(dp,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,"threshold")if resolved.read_only==nil then
-resolved.read_only=true
+local function bk(t,c,b)
+local a=d(c,b,"threshold")if a.read_only==nil then
+a.read_only=true
 end
-if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil then
-resolved.converter=converter.threshold_parser()
+if a.converter==nil and a.from_device==nil and a.to_device==nil then
+a.converter=l.threshold_parser()
 end
-if resolved.field==nil and resolved.fields==nil then
-resolved.fields={
+if a.field==nil and a.fields==nil then
+a.fields={
 threshold_1=true,threshold_1_protection=true,threshold_1_value=true,threshold_2=true,threshold_2_protection=true,threshold_2_value=true,}
 end
-return tuya.dp_raw(dp,resolved)
+return m.dp_raw(t,a)
 end
-local function integer_dp_list(dp_list)
-if type_check(dp_list)=="number"and dp_list%1==0 and dp_list>=0 then
-return{dp_list}
+local function aq(q)
+if e(q)=="number"and q%1==0 and q>=0 then
+return{q}
 end
-if type_check(dp_list)~="table"then
+if e(q)~="table"then
 return{}
 end
-local normalized={}for _,dp in ipairs(dp_list)do
-if type_check(dp)=="number"and dp%1==0 and dp>=0 then
-table_insert(normalized,dp)
+local aP={}for _,t in ipairs(q)do
+if e(t)=="number"and t%1==0 and t>=0 then
+N(aP,t)
 end
 end
-return normalized
+return aP
 end
-local function resolve_list_source(options)
-if type_check(options)~="table"then
-return options
+local function ac(b)
+if e(b)~="table"then
+return b
 end
-local dp_list=options.dps
-if dp_list==nil then
-dp_list=options.dp_list
+local q=b.dps
+if q==nil then
+q=b.dp_list
 end
-if dp_list==nil and options[1]~=nil then
-dp_list=options
+if q==nil and b[1]~=nil then
+q=b
 end
-return dp_list
+return q
 end
-local function resolve_list_or_dp_source(options)
-local dp_list=resolve_list_source(options)if dp_list~=nil then
-return dp_list
+local function ag(b)
+local q=ac(b)if q~=nil then
+return q
 end
-if type_check(options)~="table"then
-return options
+if e(b)~="table"then
+return b
 end
-return options.dp
+return b.dp
 end
-local function phase_for_index(index,options)
-options=options or{}local phases=options.phases
-if type_check(phases)~="table"then
-phases=options.phase_names
+local function aQ(A,b)
+b=b or{}local aR=b.phases
+if e(aR)~="table"then
+aR=b.phase_names
 end
-local phase=type_check(phases)=="table"and phases[index]or nil
-if type_check(phase)=="string"and phase~=""then
+local phase=e(aR)=="table"and aR[A]or nil
+if e(phase)=="string"and phase~=""then
 return phase
 end
-local phase_prefix=options.phase_prefix
-if phase_prefix==false then
+local F=b.phase_prefix
+if F==false then
 return nil
 end
-if type_check(phase_prefix)~="string"or phase_prefix==""then
-phase_prefix=nil
+if e(F)~="string"or F==""then
+F=nil
 end
-if phase_prefix~=nil then
-return phase_prefix..tostring(index)
+if F~=nil then
+return F..tostring(A)
 end
-return tostring(index)
+return tostring(A)
 end
-local function component_name_for_index(index,options)
-options=options or{}local first_is_main=options.first_is_main~=false
-local component_prefix=options.component_prefix
-if type_check(component_prefix)~="string"or component_prefix==""then
-component_prefix="switch"
+local function ak(A,b)
+b=b or{}local L=b.first_is_main~=false
+local J=b.component_prefix
+if e(J)~="string"or J==""then
+J="switch"
 end
-local main_component=options.main_component
-if type_check(main_component)~="string"or main_component==""then
-main_component="main"
+local Q=b.main_component
+if e(Q)~="string"or Q==""then
+Q="main"
 end
-local index_offset=options.index_offset
-if type_check(index_offset)~="number"or index_offset%1~=0 then
-index_offset=0
+local s=b.index_offset
+if e(s)~="number"or s%1~=0 then
+s=0
 end
-if index==1 and first_is_main then
-return main_component
+if A==1 and L then
+return Q
 end
-local suffix=first_is_main and(index-1+index_offset)or(index+index_offset)if suffix<1 then
-return options.default_component
+local suffix=L and(A-1+s)or(A+s)if suffix<1 then
+return b.default_component
 end
-return component_prefix..tostring(suffix)
+return J..tostring(suffix)
 end
-local function key_name_for_index(index,options,default_prefix)
-options=options or{}local first_is_main=options.first_is_main~=false
-local key_prefix=options.key_prefix
-if type_check(key_prefix)~="string"or key_prefix==""then
-key_prefix=default_prefix or"switch"
+local function aF(A,b,aW)
+b=b or{}local L=b.first_is_main~=false
+local Y=b.key_prefix
+if e(Y)~="string"or Y==""then
+Y=aW or"switch"
 end
-local main_key=options.main_key
-if type_check(main_key)~="string"or main_key==""then
-main_key=key_prefix
+local az=b.main_key
+if e(az)~="string"or az==""then
+az=Y
 end
-local index_offset=options.index_offset
-if type_check(index_offset)~="number"or index_offset%1~=0 then
-index_offset=0
+local s=b.index_offset
+if e(s)~="number"or s%1~=0 then
+s=0
 end
-if index==1 and first_is_main then
-return main_key
+if A==1 and L then
+return az
 end
-local suffix=first_is_main and(index-1+index_offset)or(index+index_offset)if suffix<1 then
-return options.default_key
+local suffix=L and(A-1+s)or(A+s)if suffix<1 then
+return b.default_key
 end
-return key_prefix..tostring(suffix)
+return Y..tostring(suffix)
 end
-local function append_preset(datapoints,dp,builder,options)
-if type_check(dp)~="number"or dp%1~=0 or dp<0 then
+local function T(i,t,z,b)
+if e(t)~="number"or t%1~=0 or t<0 then
 return
 end
-table_insert(datapoints,builder(dp,options))
+N(i,z(t,b))
 end
-local function append_preset_list(target,items)
-if type_check(items)~="table"then
-return target
+local function ad(aa,bC)
+if e(bC)~="table"then
+return aa
 end
-for _,item in ipairs(items)do
-table_insert(target,item)
+for _,bE in ipairs(bC)do
+N(aa,bE)
 end
-return target
+return aa
 end
-local gang_shared_option_keys={
+local an={
 "first_is_main","main_component","component_prefix","index_offset","default_component","key_prefix","main_key","default_key",}
-local function is_positive_integer(value)
-return type_check(value)=="number"and value%1==0 and value>0
+local function aE(R)
+return e(R)=="number"and R%1==0 and R>0
 end
-local function copy_parent_group_options(options,keep_direct_source)
-local resolved={}if type_check(options)~="table"then
-return resolved
+local function r(b,j)
+local a={}if e(b)~="table"then
+return a
 end
-for key,value in pairs(options)do
-local keep_key=true
-if not keep_direct_source then
-if key=="dp"or key=="dps"or key=="dp_list"then
-keep_key=false
-elseif is_positive_integer(key)then
-keep_key=false
-end
-end
-if keep_key then
-resolved[key]=value
+for au,R in pairs(b)do
+local aL=true
+if not j then
+if au=="dp"or au=="dps"or au=="dp_list"then
+aL=false
+elseif aE(au)then
+aL=false
 end
 end
-return resolved
+if aL then
+a[au]=R
 end
-local function has_direct_source_options(options)
-if type_check(options)~="table"then
+end
+return a
+end
+local function af(b)
+if e(b)~="table"then
 return false
 end
-if options.dp~=nil or options.dps~=nil or options.dp_list~=nil or options[1]~=nil then
+if b.dp~=nil or b.dps~=nil or b.dp_list~=nil or b[1]~=nil then
 return true
 end
 return false
 end
-local function clear_direct_source_options(options)
-if type_check(options)~="table"then
-return options
+local function G(b)
+if e(b)~="table"then
+return b
 end
-options.dp=nil
-options.dps=nil
-options.dp_list=nil
-local index=1
-while options[index]~=nil do
-options[index]=nil
-index=index+1
+b.dp=nil
+b.dps=nil
+b.dp_list=nil
+local A=1
+while b[A]~=nil do
+b[A]=nil
+A=A+1
 end
-return options
+return b
 end
-local function resolve_group_options(options,group_name,keep_direct_source)
-if type_check(options)~="table"then
+local function v(b,k,j)
+if e(b)~="table"then
 return{}
 end
-local grouped=options[group_name]if grouped==nil then
-return copy_parent_group_options(options,keep_direct_source)
+local u=b[k]if u==nil then
+return r(b,j)
 end
-local resolved=copy_parent_group_options(options,keep_direct_source)if type_check(grouped)=="table"then
-merge_options(resolved,grouped)else
-resolved.dp=grouped
+local a=r(b,j)if e(u)=="table"then
+n(a,u)else
+a.dp=u
 end
-return resolved
+return a
 end
-local function normalize_direct_group_options(grouped)
-if grouped==nil then
+local function x(u)
+if u==nil then
 return nil
 end
-if type_check(grouped)=="table"then
-return grouped
+if e(u)=="table"then
+return u
 end
-return{dp=grouped}
+return{dp=u}
 end
-local function direct_group_options(options,group_name)
-if type_check(options)~="table"then
+local function W(b,k)
+if e(b)~="table"then
 return nil
 end
-return normalize_direct_group_options(options[group_name])
+return x(b[k])
 end
-local function resolve_item_options(parent_options,group_options)
-local parent_item_options=type_check(parent_options)=="table"and parent_options.item_options or nil
-local group_item_options=type_check(group_options)=="table"and group_options.item_options or nil
-if type_check(parent_item_options)~="table"then
-return type_check(group_item_options)=="table"and group_item_options or nil
+local function aA(aw,f)
+local M=e(aw)=="table"and aw.item_options or nil
+local E=e(f)=="table"and f.item_options or nil
+if e(M)~="table"then
+return e(E)=="table"and E or nil
 end
-if type_check(group_item_options)~="table"then
-return parent_item_options
+if e(E)~="table"then
+return M
 end
-local resolved={}merge_options(resolved,parent_item_options)merge_options(resolved,group_item_options)return resolved
+local a={}n(a,M)n(a,E)return a
 end
-local function build_gang_group_options(options,group_name,default_key_prefix,keep_direct_source)
-local resolved={}local grouped=nil
-if type_check(options)=="table"then
-copy_keys(resolved,options,gang_shared_option_keys)grouped=options[group_name]if type_check(grouped)=="table"then
-merge_options(resolved,copy_parent_group_options(options,keep_direct_source))if keep_direct_source and has_direct_source_options(grouped)then
-clear_direct_source_options(resolved)
+local function aj(b,k,D,j)
+local a={}local u=nil
+if e(b)=="table"then
+bt(a,b,an)u=b[k]if e(u)=="table"then
+n(a,r(b,j))if j and af(u)then
+G(a)
 end
-merge_options(resolved,grouped)elseif grouped~=nil then
-merge_options(resolved,copy_parent_group_options(options,keep_direct_source))if keep_direct_source then
-clear_direct_source_options(resolved)
+n(a,u)elseif u~=nil then
+n(a,r(b,j))if j then
+G(a)
 end
-resolved.dp=grouped
+a.dp=u
 else
-merge_options(resolved,copy_parent_group_options(options,keep_direct_source))
+n(a,r(b,j))
 end
 end
-if resolved.key_prefix==nil and default_key_prefix~=nil then
-resolved.key_prefix=default_key_prefix
+if a.key_prefix==nil and D~=nil then
+a.key_prefix=D
 end
-resolved.item_options=resolve_item_options(options,grouped)return resolved
+a.item_options=aA(b,u)return a
 end
-local function build_switch_config_variant_options(options,variant_group_name)
-local config_options={}local direct_config_options=direct_group_options(options,"config")merge_options(config_options,direct_config_options)local variant_group=normalize_direct_group_options(config_options[variant_group_name])if variant_group~=nil then
-config_options[variant_group_name]=variant_group
+local function O(b,p)
+local o={}local at=W(b,"config")n(o,at)local aC=x(o[p])if aC~=nil then
+o[p]=aC
 else
-local source_group=normalize_direct_group_options(config_options.switch_type)if source_group==nil then
-source_group=direct_group_options(options,"switch_type")
+local Z=x(o.switch_type)if Z==nil then
+Z=W(b,"switch_type")
 end
-if type_check(source_group)=="table"then
-config_options[variant_group_name]=source_group
+if e(Z)=="table"then
+o[p]=Z
 end
 end
-if variant_group_name~="switch_type"then
-config_options.switch_type=nil
+if p~="switch_type"then
+o.switch_type=nil
 end
-if next(config_options)~=nil then
-return config_options
+if next(o)~=nil then
+return o
 end
 return{}
 end
-local function build_switch_module_variant_options(options,variant_group_name)
-local resolved={}if type_check(options)=="table"then
-merge_options(resolved,options)
+local function P(b,p)
+local a={}if e(b)=="table"then
+n(a,b)
 end
-local config_options=build_switch_config_variant_options(options,variant_group_name)if next(config_options)~=nil then
-resolved.config=config_options
+local o=O(b,p)if next(o)~=nil then
+a.config=o
 end
-resolved.switch_type=nil
-return resolved
+a.switch_type=nil
+return a
 end
-local function build_plug_variant_options(options,variant_group_name)
-local resolved={}if type_check(options)=="table"then
-merge_options(resolved,options)
+local function bc(b,p)
+local a={}if e(b)=="table"then
+n(a,b)
 end
-local switch_module_options=build_switch_module_variant_options(
-resolve_group_options(options,"switch_module"),variant_group_name)if next(switch_module_options)~=nil then
-resolved.switch_module=switch_module_options
+local V=P(
+v(b,"switch_module"),p)if next(V)~=nil then
+a.switch_module=V
 end
-return resolved
+return a
 end
-local function append_group_preset(datapoints,options,group_name,builder)
-local group_options=resolve_group_options(options,group_name)append_preset(datapoints,group_options.dp,builder,group_options)
+local function aD(i,b,k,z)
+local f=v(b,k)T(i,f.dp,z,f)
 end
-local function append_group_preset_with_defaults(datapoints,options,group_name,builder,defaults)
-local group_options=resolve_group_options(options,group_name)apply_defaults(group_options,defaults)append_preset(datapoints,group_options.dp,builder,group_options)
+local function aJ(i,b,k,z,K)
+local f=v(b,k)as(f,K)T(i,f.dp,z,f)
 end
-local function append_group_or_list_preset(datapoints,options,group_name,builder,list_builder)
-local group_options=resolve_group_options(options,group_name)local dp_list=resolve_list_source(group_options)if dp_list~=nil and list_builder~=nil then
-append_preset_list(datapoints,list_builder(dp_list,group_options))return
+local function aZ(i,b,k,z,aG)
+local f=v(b,k)local q=ac(f)if q~=nil and aG~=nil then
+ad(i,aG(q,f))return
 end
-append_preset(datapoints,group_options.dp,builder,group_options)
+T(i,f.dp,z,f)
 end
-local function append_gang_group_preset_list(datapoints,options,group_name,default_key_prefix,builder)
-local group_options=build_gang_group_options(options,group_name,default_key_prefix)append_preset_list(datapoints,builder(resolve_list_or_dp_source(group_options),group_options))
+local function aS(i,b,k,D,z)
+local f=aj(b,k,D)ad(i,z(ag(f),f))
 end
-local function build_gang_datapoints(dp_list,builder,default_name,options)
-local datapoints={}local resolved_dps=integer_dp_list(dp_list)local item_options=type_check(options)=="table"and options.item_options or nil
-for index,dp in ipairs(resolved_dps)do
-local resolved=normalize_preset_options(item_options,nil,default_name)if resolved.component==nil then
-resolved.component=component_name_for_index(index,options)
+local function bn(q,z,h,b)
+local i={}local am=aq(q)local al=e(b)=="table"and b.item_options or nil
+for A,t in ipairs(am)do
+local a=d(al,nil,h)if a.component==nil then
+a.component=ak(A,b)
 end
-if resolved.key==nil and resolved.preference==nil then
-resolved.key=key_name_for_index(index,options,default_name)
+if a.key==nil and a.preference==nil then
+a.key=aF(A,b,h)
 end
-if resolved.field==nil and resolved.fields==nil and resolved.key~=nil then
-resolved.field=resolved.key
+if a.field==nil and a.fields==nil and a.key~=nil then
+a.field=a.key
 end
-table_insert(datapoints,builder(dp,resolved))
+N(i,z(t,a))
 end
-return datapoints
+return i
 end
-local function build_phase_meter_datapoints(dp_list,builder,options)
-local datapoints={}local resolved_dps=integer_dp_list(dp_list)local item_options=type_check(options)=="table"and options.item_options or nil
-for index,dp in ipairs(resolved_dps)do
-local resolved=normalize_preset_options(item_options,nil,nil)if resolved.phase==nil then
-resolved.phase=phase_for_index(index,options)
+local function aU(q,z,b)
+local i={}local am=aq(q)local al=e(b)=="table"and b.item_options or nil
+for A,t in ipairs(am)do
+local a=d(al,nil,nil)if a.phase==nil then
+a.phase=aQ(A,b)
 end
-table_insert(datapoints,builder(dp,resolved))
+N(i,z(t,a))
 end
-return datapoints
+return i
 end
-local function build_single_group_datapoints(options,group_name,builder)
-local group_options=nil
-if type_check(options)=="table"then
-group_options=resolve_group_options(options,group_name,true)else
-group_options={dp=options}
+local function ab(b,k,z)
+local f=nil
+if e(b)=="table"then
+f=v(b,k,true)else
+f={dp=b}
 end
-local datapoints={}append_preset(datapoints,group_options.dp,builder,group_options)return datapoints
+local i={}T(i,f.dp,z,f)return i
 end
-function tuya.dp_on_off(dp,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,"switch")if resolved.name=="switch"and resolved.emit==nil then
-resolved.emit=emit.switch()
+function m.dp_on_off(t,c,b)
+local a=d(c,b,"switch")if a.name=="switch"and a.emit==nil then
+a.emit=bA.switch()
 end
-return tuya.dp_binary(dp,resolved)
+return m.dp_binary(t,a)
 end
-function tuya.dp_child_lock(dp,name_or_options,options)
-return tuya.dp_binary(dp,normalize_preset_options(name_or_options,options,"child_lock"))
+function m.dp_child_lock(t,c,b)
+return m.dp_binary(t,d(c,b,"child_lock"))
 end
-function tuya.dp_brightness(dp,name_or_options,options)
-return tuya.dp_light(dp,normalize_preset_options(name_or_options,options,"brightness"))
+function m.dp_brightness(t,c,b)
+return m.dp_light(t,d(c,b,"brightness"))
 end
-function tuya.dp_voltage(dp,name_or_options,options)
-return build_divided_numeric_preset(dp,"voltage",10,name_or_options,options)
+function m.dp_voltage(t,c,b)
+return y(t,"voltage",10,c,b)
 end
-function tuya.dp_current(dp,name_or_options,options)
-return build_divided_numeric_preset(dp,"current",1000,name_or_options,options)
+function m.dp_current(t,c,b)
+return y(t,"current",1000,c,b)
 end
-function tuya.dp_power(dp,name_or_options,options)
-return build_power_numeric_preset(dp,"power",10,name_or_options,options)
+function m.dp_power(t,c,b)
+return ae(t,"power",10,c,b)
 end
-function tuya.dp_power_on_behavior(dp,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,"power_on_behavior")if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil and resolved.lookup==nil then
-resolved.converter=converter.power_on_behavior()
+function m.dp_power_on_behavior(t,c,b)
+local a=d(c,b,"power_on_behavior")if a.converter==nil and a.from_device==nil and a.to_device==nil and a.lookup==nil then
+a.converter=l.power_on_behavior()
 end
-return apply_default_fixed_send_policy(tuya.dp_enum(dp,resolved),resolved)
+return g(m.dp_enum(t,a),a)
 end
-function tuya.dp_switch_type(dp,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,"switch_type")if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil and resolved.lookup==nil then
-resolved.converter=converter.switch_type()
+function m.dp_switch_type(t,c,b)
+local a=d(c,b,"switch_type")if a.converter==nil and a.from_device==nil and a.to_device==nil and a.lookup==nil then
+a.converter=l.switch_type()
 end
-return apply_default_fixed_send_policy(tuya.dp_enum(dp,resolved),resolved)
+return g(m.dp_enum(t,a),a)
 end
-function tuya.dp_switch_mode(dp,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,"switch_mode")if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil and resolved.lookup==nil then
-resolved.converter=converter.switch_mode()
+function m.dp_switch_mode(t,c,b)
+local a=d(c,b,"switch_mode")if a.converter==nil and a.from_device==nil and a.to_device==nil and a.lookup==nil then
+a.converter=l.switch_mode()
 end
-return apply_default_fixed_send_policy(tuya.dp_enum(dp,resolved),resolved)
+return g(m.dp_enum(t,a),a)
 end
-function tuya.dp_backlight_mode(dp,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,"backlight_mode")if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil and resolved.lookup==nil then
-resolved.converter=converter.backlight_mode_off_normal_inverted()
+function m.dp_backlight_mode(t,c,b)
+local a=d(c,b,"backlight_mode")if a.converter==nil and a.from_device==nil and a.to_device==nil and a.lookup==nil then
+a.converter=l.backlight_mode_off_normal_inverted()
 end
-return apply_default_fixed_send_policy(tuya.dp_enum(dp,resolved),resolved)
+return g(m.dp_enum(t,a),a)
 end
-function tuya.dp_backlight_mode_off_on(dp,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,"backlight_mode")return apply_default_fixed_send_policy(tuya.dp_binary(dp,resolved),resolved)
+function m.dp_backlight_mode_off_on(t,c,b)
+local a=d(c,b,"backlight_mode")return g(m.dp_binary(t,a),a)
 end
-function tuya.dp_indicator_mode(dp,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,"indicator_mode")if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil and resolved.lookup==nil then
-resolved.converter=converter.indicator_mode()
+function m.dp_indicator_mode(t,c,b)
+local a=d(c,b,"indicator_mode")if a.converter==nil and a.from_device==nil and a.to_device==nil and a.lookup==nil then
+a.converter=l.indicator_mode()
 end
-return apply_default_fixed_send_policy(tuya.dp_enum(dp,resolved),resolved)
+return g(m.dp_enum(t,a),a)
 end
-function tuya.dp_indicator_mode_none_relay_pos(dp,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,"indicator_mode")if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil and resolved.lookup==nil then
-resolved.converter=converter.indicator_mode_none_relay_pos()
+function m.dp_indicator_mode_none_relay_pos(t,c,b)
+local a=d(c,b,"indicator_mode")if a.converter==nil and a.from_device==nil and a.to_device==nil and a.lookup==nil then
+a.converter=l.indicator_mode_none_relay_pos()
 end
-return apply_default_fixed_send_policy(tuya.dp_enum(dp,resolved),resolved)
+return g(m.dp_enum(t,a),a)
 end
-function tuya.dp_color_temperature(dp,name_or_options,options)
-return build_ranged_numeric_preset(
-dp,"color_temperature",{raw_min=0,raw_max=1000,value_min=0,value_max=100},name_or_options,options)
+function m.dp_color_temperature(t,c,b)
+return B(
+t,"color_temperature",{raw_min=0,raw_max=1000,value_min=0,value_max=100},c,b)
 end
-function tuya.dp_fan_mode(dp,name_or_options,options)
-return tuya.dp_enum(dp,normalize_preset_options(name_or_options,options,"fan_mode"))
+function m.dp_fan_mode(t,c,b)
+return m.dp_enum(t,d(c,b,"fan_mode"))
 end
-function tuya.dp_countdown(dp,name_or_options,options)
-return build_divided_numeric_preset(dp,"countdown",1,name_or_options,options)
+function m.dp_countdown(t,c,b)
+return y(t,"countdown",1,c,b)
 end
-function tuya.dp_light_type(dp,name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options,"light_type")if resolved.converter==nil and resolved.from_device==nil and resolved.to_device==nil and resolved.lookup==nil then
-resolved.converter=converter.light_type()
+function m.dp_light_type(t,c,b)
+local a=d(c,b,"light_type")if a.converter==nil and a.from_device==nil and a.to_device==nil and a.lookup==nil then
+a.converter=l.light_type()
 end
-return apply_default_fixed_send_policy(tuya.dp_enum(dp,resolved),resolved)
+return g(m.dp_enum(t,a),a)
 end
-function tuya.dp_min_brightness(dp,name_or_options,options)
-return build_ranged_numeric_preset(
-dp,"min_brightness",{raw_min=0,raw_max=1000,value_min=0,value_max=100},name_or_options,options)
+function m.dp_min_brightness(t,c,b)
+return B(
+t,"min_brightness",{raw_min=0,raw_max=1000,value_min=0,value_max=100},c,b)
 end
-function tuya.dp_max_brightness(dp,name_or_options,options)
-return build_ranged_numeric_preset(
-dp,"max_brightness",{raw_min=0,raw_max=1000,value_min=0,value_max=100},name_or_options,options)
+function m.dp_max_brightness(t,c,b)
+return B(
+t,"max_brightness",{raw_min=0,raw_max=1000,value_min=0,value_max=100},c,b)
 end
-local single_group_presets={
-{"switch","switch","on_off"},"temperature","humidity","battery","battery_state",{"battery_state_low_medium_high","battery_state"},"contact","occupancy","illuminance","temperature_unit","child_lock","power_on_behavior","power_outage_memory","switch_type","switch_type_button","switch_type_curtain","switch_mode","backlight_mode","backlight_mode_low_medium_high","backlight_mode_off_on","indicator_mode","indicator_mode_none_relay_pos","brightness","action","countdown","voltage","current","power","energy","ac_frequency","phase_variant1","phase_variant2","phase_variant3","threshold","color_temperature","color_hue","color_saturation","color_data","cover_position","local_temperature","current_heating_setpoint","occupied_heating_setpoint","occupied_cooling_setpoint","local_temperature_calibration","open_window_temperature","comfort_temperature","eco_temperature","holiday_temperature","max_temperature_limit","min_temperature_limit","deadzone_temperature","inlet_water_temperature","outlet_water_temperature","open_window_time","system_mode","running_state","fan_mode","fan_speed","frost_protection","window_detection","open_window","window_open","boost_heating","scale_protection","eco_mode","valve_state",{"valve_state_unknown_open_closed","valve_state"},"temperature_sensor_select",{"temperature_sensor_select_internal_external_both","temperature_sensor_select"},"temperature_calibration","humidity_calibration","max_temperature_alarm","min_temperature_alarm","max_humidity_alarm","min_humidity_alarm","temperature_alarm","humidity_alarm","soil_moisture","soil_calibration","temperature_sampling","report_interval","soil_sampling","soil_warning","illuminance_calibration","water_warning","soil_fertility","soil_fertility_calibration","soil_fertility_warning_setting","soil_fertility_warning","water_consumed","reverse_water_consumed","month_consumption","daily_consumption","flow_rate","instantaneous_flow_rate","cumulative_heat","battery_voltage","meter_id",{"water_meter_faults","faults"},{"water_meter_report_period","report_period"},"gas","gas_value","smoke","smoke_concentration","self_test_result",{"self_test_state","self_test"},"fault_alarm","silence","alarm_time","alarm_volume","alarm_ringtone","preheat","alarm_switch","device_fault","gas_fault_status","tamper","battery_low",{"pir_sensitivity","sensitivity"},"hold_time","keep_time","alarm","presence","motion_state","indicator","fading_time","illuminance_interval","static_detection_distance","static_detection_sensitivity","motion_detection_mode","motion_detection_sensitivity","target_distance","carbon_monoxide","co","co2","voc","pm25","formaldehyde","boost_time","boost_timeset_countdown","light_type","light_mode","motor_direction","error_status","water_leak",{"switch_mode_curtain","switch_mode"},"color_power_on_behavior","power_factor","min_brightness","max_brightness",}for _,entry in ipairs(single_group_presets)do
-local suffix,group,dp_suffix
-if type_check(entry)=="string"then
-suffix,group,dp_suffix=entry,entry,entry
+local aB={
+{"switch","switch","on_off"},"temperature","humidity","battery","battery_state",{"battery_state_low_medium_high","battery_state"},"contact","occupancy","illuminance","temperature_unit","child_lock","power_on_behavior","power_outage_memory","switch_type","switch_type_button","switch_type_curtain","switch_mode","backlight_mode","backlight_mode_low_medium_high","backlight_mode_off_on","indicator_mode","indicator_mode_none_relay_pos","brightness","action","countdown","voltage","current","power","energy","ac_frequency","phase_variant1","phase_variant2","phase_variant3","threshold","color_temperature","color_hue","color_saturation","color_data","cover_position","local_temperature","current_heating_setpoint","occupied_heating_setpoint","occupied_cooling_setpoint","local_temperature_calibration","open_window_temperature","comfort_temperature","eco_temperature","holiday_temperature","max_temperature_limit","min_temperature_limit","deadzone_temperature","inlet_water_temperature","outlet_water_temperature","open_window_time","system_mode","running_state","fan_mode","fan_speed","frost_protection","window_detection","open_window","window_open","boost_heating","scale_protection","eco_mode","valve_state",{"valve_state_unknown_open_closed","valve_state"},"temperature_sensor_select",{"temperature_sensor_select_internal_external_both","temperature_sensor_select"},"temperature_calibration","humidity_calibration","max_temperature_alarm","min_temperature_alarm","max_humidity_alarm","min_humidity_alarm","temperature_alarm","humidity_alarm","soil_moisture","soil_calibration","temperature_sampling","report_interval","soil_sampling","soil_warning","illuminance_calibration","water_warning","soil_fertility","soil_fertility_calibration","soil_fertility_warning_setting","soil_fertility_warning","water_consumed","reverse_water_consumed","month_consumption","daily_consumption","flow_rate","instantaneous_flow_rate","cumulative_heat","battery_voltage","meter_id",{"water_meter_faults","faults"},{"water_meter_report_period","report_period"},"gas","gas_value","smoke","smoke_concentration","self_test_result",{"self_test_state","self_test"},"fault_alarm","silence","alarm_time","alarm_volume","alarm_ringtone","preheat","alarm_switch","device_fault","gas_fault_status","tamper","battery_low",{"pir_sensitivity","sensitivity"},"hold_time","keep_time","alarm","presence","motion_state","indicator","fading_time","illuminance_interval","static_detection_distance","static_detection_sensitivity","motion_detection_mode","motion_detection_sensitivity","target_distance","carbon_monoxide","co","co2","voc","pm25","formaldehyde","boost_time","boost_timeset_countdown","light_type","light_mode","motor_direction","error_status","water_leak",{"switch_mode_curtain","switch_mode"},"color_power_on_behavior","power_factor","min_brightness","max_brightness",}for _,ay in ipairs(aB)do
+local suffix,br,dp_suffix
+if e(ay)=="string"then
+suffix,br,dp_suffix=ay,ay,ay
 else
-suffix=entry[1]group=entry[2]or suffix
-dp_suffix=entry[3]or suffix
+suffix=ay[1]br=ay[2]or suffix
+dp_suffix=ay[3]or suffix
 end
-tuya["build_"..suffix.."_datapoints"]=function(options)
-return build_single_group_datapoints(options,group,tuya["dp_"..dp_suffix])
+m["build_"..suffix.."_datapoints"]=function(b)
+return ab(b,br,m["dp_"..dp_suffix])
 end
 end
-local sensor_group_builders={
+local ax={
 temperature="dp_temperature",humidity="dp_humidity",battery="dp_battery",battery_state="dp_battery_state",contact="dp_contact",illuminance="dp_illuminance",temperature_unit="dp_temperature_unit",temperature_calibration="dp_temperature_calibration",humidity_calibration="dp_humidity_calibration",max_temperature_alarm="dp_max_temperature_alarm",min_temperature_alarm="dp_min_temperature_alarm",max_humidity_alarm="dp_max_humidity_alarm",min_humidity_alarm="dp_min_humidity_alarm",temperature_alarm="dp_temperature_alarm",humidity_alarm="dp_humidity_alarm",soil_moisture="dp_soil_moisture",soil_calibration="dp_soil_calibration",temperature_sampling="dp_temperature_sampling",report_interval="dp_report_interval",soil_sampling="dp_soil_sampling",soil_warning="dp_soil_warning",illuminance_calibration="dp_illuminance_calibration",water_warning="dp_water_warning",soil_fertility="dp_soil_fertility",soil_fertility_calibration="dp_soil_fertility_calibration",soil_fertility_warning_setting="dp_soil_fertility_warning_setting",soil_fertility_warning="dp_soil_fertility_warning",}
-local function build_sensor_group_datapoints(options,group_names)
-options=options or{}local datapoints={}for _,group_name in ipairs(group_names or{})do
-local dp_fn_name=sensor_group_builders[group_name]if dp_fn_name~=nil then
-append_group_preset(datapoints,options,group_name,tuya[dp_fn_name])
+local function aT(b,bm)
+b=b or{}local i={}for _,k in ipairs(bm or{})do
+local aN=ax[k]if aN~=nil then
+aD(i,b,k,m[aN])
 end
 end
-return datapoints
+return i
 end
 end
-return load_datapoint_preset
+return av

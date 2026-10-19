@@ -1,3 +1,4 @@
+local zcl = require "protocol.zcl"
 local function load_fans() local tuya = require "protocol.tuya"
   local emit = require "capabilities.events.all"
   local device_helpers = require "contracts.helpers.family"
@@ -297,7 +298,6 @@ local function load_lights()
   local emit = require "capabilities.events.all"
   local device_helpers = require "contracts.helpers.family"
   local ef00_helpers = require "contracts.helpers.ef00"
-  local zcl = require "protocol.zcl"
   local device_management = require "st.zigbee.device_management"
 
   local device_definitions, register_device_definition = device_helpers.definition_registry()
@@ -1388,6 +1388,16 @@ end
 
 append_registrations(load_fans())
 append_registrations(load_lights())
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(registrations, {
+  {10, "rpt-tta"},
+  {11, "rpt-tga"},
+  {12, "rpt-txv"},
+  {13, "rpt-txv"},
+  {14, "rpt-tpf"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "ef00.lights",

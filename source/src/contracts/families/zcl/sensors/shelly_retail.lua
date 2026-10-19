@@ -208,6 +208,17 @@ register_device_definition(weather_station, {
   device_helpers.create_fingerprint("Shelly", "Ecowitt WS90"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tcb"},
+  {2, "rpt-pob", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr0b0405051"] = "Voltage", ["zr0b0405052"] = "VoltageTwo", ["zr0b0405053"] = "VoltageThree", ["zr0b0405054"] = "VoltageFour", ["zr0b0405081"] = "Current", ["zr0b0405082"] = "CurrentTwo", ["zr0b0405083"] = "CurrentThree", ["zr0b0405084"] = "CurrentFour", ["zr0b04050b1"] = "Power", ["zr0b04050b2"] = "PowerTwo", ["zr0b04050b3"] = "PowerThree", ["zr0b04050b4"] = "PowerFour"}},
+  {3, "rpt-hll"},
+  {4, "rpt-fwi"},
+  {5, "rpt-tgdf"},
+  {6, "rpt-ead"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.sensors.shelly_retail",
   registrations = device_definitions,

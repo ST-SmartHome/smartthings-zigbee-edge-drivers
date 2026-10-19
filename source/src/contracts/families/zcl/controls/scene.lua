@@ -392,6 +392,15 @@ register_device_definition(heiman_scene_remote, {
   device_helpers.create_fingerprint("HEIMAN", "SceneSwitch-EF-3.0"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tyu"},
+  {2, "rpt-cyz"},
+  {4, "rpt-tsz"},
+  {5, "rpt-tfs"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.controls.scene",
   registrations = device_definitions,

@@ -1,10 +1,11 @@
 local zcl = require "protocol.zcl"
 local device_helpers = require "contracts.helpers.family"
+local fp = device_helpers.create_fingerprint
 local capabilities = require "st.capabilities"
 local emit = require "capabilities.events.all"
 local data_types = require "st.zigbee.data_types"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 local LUMI_BASIC_CLUSTER = 0x0000
 local LUMI_BASIC_ATTR = 0xFF01
@@ -71,6 +72,7 @@ end
 
 local temp_humidity_lumi_basic = {
   profile = "sensors-temp-humidity-battery-voltage",
+  reporting_capability_exclusions = { ["*"] = "Z2M WSDCGQ01LM uses Lumi Basic reports/check-in; standard reporting control support is unconfirmed." },
   zcl_clusters = {
     zcl.cluster_attribute(LUMI_BASIC_CLUSTER, LUMI_BASIC_ATTR, {
       name = "lumi_basic",
@@ -85,6 +87,7 @@ local temp_humidity_lumi_basic = {
 
 local temp_humidity_pressure = {
   profile = "sensors-temp-humidity-pressure-battery-voltage",
+  reporting_capability_exclusions = { ["*"] = "Z2M WSDCGQ11LM uses Lumi Basic/measurement reports; standard reporting control support is unconfirmed." },
   zcl_clusters = {
     zcl.cluster_attribute(LUMI_BASIC_CLUSTER, LUMI_BASIC_ATTR, {
       name = "lumi_basic",
@@ -449,66 +452,81 @@ local switch_1 = {
   },
 }
 
-register_device_definition(temp_humidity_lumi_basic, {
-  device_helpers.create_fingerprint("LUMI", "lumi.sens"),
-  device_helpers.create_fingerprint("LUMI", "lumi.sensor_ht"),
+register(temp_humidity_lumi_basic, {
+  fp("LUMI", "lumi.sens"),
+  fp("LUMI", "lumi.sensor_ht"),
 })
 
-register_device_definition(temp_humidity_pressure, {
-  device_helpers.create_fingerprint("LUMI", "lumi.weather"),
+register(temp_humidity_pressure, {
+  fp("LUMI", "lumi.weather"),
 })
 
-register_device_definition(aqara_t1_ht, {
-  device_helpers.create_fingerprint("LUMI", "lumi.sensor_ht.agl02"),
+register(aqara_t1_ht, {
+  fp("LUMI", "lumi.sensor_ht.agl02"),
 })
 
-register_device_definition(illuminance, {
-  device_helpers.create_fingerprint("LUMI", "lumi.sen_ill.agl01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.sen_ill.mgl01"),
+register(illuminance, {
+  fp("LUMI", "lumi.sen_ill.agl01"),
+  fp("LUMI", "lumi.sen_ill.mgl01"),
 })
 
-register_device_definition(motion, {
-  device_helpers.create_fingerprint("LUMI", "lumi.sensor_motion"),
+register(motion, {
+  fp("LUMI", "lumi.sensor_motion"),
 })
 
-register_device_definition(motion_p1, {
-  device_helpers.create_fingerprint("LUMI", "lumi.motion.ac02"),
+register(motion_p1, {
+  fp("LUMI", "lumi.motion.ac02"),
 })
-register_device_definition(motion_e1, {
-  device_helpers.create_fingerprint("LUMI", "lumi.motion.acn001"),
+register(motion_e1, {
+  fp("LUMI", "lumi.motion.acn001"),
 })
-register_device_definition(motion_t1, {
-  device_helpers.create_fingerprint("LUMI", "lumi.motion.agl02"),
+register(motion_t1, {
+  fp("LUMI", "lumi.motion.agl02"),
 })
-register_device_definition(motion_aq2, {
-  device_helpers.create_fingerprint("LUMI", "lumi.sensor_motion.aq2"),
-})
-
-register_device_definition(lumi_ac01_contact, {
-  device_helpers.create_fingerprint("LUMI", "lumi.magnet.ac01"),
+register(motion_aq2, {
+  fp("LUMI", "lumi.sensor_motion.aq2"),
 })
 
-register_device_definition(lumi_acn001_contact, {
-  device_helpers.create_fingerprint("LUMI", "lumi.magnet.acn001"),
+register(lumi_ac01_contact, {
+  fp("LUMI", "lumi.magnet.ac01"),
 })
 
-register_device_definition(lumi_agl02_contact, {
-  device_helpers.create_fingerprint("LUMI", "lumi.magnet.agl02"),
+register(lumi_acn001_contact, {
+  fp("LUMI", "lumi.magnet.acn001"),
 })
 
-register_device_definition(old_lumi_contact, {
-  device_helpers.create_fingerprint("LUMI", "lumi.sensor_magnet"),
-  device_helpers.create_fingerprint("LUMI", "lumi.sensor_magnet.aq2"),
+register(lumi_agl02_contact, {
+  fp("LUMI", "lumi.magnet.agl02"),
 })
 
-register_device_definition(water_battery_low_battery_voltage, {
-  device_helpers.create_fingerprint("LUMI", "lumi.flood.acn001"),
-  device_helpers.create_fingerprint("LUMI", "lumi.sensor_wleak.aq1"),
+register(old_lumi_contact, {
+  fp("LUMI", "lumi.sensor_magnet"),
+  fp("LUMI", "lumi.sensor_magnet.aq2"),
 })
 
-register_device_definition(water_tamper_battery_low_battery_voltage, {
-  device_helpers.create_fingerprint("LUMI", "lumi.flood.agl02"),
+register(water_battery_low_battery_voltage, {
+  fp("LUMI", "lumi.flood.acn001"),
+  fp("LUMI", "lumi.sensor_wleak.aq1"),
 })
+
+register(water_tamper_battery_low_battery_voltage, {
+  fp("LUMI", "lumi.flood.agl02"),
+})
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "sensors-temp-humidity-battery-voltage", {["zr00010021auto"] = false, ["zr04020000auto"] = false, ["zr04050000auto"] = false}},
+  {2, "sensors-temp-humidity-pressure-battery-voltage", {["zr00010020auto"] = false, ["zr00010021auto"] = false, ["zr04020000auto"] = false, ["zr04030000auto"] = false, ["zr04050000auto"] = false}},
+  {3, "rpt-lno"},
+  {4, "rpt-lvz"},
+  {10, "rpt-lzl"},
+  {11, "rpt-tku"},
+  {12, "rpt-tvc"},
+  {13, "rpt-lhf"},
+  {14, "rpt-lbp"},
+  {15, "rpt-ljh"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.aqara_lumi",

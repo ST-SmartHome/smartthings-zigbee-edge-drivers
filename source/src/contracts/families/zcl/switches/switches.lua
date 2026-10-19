@@ -3,12 +3,14 @@
 local zcl = require "protocol.zcl"
 local emit = require "capabilities.events.all"
 local device_helpers = require "contracts.helpers.family"
+local fps = device_helpers.create_fingerprints
+local fp = device_helpers.create_fingerprint
 local zcl_device_helpers = require "contracts.helpers.zcl"
 local device_management = require "st.zigbee.device_management"
 local data_types = require "st.zigbee.data_types"
 local cluster_base = require "st.zigbee.cluster_base"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 local function bind_on_off_endpoints(endpoint_count)
   return function(driver, device)
@@ -43,8 +45,8 @@ local function append_option_clusters(clusters, ...)
   return zcl_device_helpers.append_clusters(clusters, ...)
 end
 
-local function build_tuya_on_off_switch(profile, count)
-  local clusters = build_switch(profile, count).zcl_clusters
+local function build_tuya_on_off_switch(profile, count, options)
+  local clusters = build_switch(profile, count, options).zcl_clusters
   append_option_clusters(clusters,
     zcl.tuya_magic_packet(),
     zcl.tuya_power_outage_memory(),
@@ -58,8 +60,8 @@ local function build_tuya_on_off_switch(profile, count)
   }
 end
 
-local function build_switch_module(profile, count)
-  local clusters = build_switch(profile, count).zcl_clusters
+local function build_switch_module(profile, count, options)
+  local clusters = build_switch(profile, count, options).zcl_clusters
   append_option_clusters(clusters,
     zcl.tuya_magic_packet(),
     zcl.switch_type(),
@@ -161,21 +163,8 @@ local function encode_base64_bytes(bytes)
   return table.concat(encoded)
 end
 
--- Literal v26.99.0 parity: String.fromCharCode(...), then Node's UTF-8
--- Buffer.from(string), then Base64. Code units >= 0x80 therefore expand to
--- two UTF-8 bytes before Base64 encoding; this is intentionally not raw-byte
--- Base64 even though that upstream behavior is surprising.
 local function encode_inching_block(state, seconds_high, seconds_low)
-  local utf8_bytes = {}
-  for _, code_unit in ipairs({ state, seconds_high, seconds_low }) do
-    if code_unit < 0x80 then
-      utf8_bytes[#utf8_bytes + 1] = code_unit
-    else
-      utf8_bytes[#utf8_bytes + 1] = 0xC0 + math.floor(code_unit / 0x40)
-      utf8_bytes[#utf8_bytes + 1] = 0x80 + (code_unit % 0x40)
-    end
-  end
-  return encode_base64_bytes(utf8_bytes)
+  return encode_base64_bytes({ state, seconds_high, seconds_low })
 end
 
 local function base64_value(character)
@@ -204,44 +193,6 @@ local function decode_base64_chunk(chunk)
   return bytes
 end
 
-local function decode_utf8_code_units(bytes)
-  local code_units = {}
-  local offset = 1
-  while offset <= #bytes do
-    local first = bytes[offset]
-    if first < 0x80 then
-      code_units[#code_units + 1] = first
-      offset = offset + 1
-    elseif first >= 0xC2 and first <= 0xDF then
-      local second = bytes[offset + 1]
-      if second ~= nil and second >= 0x80 and second <= 0xBF then
-        code_units[#code_units + 1] = ((first - 0xC0) * 0x40) + (second - 0x80)
-        offset = offset + 2
-      else
-        code_units[#code_units + 1] = 0xFFFD
-        offset = offset + 1
-      end
-    elseif first >= 0xE0 and first <= 0xEF then
-      local second = bytes[offset + 1]
-      local third = bytes[offset + 2]
-      local second_valid = second ~= nil and second >= 0x80 and second <= 0xBF and
-        not (first == 0xE0 and second < 0xA0) and not (first == 0xED and second > 0x9F)
-      if second_valid and third ~= nil and third >= 0x80 and third <= 0xBF then
-        code_units[#code_units + 1] = ((first - 0xE0) * 0x1000) +
-          ((second - 0x80) * 0x40) + (third - 0x80)
-        offset = offset + 3
-      else
-        code_units[#code_units + 1] = 0xFFFD
-        offset = offset + 1
-      end
-    else
-      code_units[#code_units + 1] = 0xFFFD
-      offset = offset + 1
-    end
-  end
-  return code_units
-end
-
 local function decode_inching_blocks(value)
   if type(value) ~= "string" or (#value % 4) ~= 0 then
     return nil
@@ -250,10 +201,8 @@ local function decode_inching_blocks(value)
   local decoded = {}
   for offset = 1, #value, 4 do
     local bytes = decode_base64_chunk(value:sub(offset, offset + 3))
-    if bytes == nil then return nil end
-    local code_units = decode_utf8_code_units(bytes)
-    local state = code_units[1]
-    if state == nil then return nil end
+    if bytes == nil or #bytes ~= 3 then return nil end
+    local state = bytes[1]
     local channel = 1
     local channel_bits = state
     while channel_bits >= 2 do
@@ -262,8 +211,7 @@ local function decode_inching_blocks(value)
     end
     decoded[channel] = {
       enabled = state % 2 == 1 and "enabled" or "disabled",
-      time = code_units[3] == nil and (math.huge - math.huge) or
-        ((code_units[2] or 0) * 256) + code_units[3],
+      time = (bytes[2] * 256) + bytes[3],
     }
   end
   return decoded
@@ -406,7 +354,7 @@ local function build_dual_power_switch(profile)
     zcl.current({endpoint=1,component="main",scale=1000,ignore_reported_scaler=true,minimum_interval=5,maximum_interval=3600,reportable_change=50,poll_interval=300}),
     zcl.energy({endpoint=1,component="main",scale=100,ignore_reported_scaler=true,minimum_interval=5,maximum_interval=3600,reportable_change=257,poll_interval=900}),
     zcl.tuya_magic_packet(),
-    zcl.power_outage_memory({endpoint=1,name="nous_b3z_power_behavior",emit=emit.nousB3zPowerBehavior()}),
+    zcl.tuya_power_outage_memory({endpoint=1,name="nous_b3z_power_behavior",emit=emit.nousB3zPowerBehavior()}),
     zcl.switch_type({endpoint=1,name="nous_b3z_switch_type",emit=emit.nousB3zSwitchType(),
       sender=function(device,mapping,value)
         local request=cluster_base.write_attribute(device,data_types.ClusterId(0xE001),
@@ -501,103 +449,12 @@ local mercator_spp02gip = build_tuya_dual_metered_plug("plugs-mercator-spp02gip"
   outage_memory = true,
   energy_ignore_reported_scaler = true,
 })
-local spp02_reporting = {
-  {
-    kind = "power", attribute = 0x050B, data_type = data_types.Int16, maximum_change = 32767,
-    settings = {
-      { field = "minimum_interval", name = "spp02_power_report_min", emit = emit.sppPowerReportMin("s") },
-      { field = "maximum_interval", name = "spp02_power_report_max", emit = emit.sppPowerReportMax("s") },
-      { field = "reportable_change", name = "spp02_power_report_change", emit = emit.sppPowerReportChange() },
-    },
-  },
-  {
-    kind = "current", attribute = 0x0508, data_type = data_types.Uint16, maximum_change = 65535,
-    settings = {
-      { field = "minimum_interval", name = "spp02_current_report_min", emit = emit.sppCurrentReportMin("s") },
-      { field = "maximum_interval", name = "spp02_current_report_max", emit = emit.sppCurrentReportMax("s") },
-      { field = "reportable_change", name = "spp02_current_report_change", emit = emit.sppCurrentReportChange() },
-    },
-  },
-  {
-    kind = "voltage", attribute = 0x0505, data_type = data_types.Uint16, maximum_change = 65535,
-    settings = {
-      { field = "minimum_interval", name = "spp02_voltage_report_min", emit = emit.sppVoltageReportMin("s") },
-      { field = "maximum_interval", name = "spp02_voltage_report_max", emit = emit.sppVoltageReportMax("s") },
-      { field = "reportable_change", name = "spp02_voltage_report_change", emit = emit.sppVoltageReportChange() },
-    },
-  },
-}
-
-local function apply_spp02_reporting(device, spec, field, value)
-  local stored = device:get_field("spp02_reporting_" .. spec.kind) or {}
-  local settings = {
-    minimum_interval = stored.minimum_interval or 5,
-    maximum_interval = stored.maximum_interval or 300,
-    reportable_change = stored.reportable_change or 1,
-  }
-  local accepted = true
-  if field ~= nil then
-    local previous = settings[field]
-    settings[field] = value
-    if settings.minimum_interval > settings.maximum_interval then
-      settings[field] = previous
-      accepted = false
-    else
-      device:set_field("spp02_reporting_" .. spec.kind, settings, { persist = true })
-    end
-  end
-  local config = {
-    cluster = 0x0B04, attribute = spec.attribute, data_type = spec.data_type,
-    minimum_interval = settings.minimum_interval,
-    maximum_interval = settings.maximum_interval,
-    reportable_change = spec.data_type(settings.reportable_change),
-  }
-  device:add_configured_attribute(config)
-  if field ~= nil and accepted then
-    device:send(device_management.attr_config(device, config):to_endpoint(1))
-  end
-  for _, setting in ipairs(spec.settings) do
-    local event = setting.emit(device, settings[setting.field])
-    if event ~= nil then device:emit_event(event) end
-  end
-  return true
-end
-
-for _, mapping in ipairs(mercator_spp02gip.zcl_clusters) do
-  if mapping.metering_kind == "power" or mapping.metering_kind == "current" or mapping.metering_kind == "voltage" then
-    mapping.minimum_interval, mapping.maximum_interval, mapping.reportable_change = nil, nil, nil
-  end
-end
-for _, spec in ipairs(spp02_reporting) do
-  for _, setting in ipairs(spec.settings) do
-    mercator_spp02gip.zcl_clusters[#mercator_spp02gip.zcl_clusters + 1] = zcl.cluster_attribute(0x0B04, nil, {
-      name = setting.name, endpoint = 1, component = "main", write_only = true,
-      suppress_optimistic_state = true, emit = setting.emit,
-      numeric_range = {
-        minimum = setting.field == "maximum_interval" and 1 or 0,
-        maximum = setting.field == "reportable_change" and spec.maximum_change or 65534,
-        step = 1,
-      },
-      sender = function(device, _, value)
-        return apply_spp02_reporting(device, spec, setting.field, value)
-      end,
-    })
-  end
-end
-mercator_spp02gip.runtime_start = function(device)
-  for _, spec in ipairs(spp02_reporting) do apply_spp02_reporting(device, spec) end
-end
-mercator_spp02gip.zcl_refresh_before_read_all = mercator_spp02gip.runtime_start
-mercator_spp02gip.configure = function(driver, device)
-  bind_dual_metered_plug(driver, device)
-  mercator_spp02gip.runtime_start(device)
-end
 local mercator_spp04g = {
   profile = "plugs-mercator-spp04g",
   component_to_endpoint_map = { main = 1, switch2 = 2 },
   zcl_clusters = {
-    zcl.switch({ endpoint = 1, component = "main", minimum_interval = 0, maximum_interval = 3600 }),
-    zcl.switch({ endpoint = 2, component = "switch2", minimum_interval = 0, maximum_interval = 3600 }),
+    zcl.switch({ endpoint = 1, component = "main", maximum_interval = 3600 }),
+    zcl.switch({ endpoint = 2, component = "switch2", maximum_interval = 3600 }),
     zcl.power({ endpoint = 1, minimum_interval = 5, maximum_interval = 3600, reportable_change = 1, poll_interval = 300 }),
     zcl.voltage({ endpoint = 1, minimum_interval = 5, maximum_interval = 3600, reportable_change = 5, poll_interval = 300 }),
     zcl.current({ endpoint = 1, scale = 1000, ignore_reported_scaler = true,
@@ -653,40 +510,40 @@ append_option_clusters(ts0002_rux.zcl_clusters,
 )
 ts0002_rux.configure = bind_on_off_endpoints(2)
 local dual_power_switch = build_dual_power_switch("switches-nous-b3z")
-local bound_triple_switch = build_switch("switches-switch-3", 3)
+local bound_triple_switch = build_switch("switches-switch-3", 3, { index_offset = 1 })
 bound_triple_switch.configure = bind_on_off_endpoints(3)
-local tuya_triple_switch = build_switch("switches-switch-3", 3)
+local tuya_triple_switch = build_switch("switches-switch-3", 3, { index_offset = 1 })
 append_option_clusters(tuya_triple_switch.zcl_clusters, zcl.tuya_magic_packet())
 tuya_triple_switch.configure = bind_on_off_endpoints(3)
-local quad_switch = build_switch("switches-switch-4", 4)
+local quad_switch = build_switch("switches-switch-4", 4, { index_offset = 1 })
 quad_switch.configure = bind_on_off_endpoints(4)
-local tuya_quad_reporting_switch = build_switch("switches-switch-4", 4)
+local tuya_quad_reporting_switch = build_switch("switches-switch-4", 4, { index_offset = 1 })
 append_option_clusters(tuya_quad_reporting_switch.zcl_clusters, zcl.tuya_magic_packet())
 tuya_quad_reporting_switch.configure = bind_on_off_endpoints(4)
 local tuya_quad_bind_only_switch = {
   profile = "switches-switch-4",
-  zcl_clusters = zcl.multi_switch(4, { configure_reporting = false }),
+  zcl_clusters = zcl.multi_switch(4, { configure_reporting = false, index_offset = 1 }),
   configure = bind_on_off_endpoints(4),
 }
 append_option_clusters(tuya_quad_bind_only_switch.zcl_clusters, zcl.tuya_magic_packet())
 local tuya_quad_magic_only_switch = {
   profile = "switches-switch-4",
-  zcl_clusters = zcl.multi_switch(4, { configure_reporting = false }),
+  zcl_clusters = zcl.multi_switch(4, { configure_reporting = false, index_offset = 1 }),
 }
 append_option_clusters(tuya_quad_magic_only_switch.zcl_clusters, zcl.tuya_magic_packet())
 local quint_switch = build_switch("switches-switch-5", 5)
-local quint_tuya_switch = build_tuya_on_off_switch("switches-switch-5-tuya-options", 5)
-local lellki_wp33_switch = build_switch("switches-lellki-wp33-5", 5)
+local quint_tuya_switch = build_tuya_on_off_switch("switches-switch-5-tuya-options", 5, { index_offset = 1 })
+local lellki_wp33_switch = build_switch("switches-lellki-wp33-5", 5, { index_offset = 1 })
 append_option_clusters(lellki_wp33_switch.zcl_clusters,
   zcl.tuya_magic_packet(),
   lellki_wp33_power_on_behavior()
 )
-local six_switch = build_switch("switches-switch-6-basic", 6)
+local six_switch = build_switch("switches-switch-6-basic", 6, { index_offset = 1 })
 append_option_clusters(six_switch.zcl_clusters, zcl.tuya_magic_packet())
 six_switch.configure = bind_on_off_endpoints(6)
 local wall_switch_module = build_switch_module("switches-switch-1-countdown-switch-type", 1)
 local dual_switch_module = build_switch_module("switches-switch-2-countdown-switch-type", 2)
-local triple_switch_module = build_switch_module("switches-switch-3-countdown-switch-type", 3)
+local triple_switch_module = build_switch_module("switches-switch-3-countdown-switch-type", 3, { index_offset = 1 })
 
 
 
@@ -789,7 +646,7 @@ append_option_clusters(ts0001_bbeb.zcl_clusters,
 )
 ts0001_bbeb.configure = bind_on_off_endpoints(1)
 
-local ts0003_module2 = build_switch("switches-switch-3-ts0003-module2", 3)
+local ts0003_module2 = build_switch("switches-switch-3-ts0003-module2", 3, { index_offset = 1 })
 local ts0003_module2_countdown_emitters = {
   emit.ts0003Module2CountdownOne(),
   emit.ts0003Module2CountdownTwo(),
@@ -811,7 +668,7 @@ for endpoint = 1, 3 do
 end
 ts0003_module2.configure = bind_on_off_endpoints(3)
 
-local nfzb03 = build_switch("switches-switch-3-nfzb03", 3)
+local nfzb03 = build_switch("switches-switch-3-nfzb03", 3, { index_offset = 1 })
 append_option_clusters(nfzb03.zcl_clusters,
   zcl.tuya_magic_packet(),
   tuya_enum_mapping("nfzb03_power_outage_memory", zcl.CLUSTER_ON_OFF, 0x8002,
@@ -913,9 +770,9 @@ nfzb03.configure = bind_on_off_endpoints(3)
 
 
 
-register_device_definition(ts0001_bbeb, device_helpers.create_fingerprints("TS0001", { "_TZ3000_bbebkwjk" }))
-register_device_definition(ts0003_module2, device_helpers.create_fingerprints("TS0003", { "_TZ3000_bu47m8pv" }))
-register_device_definition(nfzb03, device_helpers.create_fingerprints("TS0003", {
+register(ts0001_bbeb, fps("TS0001", { "_TZ3000_bbebkwjk" }))
+register(ts0003_module2, fps("TS0003", { "_TZ3000_bu47m8pv" }))
+register(nfzb03, fps("TS0003", {
   "_TZ3000_fawk5xjv", "_TZ3000_bvij6kod", "_TZ3000_aracgljk", "_TZ3210_fawk5xjv",
 }))
 
@@ -925,7 +782,7 @@ register_device_definition(nfzb03, device_helpers.create_fingerprints("TS0003", 
 
 
 
-register_device_definition(single_power_switch, device_helpers.create_fingerprints("TS0001", {
+register(single_power_switch, fps("TS0001", {
   "_TZ3000_xkap8wtb",
   "_TZ3000_qnejhcsu",
   "_TZ3000_x3ewpzyr",
@@ -949,7 +806,7 @@ register_device_definition(single_power_switch, device_helpers.create_fingerprin
   "_TZ3000_olo5jhjk",
 }))
 
-register_device_definition(dual_power_switch, device_helpers.create_fingerprints("TS0002", {
+register(dual_power_switch, fps("TS0002", {
   "_TZ3000_aaifmpuq",
   "_TZ3000_irrmjcgi",
   "_TZ3000_huvxrx4i",
@@ -957,19 +814,19 @@ register_device_definition(dual_power_switch, device_helpers.create_fingerprints
   "_TZ3000_hopb2kjm",
 }))
 
-register_device_definition(single_power_switch, device_helpers.create_fingerprints("TS000F", {
+register(single_power_switch, fps("TS000F", {
   "_TZ3000_xkap8wtb",
 }))
 
-register_device_definition(tuya_single_switch, device_helpers.create_fingerprints("SM0001", {
+register(tuya_single_switch, fps("SM0001", {
   "_TZ3000_jcqs2mrv",
 }))
 
-register_device_definition(bound_single_switch, device_helpers.create_fingerprints("TS0001", {
+register(bound_single_switch, fps("TS0001", {
   "_TZ3000_bezfthwc",
 }))
 
-register_device_definition(wall_switch_module, device_helpers.create_fingerprints("TS0001", {
+register(wall_switch_module, fps("TS0001", {
   "_TZ3000_hktqahrq",
   "_TZ3000_q6a3tepg",
   "_TZ3000_skueekg3",
@@ -988,7 +845,7 @@ register_device_definition(wall_switch_module, device_helpers.create_fingerprint
   "_TZ3000_i9oy2rdq",
 }))
 
-register_device_definition(tuya_single_switch, device_helpers.create_fingerprints("TS0001", {
+register(tuya_single_switch, fps("TS0001", {
   "_TZ3000_8n7lqbm0",
   "_TZ3000_cb3aangp",
   "_TZ3000_ctftgjwb",
@@ -996,18 +853,18 @@ register_device_definition(tuya_single_switch, device_helpers.create_fingerprint
   "_TZ3000_udl7uyd2",
 }))
 
-register_device_definition(tuya_single_poweron, device_helpers.create_fingerprints("TS0001", {
+register(tuya_single_poweron, fps("TS0001", {
   "_TZ3000_bmqxalil",
   "_TZ3000_w1tcofu8",
   "_TZ3000_ma3mhpx2",
   "_TZ3000_wijoqjk1",
 }))
 
-register_device_definition(tuya_single_poweron_countdown_switch_type_indicator, device_helpers.create_fingerprints("TS0001", {
+register(tuya_single_poweron_countdown_switch_type_indicator, fps("TS0001", {
   "_TZ3000_5rpu3r0d",
 }))
 
-register_device_definition(tuya_single_module_options, device_helpers.create_fingerprints("TS0001", {
+register(tuya_single_module_options, fps("TS0001", {
   "_TZ3000_tqlv4ug4",
   "_TZ3210_tqlv4ug4",
   "_TZ3000_gjrubzje",
@@ -1021,42 +878,42 @@ register_device_definition(tuya_single_module_options, device_helpers.create_fin
   "_TZ3000_n6fqajob",
 }))
 
-register_device_definition(tuya_single_outage_switch_type, device_helpers.create_fingerprints("TS0001", {
+register(tuya_single_outage_switch_type, fps("TS0001", {
   "_TZ3000_xfxpoxe0",
 }))
 
-register_device_definition(tuya_single_countdown_indicator, device_helpers.create_fingerprints("TS0001", {
+register(tuya_single_countdown_indicator, fps("TS0001", {
   "_TZ3000_myaaknbq",
   "_TZ3000_cpozgbrx",
   "_TZ3000_drc9tuqb",
 }))
 
-register_device_definition(tuya_single_poweron_indicator, device_helpers.create_fingerprints("TS0001", {
+register(tuya_single_poweron_indicator, fps("TS0001", {
   "_TZ3000_gbshwgag",
   "_TZ3000_blhvsaqf",
   "_TZ3000_65ajyxua",
   "_TZ3000_qq9ahj6z",
 }))
 
-register_device_definition(tuya_single_countdown_switch_type_indicator, device_helpers.create_fingerprints("TS0001", {
+register(tuya_single_countdown_switch_type_indicator, fps("TS0001", {
   "_TZ3000_pgq7ormg",
 }))
 
-register_device_definition(tuya_single_poweron_countdown, device_helpers.create_fingerprints("TS0001", {
+register(tuya_single_poweron_countdown, fps("TS0001", {
   "_TZ3000_qvmiyxuk",
 }))
 
-register_device_definition(tuya_single_countdown, device_helpers.create_fingerprints("TS0001", {
+register(tuya_single_countdown, fps("TS0001", {
   "_TZ3210_fhx7lk3d",
 }))
 
-register_device_definition(bound_single_switch, device_helpers.create_fingerprints("TS0001", {
+register(bound_single_switch, fps("TS0001", {
   "_TYZB01_4vgantdz",
   "_TYZB01_reyozfcg",
   "_TZ3000_wrhhi5h2",
 }))
 
-register_device_definition(tuya_single_switch_type, device_helpers.create_fingerprints("TS0001", {
+register(tuya_single_switch_type, fps("TS0001", {
   "_TZ3000_6axxqqi2",
   "_TZ3000_gtdswg8k",
   "_TZ3000_majwnphg",
@@ -1064,45 +921,45 @@ register_device_definition(tuya_single_switch_type, device_helpers.create_finger
   "_TZ3000_zw7yf6yk",
 }))
 
-register_device_definition(tuya_single_switch, device_helpers.create_fingerprints("TS0001", {
+register(tuya_single_switch, fps("TS0001", {
   "_TZ3000_dov0a3p1",
   "_TZ3000_t3s9qmmg",
   "_TZ3000_ehgouyvu",
 }))
 
-register_device_definition(tuya_single_switch, device_helpers.create_fingerprints("TS0011", {
+register(tuya_single_switch, fps("TS0011", {
   "_TZ3000_uaa34g7v",
   "_TZ3000_l8fsgo6p",
   "_TZ3000_abjodzas",
   "_TZ3000_hhiodade",
 }))
 
-register_device_definition(wall_switch_module, device_helpers.create_fingerprints("TS0011", {
+register(wall_switch_module, fps("TS0011", {
   "_TZ3000_hbxsdd6k",
 }))
 
-register_device_definition(wall_switch_module, device_helpers.create_fingerprints("TS0011", {
+register(wall_switch_module, fps("TS0011", {
   "_TZ3000_qmi1cfuq",
   "_TZ3000_txpirhfq",
   "_TZ3000_ji4araar",
   "_TZ3000_tw4ztbp4",
 }))
 
-register_device_definition(bound_single_switch, device_helpers.create_fingerprints("TS011F", {
+register(bound_single_switch, fps("TS011F", {
   "_TZ3000_twqctvna",
 }))
 
-register_device_definition(tuya_single_switch, {
-  device_helpers.create_fingerprint("_TYZB01_iuepbmpv", "TS0121"),
-  device_helpers.create_fingerprint("_TZ3000_bkfe0bab", "TS011F"),
-  device_helpers.create_fingerprint("_TZ3000_zmy1waw6", "TS011F"),
+register(tuya_single_switch, {
+  fp("_TYZB01_iuepbmpv", "TS0121"),
+  fp("_TZ3000_bkfe0bab", "TS011F"),
+  fp("_TZ3000_zmy1waw6", "TS011F"),
 })
 
-register_device_definition(single_power_outage_switch, device_helpers.create_fingerprints("TS011F", {
+register(single_power_outage_switch, fps("TS011F", {
   "_TZ3000_z6fgd73r",
 }))
 
-register_device_definition(wall_switch_module, device_helpers.create_fingerprints("TS000F", {
+register(wall_switch_module, fps("TS000F", {
   "_TZ3000_hktqahrq",
   "_TZ3000_m9af2l6g",
   "_TZ3000_mx3vgyea",
@@ -1111,137 +968,137 @@ register_device_definition(wall_switch_module, device_helpers.create_fingerprint
   "_TZ3000_fdxihpp7",
 }))
 
-register_device_definition(tuya_single_switch, device_helpers.create_fingerprints("TS000F", {
+register(tuya_single_switch, fps("TS000F", {
   "_TZ3210_a2erlvb8",
 }))
 
-register_device_definition(single_switch, {
+register(single_switch, {
   { manufacturer = "_TZ3210_hjxqqofs" .. string.char(0), model = "TS000F" },
 })
 
-register_device_definition(tuya_single_switch_type, device_helpers.create_fingerprints("TS000F", {
+register(tuya_single_switch_type, fps("TS000F", {
   "_TZ3000_hdc8bbha",
 }))
 
-register_device_definition(tuya_single_outage_gen_switch_type, device_helpers.create_fingerprints("TS000F", {
+register(tuya_single_outage_gen_switch_type, fps("TS000F", {
   "_TZ3218_hdc8bbha",
 }))
 
-register_device_definition(relay_1_poweron_switch_type, device_helpers.create_fingerprints("TS000F", {
+register(relay_1_poweron_switch_type, fps("TS000F", {
   "_TZ3218_n0jsuogs",
 }))
 
-register_device_definition(tuya_dual_metered, device_helpers.create_fingerprints("TS011F", {
+register(tuya_dual_metered, fps("TS011F", {
   "_TZ3000_bep7ccew",
 }))
 
-register_device_definition(mercator_spp02gip, device_helpers.create_fingerprints("TS011F", {
+register(mercator_spp02gip, fps("TS011F", {
   "_TZ3210_7jnk7l3k",
 }))
 
-register_device_definition(tuya_dual_metered_outage, device_helpers.create_fingerprints("TS011F", {
+register(tuya_dual_metered_outage, fps("TS011F", {
   "_TZ3210_raqjcxo5",
   "_TZ3210_pfbzs1an",
 }))
 
-register_device_definition(mercator_spp04g, {
-  device_helpers.create_fingerprint("_TZ3210_yvxjawlt", "TS011F"),
+register(mercator_spp04g, {
+  fp("_TZ3210_yvxjawlt", "TS011F"),
 })
 
-register_device_definition(tuya_dual_metered_outage_indicator, device_helpers.create_fingerprints("TS011F", {
+register(tuya_dual_metered_outage_indicator, fps("TS011F", {
   "_TZ3000_dd8wwzcy",
 }))
 
-register_device_definition(tuya_dual_metered_outage_indicator_lock, device_helpers.create_fingerprints("TS011F", {
+register(tuya_dual_metered_outage_indicator_lock, fps("TS011F", {
   "_TZ3000_jak16dll",
   "_TZ3000_rqbjepe8",
   "_TZ3000_uwkja6z1",
 }))
 
-register_device_definition(tuya_dual_metered_full_options, device_helpers.create_fingerprints("TS011F", {
+register(tuya_dual_metered_full_options, fps("TS011F", {
   "_TZ3210_bep7ccew",
   "_TZ3210_qlmnxmac",
 }))
 
-register_device_definition(zemismart_dual_outlet, device_helpers.create_fingerprints("TS011F", {
+register(zemismart_dual_outlet, fps("TS011F", {
   "_TZ3000_gazjngjl",
 }))
 
-register_device_definition(metered_dual_plug, {
-  device_helpers.create_fingerprint("LUMI", "lumi.plug.acn005"),
-  device_helpers.create_fingerprint("LUMI", "lumi.plug.sacn03"),
+register(metered_dual_plug, {
+  fp("LUMI", "lumi.plug.acn005"),
+  fp("LUMI", "lumi.plug.sacn03"),
 })
 
-register_device_definition(single_switch, {
-  device_helpers.create_fingerprint("Aqara", "lumi.switch.acn048"),
-  device_helpers.create_fingerprint("LUMI", "lumi.ctrl_ln1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.ctrl_ln1.aq1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.ctrl_neutral1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn029"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn048"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn056"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn061"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b1laus01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b1lacn01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b1nacn01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b1nacn02"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b1naus01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b1lc04"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b1nc01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.l0acn1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.l0agl1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.l1acn1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.l1aeu1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.n0acn2"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.n0agl1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.n1acn1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.n1aeu1"),
+register(single_switch, {
+  fp("Aqara", "lumi.switch.acn048"),
+  fp("LUMI", "lumi.ctrl_ln1"),
+  fp("LUMI", "lumi.ctrl_ln1.aq1"),
+  fp("LUMI", "lumi.ctrl_neutral1"),
+  fp("LUMI", "lumi.switch.acn029"),
+  fp("LUMI", "lumi.switch.acn048"),
+  fp("LUMI", "lumi.switch.acn056"),
+  fp("LUMI", "lumi.switch.acn061"),
+  fp("LUMI", "lumi.switch.b1laus01"),
+  fp("LUMI", "lumi.switch.b1lacn01"),
+  fp("LUMI", "lumi.switch.b1nacn01"),
+  fp("LUMI", "lumi.switch.b1nacn02"),
+  fp("LUMI", "lumi.switch.b1naus01"),
+  fp("LUMI", "lumi.switch.b1lc04"),
+  fp("LUMI", "lumi.switch.b1nc01"),
+  fp("LUMI", "lumi.switch.l0acn1"),
+  fp("LUMI", "lumi.switch.l0agl1"),
+  fp("LUMI", "lumi.switch.l1acn1"),
+  fp("LUMI", "lumi.switch.l1aeu1"),
+  fp("LUMI", "lumi.switch.n0acn2"),
+  fp("LUMI", "lumi.switch.n0agl1"),
+  fp("LUMI", "lumi.switch.n1acn1"),
+  fp("LUMI", "lumi.switch.n1aeu1"),
 })
 
-register_device_definition(bound_dual_switch, {
-  device_helpers.create_fingerprint("Aqara", "lumi.switch.acn047"),
-  device_helpers.create_fingerprint("Aqara", "lumi.switch.acn049"),
-  device_helpers.create_fingerprint("Aqara", "lumi.switch.acn057"),
-  device_helpers.create_fingerprint("LUMI", "lumi.ctrl_ln2"),
-  device_helpers.create_fingerprint("LUMI", "lumi.ctrl_ln2.aq1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.ctrl_neutral2"),
-  device_helpers.create_fingerprint("LUMI", "lumi.relay.c2acn01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn030"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn047"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn049"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn057"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b2laus01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b2lacn01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b2nacn01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b2nacn02"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b2naus01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b2lc04"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b2nc01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.l2acn1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.l2aeu1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.n2acn1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.n2aeu1"),
+register(bound_dual_switch, {
+  fp("Aqara", "lumi.switch.acn047"),
+  fp("Aqara", "lumi.switch.acn049"),
+  fp("Aqara", "lumi.switch.acn057"),
+  fp("LUMI", "lumi.ctrl_ln2"),
+  fp("LUMI", "lumi.ctrl_ln2.aq1"),
+  fp("LUMI", "lumi.ctrl_neutral2"),
+  fp("LUMI", "lumi.relay.c2acn01"),
+  fp("LUMI", "lumi.switch.acn030"),
+  fp("LUMI", "lumi.switch.acn047"),
+  fp("LUMI", "lumi.switch.acn049"),
+  fp("LUMI", "lumi.switch.acn057"),
+  fp("LUMI", "lumi.switch.b2laus01"),
+  fp("LUMI", "lumi.switch.b2lacn01"),
+  fp("LUMI", "lumi.switch.b2nacn01"),
+  fp("LUMI", "lumi.switch.b2nacn02"),
+  fp("LUMI", "lumi.switch.b2naus01"),
+  fp("LUMI", "lumi.switch.b2lc04"),
+  fp("LUMI", "lumi.switch.b2nc01"),
+  fp("LUMI", "lumi.switch.l2acn1"),
+  fp("LUMI", "lumi.switch.l2aeu1"),
+  fp("LUMI", "lumi.switch.n2acn1"),
+  fp("LUMI", "lumi.switch.n2aeu1"),
 })
 
-register_device_definition(bound_triple_switch, {
-  device_helpers.create_fingerprint("Aqara", "lumi.switch.acn055"),
-  device_helpers.create_fingerprint("Aqara", "lumi.switch.acn059"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn031"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn040"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn054"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn055"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn058"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.acn059"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b3l01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.b3n01"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.l3acn1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.l3acn3"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.n3acn1"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.n3acn3"),
-  device_helpers.create_fingerprint("LUMI", "lumi.switch.n4acn4"),
+register(bound_triple_switch, {
+  fp("Aqara", "lumi.switch.acn055"),
+  fp("Aqara", "lumi.switch.acn059"),
+  fp("LUMI", "lumi.switch.acn031"),
+  fp("LUMI", "lumi.switch.acn040"),
+  fp("LUMI", "lumi.switch.acn054"),
+  fp("LUMI", "lumi.switch.acn055"),
+  fp("LUMI", "lumi.switch.acn058"),
+  fp("LUMI", "lumi.switch.acn059"),
+  fp("LUMI", "lumi.switch.b3l01"),
+  fp("LUMI", "lumi.switch.b3n01"),
+  fp("LUMI", "lumi.switch.l3acn1"),
+  fp("LUMI", "lumi.switch.l3acn3"),
+  fp("LUMI", "lumi.switch.n3acn1"),
+  fp("LUMI", "lumi.switch.n3acn3"),
+  fp("LUMI", "lumi.switch.n4acn4"),
 })
 
-register_device_definition(tuya_dual_switch, device_helpers.create_fingerprints("TS011F", {
+register(tuya_dual_switch, fps("TS011F", {
   "_TZ3000_46vasa5h",
   "_TZ3000_mvn6jl7x",
   "_TZ3000_raviyuvk",
@@ -1270,23 +1127,23 @@ register_device_definition(tuya_dual_switch, device_helpers.create_fingerprints(
   "_TZ3210_2uk4z8ce",
 }))
 
-register_device_definition(tuya_dual_switch, {
-  device_helpers.create_fingerprint("HOBEIAN", "ZG-305Z"),
+register(tuya_dual_switch, {
+  fp("HOBEIAN", "ZG-305Z"),
 })
 
-register_device_definition(tuya_dual_switch, device_helpers.create_fingerprints("TS000F", {
+register(tuya_dual_switch, fps("TS000F", {
   "_TZ3000_m8f3z8ju",
 }))
 
-register_device_definition(relay_2_poweron_switch_type, device_helpers.create_fingerprints("TS000F", {
+register(relay_2_poweron_switch_type, fps("TS000F", {
   "_TZ3218_sgbsg6mr",
 }))
 
-register_device_definition(ts0002_rux, device_helpers.create_fingerprints("TS0002", {
+register(ts0002_rux, fps("TS0002", {
   "_TZ3000_ruxexjfz",
 }))
 
-register_device_definition(tuya_dual_switch, device_helpers.create_fingerprints("TS0002", {
+register(tuya_dual_switch, fps("TS0002", {
   "_TZ3000_01gpyda5",
   "_TZ3000_bvrlqyj7",
   "_TZ3000_7ed9cqgi",
@@ -1325,22 +1182,22 @@ register_device_definition(tuya_dual_switch, device_helpers.create_fingerprints(
   "_TZ3210_pdnwpnz5",
 }))
 
-register_device_definition(tuya_dual_switch, {
-  device_helpers.create_fingerprint("HOBEIAN", "ZG-301Z-2CH"),
+register(tuya_dual_switch, {
+  fp("HOBEIAN", "ZG-301Z-2CH"),
 })
 
-register_device_definition(tuya_dual_switch, device_helpers.create_fingerprints("TS0012", {
+register(tuya_dual_switch, fps("TS0012", {
   "_TZ3000_biakwrag",
   "_TZ3000_18ejxno0",
 }))
 
-register_device_definition(bound_dual_switch, device_helpers.create_fingerprints("TS0003", {
+register(bound_dual_switch, fps("TS0003", {
   "_TYZB01_digziiav",
   "_TYZB01_zsl6z0pw",
   "_TYZB01_uqkphoed",
 }))
 
-register_device_definition(bound_dual_switch, device_helpers.create_fingerprints("TS0002", {
+register(bound_dual_switch, fps("TS0002", {
   "_TYZB01_digziiav",
   "_TYZB01_zsl6z0pw",
   "_TYZB01_uqkphoed",
@@ -1349,13 +1206,13 @@ register_device_definition(bound_dual_switch, device_helpers.create_fingerprints
   "_TZ3000_tas0zemd",
 }))
 
-register_device_definition(tuya_dual_switch, device_helpers.create_fingerprints("TS0002", {
+register(tuya_dual_switch, fps("TS0002", {
   "_TZ3210_6smingw0",
 }))
 
-register_device_definition(bound_dual_switch, {
-  device_helpers.create_fingerprint("Somfy", "ON/OFF (2CH)"),
-  device_helpers.create_fingerprint("Sunricher", "ON/OFF (2CH)"),
+register(bound_dual_switch, {
+  fp("Somfy", "ON/OFF (2CH)"),
+  fp("Sunricher", "ON/OFF (2CH)"),
 })
 
 
@@ -1371,7 +1228,7 @@ register_device_definition(bound_dual_switch, {
 
 
 
-register_device_definition(dual_switch_module, device_helpers.create_fingerprints("TS0012", {
+register(dual_switch_module, fps("TS0012", {
   "_TZ3000_jl7qyupf",
   "_TZ3000_nPGIPl5D",
   "_TZ3000_kpatq5pq",
@@ -1379,7 +1236,7 @@ register_device_definition(dual_switch_module, device_helpers.create_fingerprint
   "_TZ3000_4zf0crgo",
 }))
 
-register_device_definition(tuya_triple_switch, device_helpers.create_fingerprints("TS0003", {
+register(tuya_triple_switch, fps("TS0003", {
   "_TZ3000_vjhcenzo",
   "_TZ3000_f09j9qjb",
   "_TZ3000_rhkfbfcv",
@@ -1421,24 +1278,24 @@ register_device_definition(tuya_triple_switch, device_helpers.create_fingerprint
   "_TZ33000_d9yfgzur",
 }))
 
-register_device_definition(triple_switch_module, device_helpers.create_fingerprints("TS0013", {
+register(triple_switch_module, fps("TS0013", {
   "_TZ3000_ypgri8yz",
   "_TZ3000_sznawwyw",
   "_TZ3000_avotanj3",
   "_TZ3000_t7ugva7q",
 }))
 
-register_device_definition(tuya_triple_switch, {
-  device_helpers.create_fingerprint("HOBEIAN", "ZG-301Z-3CH"),
+register(tuya_triple_switch, {
+  fp("HOBEIAN", "ZG-301Z-3CH"),
 })
 
-register_device_definition(bound_single_switch, device_helpers.create_fingerprints("TS0003", {
+register(bound_single_switch, fps("TS0003", {
   "_TYZB01_aneiicmq",
   "_TYZB01_ncutbjdi",
   "_TYZB01_u9kkqh5o",
 }))
 
-register_device_definition(tuya_quad_bind_only_switch, device_helpers.create_fingerprints("TS0004", {
+register(tuya_quad_bind_only_switch, fps("TS0004", {
   "_TZ3000_ltt60asa",
   "_TZ3000_mmkbptmx",
   "_TZ3000_liygxtcq",
@@ -1457,21 +1314,21 @@ register_device_definition(tuya_quad_bind_only_switch, device_helpers.create_fin
   "_TZ3210_wts1g2oh",
 }))
 
-register_device_definition(tuya_quad_reporting_switch, {
-  device_helpers.create_fingerprint("_TZ3210_iymfxdis", "TS0004"),
+register(tuya_quad_reporting_switch, {
+  fp("_TZ3210_iymfxdis", "TS0004"),
 })
 
-register_device_definition(tuya_quad_magic_only_switch, device_helpers.create_fingerprints("TS0004", {
+register(tuya_quad_magic_only_switch, fps("TS0004", {
   "_TZ3000_a37eix1s",
   "_TZ3000_nsa76jai",
   "_TZ3000_wwtnshol",
 }))
 
-register_device_definition(six_switch, device_helpers.create_fingerprints("TS0006", {
+register(six_switch, fps("TS0006", {
   "_TZ3000_cvis4qmw",
 }))
 
-register_device_definition(tuya_quad_reporting_switch, device_helpers.create_fingerprints("TS011F", {
+register(tuya_quad_reporting_switch, fps("TS011F", {
   "_TZ3000_3zofvcaa",
   "_TZ3000_pvlvoxvt",
   "_TZ3000_lqb7lcq9",
@@ -1480,11 +1337,11 @@ register_device_definition(tuya_quad_reporting_switch, device_helpers.create_fin
   "_TZ3210_8n4dn1ne",
 }))
 
-register_device_definition(quad_switch, {
-  device_helpers.create_fingerprint("_TZ3000_qiutut5y", "TS011F"),
+register(quad_switch, {
+  fp("_TZ3000_qiutut5y", "TS011F"),
 })
 
-register_device_definition(tuya_triple_switch, device_helpers.create_fingerprints("TS011F", {
+register(tuya_triple_switch, fps("TS011F", {
   "_TZ3000_wzauvbcs",
   "_TZ3000_oznonj5q",
   "_TZ3000_1obwwnmq",
@@ -1495,24 +1352,100 @@ register_device_definition(tuya_triple_switch, device_helpers.create_fingerprint
   "_TZ3000_9tg32trw",
 }))
 
-register_device_definition(lellki_wp33_switch, device_helpers.create_fingerprints("TS011F", {
+register(lellki_wp33_switch, fps("TS011F", {
   "_TZ3000_air9m6af",
   "_TZ3000_9djocypn",
   "_TZ3000_bppxj3sf",
 }))
 
-register_device_definition(quint_tuya_switch, device_helpers.create_fingerprints("TS011F", {
+register(quint_tuya_switch, fps("TS011F", {
   "_TZ3000_in5s3wn1",
   "_TZ3000_wbloefbf",
 }))
 
-register_device_definition(quint_tuya_switch, device_helpers.create_fingerprints("TS011F", {
+register(quint_tuya_switch, fps("TS011F", {
   "_TZ3000_cfnprab5",
   "_TZ3000_o005nuxx",
   "_TZ3000_gdyjfvgm",
   "_TZ3000_pl5v1yyy",
   "_TZ3000_djgzdba9",
 }))
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tuj"},
+  {2, "rpt-tkg", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {3, "rpt-tcm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {4, "rpt-tzt"},
+  {5, "rpt-tkp", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {6, "rpt-tzt"},
+  {7, "rpt-sit"},
+  {8, "rpt-sit"},
+  {9, "rpt-tss"},
+  {10, "rpt-sit"},
+  {11, "rpt-tbx"},
+  {12, "rpt-tpl"},
+  {13, "rpt-tmp"},
+  {14, "rpt-tks"},
+  {15, "rpt-tet"},
+  {16, "rpt-tlp"},
+  {17, "rpt-tma"},
+  {18, "rpt-tce"},
+  {19, "rpt-twp"},
+  {20, "rpt-sit"},
+  {21, "rpt-tlc"},
+  {22, "rpt-sit"},
+  {23, "rpt-sit"},
+  {24, "rpt-tss"},
+  {25, "rpt-tss"},
+  {26, "rpt-sit"},
+  {27, "rpt-sit"},
+  {28, "rpt-txu"},
+  {29, "rpt-tss"},
+  {30, "rpt-sit"},
+  {31, "rpt-sit"},
+  {32, "rpt-tlc"},
+  {33, "rpt-tks"},
+  {34, "rpt-tpe"},
+  {35, "rpt-tye", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {36, "rpt-too", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {37, "rpt-too", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {38, "rpt-tve", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {39, "rpt-tfo", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {40, "rpt-tzz", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {41, "rpt-tum", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {42, "rpt-tev", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {43, "rpt-lvk", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {44, "rpt-sit"},
+  {45, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {46, "rpt-lek", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {47, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {48, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {49, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {50, "rpt-tsl", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {51, "rpt-tqv", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {52, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {53, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {54, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {55, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {56, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {57, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {58, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {59, "rpt-tkw", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {60, "rpt-lek", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {61, "rpt-tiu", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {62, "rpt-lek", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {63, "rpt-sit"},
+  {65, "rpt-tmr", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {67, "rpt-tqvv", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive", ["zr000600006"] = "SwitchSix"}},
+  {68, "rpt-tmr", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {69, "rpt-tmr", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {70, "rpt-lek", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {71, "rpt-tsh", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive"}},
+  {72, "rpt-tfx", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive"}},
+  {73, "rpt-tfx", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive"}},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.switches.switches",

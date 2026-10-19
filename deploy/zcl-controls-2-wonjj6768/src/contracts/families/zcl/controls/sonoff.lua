@@ -1,81 +1,82 @@
-local zcl=require"protocol.zcl"
-local emit=require"capabilities.events.all"
-local capabilities=require"st.capabilities"
-local device_helpers=require"contracts.helpers.family"
-local device_management=require"st.zigbee.device_management"
-local data_types=require"st.zigbee.data_types"
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local function snzb01p_action(_,cluster_id,command_id)
-if cluster_id~=zcl.CLUSTER_ON_OFF then
+local k=require"protocol.zcl"
+local D=require"capabilities.events.all"
+local q=require"st.capabilities"
+local b=require"contracts.helpers.family"
+local i=require"st.zigbee.device_management"
+local m=require"st.zigbee.data_types"
+local h,a=b.definition_registry()
+local function o(_,t,u)
+if t~=k.CLUSTER_ON_OFF then
 return nil,nil,true
 end
-local action=({
-[0x02]="single",[0x01]="double",[0x00]="long",})[command_id]return action,"main",true
+local A=({
+[2]="single",[1]="double",[0]="long",})[u]return A,"main",true
 end
-local snzb01p={
-profile="sonoff-snzb01p-button",advanced_remote=true,button_count=1,button_actions={"pushed","double","held"},standard_command_action_resolver=snzb01p_action,standard_action_button_events={
+local z={
+profile="sonoff-snzb01p-button",advanced_remote=true,button_count=1,button_actions={"pushed","double","held"},standard_command_action_resolver=o,standard_action_button_events={
 single="pushed",double="double",long="held",},zcl_clusters={
-zcl.battery({
-endpoint=1,minimum_interval=3600,maximum_interval=7200,reportable_change=0,read_on_configure=true,read_only=true,}),zcl.battery_voltage({
+k.battery({
+endpoint=1,minimum_interval=3600,maximum_interval=7200,reportable_change=0,read_on_configure=true,read_only=true,}),k.battery_voltage({
 endpoint=1,minimum_interval=3600,maximum_interval=7200,reportable_change=0,read_on_configure=true,read_only=true,}),},
-configure=function(driver,device)
-device:send(device_management.build_bind_request(
-device,zcl.CLUSTER_ON_OFF,driver.environment_info.hub_zigbee_eui,1))
+configure=function(r,d)
+d:send(i.build_bind_request(
+d,k.CLUSTER_ON_OFF,r.environment_info.hub_zigbee_eui,1))
 end,
-}register_device_definition(snzb01p,{
-device_helpers.create_fingerprint("eWeLink","SNZB-01P"),device_helpers.create_fingerprint("SONOFF","SNZB-01P"),})local kf_action_event=emit.sonoffKfAction()
-local function refresh_reported_battery(device,preset)
-zcl.read_configured_attributes(device,preset.zcl_clusters)
+}a(z,{
+b.create_fingerprint("eWeLink","SNZB-01P"),b.create_fingerprint("SONOFF","SNZB-01P"),})local n=D.sonoffKfAction()
+local function e(d,B)
+k.read_configured_attributes(d,B.zcl_clusters)
 end
-local function battery_value(value)
-if type(value)=="number"and value>=0 and value<127.5 then return value end
+local function j(c)
+if type(c)=="number"and c>=0 and c<127.5 then return c end
 end
-local function voltage_value(value)
-if type(value)=="number"and value>=0 and value<25.5 then return value end
+local function p(c)
+if type(c)=="number"and c>=0 and c<25.5 then return c end
 end
-local function kf_action(value,_,context)
-if context.command_id~=0x00 then return nil end
-return({[0]="off",[1]="single"})[value]
+local function x(c,_,g)
+if g.command_id~=0 then return nil end
+return({[0]="off",[1]="single"})[c]
 end
-local kf01={
+local E={
 profile="sonoff-kf-button",magic_packet=false,zcl_clusters={
-zcl.cluster_attribute(0x0500,0x0002,{
-name="sonoff_kf_action",endpoint=1,component="main",data_type=data_types.Bitmap16,read_only=true,read_on_configure=false,ias_configure_method=0,command_id=0x00,
-command_extractor=function(zb_rx)
-local status=zb_rx.body.zcl_body.zone_status
-return type(status)=="table"and status.value or status
+k.cluster_attribute(1280,2,{
+name="sonoff_kf_action",endpoint=1,component="main",data_type=m.Bitmap16,read_only=true,read_on_configure=false,ias_configure_method=0,command_id=0,
+command_extractor=function(C)
+local s=C.body.zcl_body.zone_status
+return type(s)=="table"and s.value or s
 end,
-from_device=kf_action,
-handler=function(device,value,context)
-local event=kf_action_event(device,value,context)if event then
-event.state_change=true
-device:emit_component_event(context.component,event)
+from_device=x,
+handler=function(d,c,g)
+local v=n(d,c,g)if v then
+v.state_change=true
+d:emit_component_event(g.component,v)
 end
 end,
-}),zcl.battery({
-endpoint=1,minimum_interval=3600,maximum_interval=7200,reportable_change=2,read_on_configure=true,read_only=true,from_device=battery_value,}),zcl.battery_voltage({
-endpoint=1,minimum_interval=3600,maximum_interval=7200,reportable_change=100,read_on_configure=true,read_only=true,from_device=voltage_value,}),},
-configure=function(driver,device)
-device:send(device_management.build_bind_request(
-device,0x0500,driver.environment_info.hub_zigbee_eui,1))
+}),k.battery({
+endpoint=1,minimum_interval=3600,maximum_interval=7200,reportable_change=2,read_on_configure=true,read_only=true,from_device=j,}),k.battery_voltage({
+endpoint=1,minimum_interval=3600,maximum_interval=7200,reportable_change=100,read_on_configure=true,read_only=true,from_device=p,}),},
+configure=function(r,d)
+d:send(i.build_bind_request(
+d,1280,r.environment_info.hub_zigbee_eui,1))
 end,
-parent_refresh=refresh_reported_battery,}register_device_definition(kf01,{
-device_helpers.create_fingerprint("SONOFF","KF01"),device_helpers.create_fingerprint("SONOFF","KF-01"),})
-local function snzb01m_button(endpoint,component)
-return zcl.cluster_attribute(0xFC12,0x0000,{
-name="sonoff_snzb01m_button_"..tostring(endpoint),endpoint=endpoint,component=component,data_type=data_types.Uint8,read_only=true,read_on_configure=false,
-from_device=function(value,_,context)
-if context.src_endpoint~=endpoint then return nil end
-return({[1]="pushed",[2]="double",[3]="held",[4]="pushed_3x"})[value]
+parent_refresh=e,}a(E,{
+b.create_fingerprint("SONOFF","KF01"),b.create_fingerprint("SONOFF","KF-01"),})
+local function f(l,w)
+return k.cluster_attribute(64530,0,{
+name="sonoff_snzb01m_button_"..tostring(l),endpoint=l,component=w,data_type=m.Uint8,read_only=true,read_on_configure=false,
+from_device=function(c,_,g)
+if g.src_endpoint~=l then return nil end
+return({[1]="pushed",[2]="double",[3]="held",[4]="pushed_3x"})[c]
 end,
-handler=function(device,value,context)
-device:emit_component_event(context.component,capabilities.button.button(value,{state_change=true}))
+handler=function(d,c,g)
+d:emit_component_event(g.component,q.button.button(c,{state_change=true}))
 end,
 })
 end
-local snzb01m={
+local y={
 profile="sonoff-snzb01m-button",magic_packet=false,button_count=4,button_actions={"pushed","double","held","pushed_3x"},zcl_clusters={
-snzb01m_button(1,"main"),snzb01m_button(2,"button2"),snzb01m_button(3,"button3"),snzb01m_button(4,"button4"),zcl.battery({
-endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,read_only=true,from_device=battery_value,}),},parent_refresh=refresh_reported_battery,}register_device_definition(snzb01m,{
-device_helpers.create_fingerprint("SONOFF","SNZB-01M"),})return{
-id="zcl.controls.sonoff",registrations=device_definitions,}
+f(1,"main"),f(2,"button2"),f(3,"button3"),f(4,"button4"),k.battery({
+endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,read_only=true,from_device=j,}),},parent_refresh=e,}a(y,{
+b.create_fingerprint("SONOFF","SNZB-01M"),})k.attach_reporting_capabilities(h,{
+{1,"rpt-soc"},{2,"rpt-kjx"},{3,"rpt-saq"},})return{
+id="zcl.controls.sonoff",registrations=h,}

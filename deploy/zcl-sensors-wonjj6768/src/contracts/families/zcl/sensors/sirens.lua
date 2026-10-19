@@ -1,70 +1,71 @@
-local zcl=require"protocol.zcl"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local data_types=require"st.zigbee.data_types"
-local device_management=require"st.zigbee.device_management"
-local device_definitions,register_device_definition=device_helpers.definition_registry()local IAS_WARNING_DEVICE_CLUSTER=0x0502
-local IAS_WARNING_MAX_DURATION_ATTRIBUTE=0x0000
-local IAS_WARNING_VOLUME_ATTRIBUTE=0x0002
-local function clamp(value,minimum,maximum)
-if value<minimum then
-return minimum
+local k=require"protocol.zcl"
+local C=require"capabilities.events.all"
+local c=require"contracts.helpers.family"
+local e=require"st.zigbee.data_types"
+local s=require"st.zigbee.device_management"
+local j,a=c.definition_registry()local b=1282
+local d=0
+local f=2
+local function w(g,v,u)
+if g<v then
+return v
 end
-if value>maximum then
-return maximum
+if g>u then
+return u
 end
-return value
+return g
 end
-local function map_number_range(value,from_minimum,from_maximum,to_minimum,to_maximum)
-if type(value)~="number"then
+local function m(g,l,q,p,y)
+if type(g)~="number"then
 return nil
 end
-if from_minimum==from_maximum then
-return to_minimum
+if l==q then
+return p
 end
-local ratio=(value-from_minimum)/(from_maximum-from_minimum)return to_minimum+((to_maximum-to_minimum)*ratio)
+local D=(g-l)/(q-l)return p+((y-p)*D)
 end
-local function siren_volume_from_device(value)
-if type(value)~="number"then
-return value
+local function h(g)
+if type(g)~="number"then
+return g
 end
-local mapped=map_number_range(value,100,10,0,100)if mapped==nil then
+local r=m(g,100,10,0,100)if r==nil then
 return nil
 end
-return math.floor(clamp(mapped,0,100)+0.5)
+return math.floor(w(r,0,100)+0.5)
 end
-local function siren_volume_to_device(value)
-if type(value)~="number"then
-return value
+local function i(g)
+if type(g)~="number"then
+return g
 end
-local mapped=map_number_range(clamp(value,0,100),0,100,100,10)if mapped==nil then
+local r=m(w(g,0,100),0,100,100,10)if r==nil then
 return nil
 end
-return math.floor(clamp(mapped,10,100)+0.5)
+return math.floor(w(r,10,100)+0.5)
 end
-local ias_siren={
+local A={
 profile="safety-alarm-battery-volume",zcl_clusters={
-zcl.alarm(),zcl.battery(),zcl.cluster_attribute(IAS_WARNING_DEVICE_CLUSTER,IAS_WARNING_VOLUME_ATTRIBUTE,{
-name="volume",emit=emit.audio_volume(),from_device=siren_volume_from_device,to_device=siren_volume_to_device,data_type=data_types.Uint8,write_type=data_types.Uint8,read_on_configure=true,}),},}local ias_siren_no_battery={
+k.alarm(),k.battery(),k.cluster_attribute(b,f,{
+name="volume",emit=C.audio_volume(),from_device=h,to_device=i,data_type=e.Uint8,write_type=e.Uint8,read_on_configure=true,}),},}local o={
 profile="safety-alarm-volume",zcl_clusters={
-zcl.alarm(),zcl.cluster_attribute(IAS_WARNING_DEVICE_CLUSTER,IAS_WARNING_VOLUME_ATTRIBUTE,{
-name="volume",emit=emit.audio_volume(),from_device=siren_volume_from_device,to_device=siren_volume_to_device,data_type=data_types.Uint8,write_type=data_types.Uint8,read_on_configure=true,}),},}local ias_siren_basic={
+k.alarm(),k.cluster_attribute(b,f,{
+name="volume",emit=C.audio_volume(),from_device=h,to_device=i,data_type=e.Uint8,write_type=e.Uint8,read_on_configure=true,}),},}local n={
 profile="safety-alarm-battery",zcl_clusters={
-zcl.alarm(),zcl.battery(),zcl.cluster_attribute(IAS_WARNING_DEVICE_CLUSTER,IAS_WARNING_MAX_DURATION_ATTRIBUTE,{
-name="max_duration",data_type=data_types.Uint16,write_type=data_types.Uint16,read_on_configure=true,}),},}local frient_sirzb112={
+k.alarm(),k.battery(),k.cluster_attribute(b,d,{
+name="max_duration",data_type=e.Uint16,write_type=e.Uint16,read_on_configure=true,}),},}local t={
 profile="safety-siren-frient-sirzb112",zcl_clusters={
-zcl.switch({endpoint=43,component="main"}),zcl.alarm_1_or_2({endpoint=43}),zcl.tamper({endpoint=43}),zcl.battery_low({endpoint=43}),zcl.battery({endpoint=43}),zcl.cluster_attribute(IAS_WARNING_DEVICE_CLUSTER,IAS_WARNING_MAX_DURATION_ATTRIBUTE,{
-name="max_duration",endpoint=43,data_type=data_types.Uint16,write_type=data_types.Uint16,read_on_configure=true,}),},
-configure=function(driver,device)
-for _,cluster_id in ipairs({zcl.CLUSTER_ON_OFF,zcl.CLUSTER_POWER_CONFIGURATION})do
-device:send(device_management.build_bind_request(
-device,cluster_id,driver.environment_info.hub_zigbee_eui,43))
+k.switch({endpoint=43,component="main"}),k.alarm_1_or_2({endpoint=43}),k.tamper({endpoint=43}),k.battery_low({endpoint=43}),k.battery({endpoint=43}),k.cluster_attribute(b,d,{
+name="max_duration",endpoint=43,data_type=e.Uint16,write_type=e.Uint16,read_on_configure=true,}),},
+configure=function(B,z)
+for _,x in ipairs({k.CLUSTER_ON_OFF,k.CLUSTER_POWER_CONFIGURATION})do
+z:send(s.build_bind_request(
+z,x,B.environment_info.hub_zigbee_eui,43))
 end
 end,
-}register_device_definition(ias_siren,device_helpers.create_fingerprints("TS0219",{
-"_TYZB01_bwsijaty","_TYZB01_rs7ff6o7","_TYZB01_ynsiasng",}))register_device_definition(ias_siren_no_battery,device_helpers.create_fingerprints("TS0219",{
-"_TZ3000_vdfwjopk",}))register_device_definition(ias_siren_basic,device_helpers.create_fingerprints("TS0216",{
-"_TYZB01_4obovpbi","_TYZB01_8scntis1","_TYZB01_sbpc1zrb",}))register_device_definition(ias_siren_basic,{
-device_helpers.create_fingerprint("AduroSmart Eria","Smart Siren"),device_helpers.create_fingerprint("Heiman","WarningDevice"),})register_device_definition(frient_sirzb112,{
-device_helpers.create_fingerprint("frient A/S","SIRZB-112"),})return{
-id="zcl.sensors.sirens",registrations=device_definitions,}
+}a(A,c.create_fingerprints("TS0219",{
+"_TYZB01_bwsijaty","_TYZB01_rs7ff6o7","_TYZB01_ynsiasng",}))a(o,c.create_fingerprints("TS0219",{
+"_TZ3000_vdfwjopk",}))a(n,c.create_fingerprints("TS0216",{
+"_TYZB01_4obovpbi","_TYZB01_8scntis1","_TYZB01_sbpc1zrb",}))a(n,{
+c.create_fingerprint("AduroSmart Eria","Smart Siren"),c.create_fingerprint("Heiman","WarningDevice"),})a(t,{
+c.create_fingerprint("frient A/S","SIRZB-112"),})k.attach_reporting_capabilities(j,{
+{1,"rpt-tbv"},{2,"rpt-tkjy"},{3,"rpt-tiuv"},{4,"rpt-tiuv"},{5,"rpt-swk"},})return{
+id="zcl.sensors.sirens",registrations=j,}

@@ -24,54 +24,46 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: PresenceSensor
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: presenceSensor
-        version: 1
-        group: main
+    - component: main
+      capability: presenceSensor
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: presenceSensor
-      version: 1
-    - component: main
-      capability: concertmirror08464.presenceSensitivityZym100l
-      version: 1
-    - component: main
-      capability: concertmirror08464.minimumRangeZym100l
-      version: 1
-    - component: main
-      capability: concertmirror08464.presenceDetectionRangeZym100l
-      version: 1
-    - component: main
-      capability: concertmirror08464.detectionDelayZym100l
-      version: 1
-    - component: main
-      capability: concertmirror08464.presenceFadingTimeZym100l
-      version: 1
-    - component: main
-      capability: concertmirror08464.zym100lSelfTest
-      version: 1
-    - component: main
-      capability: concertmirror08464.presenceTargetDistanceZym100l
-      version: 1
-    - component: main
-      capability: illuminanceMeasurement
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: presenceSensor
+  - component: main
+    capability: concertmirror08464.presenceSensitivityZym100l
+  - component: main
+    capability: concertmirror08464.minimumRangeZym100l
+  - component: main
+    capability: concertmirror08464.presenceDetectionRangeZym100l
+  - component: main
+    capability: concertmirror08464.detectionDelayZym100l
+  - component: main
+    capability: concertmirror08464.presenceFadingTimeZym100l
+  - component: main
+    capability: concertmirror08464.zym100lSelfTest
+  - component: main
+    capability: concertmirror08464.presenceTargetDistanceZym100l
+  - component: main
+    capability: illuminanceMeasurement
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: presenceSensor
-        version: 1
-      - component: main
-        capability: illuminanceMeasurement
-        version: 1
+    - component: main
+      capability: presenceSensor
+    - component: main
+      capability: illuminanceMeasurement
+    - component: main
+      capability: signalStrength
     actions: []

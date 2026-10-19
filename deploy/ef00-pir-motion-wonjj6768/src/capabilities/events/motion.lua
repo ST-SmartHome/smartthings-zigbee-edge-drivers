@@ -1,11 +1,11 @@
-local emit=require"capabilities.events.all"
-local function aoyan_ay_204z()
+local a=require"capabilities.events.all"
+local function c()
 return{
-motion=emit.motion(),battery=emit.battery(),sensitivity=emit.ay204zSensitivity(),keep_time=emit.ay204zKeepTime(),}
+motion=a.motion(),battery=a.battery(),sensitivity=a.ay204zSensitivity(),keep_time=a.ay204zKeepTime(),}
 end
-local function lincukoo_szlm04u()
+local function b()
 return{
-motion=emit.motion(),illuminance=emit.illuminance(),battery=emit.battery(),usb_power=emit.szlm04uUsbPower(),sensor_switch=emit.szlm04uSensorSwitch(),fading_time=emit.szlm04uFadingTime(),}
+motion=a.motion(),illuminance=a.illuminance(),battery=a.battery(),usb_power=a.szlm04uUsbPower(),sensor_switch=a.szlm04uSensorSwitch(),fading_time=a.szlm04uFadingTime(),}
 end
 return{
-aoyan_ay_204z=aoyan_ay_204z,lincukoo_szlm04u=lincukoo_szlm04u,}
+aoyan_ay_204z=c,lincukoo_szlm04u=b,}

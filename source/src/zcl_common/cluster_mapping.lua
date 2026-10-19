@@ -26,34 +26,35 @@ local function load_cluster_mapping(zcl)
     COLOR_CONTROL = "ColorControl",
   }
 
+  -- Cluster name, attribute name.
   local attribute_specs = {
-    ON_OFF = { cluster_name = "OnOff", attribute_name = "OnOff" },
-    LEVEL_CURRENT_LEVEL = { cluster_name = "Level", attribute_name = "CurrentLevel" },
-    BATTERY_PERCENTAGE_REMAINING = { cluster_name = "PowerConfiguration", attribute_name = "BatteryPercentageRemaining" },
-    BATTERY_VOLTAGE = { cluster_name = "PowerConfiguration", attribute_name = "BatteryVoltage" },
-    TEMPERATURE_MEASURED_VALUE = { cluster_name = "TemperatureMeasurement", attribute_name = "MeasuredValue" },
-    HUMIDITY_MEASURED_VALUE = { cluster_name = "RelativeHumidity", attribute_name = "MeasuredValue" },
-    ILLUMINANCE_MEASURED_VALUE = { cluster_name = "IlluminanceMeasurement", attribute_name = "MeasuredValue" },
-    PRESSURE_MEASURED_VALUE = { cluster_name = "PressureMeasurement", attribute_name = "MeasuredValue" },
-    ZONE_STATUS = { cluster_name = "IASZone", attribute_name = "ZoneStatus" },
-    ACTIVE_POWER = { cluster_name = "ElectricalMeasurement", attribute_name = "ActivePower" },
-    RMS_VOLTAGE = { cluster_name = "ElectricalMeasurement", attribute_name = "RMSVoltage" },
-    RMS_CURRENT = { cluster_name = "ElectricalMeasurement", attribute_name = "RMSCurrent" },
-    CURRENT_SUMMATION_DELIVERED = { cluster_name = "SimpleMetering", attribute_name = "CurrentSummationDelivered" },
-    OCCUPANCY = { cluster_name = "OccupancySensing", attribute_name = "Occupancy" },
-    LOCAL_TEMPERATURE = { cluster_name = "Thermostat", attribute_name = "LocalTemperature" },
-    OCCUPIED_HEATING_SETPOINT = { cluster_name = "Thermostat", attribute_name = "OccupiedHeatingSetpoint" },
-    OCCUPIED_COOLING_SETPOINT = { cluster_name = "Thermostat", attribute_name = "OccupiedCoolingSetpoint" },
-    SYSTEM_MODE = { cluster_name = "Thermostat", attribute_name = "SystemMode" },
-    THERMOSTAT_RUNNING_STATE = { cluster_name = "Thermostat", attribute_name = "ThermostatRunningState" },
-    THERMOSTAT_LOCAL_TEMPERATURE_CALIBRATION = { cluster_name = "Thermostat", attribute_name = "LocalTemperatureCalibration" },
-    THERMOSTAT_PI_HEATING_DEMAND = { cluster_name = "Thermostat", attribute_name = "PIHeatingDemand" },
-    FAN_MODE = { cluster_name = "FanControl", attribute_name = "FanMode" },
-    CURRENT_POSITION_LIFT_PERCENTAGE = { cluster_name = "WindowCovering", attribute_name = "CurrentPositionLiftPercentage" },
-    CURRENT_POSITION_TILT_PERCENTAGE = { cluster_name = "WindowCovering", attribute_name = "CurrentPositionTiltPercentage" },
-    COLOR_TEMPERATURE_MIREDS = { cluster_name = "ColorControl", attribute_name = "ColorTemperatureMireds" },
-    CURRENT_HUE = { cluster_name = "ColorControl", attribute_name = "CurrentHue" },
-    CURRENT_SATURATION = { cluster_name = "ColorControl", attribute_name = "CurrentSaturation" },
+    ON_OFF = { "OnOff", "OnOff" },
+    LEVEL_CURRENT_LEVEL = { "Level", "CurrentLevel" },
+    BATTERY_PERCENTAGE_REMAINING = { "PowerConfiguration", "BatteryPercentageRemaining" },
+    BATTERY_VOLTAGE = { "PowerConfiguration", "BatteryVoltage" },
+    TEMPERATURE_MEASURED_VALUE = { "TemperatureMeasurement", "MeasuredValue" },
+    HUMIDITY_MEASURED_VALUE = { "RelativeHumidity", "MeasuredValue" },
+    ILLUMINANCE_MEASURED_VALUE = { "IlluminanceMeasurement", "MeasuredValue" },
+    PRESSURE_MEASURED_VALUE = { "PressureMeasurement", "MeasuredValue" },
+    ZONE_STATUS = { "IASZone", "ZoneStatus" },
+    ACTIVE_POWER = { "ElectricalMeasurement", "ActivePower" },
+    RMS_VOLTAGE = { "ElectricalMeasurement", "RMSVoltage" },
+    RMS_CURRENT = { "ElectricalMeasurement", "RMSCurrent" },
+    CURRENT_SUMMATION_DELIVERED = { "SimpleMetering", "CurrentSummationDelivered" },
+    OCCUPANCY = { "OccupancySensing", "Occupancy" },
+    LOCAL_TEMPERATURE = { "Thermostat", "LocalTemperature" },
+    OCCUPIED_HEATING_SETPOINT = { "Thermostat", "OccupiedHeatingSetpoint" },
+    OCCUPIED_COOLING_SETPOINT = { "Thermostat", "OccupiedCoolingSetpoint" },
+    SYSTEM_MODE = { "Thermostat", "SystemMode" },
+    THERMOSTAT_RUNNING_STATE = { "Thermostat", "ThermostatRunningState" },
+    THERMOSTAT_LOCAL_TEMPERATURE_CALIBRATION = { "Thermostat", "LocalTemperatureCalibration" },
+    THERMOSTAT_PI_HEATING_DEMAND = { "Thermostat", "PIHeatingDemand" },
+    FAN_MODE = { "FanControl", "FanMode" },
+    CURRENT_POSITION_LIFT_PERCENTAGE = { "WindowCovering", "CurrentPositionLiftPercentage" },
+    CURRENT_POSITION_TILT_PERCENTAGE = { "WindowCovering", "CurrentPositionTiltPercentage" },
+    COLOR_TEMPERATURE_MIREDS = { "ColorControl", "ColorTemperatureMireds" },
+    CURRENT_HUE = { "ColorControl", "CurrentHue" },
+    CURRENT_SATURATION = { "ColorControl", "CurrentSaturation" },
   }
 
   local mapping_option_keys = {
@@ -79,7 +80,9 @@ local function load_cluster_mapping(zcl)
     "maximum_interval",
     "reportable_change",
     "physical_reportable_change",
+    "reporting_defaults",
     "read_on_configure",
+    "read_on_refresh",
     "poll_interval",
     "ias_configure_method",
     "data_type",
@@ -94,34 +97,35 @@ local function load_cluster_mapping(zcl)
     "metering_kind",
   }
 
+  -- Factory name, default mapping name, cluster key, attribute key.
   local default_mappings = {
-    { factory_name = "temperature_measurement", default_name = "temperature", cluster = "TEMPERATURE", attribute = "TEMPERATURE_MEASURED_VALUE" },
-    { factory_name = "relative_humidity", default_name = "humidity", cluster = "RELATIVE_HUMIDITY", attribute = "HUMIDITY_MEASURED_VALUE" },
-    { factory_name = "illuminance_measurement", default_name = "illuminance", cluster = "ILLUMINANCE", attribute = "ILLUMINANCE_MEASURED_VALUE" },
-    { factory_name = "pressure_measurement", default_name = "pressure", cluster = "PRESSURE", attribute = "PRESSURE_MEASURED_VALUE" },
-    { factory_name = "on_off", default_name = "switch", cluster = "ON_OFF", attribute = "ON_OFF" },
-    { factory_name = "level_control", default_name = "brightness", cluster = "LEVEL_CONTROL", attribute = "LEVEL_CURRENT_LEVEL" },
-    { factory_name = "power_configuration_battery", default_name = "battery", cluster = "POWER_CONFIGURATION", attribute = "BATTERY_PERCENTAGE_REMAINING" },
-    { factory_name = "power_configuration_battery_voltage", default_name = "battery_voltage", cluster = "POWER_CONFIGURATION", attribute = "BATTERY_VOLTAGE" },
-    { factory_name = "ias_zone", default_name = "zone_status", cluster = "IAS_ZONE", attribute = "ZONE_STATUS" },
-    { factory_name = "electrical_measurement_power", default_name = "power", cluster = "ELECTRICAL_MEASUREMENT", attribute = "ACTIVE_POWER" },
-    { factory_name = "electrical_measurement_voltage", default_name = "voltage", cluster = "ELECTRICAL_MEASUREMENT", attribute = "RMS_VOLTAGE" },
-    { factory_name = "electrical_measurement_current", default_name = "current", cluster = "ELECTRICAL_MEASUREMENT", attribute = "RMS_CURRENT" },
-    { factory_name = "simple_metering", default_name = "energy", cluster = "SIMPLE_METERING", attribute = "CURRENT_SUMMATION_DELIVERED" },
-    { factory_name = "occupancy_sensing", default_name = "occupancy", cluster = "OCCUPANCY_SENSING", attribute = "OCCUPANCY" },
-    { factory_name = "thermostat_local_temperature", default_name = "local_temperature", cluster = "THERMOSTAT", attribute = "LOCAL_TEMPERATURE" },
-    { factory_name = "thermostat_heating_setpoint", default_name = "current_heating_setpoint", cluster = "THERMOSTAT", attribute = "OCCUPIED_HEATING_SETPOINT" },
-    { factory_name = "thermostat_cooling_setpoint", default_name = "current_cooling_setpoint", cluster = "THERMOSTAT", attribute = "OCCUPIED_COOLING_SETPOINT" },
-    { factory_name = "thermostat_system_mode", default_name = "system_mode", cluster = "THERMOSTAT", attribute = "SYSTEM_MODE" },
-    { factory_name = "thermostat_running_state", default_name = "thermostat_operating_state", cluster = "THERMOSTAT", attribute = "THERMOSTAT_RUNNING_STATE" },
-    { factory_name = "thermostat_local_temperature_calibration", default_name = "local_temperature_calibration", cluster = "THERMOSTAT", attribute = "THERMOSTAT_LOCAL_TEMPERATURE_CALIBRATION" },
-    { factory_name = "thermostat_pi_heating_demand", default_name = "pi_heating_demand", cluster = "THERMOSTAT", attribute = "THERMOSTAT_PI_HEATING_DEMAND" },
-    { factory_name = "fan_control_mode", default_name = "fan_mode", cluster = "FAN_CONTROL", attribute = "FAN_MODE" },
-    { factory_name = "window_covering_position", default_name = "cover_position", cluster = "WINDOW_COVERING", attribute = "CURRENT_POSITION_LIFT_PERCENTAGE" },
-    { factory_name = "window_covering_tilt", default_name = "cover_tilt", cluster = "WINDOW_COVERING", attribute = "CURRENT_POSITION_TILT_PERCENTAGE" },
-    { factory_name = "color_control_temperature", default_name = "color_temperature", cluster = "COLOR_CONTROL", attribute = "COLOR_TEMPERATURE_MIREDS" },
-    { factory_name = "color_control_hue", default_name = "color_hue", cluster = "COLOR_CONTROL", attribute = "CURRENT_HUE" },
-    { factory_name = "color_control_saturation", default_name = "color_saturation", cluster = "COLOR_CONTROL", attribute = "CURRENT_SATURATION" },
+    { "temperature_measurement", "temperature", "TEMPERATURE", "TEMPERATURE_MEASURED_VALUE" },
+    { "relative_humidity", "humidity", "RELATIVE_HUMIDITY", "HUMIDITY_MEASURED_VALUE" },
+    { "illuminance_measurement", "illuminance", "ILLUMINANCE", "ILLUMINANCE_MEASURED_VALUE" },
+    { "pressure_measurement", "pressure", "PRESSURE", "PRESSURE_MEASURED_VALUE" },
+    { "on_off", "switch", "ON_OFF", "ON_OFF" },
+    { "level_control", "brightness", "LEVEL_CONTROL", "LEVEL_CURRENT_LEVEL" },
+    { "power_configuration_battery", "battery", "POWER_CONFIGURATION", "BATTERY_PERCENTAGE_REMAINING" },
+    { "power_configuration_battery_voltage", "battery_voltage", "POWER_CONFIGURATION", "BATTERY_VOLTAGE" },
+    { "ias_zone", "zone_status", "IAS_ZONE", "ZONE_STATUS" },
+    { "electrical_measurement_power", "power", "ELECTRICAL_MEASUREMENT", "ACTIVE_POWER" },
+    { "electrical_measurement_voltage", "voltage", "ELECTRICAL_MEASUREMENT", "RMS_VOLTAGE" },
+    { "electrical_measurement_current", "current", "ELECTRICAL_MEASUREMENT", "RMS_CURRENT" },
+    { "simple_metering", "energy", "SIMPLE_METERING", "CURRENT_SUMMATION_DELIVERED" },
+    { "occupancy_sensing", "occupancy", "OCCUPANCY_SENSING", "OCCUPANCY" },
+    { "thermostat_local_temperature", "local_temperature", "THERMOSTAT", "LOCAL_TEMPERATURE" },
+    { "thermostat_heating_setpoint", "current_heating_setpoint", "THERMOSTAT", "OCCUPIED_HEATING_SETPOINT" },
+    { "thermostat_cooling_setpoint", "current_cooling_setpoint", "THERMOSTAT", "OCCUPIED_COOLING_SETPOINT" },
+    { "thermostat_system_mode", "system_mode", "THERMOSTAT", "SYSTEM_MODE" },
+    { "thermostat_running_state", "thermostat_operating_state", "THERMOSTAT", "THERMOSTAT_RUNNING_STATE" },
+    { "thermostat_local_temperature_calibration", "local_temperature_calibration", "THERMOSTAT", "THERMOSTAT_LOCAL_TEMPERATURE_CALIBRATION" },
+    { "thermostat_pi_heating_demand", "pi_heating_demand", "THERMOSTAT", "THERMOSTAT_PI_HEATING_DEMAND" },
+    { "fan_control_mode", "fan_mode", "FAN_CONTROL", "FAN_MODE" },
+    { "window_covering_position", "cover_position", "WINDOW_COVERING", "CURRENT_POSITION_LIFT_PERCENTAGE" },
+    { "window_covering_tilt", "cover_tilt", "WINDOW_COVERING", "CURRENT_POSITION_TILT_PERCENTAGE" },
+    { "color_control_temperature", "color_temperature", "COLOR_CONTROL", "COLOR_TEMPERATURE_MIREDS" },
+    { "color_control_hue", "color_hue", "COLOR_CONTROL", "CURRENT_HUE" },
+    { "color_control_saturation", "color_saturation", "COLOR_CONTROL", "CURRENT_SATURATION" },
   }
 
   local cluster_constants = {}
@@ -213,9 +217,10 @@ local function load_cluster_mapping(zcl)
 
   local function init_attribute_constants()
     for export_name, spec in pairs(attribute_specs) do
-      local attribute = zcl.get_generated_attribute_by_name(spec.cluster_name, spec.attribute_name)
+      local cluster_name, attribute_name = spec[1], spec[2]
+      local attribute = zcl.get_generated_attribute_by_name(cluster_name, attribute_name)
       if attribute == nil then
-        log.warn(string.format("missing generated ZCL attribute '%s.%s'", spec.cluster_name, spec.attribute_name))
+        log.warn(string.format("missing generated ZCL attribute '%s.%s'", cluster_name, attribute_name))
       else
         attribute_constants[export_name] = attribute.ID
       end
@@ -286,7 +291,7 @@ local function load_cluster_mapping(zcl)
       attribute_id = attribute_id,
       cluster_name = cluster_name,
       attribute_name = definition.attribute_name or
-        (attribute_specs[definition.attribute] and attribute_specs[definition.attribute].attribute_name) or
+        (attribute_specs[definition.attribute] and attribute_specs[definition.attribute][2]) or
         definition.attribute,
     }
 
@@ -316,7 +321,10 @@ local function load_cluster_mapping(zcl)
   export_constants(zcl, "ATTR_", attribute_constants)
 
   for _, definition in ipairs(default_mappings) do
-    zcl.register_mapping(definition)
+    zcl.register_mapping({
+      factory_name = definition[1], default_name = definition[2],
+      cluster = definition[3], attribute = definition[4],
+    })
   end
 
   --- REGISTERED_ATTRIBUTES로부터 zigbee_handlers.attr 테이블을 자동 생성합니다.

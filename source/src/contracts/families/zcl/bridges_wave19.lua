@@ -474,6 +474,14 @@ local slzb07mg26 = {
 }
 register_device_definition(slzb07mg26, {device_helpers.create_fingerprint("SMLIGHT","SLZB-07MG26")})
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {2, "rpt-itx"},
+  {4, "rpt-tcea"},
+  {5, "rpt-snc"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.bridges.wave19",
   registrations = device_definitions,

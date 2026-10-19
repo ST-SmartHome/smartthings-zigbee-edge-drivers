@@ -1,6 +1,7 @@
 -- Receive/read/configure-only ZCL facade for EF00-owned hybrid packages.
 
 local zcl = require "protocol.zcl.stub_base"()
+zcl.ATTR_MEASURED_VALUE = nil
 
 require "zcl_common.generated_helper"(zcl)
 require "zcl_common.cluster_mapping"(zcl)

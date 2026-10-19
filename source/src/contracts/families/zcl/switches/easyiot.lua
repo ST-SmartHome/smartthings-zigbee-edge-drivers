@@ -87,12 +87,12 @@ local sp1000 = {
 
 local switch_4 = {
   profile = "switches-switch-4",
-  zcl_clusters = zcl.multi_switch(4, { configure_reporting = false }),
+  zcl_clusters = zcl.multi_switch(4, { configure_reporting = false, index_offset = 1 }),
 }
 
 local switch_8 = {
   profile = "switches-switch-8",
-  zcl_clusters = zcl.multi_switch(8, { configure_reporting = false }),
+  zcl_clusters = zcl.multi_switch(8, { configure_reporting = false, index_offset = 1 }),
 }
 
 register_device_definition(sp1000, {

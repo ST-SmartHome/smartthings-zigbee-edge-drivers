@@ -71,7 +71,7 @@ local presence_basic = {
   profile = "safety-presence-basic-delay-battery",
   package_group = "presence-general-1",
   datapoints = {
-    tuya.dp_presence(1, { emit = emit.presence(), read_only = true }),
+    tuya.dp_presence(1, { emit = emit.presence(), read_only = true, converter = converter.true_false0() }),
     tuya.dp_battery(4, { emit = emit.battery(), read_only = true }),
     tuya.dp_enum(9, {
       name = "sensitivity",

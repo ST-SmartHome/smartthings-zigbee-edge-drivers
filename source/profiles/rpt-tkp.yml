@@ -1,0 +1,68 @@
+name: rpt-tkp
+components:
+- id: main
+  capabilities:
+  - id: switch
+    version: 1
+  - id: powerMeter
+    version: 1
+  - id: energyMeter
+    version: 1
+  - id: voltageMeasurement
+    version: 1
+  - id: currentMeasurement
+    version: 1
+  - id: concertmirror08464.nousB3zPowerBehavior
+    version: 1
+  - id: concertmirror08464.nousB3zSwitchType
+    version: 1
+  - id: concertmirror08464.powerPollIntervalV2
+    version: 1
+  - id: concertmirror08464.lastPowerResponseTime
+    version: 1
+  - id: concertmirror08464.nousB3zCountdown1
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMax
+    version: 1
+  - id: concertmirror08464.zclSwitchTwoReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchTwoReportMax
+    version: 1
+  - id: concertmirror08464.zclPowerReportMin
+    version: 1
+  - id: concertmirror08464.zclPowerReportMax
+    version: 1
+  - id: concertmirror08464.zclPowerReportChange29
+    version: 1
+  - id: concertmirror08464.zclVoltageReportMin
+    version: 1
+  - id: concertmirror08464.zclVoltageReportMax
+    version: 1
+  - id: concertmirror08464.zclVoltageReportChange21
+    version: 1
+  - id: concertmirror08464.zclCurrentReportMin
+    version: 1
+  - id: concertmirror08464.zclCurrentReportMax
+    version: 1
+  - id: concertmirror08464.zclCurrentReportChange21
+    version: 1
+  - id: concertmirror08464.zclEnergyReportMin
+    version: 1
+  - id: concertmirror08464.zclEnergyReportMax
+    version: 1
+  - id: concertmirror08464.zclEnergyReportChange25
+    version: 1
+  categories:
+  - name: Switch
+- id: switch2
+  capabilities:
+  - id: switch
+    version: 1
+  - id: concertmirror08464.nousB3zCountdown2
+    version: 1
+  categories:
+  - name: Switch

@@ -145,6 +145,12 @@ register_device_definition(shelly_dimmer, {
   device_helpers.create_fingerprint("Shelly", "Dimmer 0-1/10"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-dwy"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.lights.shelly_dimmer",
   registrations = device_definitions,

@@ -230,6 +230,12 @@ register_device_definition(aqara_w500, {
   device_helpers.create_fingerprint("Aqara", "lumi.airrtc.aeu001"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-lbw"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.thermostats.aqara_w500",
   registrations = device_definitions,

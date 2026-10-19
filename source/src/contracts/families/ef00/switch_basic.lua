@@ -788,6 +788,13 @@ register_device_definition(switch_four_tuya_base, device_helpers.create_fingerpr
   "_TZE204_58of2pfn",
 }))
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {7, "rpt-tmk"},
+  {8, "rpt-tcts", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "ef00.switch.basic",
   registrations = device_definitions,

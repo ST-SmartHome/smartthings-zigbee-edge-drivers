@@ -8,5 +8,6 @@ components:
       - {id: motionSensor, version: 1}
       - {id: carbonDioxideMeasurement, version: 1}
       - {id: refresh, version: 1}
+      - {id: signalStrength, version: 1}
     categories:
       - {name: MultiFunctionalSensor}

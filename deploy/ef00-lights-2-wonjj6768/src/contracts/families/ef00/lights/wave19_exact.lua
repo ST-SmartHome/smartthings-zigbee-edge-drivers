@@ -1,135 +1,135 @@
-local tuya=require"protocol.tuya"
-local zcl=require"protocol.zcl"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local device_definitions,register_device_definition=device_helpers.definition_registry()local converter=tuya.converter
-local function custom(capability_id)
-return assert(emit[capability_id],"missing Wave19 light emitter: "..capability_id)()
+local d=require"protocol.tuya"
+local aq=require"protocol.zcl"
+local p=require"capabilities.events.all"
+local j=require"contracts.helpers.family"
+local P,e=j.definition_registry()local g=d.converter
+local function h(capability_id)
+return assert(p[capability_id],"missing Wave19 light emitter: "..capability_id)()
 end
-local function clamp(value,minimum,maximum)
-local number=tonumber(value)
-if number==nil then return nil end
-return math.max(minimum,math.min(maximum,number))
+local function k(c,ak,aj)
+local T=tonumber(c)
+if T==nil then return nil end
+return math.max(ak,math.min(aj,T))
 end
-local function round(value)
-if value==nil then return nil end
-return math.floor(value+0.5)
+local function l(c)
+if c==nil then return nil end
+return math.floor(c+0.5)
 end
-local brightness_zero_to_thousand=converter.from_to(
-function(value)return round(clamp(value,0,1000)/10)end,
-function(value)return round(clamp(value,0,100)*10)end
-)local POWER_BEHAVIOR=converter.lookup_from_to({off=0,on=1,previous=2})local ON_OFF=converter.lookup_from_to({OFF=false,ON=true})
-local function tuya_lifecycle(profile,datapoints)
+local a=g.from_to(
+function(c)return l(k(c,0,1000)/10)end,
+function(c)return l(k(c,0,100)*10)end
+)local z=g.lookup_from_to({off=0,on=1,previous=2})local al=g.lookup_from_to({OFF=false,ON=true})
+local function A(ab,ad)
 return{
-profile=profile,package_group="wave19-light",transport_classification="EF00_DP",z2m_converter_source="meta.tuyaDatapoints",wire_cluster="manuSpecificTuya",magic_packet=true,query_on_configure=false,named_datapoints=true,time_start="off",placeholder_custom_states=false,datapoints=datapoints,}
+profile=ab,package_group="wave19-light",transport_classification="EF00_DP",z2m_converter_source="meta.tuyaDatapoints",wire_cluster="manuSpecificTuya",magic_packet=true,query_on_configure=false,named_datapoints=true,time_start="off",placeholder_custom_states=false,datapoints=ad,}
 end
-local function two_channel_dimmer(profile,capability_prefix,switch_type_converter)
-local min_emitter=custom(capability_prefix.."MinBrightness")local max_emitter=custom(capability_prefix.."MaxBrightness")local type_emitter=custom(capability_prefix.."SwitchType")local countdown_emitter=custom(capability_prefix.."Countdown")return tuya_lifecycle(profile,{
-tuya.dp_on_off(1,{name="switch",component="main",transaction=1,emit=emit.switch()}),tuya.dp_numeric(2,{name="brightness",component="main",transaction=1,converter=brightness_zero_to_thousand,emit=emit.level()}),tuya.dp_numeric(3,{name=capability_prefix.."_min_brightness",component="main",transaction=1,converter=brightness_zero_to_thousand,emit=min_emitter}),tuya.dp_enum(4,{name=capability_prefix.."_switch_type",component="main",transaction=1,converter=switch_type_converter,emit=type_emitter}),tuya.dp_numeric(5,{name=capability_prefix.."_max_brightness",component="main",transaction=1,converter=brightness_zero_to_thousand,emit=max_emitter}),tuya.dp_numeric(6,{name=capability_prefix.."_countdown",component="main",transaction=1,emit=countdown_emitter}),tuya.dp_on_off(7,{name="switch",component="switch2",transaction=1,emit=emit.switch()}),tuya.dp_numeric(8,{name="brightness",component="switch2",transaction=1,converter=brightness_zero_to_thousand,emit=emit.level()}),tuya.dp_numeric(9,{name=capability_prefix.."_min_brightness",component="switch2",transaction=1,converter=brightness_zero_to_thousand,emit=min_emitter}),tuya.dp_enum(10,{name=capability_prefix.."_switch_type",component="switch2",transaction=1,converter=switch_type_converter,emit=type_emitter}),tuya.dp_numeric(11,{name=capability_prefix.."_max_brightness",component="switch2",transaction=1,converter=brightness_zero_to_thousand,emit=max_emitter}),tuya.dp_numeric(12,{name=capability_prefix.."_countdown",component="switch2",transaction=1,emit=countdown_emitter}),tuya.dp_enum(14,{name=capability_prefix.."_power_behavior",transaction=1,converter=POWER_BEHAVIOR,emit=custom(capability_prefix.."PowerBehavior")}),})
+local function D(ab,b,x)
+local W=h(b.."MinBrightness")local V=h(b.."MaxBrightness")local U=h(b.."SwitchType")local H=h(b.."Countdown")return A(ab,{
+d.dp_on_off(1,{name="switch",component="main",transaction=1,emit=p.switch()}),d.dp_numeric(2,{name="brightness",component="main",transaction=1,converter=a,emit=p.level()}),d.dp_numeric(3,{name=b.."_min_brightness",component="main",transaction=1,converter=a,emit=W}),d.dp_enum(4,{name=b.."_switch_type",component="main",transaction=1,converter=x,emit=U}),d.dp_numeric(5,{name=b.."_max_brightness",component="main",transaction=1,converter=a,emit=V}),d.dp_numeric(6,{name=b.."_countdown",component="main",transaction=1,emit=H}),d.dp_on_off(7,{name="switch",component="switch2",transaction=1,emit=p.switch()}),d.dp_numeric(8,{name="brightness",component="switch2",transaction=1,converter=a,emit=p.level()}),d.dp_numeric(9,{name=b.."_min_brightness",component="switch2",transaction=1,converter=a,emit=W}),d.dp_enum(10,{name=b.."_switch_type",component="switch2",transaction=1,converter=x,emit=U}),d.dp_numeric(11,{name=b.."_max_brightness",component="switch2",transaction=1,converter=a,emit=V}),d.dp_numeric(12,{name=b.."_countdown",component="switch2",transaction=1,emit=H}),d.dp_enum(14,{name=b.."_power_behavior",transaction=1,converter=z,emit=h(b.."PowerBehavior")}),})
 end
-local avatto=two_channel_dimmer(
-"lights-wave19-avatto-zdms16-us-w2","avattoWTwo",converter.lookup_from_to({toggle=0,state=1,momentary=2}))register_device_definition(avatto,{
-device_helpers.create_fingerprint("_TZE204_sdykkwsu","TS0601"),})local LIDL_HUE_FIELD="wave19_lidl_hue"
-local LIDL_SATURATION_FIELD="wave19_lidl_saturation"
-local LIDL_BRIGHTNESS_FIELD="wave19_lidl_brightness"
-local function lidl_hex_part(value,offset)
-if type(value)~="string"or #value<12 then return nil end
-return tonumber(value:sub(offset,offset+3),16)
+local am=D(
+"lights-wave19-avatto-zdms16-us-w2","avattoWTwo",g.lookup_from_to({toggle=0,state=1,momentary=2}))e(am,{
+j.create_fingerprint("_TZE204_sdykkwsu","TS0601"),})local y="wave19_lidl_hue"
+local m="wave19_lidl_saturation"
+local i="wave19_lidl_brightness"
+local function F(c,af)
+if type(c)~="string"or #c<12 then return nil end
+return tonumber(c:sub(af,af+3),16)
 end
-local function lidl_hue_from_device(value,device)
-local degrees=lidl_hex_part(value,1)
-if degrees==nil then return nil end
-local hue=clamp(degrees/3.6,0,100)device:set_field(LIDL_HUE_FIELD,hue,{persist=false})return hue
+local function O(c,f)
+local n=F(c,1)
+if n==nil then return nil end
+local ai=k(n/3.6,0,100)f:set_field(y,ai,{persist=false})return ai
 end
-local function lidl_saturation_from_device(value,device)
-local raw=lidl_hex_part(value,5)
-if raw==nil then return nil end
-local saturation=clamp(raw/10,0,100)device:set_field(LIDL_SATURATION_FIELD,saturation,{persist=false})return saturation
+local function C(c,f)
+local ac=F(c,5)
+if ac==nil then return nil end
+local K=k(ac/10,0,100)f:set_field(m,K,{persist=false})return K
 end
-local function lidl_color_brightness_from_device(value,device)
-local raw=lidl_hex_part(value,9)
-if raw==nil then return nil end
-local brightness=round(clamp(raw,0,1000)/10)device:set_field(LIDL_BRIGHTNESS_FIELD,brightness,{persist=false})return brightness
+local function s(c,f)
+local ac=F(c,9)
+if ac==nil then return nil end
+local o=l(k(ac,0,1000)/10)f:set_field(i,o,{persist=false})return o
 end
-local function lidl_white_brightness_from_device(value,device)
-local brightness=round(clamp(value,0,1000)/10)device:set_field(LIDL_BRIGHTNESS_FIELD,brightness,{persist=false})return brightness
+local function t(c,f)
+local o=l(k(c,0,1000)/10)f:set_field(i,o,{persist=false})return o
 end
-local function lidl_latest(device,field,capability_id,attribute,fallback)
-local value=device:get_field(field)
-if value==nil and type(device.get_latest_state)=="function"then
-value=device:get_latest_state("main",capability_id,attribute)
+local function L(f,ao,capability_id,ae,ag)
+local c=f:get_field(ao)
+if c==nil and type(f.get_latest_state)=="function"then
+c=f:get_latest_state("main",capability_id,ae)
 end
-local number=tonumber(value)
-if number==nil then return fallback end
-return number
+local T=tonumber(c)
+if T==nil then return ag end
+return T
 end
-local function lidl_color_payload(device,hue,saturation,brightness)
-local requested_hue=false
-local degrees=360
-local hue_value=tonumber(hue)if hue_value~=nil and hue_value~=0 then
-degrees=hue_value*3.6
-requested_hue=true
+local function R(f,ai,K,o)
+local G=false
+local n=360
+local Q=tonumber(ai)if Q~=nil and Q~=0 then
+n=Q*3.6
+G=true
 else
-local latest_hue=lidl_latest(device,LIDL_HUE_FIELD,"colorControl","hue",0)
-if latest_hue~=0 then degrees=latest_hue*3.6 end
+local X=L(f,y,"colorControl","hue",0)
+if X~=0 then n=X*3.6 end
 end
-if requested_hue and degrees>=360 then degrees=359 end
-degrees=round(clamp(degrees,0,requested_hue and 359 or 360))local saturation_value=tonumber(saturation)local saturation_raw=1000
-if saturation_value~=nil and saturation_value~=0 then
-saturation_raw=round(clamp(saturation_value,0,100)*10)else
-local latest_saturation=lidl_latest(
-device,LIDL_SATURATION_FIELD,"colorControl","saturation",0)if latest_saturation~=0 then
-saturation_raw=round(clamp(latest_saturation,0,100)*10)
-end
-end
-local brightness_value=tonumber(brightness)local brightness_raw=1000
-if brightness_value~=nil and brightness_value~=0 then
-brightness_raw=round(clamp(brightness_value,0,100)*10)else
-local latest_brightness=lidl_latest(
-device,LIDL_BRIGHTNESS_FIELD,"switchLevel","level",0)if latest_brightness~=0 then
-brightness_raw=round(clamp(latest_brightness,0,100)*10)
+if G and n>=360 then n=359 end
+n=l(k(n,0,G and 359 or 360))local w=tonumber(K)local r=1000
+if w~=nil and w~=0 then
+r=l(k(w,0,100)*10)else
+local J=L(
+f,m,"colorControl","saturation",0)if J~=0 then
+r=l(k(J,0,100)*10)
 end
 end
-device:set_field(LIDL_HUE_FIELD,degrees/3.6,{persist=false})device:set_field(LIDL_SATURATION_FIELD,saturation_raw/10,{persist=false})device:set_field(LIDL_BRIGHTNESS_FIELD,brightness_raw/10,{persist=false})return string.format("%04x%04x%04x",degrees,saturation_raw,brightness_raw)
+local u=tonumber(o)local q=1000
+if u~=nil and u~=0 then
+q=l(k(u,0,100)*10)else
+local I=L(
+f,i,"switchLevel","level",0)if I~=0 then
+q=l(k(I,0,100)*10)
 end
-local function lidl_brightness_write(_,value)
+end
+f:set_field(y,n/3.6,{persist=false})f:set_field(m,r/10,{persist=false})f:set_field(i,q/10,{persist=false})return string.format("%04x%04x%04x",n,r,q)
+end
+local function M(_,c)
 return{
-{dp=2,datatype=tuya.DP_TYPE_ENUM,value=0},{dp=3,datatype=tuya.DP_TYPE_VALUE,value=round(clamp(value,0,100)*10)},}
+{dp=2,datatype=d.DP_TYPE_ENUM,value=0},{dp=3,datatype=d.DP_TYPE_VALUE,value=l(k(c,0,100)*10)},}
 end
-local function lidl_color_write(device,value)
-if type(value)~="table"then return nil end
+local function v(f,c)
+if type(c)~="table"then return nil end
 return{
-{dp=2,datatype=tuya.DP_TYPE_ENUM,value=1},{dp=5,datatype=tuya.DP_TYPE_STRING,value=lidl_color_payload(device,value.hue,value.saturation,value.brightness)},}
+{dp=2,datatype=d.DP_TYPE_ENUM,value=1},{dp=5,datatype=d.DP_TYPE_STRING,value=R(f,c.hue,c.saturation,c.brightness)},}
 end
-local function lidl_hue_write(device,value)
-return lidl_color_write(device,{hue=value})
+local function aa(f,c)
+return v(f,{hue=c})
 end
-local function lidl_saturation_write(device,value)
-return lidl_color_write(device,{saturation=value})
+local function N(f,c)
+return v(f,{saturation=c})
 end
-local lidl_datapoints={
-tuya.dp_enum(2,{name="lidl_change_mode",read_only=true,transaction=1}),tuya.dp_numeric(3,{name="lidl_brightness_report",read_only=true,transaction=1,converter=converter.from_only(lidl_white_brightness_from_device),emit=emit.level()}),tuya.dp_string(5,{name="lidl_hue_report",read_only=true,transaction=1,converter=converter.from_only(lidl_hue_from_device),emit=emit.color_hue()}),tuya.dp_string(5,{name="lidl_saturation_report",read_only=true,transaction=1,converter=converter.from_only(lidl_saturation_from_device),emit=emit.color_saturation()}),tuya.dp_string(5,{name="lidl_color_brightness_report",read_only=true,transaction=1,converter=converter.from_only(lidl_color_brightness_from_device),emit=emit.level()}),tuya.dp_string(6,{name="lidl_effect_payload",read_only=true,transaction=1}),}local lidl={
-profile="lights-wave19-lidl-hg06467",package_group="wave19-light",transport_classification="HYBRID_ZCL_EF00",z2m_converter_source="legacy.silvercrest_smart_led_string",wire_cluster="genOnOff + manuSpecificTuya",magic_packet=false,query_on_configure=false,time_start="off",auto_connection_status=false,initial_custom_state_query=false,refresh_state_query=false,auto_on_before_light_command=false,datapoints=lidl_datapoints,named_mapping={
+local Y={
+d.dp_enum(2,{name="lidl_change_mode",read_only=true,transaction=1}),d.dp_numeric(3,{name="lidl_brightness_report",read_only=true,transaction=1,converter=g.from_only(t),emit=p.level()}),d.dp_string(5,{name="lidl_hue_report",read_only=true,transaction=1,converter=g.from_only(O),emit=p.color_hue()}),d.dp_string(5,{name="lidl_saturation_report",read_only=true,transaction=1,converter=g.from_only(C),emit=p.color_saturation()}),d.dp_string(5,{name="lidl_color_brightness_report",read_only=true,transaction=1,converter=g.from_only(s),emit=p.level()}),d.dp_string(6,{name="lidl_effect_payload",read_only=true,transaction=1}),}local ap={
+profile="lights-wave19-lidl-hg06467",package_group="wave19-light",transport_classification="HYBRID_ZCL_EF00",z2m_converter_source="legacy.silvercrest_smart_led_string",wire_cluster="genOnOff + manuSpecificTuya",magic_packet=false,query_on_configure=false,time_start="off",auto_connection_status=false,initial_custom_state_query=false,refresh_state_query=false,auto_on_before_light_command=false,datapoints=Y,named_mapping={
 named_mappings={
-brightness=lidl_brightness_write,color=lidl_color_write,color_hue=lidl_hue_write,color_saturation=lidl_saturation_write,},},zcl_clusters={
-zcl.switch({
-endpoint=1,read_only=false,configure_reporting=false,read_on_configure=false,}),},}register_device_definition(lidl,{
-device_helpers.create_fingerprint("_TZE200_s8gkrkxk","TS0601"),})local lonsonho=two_channel_dimmer(
-"lights-wave19-lonsonho-vm-s02-010v","lonsonhoVmTwo",converter.lookup_from_to({momentary=0,toggle=1,state=2}))register_device_definition(lonsonho,{
-device_helpers.create_fingerprint("_TZE600_wxq8dpha\0","TS0603"),})local qa=tuya_lifecycle("lights-wave19-qa-qadz4din",{
-tuya.dp_on_off(1,{name="switch",component="main",transaction=1,emit=emit.switch()}),tuya.dp_numeric(2,{name="brightness",component="main",transaction=1,converter=brightness_zero_to_thousand,emit=emit.level()}),tuya.dp_numeric(3,{name="qaQadzFour_min_brightness",component="main",transaction=1,converter=brightness_zero_to_thousand,emit=custom("qaQadzFourMinBrightness")}),tuya.dp_on_off(7,{name="switch",component="switch2",transaction=1,emit=emit.switch()}),tuya.dp_numeric(8,{name="brightness",component="switch2",transaction=1,converter=brightness_zero_to_thousand,emit=emit.level()}),tuya.dp_numeric(9,{name="qaQadzFour_min_brightness",component="switch2",transaction=1,converter=brightness_zero_to_thousand,emit=custom("qaQadzFourMinBrightness")}),tuya.dp_enum(14,{name="qaQadzFour_power_behavior",transaction=1,converter=POWER_BEHAVIOR,emit=custom("qaQadzFourPowerBehavior")}),tuya.dp_on_off(15,{name="switch",component="switch3",transaction=1,emit=emit.switch()}),tuya.dp_numeric(16,{name="brightness",component="switch3",transaction=1,converter=brightness_zero_to_thousand,emit=emit.level()}),tuya.dp_numeric(17,{name="qaQadzFour_min_brightness",component="switch3",transaction=1,converter=brightness_zero_to_thousand,emit=custom("qaQadzFourMinBrightness")}),tuya.dp_on_off(101,{name="switch",component="switch4",transaction=1,emit=emit.switch()}),tuya.dp_numeric(102,{name="brightness",component="switch4",transaction=1,converter=brightness_zero_to_thousand,emit=emit.level()}),tuya.dp_numeric(103,{name="qaQadzFour_min_brightness",component="switch4",transaction=1,converter=brightness_zero_to_thousand,emit=custom("qaQadzFourMinBrightness")}),tuya.dp_enum(105,{name="qaQadzFour_dimming_speed",transaction=1,converter=converter.lookup_from_to({slow=0,middle=1,fast=2}),emit=custom("qaQadzFourDimmingSpeed")}),tuya.dp_enum(106,{name="qaQadzFour_switch_type",transaction=1,converter=converter.lookup_from_to({momentary=0,toggle=1}),emit=custom("qaQadzFourSwitchType")}),})register_device_definition(qa,{
-device_helpers.create_fingerprint("_TZE284_nthhgkd6","TS0601"),})local nova_brightness=converter.from_to(
-function(value)
-local raw=clamp(value,10,1000)local z2m_brightness=round((raw-10)*254/990)return round(z2m_brightness*100/254)
+brightness=M,color=v,color_hue=aa,color_saturation=N,},},zcl_clusters={
+aq.switch({
+endpoint=1,read_only=false,configure_reporting=false,read_on_configure=false,}),},}e(ap,{
+j.create_fingerprint("_TZE200_s8gkrkxk","TS0601"),})local ah=D(
+"lights-wave19-lonsonho-vm-s02-010v","lonsonhoVmTwo",g.lookup_from_to({momentary=0,toggle=1,state=2}))e(ah,{
+j.create_fingerprint("_TZE600_wxq8dpha\0","TS0603"),})local qa=A("lights-wave19-qa-qadz4din",{
+d.dp_on_off(1,{name="switch",component="main",transaction=1,emit=p.switch()}),d.dp_numeric(2,{name="brightness",component="main",transaction=1,converter=a,emit=p.level()}),d.dp_numeric(3,{name="qaQadzFour_min_brightness",component="main",transaction=1,converter=a,emit=h("qaQadzFourMinBrightness")}),d.dp_on_off(7,{name="switch",component="switch2",transaction=1,emit=p.switch()}),d.dp_numeric(8,{name="brightness",component="switch2",transaction=1,converter=a,emit=p.level()}),d.dp_numeric(9,{name="qaQadzFour_min_brightness",component="switch2",transaction=1,converter=a,emit=h("qaQadzFourMinBrightness")}),d.dp_enum(14,{name="qaQadzFour_power_behavior",transaction=1,converter=z,emit=h("qaQadzFourPowerBehavior")}),d.dp_on_off(15,{name="switch",component="switch3",transaction=1,emit=p.switch()}),d.dp_numeric(16,{name="brightness",component="switch3",transaction=1,converter=a,emit=p.level()}),d.dp_numeric(17,{name="qaQadzFour_min_brightness",component="switch3",transaction=1,converter=a,emit=h("qaQadzFourMinBrightness")}),d.dp_on_off(101,{name="switch",component="switch4",transaction=1,emit=p.switch()}),d.dp_numeric(102,{name="brightness",component="switch4",transaction=1,converter=a,emit=p.level()}),d.dp_numeric(103,{name="qaQadzFour_min_brightness",component="switch4",transaction=1,converter=a,emit=h("qaQadzFourMinBrightness")}),d.dp_enum(105,{name="qaQadzFour_dimming_speed",transaction=1,converter=g.lookup_from_to({slow=0,middle=1,fast=2}),emit=h("qaQadzFourDimmingSpeed")}),d.dp_enum(106,{name="qaQadzFour_switch_type",transaction=1,converter=g.lookup_from_to({momentary=0,toggle=1}),emit=h("qaQadzFourSwitchType")}),})e(qa,{
+j.create_fingerprint("_TZE284_nthhgkd6","TS0601"),})local Z=g.from_to(
+function(c)
+local ac=k(c,10,1000)local B=l((ac-10)*254/990)return l(B*100/254)
 end,
-function(value)
-local z2m_brightness=round(clamp(value,0,100)*254/100)return round(10+z2m_brightness*990/254)
+function(c)
+local B=l(k(c,0,100)*254/100)return l(10+B*990/254)
 end
-)local nova_percent=converter.from_to(
-function(value)return round(clamp(value,10,1000)/10)end,
-function(value)return round(clamp(value,1,100)*10)end
-)local nova=tuya_lifecycle("lights-wave19-nova-topazio",{
-tuya.dp_on_off(1,{name="switch",transaction=1,emit=emit.switch()}),tuya.dp_numeric(2,{name="brightness",transaction=1,converter=nova_brightness,emit=emit.level()}),tuya.dp_numeric(3,{name="novaTopazio_min_brightness",transaction=1,converter=nova_percent,emit=custom("novaTopazioMinBrightness")}),tuya.dp_enum(4,{name="novaTopazio_light_type",transaction=1,converter=converter.lookup_from_to({led=0,incandescent=1,halogen=2}),emit=custom("novaTopazioLightType")}),tuya.dp_numeric(5,{name="novaTopazio_max_brightness",transaction=1,converter=nova_percent,emit=custom("novaTopazioMaxBrightness")}),tuya.dp_numeric(6,{name="novaTopazio_countdown",transaction=1,emit=custom("novaTopazioCountdown")}),tuya.dp_enum(14,{name="novaTopazio_power_behavior",transaction=1,converter=POWER_BEHAVIOR,emit=custom("novaTopazioPowerBehavior")}),tuya.dp_enum(21,{name="novaTopazio_indicator_mode",transaction=1,converter=converter.lookup_from_to({none=0,relay=1,pos=2}),emit=custom("novaTopazioIndicatorMode")}),tuya.dp_binary(26,{name="novaTopazio_backlight",transaction=1,converter=ON_OFF,emit=custom("novaTopazioBacklight")}),})nova.time_start="1970"
-register_device_definition(nova,{
-device_helpers.create_fingerprint("_TZE284_5yah8qx4","TS0601"),})return{
-id="ef00.lights.wave19.exact",registrations=device_definitions,}
+)local S=g.from_to(
+function(c)return l(k(c,10,1000)/10)end,
+function(c)return l(k(c,1,100)*10)end
+)local an=A("lights-wave19-nova-topazio",{
+d.dp_on_off(1,{name="switch",transaction=1,emit=p.switch()}),d.dp_numeric(2,{name="brightness",transaction=1,converter=Z,emit=p.level()}),d.dp_numeric(3,{name="novaTopazio_min_brightness",transaction=1,converter=S,emit=h("novaTopazioMinBrightness")}),d.dp_enum(4,{name="novaTopazio_light_type",transaction=1,converter=g.lookup_from_to({led=0,incandescent=1,halogen=2}),emit=h("novaTopazioLightType")}),d.dp_numeric(5,{name="novaTopazio_max_brightness",transaction=1,converter=S,emit=h("novaTopazioMaxBrightness")}),d.dp_numeric(6,{name="novaTopazio_countdown",transaction=1,emit=h("novaTopazioCountdown")}),d.dp_enum(14,{name="novaTopazio_power_behavior",transaction=1,converter=z,emit=h("novaTopazioPowerBehavior")}),d.dp_enum(21,{name="novaTopazio_indicator_mode",transaction=1,converter=g.lookup_from_to({none=0,relay=1,pos=2}),emit=h("novaTopazioIndicatorMode")}),d.dp_binary(26,{name="novaTopazio_backlight",transaction=1,converter=al,emit=h("novaTopazioBacklight")}),})an.time_start="1970"
+e(an,{
+j.create_fingerprint("_TZE284_5yah8qx4","TS0601"),})return{
+id="ef00.lights.wave19.exact",registrations=P,}

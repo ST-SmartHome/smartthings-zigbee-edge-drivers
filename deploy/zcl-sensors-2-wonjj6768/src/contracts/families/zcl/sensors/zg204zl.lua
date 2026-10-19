@@ -1,25 +1,26 @@
-local zcl=require"protocol.zcl"
-local device_helpers=require"contracts.helpers.family"
-local registrations,register_device_definition=device_helpers.definition_registry()local zg204zl_ias={
+local h=require"protocol.zcl"
+local b=require"contracts.helpers.family"
+local d,i=b.definition_registry()local a={
 profile="zg204zl-ias-motion-battery",magic_packet=false,zcl_clusters={
-zcl.motion({
+h.motion({
 endpoint=1,read_only=true,read_on_configure=false,
-from_device=function(value)
-if type(value)=="table"then value=value.value end
-return bit32.band(value,0x0001)~=0
+from_device=function(c)
+if type(c)=="table"then c=c.value end
+return bit32.band(c,1)~=0
 end,
-}),zcl.battery({
-endpoint=1,read_only=true,minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true,
-from_device=function(value,_,context)
-local raw=context and context.raw_value or value
-if raw==0xFF then return nil end
-return context and value or raw/2
+}),h.battery({
+endpoint=1,read_only=true,minimum_interval=3600,maximum_interval=65000,reportable_change=0,
+from_device=function(c,_,f)
+local j=f and f.raw_value or c
+if j==255 then return nil end
+return f and c or j/2
 end,
 }),},
-parent_refresh=function(device,definition)
-zcl.read_named_attribute(device,definition.zcl_clusters,"motion",{endpoint=1})zcl.read_named_attribute(device,definition.zcl_clusters,"battery",{endpoint=1})
+parent_refresh=function(g,e)
+h.read_named_attribute(g,e.zcl_clusters,"motion",{endpoint=1})h.read_named_attribute(g,e.zcl_clusters,"battery",{endpoint=1})
 end,
-}zg204zl_ias.zcl_clusters[1].minimum_interval=nil
-zg204zl_ias.zcl_clusters[1].maximum_interval=nil
-zg204zl_ias.zcl_clusters[1].reportable_change=nil
-register_device_definition(zg204zl_ias,{device_helpers.create_fingerprint("_TZ3000_hgbahzmy","ZG-204Z")})return{id="zcl.sensors.zg204zl",registrations=registrations,}
+}a.zcl_clusters[1].minimum_interval=nil
+a.zcl_clusters[1].maximum_interval=nil
+a.zcl_clusters[1].reportable_change=nil
+i(a,{b.create_fingerprint("_TZ3000_hgbahzmy","ZG-204Z")})h.attach_reporting_capabilities(d,{
+{1,"rpt-zsl"},})return{id="zcl.sensors.zg204zl",registrations=d,}

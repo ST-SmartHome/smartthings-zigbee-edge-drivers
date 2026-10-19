@@ -79,8 +79,14 @@ local unmetered_din_relay = {
 local frient_emizb_141 = {
   profile = "meters-power-energy-battery",
   zcl_clusters = {
-    zcl.power({ scale = 1000 }),
-    zcl.energy({ scale = 1000, poll_interval = 900 }),
+    -- Z2M fixes multiplier/divisor at 1/1000; demand also converts kW to W.
+    zcl.cluster_attribute(0x0702, 0x0400, {
+      name = "power", read_only = true, data_type = data_types.Int24,
+      emit = emit.power(), scale = 1, ignore_reported_scaler = true,
+      metering_kind = "power", poll_interval = 300, read_on_configure = true,
+      minimum_interval = 5, maximum_interval = 300, reportable_change = 1,
+    }),
+    zcl.energy({ scale = 1000, ignore_reported_scaler = true, poll_interval = 900 }),
     zcl.battery(),
   },
 }
@@ -186,6 +192,17 @@ register_device_definition(threshold_din_relay_no_temp, device_helpers.create_fi
   "_TZ3000_ibefeicf",
   "_TZ3000_zjchz7pd",
 }))
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tiq"},
+  {2, "rpt-tun"},
+  {3, "rpt-epv"},
+  {4, "rpt-eqg"},
+  {5, "rpt-txj"},
+  {6, "rpt-ton"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.switches.din_rail",

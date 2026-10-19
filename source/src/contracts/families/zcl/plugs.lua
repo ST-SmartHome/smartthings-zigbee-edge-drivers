@@ -24,7 +24,7 @@ local function build_plug(profile, clusters)
   }
 end
 
-local function bind_on_off_endpoints(endpoints, configure_reporting)
+local function bind_on_off_endpoints(endpoints, configure_reporting, explicit_endpoint)
   return function(driver, device)
     for _, endpoint in ipairs(endpoints) do
       device:send(device_management.build_bind_request(
@@ -34,7 +34,10 @@ local function bind_on_off_endpoints(endpoints, configure_reporting)
         endpoint
       ))
       if configure_reporting then
-        device:send(OnOff.attributes.OnOff:configure_reporting(device, 0, 3600):to_endpoint(endpoint))
+        zcl.configure_reporting(device, {
+          cluster=OnOff.ID, attribute=OnOff.attributes.OnOff.ID,
+          data_type=OnOff.attributes.OnOff.base_type, minimum_interval=0, maximum_interval=3600,
+        }, endpoint, {auto_endpoint=not explicit_endpoint, defer_on_override=true})
       end
     end
   end
@@ -69,7 +72,7 @@ local function build_metered_strip(profile, endpoints, options)
 
   local definition = build_plug(profile, clusters)
   if options.bind_on_off then
-    definition.configure = bind_on_off_endpoints(endpoints, options.configure_on_off_reporting)
+    definition.configure = bind_on_off_endpoints(endpoints, options.configure_on_off_reporting, true)
   end
   return definition
 end
@@ -96,7 +99,7 @@ local lidl_hg06337_plug = build_plug("plugs-lidl-hg06337", {
   zcl.tuya_magic_packet(),
   zcl.indicator_mode({ endpoint = 11 }),
 })
-lidl_hg06337_plug.configure = bind_on_off_endpoints({ 11 }, true)
+lidl_hg06337_plug.configure = bind_on_off_endpoints({ 11 }, true, true)
 
 local tuya_wall_outlet = build_plug("plugs-switch-child-lock", {
   zcl.switch(),
@@ -209,7 +212,7 @@ bacchus_water_station_clusters[#bacchus_water_station_clusters + 1] = zcl.ias_zo
 
 local bacchus_water_station = build_plug("plugs-bacchus-water-station", bacchus_water_station_clusters)
 bacchus_water_station.configure = function(driver, device)
-  bind_on_off_endpoints({ 1, 2, 3, 4, 5 }, true)(driver, device)
+  bind_on_off_endpoints({ 1, 2, 3, 4, 5 }, true, true)(driver, device)
   device:send(device_management.build_bind_request(
     device,
     zcl.CLUSTER_IAS_ZONE,
@@ -515,16 +518,12 @@ register_device_definition(tuya_metered_plug_core, device_helpers.create_fingerp
   "_TZ3000_ksw8qtmt",
   "_TZ3000_yujkchbz",
   "_TZ3000_ss98ec5d",
-  "_TZ3000_okaz9tjs",
   "_TZ3000_y4ona9me",
   "_TZ3000_266azbg3",
   "_TZ3000_3ias4w4o",
   "_TZ3210_ddigca5n",
-  "_TZ3000_ww6drja5",
   "_TZ3210_rwmitwj4",
-  "Zbeacon",
   "_TZ3000_gjnozsaz",
-  "_TZ3000_cicwjqth",
   "_TZ3210_jlf1nepw",
   "_TZ3000_cjrngdr3",
   "_TZ3210_cjrngdr3",
@@ -656,6 +655,69 @@ end
 for _, registration in ipairs(load_retail_plug_registrations()) do
   device_definitions[#device_definitions + 1] = registration
 end
+
+local tuya_metered_plug_no_reporting = build_plug("plugs-switch-power-energy-voltage-current", {
+  zcl.switch(),
+  zcl.power({ configure_reporting = false }),
+  zcl.energy({ scale = 100 }),
+  zcl.voltage({ configure_reporting = false }),
+  zcl.current({ configure_reporting = false }),
+  zcl.tuya_magic_packet(),
+})
+register_device_definition(tuya_metered_plug_no_reporting, {
+  device_helpers.create_fingerprint("_TZ3000_okaz9tjs", "TS011F"),
+})
+
+local tuya_metered_plug_no_power_reporting = build_plug("plugs-switch-power-energy-voltage-current", {
+  zcl.switch(),
+  zcl.power({ configure_reporting = false }),
+  zcl.energy({ scale = 100 }),
+  zcl.voltage(),
+  zcl.current(),
+  zcl.tuya_magic_packet(),
+})
+register_device_definition(tuya_metered_plug_no_power_reporting, device_helpers.create_fingerprints("TS011F", {
+  "_TZ3000_ww6drja5",
+  "Zbeacon",
+  "_TZ3000_cicwjqth",
+}))
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-zvs"},
+  {2, "rpt-zvs"},
+  {3, "rpt-zvs"},
+  {4, "rpt-zef", {["zr000600001"] = "Switch", ["zr000600007"] = "SwitchTwo"}},
+  {5, "rpt-tpg"},
+  {6, "rpt-tct"},
+  {7, "rpt-zvs"},
+  {8, "rpt-tqr"},
+  {9, "rpt-tcp"},
+  {10, "rpt-wzp", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive"}},
+  {11, "rpt-tcb"},
+  {12, "rpt-txn"},
+  {13, "rpt-trp"},
+  {14, "rpt-tcb"},
+  {15, "rpt-lsu"},
+  {16, "rpt-tcb"},
+  {17, "rpt-sho"},
+  {18, "rpt-sbv"},
+  {19, "rpt-tcb"},
+  {20, "rpt-ogk"},
+  {21, "rpt-zvs"},
+  {22, "rpt-tcb"},
+  {23, "rpt-tcb"},
+  {24, "rpt-zvs"},
+  {25, "rpt-tcb"},
+  {26, "rpt-zvs"},
+  {27, "rpt-txa", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {28, "rpt-ttq", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {29, "rpt-lsu"},
+  {30, "rpt-lsu"},
+  {31, "rpt-tpp"},
+  {32, "rpt-tzo"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.plugs",

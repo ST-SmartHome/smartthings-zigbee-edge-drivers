@@ -24,57 +24,48 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: PresenceSensor
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: presenceSensor
-        version: 1
-        group: main
+    - component: main
+      capability: presenceSensor
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: presenceSensor
-      version: 1
-    - component: main
-      capability: concertmirror08464.wzM100Sensitivity
-      version: 1
-    - component: main
-      capability: concertmirror08464.wzM100MinimumRange
-      version: 1
-    - component: main
-      capability: concertmirror08464.wzM100MaximumRange
-      version: 1
-    - component: main
-      capability: concertmirror08464.wzM100IntervalTime
-      version: 1
-    - component: main
-      capability: concertmirror08464.wzM100DetectionDelay
-      version: 1
-    - component: main
-      capability: concertmirror08464.wzM100FadingTime
-      version: 1
-    - component: main
-      capability: concertmirror08464.wzM100TargetDistance
-      version: 1
-    - component: main
-      capability: concertmirror08464.driverMessage
-      version: 1
-    - component: main
-      capability: illuminanceMeasurement
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: presenceSensor
+  - component: main
+    capability: concertmirror08464.wzM100Sensitivity
+  - component: main
+    capability: concertmirror08464.wzM100MinimumRange
+  - component: main
+    capability: concertmirror08464.wzM100MaximumRange
+  - component: main
+    capability: concertmirror08464.wzM100IntervalTime
+  - component: main
+    capability: concertmirror08464.wzM100DetectionDelay
+  - component: main
+    capability: concertmirror08464.wzM100FadingTime
+  - component: main
+    capability: concertmirror08464.wzM100TargetDistance
+  - component: main
+    capability: concertmirror08464.driverMessage
+  - component: main
+    capability: illuminanceMeasurement
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: presenceSensor
-        version: 1
-      - component: main
-        capability: illuminanceMeasurement
-        version: 1
+    - component: main
+      capability: presenceSensor
+    - component: main
+      capability: illuminanceMeasurement
+    - component: main
+      capability: signalStrength
     actions: []

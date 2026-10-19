@@ -1,176 +1,177 @@
-local zcl=require"protocol.zcl"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local data_types=require"st.zigbee.data_types"
-local capabilities=require"st.capabilities"
-local device_management=require"st.zigbee.device_management"
-local device_definitions,register_device_definition=device_helpers.definition_registry()local SONOFF_MANUFACTURER_CODE=0x1286
-local OCCUPANCY_CLUSTER=0x0406
-local SONOFF_CLUSTER=0xFC11
-local SONOFF_ALERT_COMMAND=0x0F
-local POWER_SOURCE_MODE_FIELD="__sonoff_safety_power_source_mode"
-local function custom_emit(name)
-return assert(emit[name],"missing SONOFF Safety emitter: "..tostring(name))()
+local g=require"protocol.zcl"
+local B=require"capabilities.events.all"
+local f=require"contracts.helpers.family"
+local c=require"st.zigbee.data_types"
+local j=require"st.capabilities"
+local D=require"st.zigbee.device_management"
+local p,s=f.definition_registry()local d=4742
+local q=1030
+local b=64529
+local o=15
+local m="__sonoff_safety_power_source_mode"
+local function h(Z)
+return assert(B[Z],"missing SONOFF Safety emitter: "..tostring(Z))()
 end
-local function bitmap_bit_zero(value)
-if type(value)=="table"and value.value~=nil then
-value=value.value
+local function G(a)
+if type(a)=="table"and a.value~=nil then
+a=a.value
 end
-if type(value)=="number"then
-return value%2==1
+if type(a)=="number"then
+return a%2==1
 end
-return value==true
+return a==true
 end
-local function enum_converter(values)
-local reverse={}for raw,value in pairs(values)do
-reverse[value]=raw
+local function i(Q)
+local M={}for ac,a in pairs(Q)do
+M[a]=ac
 end
 return{
-from=function(value)
-return values[value]
+from=function(a)
+return Q[a]
 end,
-to=function(value)
-return reverse[value]
+to=function(a)
+return M[a]
 end,
 }
 end
-local function passive_ias(mapping)
-mapping.minimum_interval=nil
-mapping.maximum_interval=nil
-mapping.reportable_change=nil
-mapping.read_on_configure=false
-return mapping
+local function l(v)
+v.minimum_interval=nil
+v.maximum_interval=nil
+v.reportable_change=nil
+v.read_on_configure=false
+return v
 end
-local function battery_low_level(_,value)
-if value then
-return capabilities.batteryLevel.battery.critical()
+local function n(_,a)
+if a then
+return j.batteryLevel.battery.critical()
 end
-return capabilities.batteryLevel.battery.normal()
+return j.batteryLevel.battery.normal()
 end
-local function boolean_converter()
+local function r()
 return{
-from=function(value)
-if value==true or value==1 then return"on"end
+from=function(a)
+if a==true or a==1 then return"on"end
 return"off"
 end,
-to=function(value)
-if value=="on"then return true end
-if value=="off"then return false end
+to=function(a)
+if a=="on"then return true end
+if a=="off"then return false end
 end,
 }
 end
-local function power_source_emit(_,value)
-if value=="battery"then
-return capabilities.powerSource.powerSource.battery()
+local function E(_,a)
+if a=="battery"then
+return j.powerSource.powerSource.battery()
 end
-if value=="dc"then
-return capabilities.powerSource.powerSource.dc()
-end
-end
-local function remember_power_source(device,value,context)
-if type(device)=="table"and type(device.set_field)=="function"then
-device:set_field(POWER_SOURCE_MODE_FIELD,value,{persist=false})
-end
-if value=="dc"and type(context)=="table"and type(context.zcl_clusters)=="table"then
-zcl.read_named_attribute(device,context.zcl_clusters,"battery",{
-endpoint=context.endpoint or 1,})
+if a=="dc"then
+return j.powerSource.powerSource.dc()
 end
 end
-local battery_emit=emit.battery()
-local function snzb_09p_battery_emit(device,value,...)
-local power_source=type(device)=="table"and type(device.get_field)=="function"
-and device:get_field(POWER_SOURCE_MODE_FIELD)or nil
-if power_source=="dc"and value~=100 then
+local function w(e,a,k)
+if type(e)=="table"and type(e.set_field)=="function"then
+e:set_field(m,a,{persist=false})
+end
+if a=="dc"and type(k)=="table"and type(k.zcl_clusters)=="table"then
+g.read_named_attribute(e,k.zcl_clusters,"battery",{
+endpoint=k.endpoint or 1,})
+end
+end
+local J=B.battery()
+local function x(e,a,...)
+local K=type(e)=="table"and type(e.get_field)=="function"
+and e:get_field(m)or nil
+if K=="dc"and a~=100 then
 return nil
 end
-return battery_emit(device,value,...)
+return J(e,a,...)
 end
-local function sonoff_alert_sender(device,_,value,context)
-local enabled=value==true or value=="on"or value=="siren"or value=="both"or value=="strobe"
-local disabled=value==false or value=="off"
-if not enabled and not disabled then return false end
-local modes={
-siren={sound="on",light="off"},strobe={sound="off",light="on"},both={sound="on",light="on"},}local mode=modes[value]if mode~=nil then
-local mappings=context and context.zcl_clusters or nil
-if type(mappings)~="table"then return false end
-local command_context={
-component_id=context.component_id,endpoint=context.endpoint,}local sound_written=zcl.send_named_command(
-device,mappings,"sonoff_safety_alarm_sound_enable",mode.sound,command_context)local light_written=zcl.send_named_command(
-device,mappings,"sonoff_safety_alarm_light_enable",mode.light,command_context)
-if not sound_written or not light_written then return false end
+local function A(e,_,a,k)
+local L=a==true or a=="on"or a=="siren"or a=="both"or a=="strobe"
+local R=a==false or a=="off"
+if not L and not R then return false end
+local ab={
+siren={sound="on",light="off"},strobe={sound="off",light="on"},both={sound="on",light="on"},}local S=ab[a]if S~=nil then
+local F=k and k.zcl_clusters or nil
+if type(F)~="table"then return false end
+local t={
+component_id=k.component_id,endpoint=k.endpoint,}local I=g.send_named_command(
+e,F,"sonoff_safety_alarm_sound_enable",S.sound,t)local H=g.send_named_command(
+e,F,"sonoff_safety_alarm_light_enable",S.light,t)
+if not I or not H then return false end
 end
-return zcl.send_raw_cluster_command(
-device,SONOFF_CLUSTER,SONOFF_ALERT_COMMAND,string.char(enabled and 0x00 or 0x01),context and context.endpoint or 1,nil,nil,true)
+return g.send_raw_cluster_command(
+e,b,o,string.char(L and 0 or 1),k and k.endpoint or 1,nil,nil,true)
 end
-local function bind_sonoff_cluster(driver,device)
-device:send(device_management.build_bind_request(
-device,SONOFF_CLUSTER,driver.environment_info.hub_zigbee_eui,1))
+local function z(Y,e)
+e:send(D.build_bind_request(
+e,b,Y.environment_info.hub_zigbee_eui,1))
 end
-local function read_snzb_04pr2_tamper(_,device)
-zcl.read_attribute(device,SONOFF_CLUSTER,0x2000,1,SONOFF_MANUFACTURER_CODE)
+local function u(_,e)
+g.read_attribute(e,b,8192,1,d)
 end
-local snzb_06p={
+local V={
 profile="sonoff-safety-occupancy-06p",zcl_clusters={
-zcl.occupancy_sensing({
-name="occupancy",emit=emit.occupancy(),from_device=bitmap_bit_zero,read_only=true,read_on_configure=false,}),zcl.cluster_attribute(OCCUPANCY_CLUSTER,0x0020,{
-name="sonoff_safety_occupancy_timeout",emit=custom_emit("sonoffSafetyOccupancyTimeout"),data_type=data_types.Uint16,write_type=data_types.Uint16,numeric_range={minimum=15,maximum=65535,step=1,unit="s"},read_on_configure=true,}),zcl.cluster_attribute(OCCUPANCY_CLUSTER,0x0022,{
-name="sonoff_safety_occupancy_sensitivity",emit=custom_emit("sonoffSafetyOccupancySensitivity"),converter=enum_converter({[1]="low",[2]="medium",[3]="high"}),data_type=data_types.Uint8,write_type=data_types.Uint8,read_on_configure=true,}),zcl.cluster_attribute(SONOFF_CLUSTER,0x2001,{
-name="sonoff_safety_illumination",emit=custom_emit("sonoffSafetyIllumination"),converter=enum_converter({[0]="dim",[1]="bright"}),data_type=data_types.Uint8,mfg_code=SONOFF_MANUFACTURER_CODE,read_only=true,read_on_configure=false,}),},}local snzb_05p={
+g.occupancy_sensing({
+name="occupancy",emit=B.occupancy(),from_device=G,read_only=true,read_on_configure=false,}),g.cluster_attribute(q,32,{
+name="sonoff_safety_occupancy_timeout",emit=h("sonoffSafetyOccupancyTimeout"),data_type=c.Uint16,write_type=c.Uint16,numeric_range={minimum=15,maximum=65535,step=1,unit="s"},read_on_configure=true,}),g.cluster_attribute(q,34,{
+name="sonoff_safety_occupancy_sensitivity",emit=h("sonoffSafetyOccupancySensitivity"),converter=i({[1]="low",[2]="medium",[3]="high"}),data_type=c.Uint8,write_type=c.Uint8,read_on_configure=true,}),g.cluster_attribute(b,8193,{
+name="sonoff_safety_illumination",emit=h("sonoffSafetyIllumination"),converter=i({[0]="dim",[1]="bright"}),data_type=c.Uint8,mfg_code=d,read_only=true,read_on_configure=false,}),},}local U={
 profile="sonoff-safety-water-05p",zcl_clusters={
-passive_ias(zcl.water()),passive_ias(zcl.battery_low({emit=battery_low_level})),zcl.battery({
-minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,}),},}local snzb_04p={
+l(g.water()),l(g.battery_low({emit=n})),g.battery({
+minimum_interval=3600,maximum_interval=65000,reportable_change=10,}),},}local T={
 profile="sonoff-safety-contact-04p",zcl_clusters={
-passive_ias(zcl.contact()),passive_ias(zcl.battery_low({emit=battery_low_level})),zcl.cluster_attribute(SONOFF_CLUSTER,0x2000,{
-name="sonoff_safety_tamper",emit=emit.tamper(),
-from_device=function(value)
-return value==true or value==1
+l(g.contact()),l(g.battery_low({emit=n})),g.cluster_attribute(b,8192,{
+name="sonoff_safety_tamper",emit=B.tamper(),
+from_device=function(a)
+return a==true or a==1
 end,
-data_type=data_types.Uint8,mfg_code=SONOFF_MANUFACTURER_CODE,read_only=true,read_on_configure=true,}),zcl.battery({
-minimum_interval=3600,maximum_interval=7200,reportable_change=2,read_on_configure=true,}),zcl.battery_voltage({
-minimum_interval=3600,maximum_interval=7200,reportable_change=100,read_on_configure=true,}),},}local snzb_04pr2={
+data_type=c.Uint8,mfg_code=d,read_only=true,read_on_configure=true,}),g.battery({
+minimum_interval=3600,maximum_interval=7200,}),g.battery_voltage({
+minimum_interval=3600,maximum_interval=7200,reportable_change=100,}),},}local O={
 profile="sonoff-safety-contact-04p",zcl_clusters={
-passive_ias(zcl.contact()),passive_ias(zcl.battery_low({emit=battery_low_level})),zcl.cluster_attribute(SONOFF_CLUSTER,0x2000,{
-name="sonoff_safety_tamper",emit=emit.tamper(),
-from_device=function(value)
-return value==true or value==1
+l(g.contact()),l(g.battery_low({emit=n})),g.cluster_attribute(b,8192,{
+name="sonoff_safety_tamper",emit=B.tamper(),
+from_device=function(a)
+return a==true or a==1
 end,
-data_type=data_types.Uint8,read_only=true,read_on_configure=false,}),zcl.battery({
-minimum_interval=3600,maximum_interval=7200,reportable_change=2,read_on_configure=true,}),zcl.power_configuration_battery_voltage({
-name="battery_voltage",emit=emit.voltage(),scale=10,read_only=true,read_on_configure=true,}),},configure=read_snzb_04pr2_tamper,}local snzb_09p={
+data_type=c.Uint8,read_only=true,read_on_configure=false,}),g.battery({
+minimum_interval=3600,maximum_interval=7200,}),g.power_configuration_battery_voltage({
+name="battery_voltage",emit=B.voltage(),scale=10,read_only=true,read_on_configure=true,}),},configure=u,}local W={
 profile="sonoff-safety-siren-09p",sonoff_safety_snzb_09p=true,alarm_command_modes=true,zcl_clusters={
-zcl.cluster_attribute(SONOFF_CLUSTER,nil,{
-name="alarm",endpoint=1,write_only=true,sender=sonoff_alert_sender,}),zcl.cluster_attribute(SONOFF_CLUSTER,0x202E,{
-name="sonoff_safety_alarm_status",emit=emit.alarm(),converter=enum_converter({[0]="off",[1]="siren",[2]="siren"}),data_type=data_types.Uint8,read_only=true,read_on_configure=false,}),zcl.cluster_attribute(SONOFF_CLUSTER,0x0024,{
-name="sonoff_safety_power_source",emit=power_source_emit,converter=enum_converter({[0]="battery",[1]="dc"}),handler=remember_power_source,data_type=data_types.Enum8,read_only=true,read_on_configure=true,}),zcl.battery({
-emit=snzb_09p_battery_emit,minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_only=true,read_on_configure=true,}),zcl.cluster_attribute(SONOFF_CLUSTER,0x2026,{
-name="sonoff_safety_alarm_sound_enable",emit=custom_emit("sonoffSafetyAlarmSoundEnable"),converter=boolean_converter(),data_type=data_types.Boolean,write_type=data_types.Boolean,mfg_code=SONOFF_MANUFACTURER_CODE,read_on_configure=true,}),zcl.cluster_attribute(SONOFF_CLUSTER,0x2022,{
-name="sonoff_safety_alarm_light_enable",emit=custom_emit("sonoffSafetyAlarmLightEnable"),converter=boolean_converter(),data_type=data_types.Boolean,write_type=data_types.Boolean,mfg_code=SONOFF_MANUFACTURER_CODE,read_on_configure=true,}),zcl.cluster_attribute(SONOFF_CLUSTER,0x2000,{
-name="sonoff_safety_tamper",emit=emit.tamper(),
-from_device=function(value)return value==true or value==1 end,
-data_type=data_types.Uint8,mfg_code=SONOFF_MANUFACTURER_CODE,read_only=true,read_on_configure=true,}),zcl.cluster_attribute(SONOFF_CLUSTER,0x2023,{
-name="sonoff_safety_alarm_sound_type",emit=custom_emit("sonoffSafetyAlarmSoundType"),converter=enum_converter({
-[0x00]="siren_classic",[0x01]="siren_steady",[0x03]="siren_rising",[0x05]="siren_warning",[0x06]="siren_rapid",[0x08]="siren_emergency",[0x02]="tone_chirp",[0x04]="tone_hi_lo",[0x07]="tone_intermittent",[0x09]="tone_pulse",}),data_type=data_types.Enum8,write_type=data_types.Enum8,read_on_configure=true,}),zcl.cluster_attribute(SONOFF_CLUSTER,0x2024,{
-name="sonoff_safety_alarm_volume",emit=custom_emit("sonoffSafetyAlarmVolume"),converter=enum_converter({[0]="low",[1]="medium",[2]="high",[3]="max"}),data_type=data_types.Enum8,write_type=data_types.Enum8,read_on_configure=true,}),zcl.cluster_attribute(SONOFF_CLUSTER,0x2025,{
-name="sonoff_safety_alarm_duration",emit=custom_emit("sonoffSafetyAlarmDuration"),data_type=data_types.Uint16,write_type=data_types.Uint16,numeric_range={minimum=1,maximum=900,step=1,unit="s"},read_on_configure=true,}),},configure=bind_sonoff_cluster,}
-zcl.register_cluster_command_handler(SONOFF_CLUSTER,SONOFF_ALERT_COMMAND,function(device,preset,zb_rx)
-if preset.sonoff_safety_snzb_09p~=true then return false end
-local body=zb_rx and zb_rx.body and zb_rx.body.zcl_body or nil
-local payload=type(body)=="table"and body.body_bytes or nil
-if type(payload)~="string"or #payload<2 or string.byte(payload,1)~=0x04 then
+g.cluster_attribute(b,nil,{
+name="alarm",endpoint=1,write_only=true,sender=A,}),g.cluster_attribute(b,8238,{
+name="sonoff_safety_alarm_status",emit=B.alarm(),converter=i({[0]="off",[1]="siren",[2]="siren"}),data_type=c.Uint8,read_only=true,read_on_configure=false,read_on_refresh=false,}),g.cluster_attribute(b,36,{
+name="sonoff_safety_power_source",emit=E,converter=i({[0]="battery",[1]="dc"}),handler=w,data_type=c.Enum8,read_only=true,read_on_configure=true,}),g.battery({
+emit=x,minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_only=true,}),g.cluster_attribute(b,8230,{
+name="sonoff_safety_alarm_sound_enable",emit=h("sonoffSafetyAlarmSoundEnable"),converter=r(),data_type=c.Boolean,write_type=c.Boolean,mfg_code=d,read_on_configure=true,}),g.cluster_attribute(b,8226,{
+name="sonoff_safety_alarm_light_enable",emit=h("sonoffSafetyAlarmLightEnable"),converter=r(),data_type=c.Boolean,write_type=c.Boolean,mfg_code=d,read_on_configure=true,}),g.cluster_attribute(b,8192,{
+name="sonoff_safety_tamper",emit=B.tamper(),
+from_device=function(a)return a==true or a==1 end,
+data_type=c.Uint8,mfg_code=d,read_only=true,read_on_configure=true,}),g.cluster_attribute(b,8227,{
+name="sonoff_safety_alarm_sound_type",emit=h("sonoffSafetyAlarmSoundType"),converter=i({
+[0]="siren_classic",[1]="siren_steady",[3]="siren_rising",[5]="siren_warning",[6]="siren_rapid",[8]="siren_emergency",[2]="tone_chirp",[4]="tone_hi_lo",[7]="tone_intermittent",[9]="tone_pulse",}),data_type=c.Enum8,write_type=c.Enum8,read_on_configure=true,}),g.cluster_attribute(b,8228,{
+name="sonoff_safety_alarm_volume",emit=h("sonoffSafetyAlarmVolume"),converter=i({[0]="low",[1]="medium",[2]="high",[3]="max"}),data_type=c.Enum8,write_type=c.Enum8,read_on_configure=true,}),g.cluster_attribute(b,8229,{
+name="sonoff_safety_alarm_duration",emit=h("sonoffSafetyAlarmDuration"),data_type=c.Uint16,write_type=c.Uint16,numeric_range={minimum=1,maximum=900,step=1,unit="s"},read_on_configure=true,}),},configure=z,}
+g.register_cluster_command_handler(b,o,function(e,aa,P)
+if aa.sonoff_safety_snzb_09p~=true then return false end
+local X=P and P.body and P.body.zcl_body or nil
+local C=type(X)=="table"and X.body_bytes or nil
+if type(C)~="string"or #C<2 or string.byte(C,1)~=4 then
 return false
 end
-local alarm_type=string.byte(payload,2)local event
-if alarm_type==0 then
-event=capabilities.alarm.alarm.off()elseif alarm_type==1 or alarm_type==2 then
-event=capabilities.alarm.alarm.siren()else
+local y=string.byte(C,2)local N
+if y==0 then
+N=j.alarm.alarm.off()elseif y==1 or y==2 then
+N=j.alarm.alarm.siren()else
 return false
 end
-device:emit_component_event({id="main"},event)return true
+e:emit_component_event({id="main"},N)return true
 end)
-register_device_definition(snzb_06p,{
-device_helpers.create_fingerprint("SONOFF","SNZB-06P"),})register_device_definition(snzb_05p,{
-device_helpers.create_fingerprint("SONOFF","SNZB-05P"),})register_device_definition(snzb_04p,{
-device_helpers.create_fingerprint("eWeLink","SNZB-04P"),device_helpers.create_fingerprint("SONOFF","SNZB-04P"),})register_device_definition(snzb_04pr2,{
-device_helpers.create_fingerprint("SONOFF","SNZB-04PR2"),})register_device_definition(snzb_09p,{
-device_helpers.create_fingerprint("SONOFF","SNZB-09P"),})return{
-id="zcl.sensors.sonoff_safety",registrations=device_definitions,}
+s(V,{
+f.create_fingerprint("SONOFF","SNZB-06P"),})s(U,{
+f.create_fingerprint("SONOFF","SNZB-05P"),})s(T,{
+f.create_fingerprint("eWeLink","SNZB-04P"),f.create_fingerprint("SONOFF","SNZB-04P"),})s(O,{
+f.create_fingerprint("SONOFF","SNZB-04PR2"),})s(W,{
+f.create_fingerprint("SONOFF","SNZB-09P"),})g.attach_reporting_capabilities(p,{
+{2,"rpt-sqg"},{3,"rpt-smj"},{4,"rpt-siu"},{5,"rpt-smjs"},})return{
+id="zcl.sensors.sonoff_safety",registrations=p,}

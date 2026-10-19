@@ -1,127 +1,118 @@
-local capabilities=require"st.capabilities"
-local custom_capabilities=require"runtime.capability_metadata"
-local capability_support=require"runtime.capability_support"
-local utf8_text=require"runtime.utf8_text"
-local log=require"log"
-local binding={}local MAIN_COMPONENT="main"
-local REFRESHED_DEFINITIONS={}
-local function device_name(device)
-if type(device)~="table"then
+local s=require"st.capabilities"
+local l=require"runtime.capability_metadata"
+local o=require"runtime.capability_support"
+local z=require"runtime.utf8_text"
+local H=require"log"
+local w={}local h="main"
+local i={}
+local function B(c)
+if type(c)~="table"then
 return"device"
 end
-return device.label or device.id or"device"
+return c.label or c.id or"device"
 end
-local function is_callable(value)
-if type(value)=="function"then
-return true
+local u=o.is_callable
+local function g(c,d,b)
+return o.supports(c,d,b or h)
 end
-if type(value)~="table"then
-return false
-end
-local metatable=getmetatable(value)
-return type(metatable)=="table"and type(metatable.__call)=="function"
-end
-local function supports_component_capability(device,capability_id,component_id)
-return capability_support.supports(device,capability_id,component_id or MAIN_COMPONENT)
-end
-local function emit_event(device,component_id,event)
-component_id=component_id or MAIN_COMPONENT
-if component_id==MAIN_COMPONENT then
-device:emit_event(event)else
-device:emit_component_event({id=component_id},event)
+local function D(c,b,F)
+b=b or h
+if b==h then
+c:emit_event(F)else
+c:emit_component_event({id=b},F)
 end
 end
-local function resolve_metadata(reference)
-if type(reference)=="table"then
-return reference
+local function q(e)
+if type(e)=="table"then
+return e
 end
-if type(reference)~="string"or reference==""then
+if type(e)~="string"or e==""then
 return nil
 end
-return custom_capabilities.by_emit_name[reference]or custom_capabilities.by_capability_id[reference]
+return l.by_emit_name[e]or l.by_capability_id[e]
 end
-local function ensure_definition_loaded(capability_id)
-if type(capability_id)~="string"or capability_id==""then
+local function p(d)
+if type(d)~="string"or d==""then
 return false
 end
-if REFRESHED_DEFINITIONS[capability_id]==true then
+if i[d]==true then
 return true
 end
-local ok,err=pcall(capabilities.get_capability_definition,capability_id,1,true)if not ok then
-log.warn(string.format("Failed to refresh capability definition for %s: %s",capability_id,tostring(err)))return false
+local J,I=pcall(s.get_capability_definition,d,1,true)if not J then
+H.warn(string.format("Failed to refresh capability definition for %s: %s",d,tostring(I)))return false
 end
-REFRESHED_DEFINITIONS[capability_id]=true
+i[d]=true
 return true
 end
-local function resolve_attribute(metadata,attribute_name)
-if type(metadata)~="table"then
+local function t(a,r)
+if type(a)~="table"then
 return nil,nil
 end
-ensure_definition_loaded(metadata.capability_id)local capability=capabilities[metadata.capability_id]local attribute=capability and capability[attribute_name]or nil
-if not is_callable(attribute)and capability and type(capability.attributes)=="table"then
-attribute=capability.attributes[attribute_name]
+p(a.capability_id)local f=s[a.capability_id]local j=f and f[r]or nil
+if not u(j)and f and type(f.attributes)=="table"then
+j=f.attributes[r]
 end
-return capability,attribute
+return f,j
 end
-local function log_missing_binding(device,metadata,reason)
-if type(device)~="table"or type(metadata)~="table"then
+local function m(c,a,E)
+if type(c)~="table"or type(a)~="table"then
 return
 end
-local key=string.format("__custom_binding_missing__:%s:%s",metadata.capability_id or"unknown",reason or"unknown")
-if type(device.get_field)=="function"and device:get_field(key)then
+local G=string.format("__custom_binding_missing__:%s:%s",a.capability_id or"unknown",E or"unknown")
+if type(c.get_field)=="function"and c:get_field(G)then
 return
 end
-if type(device.set_field)=="function"then
-device:set_field(key,true,{persist=false})
+if type(c.set_field)=="function"then
+c:set_field(G,true,{persist=false})
 end
-log.warn(string.format(
-"[%s] Custom capability binding missing (%s): %s.%s",device_name(device),reason or"unknown",metadata.capability_id or"unknown",metadata.attribute_name or"unknown"))
+H.warn(string.format(
+"[%s] Custom capability binding missing (%s): %s.%s",B(c),E or"unknown",a.capability_id or"unknown",a.attribute_name or"unknown"))
 end
-local function build_payload(metadata,value,options)
-options=options or{}if metadata.kind=="numeric"then
-local payload={value=value}local unit=options.unit
-if type(unit)~="string"or unit==""then
-unit=metadata.event_unit or(metadata.default_range and metadata.default_range.unit or nil)
+local function A(a,k,n)
+n=n or{}if a.kind=="numeric"then
+local C={value=k}local y=n.unit
+if type(y)~="string"or y==""then
+y=a.event_unit or(a.default_range and a.default_range.unit or nil)
 end
-if type(unit)=="string"and unit~=""then
-payload.unit=unit
+if type(y)=="string"and y~=""then
+C.unit=y
 end
-return payload
+return C
 end
-return{value=value}
+return{value=k}
 end
-function binding.supports(device,reference,component_id)
-local metadata=resolve_metadata(reference)return metadata~=nil and supports_component_capability(device,metadata.capability_id,component_id)
+function w.supports(c,e,b)
+local a=q(e)return a~=nil and g(c,a.capability_id,b)
 end
-function binding.emit_state(device,component_id,reference,value,options)
-local metadata=resolve_metadata(reference)if metadata==nil or value==nil then
+function w.emit_state(c,b,e,k,n)
+local a=q(e)if a==nil or k==nil then
 return false
 end
-component_id=component_id or MAIN_COMPONENT
-if not supports_component_capability(device,metadata.capability_id,component_id)then
+b=b or h
+if not g(c,a.capability_id,b)then
 return false
 end
-if metadata.kind=="enum"and(type(value)~="string"or value=="")then
+if a.kind=="enum"and(type(k)~="string"or k=="")then
 return false
 end
-if metadata.kind=="text"then
-local character_length=utf8_text.length(value)if character_length==nil then
+if a.kind=="text"then
+local v=z.length(k)if v==nil then
 return false
 end
-if type(metadata.maximum_length)=="number"then
-value=utf8_text.truncate(value,metadata.maximum_length)if value==nil then
+if type(a.maximum_length)=="number"then
+k=z.truncate(k,a.maximum_length)if k==nil then
 return false
 end
 end
 end
-local capability,attribute=resolve_attribute(metadata,metadata.attribute_name)if not is_callable(attribute)then
-if capability==nil then
-log_missing_binding(device,metadata,"capability")else
-log_missing_binding(device,metadata,"attribute")
+local f,j=t(a,a.attribute_name)if not u(j)then
+if f==nil then
+m(c,a,"capability")else
+m(c,a,"attribute")
 end
 return false
 end
-local event_metadata=options and{state_change=options.state_change}or nil
-emit_event(device,component_id,attribute(build_payload(metadata,value,options),event_metadata))return true
+local x=n and{state_change=n.state_change}or nil
+D(c,b,j(A(a,k,n),x))return true
 end
-return binding
+return w

@@ -1,64 +1,64 @@
-local tuya=require"protocol.tuya"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local converter=tuya.converter
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local function register_sensor_definition(definitions_or_table,fingerprint_list)
-if type(definitions_or_table)=="table"then
-local entry={}for key,value in pairs(definitions_or_table)do
-entry[key]=value
+local b=require"protocol.tuya"
+local c=require"capabilities.events.all"
+local e=require"contracts.helpers.family"
+local a=b.converter
+local l,g=e.definition_registry()
+local function d(f,h)
+if type(f)=="table"then
+local n={}for p,o in pairs(f)do
+n[p]=o
 end
-if entry.query_on_configure==nil then
-entry.query_on_configure=true
+if n.query_on_configure==nil then
+n.query_on_configure=true
 end
-register_device_definition(entry,fingerprint_list)return
+g(n,h)return
 end
-register_device_definition({
-datapoints=definitions_or_table,query_on_configure=true,},fingerprint_list)
+g({
+datapoints=f,query_on_configure=true,},h)
 end
-local liquid_level_872wz={
+local m={
 profile="sensors-liquid-level-872wz",force_time_updates=true,time_start="1970",datapoints={
-tuya.dp_enum(1,{
-name="liquid_state",emit=emit.liquid_state(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="normal",[1]="low",[2]="high",})),}),tuya.dp_numeric(2,{
-name="liquid_depth",emit=emit.wls872LiquidDepth(),read_only=true,converter=converter.divide_by_pair(100),}),tuya.dp_numeric(7,{name="max_set",emit=emit.wls872MaximumPercent()}),tuya.dp_numeric(8,{name="min_set",emit=emit.wls872MinimumPercent()}),tuya.dp_binary(9,{
-name="silent_mode",emit=emit.wls872SilentMode(),converter=converter.lookup_from_to({on=true,off=false}),}),tuya.dp_numeric(19,{
-name="installation_height",emit=emit.wls872InstallationHeight(),converter=converter.divide_by_pair(100),}),tuya.dp_numeric(21,{
-name="liquid_depth_max",emit=emit.wls872MaximumDepth(),converter=converter.divide_by_pair(100),}),tuya.dp_numeric(22,{
-name="liquid_level_percent",emit=emit.liquid_level_percent(),read_only=true,}),tuya.dp_numeric(27,{name="alarm_time",emit=emit.wls872AlarmDuration()}),},query_on_configure=true,}register_sensor_definition(liquid_level_872wz,{
-device_helpers.create_fingerprint("_TZE204_7yyuo8sr","TS0601"),})local liquid_level_me201wz={
+b.dp_enum(1,{
+name="liquid_state",emit=c.liquid_state(),read_only=true,converter=a.from_only(a.lookup_value({
+[0]="normal",[1]="low",[2]="high",})),}),b.dp_numeric(2,{
+name="liquid_depth",emit=c.wls872LiquidDepth(),read_only=true,converter=a.divide_by_pair(100),}),b.dp_numeric(7,{name="max_set",emit=c.wls872MaximumPercent()}),b.dp_numeric(8,{name="min_set",emit=c.wls872MinimumPercent()}),b.dp_binary(9,{
+name="silent_mode",emit=c.wls872SilentMode(),converter=a.lookup_from_to({on=true,off=false}),}),b.dp_numeric(19,{
+name="installation_height",emit=c.wls872InstallationHeight(),converter=a.divide_by_pair(100),}),b.dp_numeric(21,{
+name="liquid_depth_max",emit=c.wls872MaximumDepth(),converter=a.divide_by_pair(100),}),b.dp_numeric(22,{
+name="liquid_level_percent",emit=c.liquid_level_percent(),read_only=true,}),b.dp_numeric(27,{name="alarm_time",emit=c.wls872AlarmDuration()}),},query_on_configure=true,}d(m,{
+e.create_fingerprint("_TZE204_7yyuo8sr","TS0601"),})local i={
 profile="sensors-liquid-level-me201wz",force_time_updates=true,time_start="1970",datapoints={
-tuya.dp_enum(1,{
-name="liquid_state",emit=emit.liquid_state(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="normal",[1]="low",[2]="high",})),}),tuya.dp_numeric(2,{
-name="liquid_depth",emit=emit.me201LiquidDepth(),read_only=true,converter=converter.divide_by_pair(100),}),tuya.dp_numeric(5,{
-name="voltage",emit=emit.voltage(),read_only=true,converter=converter.divide_by_pair(10),}),tuya.dp_numeric(7,{name="max_set",emit=emit.me201MaximumPercent()}),tuya.dp_numeric(8,{name="min_set",emit=emit.me201MinimumPercent()}),tuya.dp_numeric(19,{
-name="installation_height",emit=emit.me201InstallationHeight(),converter=converter.divide_by_pair(100),}),tuya.dp_numeric(21,{
-name="liquid_depth_max",emit=emit.me201MaximumDepth(),converter=converter.divide_by_pair(100),}),tuya.dp_numeric(22,{
-name="liquid_level_percent",emit=emit.liquid_level_percent(),read_only=true,}),tuya.dp_binary(24,{
-name="relay_switch",emit=emit.me201RelaySwitch(),converter=converter.lookup_from_to({on=true,off=false}),}),tuya.dp_binary(101,{
-name="pump_mode",emit=emit.me201PumpMode(),converter=converter.lookup_from_to({supply=true,drainage=false}),}),tuya.dp_binary(102,{
-name="pump_control",emit=emit.me201PumpControl(),converter=converter.lookup_from_to({auto=true,manual=false}),}),tuya.dp_string(103,{name="version",emit=emit.me201Version(),read_only=true}),},query_on_configure=true,}register_sensor_definition(liquid_level_me201wz,{
-device_helpers.create_fingerprint("_TZE284_kyyu8rbj","TS0601"),})local liquid_level_tlc2206={
+b.dp_enum(1,{
+name="liquid_state",emit=c.liquid_state(),read_only=true,converter=a.from_only(a.lookup_value({
+[0]="normal",[1]="low",[2]="high",})),}),b.dp_numeric(2,{
+name="liquid_depth",emit=c.me201LiquidDepth(),read_only=true,converter=a.divide_by_pair(100),}),b.dp_numeric(5,{
+name="voltage",emit=c.voltage(),read_only=true,converter=a.divide_by_pair(10),}),b.dp_numeric(7,{name="max_set",emit=c.me201MaximumPercent()}),b.dp_numeric(8,{name="min_set",emit=c.me201MinimumPercent()}),b.dp_numeric(19,{
+name="installation_height",emit=c.me201InstallationHeight(),converter=a.divide_by_pair(100),}),b.dp_numeric(21,{
+name="liquid_depth_max",emit=c.me201MaximumDepth(),converter=a.divide_by_pair(100),}),b.dp_numeric(22,{
+name="liquid_level_percent",emit=c.liquid_level_percent(),read_only=true,}),b.dp_binary(24,{
+name="relay_switch",emit=c.me201RelaySwitch(),converter=a.lookup_from_to({on=true,off=false}),}),b.dp_binary(101,{
+name="pump_mode",emit=c.me201PumpMode(),converter=a.lookup_from_to({supply=true,drainage=false}),}),b.dp_binary(102,{
+name="pump_control",emit=c.me201PumpControl(),converter=a.lookup_from_to({auto=true,manual=false}),}),b.dp_string(103,{name="version",emit=c.me201Version(),read_only=true}),},query_on_configure=true,}d(i,{
+e.create_fingerprint("_TZE284_kyyu8rbj","TS0601"),})local k={
 profile="sensors-liquid-level-tlc2206",force_time_updates=true,time_start="1970",datapoints={
-tuya.dp_enum(1,{
-name="liquid_state",emit=emit.liquid_state(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="normal",[1]="low",[2]="high",})),}),tuya.dp_numeric(2,{
-name="liquid_depth",emit=emit.tlc2206LiquidDepth(),read_only=true,converter=converter.divide_by_pair(100),}),tuya.dp_numeric(7,{name="max_set",emit=emit.tlc2206MaximumPercent()}),tuya.dp_numeric(8,{name="min_set",emit=emit.tlc2206MinimumPercent()}),tuya.dp_numeric(19,{
-name="installation_height",emit=emit.tlc2206InstallationHeight(),converter=converter.divide_by_pair(1000),}),tuya.dp_numeric(21,{
-name="liquid_depth_max",emit=emit.tlc2206MaximumDepth(),converter=converter.divide_by_pair(1000),}),tuya.dp_numeric(22,{
-name="liquid_level_percent",emit=emit.liquid_level_percent(),read_only=true,}),},query_on_configure=true,}register_sensor_definition(liquid_level_tlc2206,{
-device_helpers.create_fingerprint("_TZE200_lvkk0hdg","TS0601"),})local liquid_level_me202wz={
+b.dp_enum(1,{
+name="liquid_state",emit=c.liquid_state(),read_only=true,converter=a.from_only(a.lookup_value({
+[0]="normal",[1]="low",[2]="high",})),}),b.dp_numeric(2,{
+name="liquid_depth",emit=c.tlc2206LiquidDepth(),read_only=true,converter=a.divide_by_pair(100),}),b.dp_numeric(7,{name="max_set",emit=c.tlc2206MaximumPercent()}),b.dp_numeric(8,{name="min_set",emit=c.tlc2206MinimumPercent()}),b.dp_numeric(19,{
+name="installation_height",emit=c.tlc2206InstallationHeight(),converter=a.divide_by_pair(1000),}),b.dp_numeric(21,{
+name="liquid_depth_max",emit=c.tlc2206MaximumDepth(),converter=a.divide_by_pair(1000),}),b.dp_numeric(22,{
+name="liquid_level_percent",emit=c.liquid_level_percent(),read_only=true,}),},query_on_configure=true,}d(k,{
+e.create_fingerprint("_TZE200_lvkk0hdg","TS0601"),})local j={
 profile="sensors-liquid-level-me202wz",force_time_updates=true,time_start="1970",datapoints={
-tuya.dp_enum(1,{
-name="liquid_state",emit=emit.liquid_state(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="normal",[1]="low",[2]="high",})),}),tuya.dp_numeric(2,{
-name="liquid_depth",emit=emit.me202LiquidDepth(),read_only=true,converter=converter.divide_by_pair(100),}),tuya.dp_numeric(5,{
-name="voltage",emit=emit.voltage(),read_only=true,converter=converter.divide_by_pair(10),}),tuya.dp_numeric(7,{name="max_set",emit=emit.me202MaximumPercent()}),tuya.dp_numeric(8,{name="min_set",emit=emit.me202MinimumPercent()}),tuya.dp_numeric(21,{
-name="liquid_depth_max",emit=emit.me202MaximumDepth(),converter=converter.divide_by_pair(100),}),tuya.dp_numeric(22,{
-name="liquid_level_percent",emit=emit.liquid_level_percent(),read_only=true,}),tuya.dp_binary(24,{
-name="relay_switch",emit=emit.me202RelaySwitch(),converter=converter.lookup_from_to({on=true,off=false}),}),tuya.dp_binary(101,{
-name="pump_mode",emit=emit.me202PumpMode(),converter=converter.lookup_from_to({supply=true,drainage=false}),}),tuya.dp_binary(102,{
-name="pump_control",emit=emit.me202PumpControl(),converter=converter.lookup_from_to({auto=true,manual=false}),}),tuya.dp_string(103,{name="version",emit=emit.me202Version(),read_only=true}),},query_on_configure=true,}register_sensor_definition(liquid_level_me202wz,{
-device_helpers.create_fingerprint("_TZE284_mxujdmxo","TS0601"),})return{
-id="ef00.sensors.liquid_level",registrations=device_definitions,}
+b.dp_enum(1,{
+name="liquid_state",emit=c.liquid_state(),read_only=true,converter=a.from_only(a.lookup_value({
+[0]="normal",[1]="low",[2]="high",})),}),b.dp_numeric(2,{
+name="liquid_depth",emit=c.me202LiquidDepth(),read_only=true,converter=a.divide_by_pair(100),}),b.dp_numeric(5,{
+name="voltage",emit=c.voltage(),read_only=true,converter=a.divide_by_pair(10),}),b.dp_numeric(7,{name="max_set",emit=c.me202MaximumPercent()}),b.dp_numeric(8,{name="min_set",emit=c.me202MinimumPercent()}),b.dp_numeric(21,{
+name="liquid_depth_max",emit=c.me202MaximumDepth(),converter=a.divide_by_pair(100),}),b.dp_numeric(22,{
+name="liquid_level_percent",emit=c.liquid_level_percent(),read_only=true,}),b.dp_binary(24,{
+name="relay_switch",emit=c.me202RelaySwitch(),converter=a.lookup_from_to({on=true,off=false}),}),b.dp_binary(101,{
+name="pump_mode",emit=c.me202PumpMode(),converter=a.lookup_from_to({supply=true,drainage=false}),}),b.dp_binary(102,{
+name="pump_control",emit=c.me202PumpControl(),converter=a.lookup_from_to({auto=true,manual=false}),}),b.dp_string(103,{name="version",emit=c.me202Version(),read_only=true}),},query_on_configure=true,}d(j,{
+e.create_fingerprint("_TZE284_mxujdmxo","TS0601"),})return{
+id="ef00.sensors.liquid_level",registrations=l,}

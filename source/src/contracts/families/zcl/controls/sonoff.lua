@@ -183,6 +183,14 @@ register_device_definition(snzb01m, {
   device_helpers.create_fingerprint("SONOFF", "SNZB-01M"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-soc"},
+  {2, "rpt-kjx"},
+  {3, "rpt-saq"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.controls.sonoff",
   registrations = device_definitions,

@@ -538,6 +538,14 @@ register_aliases(tuya_ts0503b_hs, {
   device_helpers.create_fingerprint("_TZ3210_w7ge4ldo", "TS0503B"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-cxt"},
+  {3, "rpt-tkj"},
+  {6, "rpt-tcn"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.lights.z2m_absorption",
   registrations = device_definitions,

@@ -360,6 +360,12 @@ local topband_trv602 = {
 }
 register_device_definition(topband_trv602,{device_helpers.create_fingerprint("Topband","TRV602WZ")})
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {2, "rpt-txc"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.sensors.wave19_hvac",
   registrations = device_definitions,

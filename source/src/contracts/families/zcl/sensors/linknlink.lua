@@ -2,7 +2,7 @@ local zcl = require "protocol.zcl"
 local device_helpers = require "contracts.helpers.family"
 local device_management = require "st.zigbee.device_management"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 -- Z2M v26.99.0 modernExtend commandsOnOff/commandsLevelCtrl contract.
 -- Returning handled=true prevents the shared resolver from changing these names.
@@ -56,13 +56,11 @@ local emotion_air = {
       minimum_interval = 10,
       maximum_interval = 3600,
       reportable_change = 100,
-      read_on_configure = true,
     }),
     zcl.humidity({
       minimum_interval = 10,
       maximum_interval = 3600,
       reportable_change = 100,
-      read_on_configure = true,
     }),
     zcl.illuminance({
       minimum_interval = 10,
@@ -80,7 +78,6 @@ local emotion_air = {
       minimum_interval = 3600,
       maximum_interval = 65000,
       reportable_change = 10,
-      read_on_configure = true,
     }),
   },
   configure = function(driver, device)
@@ -98,9 +95,15 @@ local emotion_air = {
   end,
 }
 
-register_device_definition(emotion_air, {
+register(emotion_air, {
   device_helpers.create_fingerprint("LinknLink", "eMotion Air"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-enc"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.linknlink",

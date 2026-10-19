@@ -629,7 +629,17 @@ local function load_mapping_preset(zcl)
   local function define_preset(name, factory, defaults_builder)
     zcl[name] = function(name_or_options, options)
       local resolved = normalize_preset_options(name_or_options, options)
-      apply_defaults(resolved, defaults_builder(resolved))
+      local configure_reporting = resolved.configure_reporting
+      local defaults = defaults_builder(resolved)
+      resolved.configure_reporting = nil
+      if configure_reporting == false then
+        defaults.minimum_interval = nil
+        defaults.maximum_interval = nil
+        defaults.reportable_change = nil
+        defaults.physical_reportable_change = nil
+        defaults.reporting_defaults = nil
+      end
+      apply_defaults(resolved, defaults)
       return factory(resolved)
     end
   end

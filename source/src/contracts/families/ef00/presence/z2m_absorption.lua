@@ -231,6 +231,12 @@ register_presence_definition(hs208z, {
   device_helpers.create_fingerprint("_TZD200_sjjp9bti", "TS0202"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {4, "rpt-tmpb"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "ef00.presence.z2m_absorption",
   registrations = device_definitions,

@@ -1341,6 +1341,22 @@ for _,command in ipairs({5,7,0x20,0x21}) do
 end
 register_device_definition(nimly_code,{device_helpers.create_fingerprint("Onesti Products AS","NimlyCodePRO")})
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {2, "rpt-aes"},
+  {4, "rpt-tcpu"},
+  {5, "rpt-cwf"},
+  {7, "rpt-brz"},
+  {8, "rpt-bzx"},
+  {11, "rpt-bic"},
+  {13, "rpt-sgys", {["zr000600003"] = "Switch", ["zr000600007"] = "SwitchTwo"}},
+  {14, "rpt-sbl", {["zr000600003"] = "Switch", ["zr000600007"] = "SwitchTwo"}},
+  {15, "rpt-zjz"},
+  {16, "rpt-zny"},
+  {18, "rpt-nnm"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.controls.z2m_absorption",
   registrations = device_definitions,

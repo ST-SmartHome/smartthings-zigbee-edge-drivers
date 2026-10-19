@@ -588,6 +588,47 @@ register_device_definition(color_cct_light, {
   device_helpers.create_fingerprint("Candeo", "C-ZB-LC20v2-RGBW"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tmf"},
+  {2, "rpt-tmf"},
+  {3, "rpt-tmf"},
+  {4, "rpt-tmf"},
+  {5, "rpt-txx"},
+  {6, "rpt-txx"},
+  {7, "rpt-txx"},
+  {8, "rpt-txx"},
+  {9, "rpt-txx"},
+  {10, "rpt-txx"},
+  {11, "rpt-txx"},
+  {12, "rpt-tmf"},
+  {13, "rpt-tmf"},
+  {14, "rpt-txx"},
+  {15, "rpt-tot"},
+  {16, "rpt-tot"},
+  {17, "rpt-tkj"},
+  {18, "rpt-tkj"},
+  {19, "rpt-tkj"},
+  {22, "rpt-tkj"},
+  {23, "rpt-tkj"},
+  {24, "rpt-tmf"},
+  {25, "rpt-tmf"},
+  {26, "rpt-tmf"},
+  {27, "rpt-tmf"},
+  {28, "rpt-tmf"},
+  {29, "rpt-tmf"},
+  {30, "rpt-tmf"},
+  {31, "rpt-txx"},
+  {32, "rpt-txx"},
+  {33, "rpt-tot"},
+  {34, "rpt-tot"},
+  {35, "rpt-tkj"},
+  {36, "rpt-tot"},
+  {37, "rpt-tkj"},
+  {38, "rpt-tkj"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.lights.lights",
   registrations = device_definitions,

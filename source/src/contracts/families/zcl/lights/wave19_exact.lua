@@ -349,6 +349,13 @@ register_device_definition(terncy, {
   device_helpers.create_fingerprint("Xiaoyan", "DIM003"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-cmq"},
+  {2, "rpt-doh"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.lights.wave19.exact",
   registrations = device_definitions,

@@ -12,7 +12,7 @@ local function load_attribute_handler(zcl)
   --- Only plain scalar values are compared; anything structured is always sent
   --- so richer payloads never get dropped by a shallow comparison.
   function zcl.is_duplicate_attribute_event(device, event, mapping_context)
-    if type(event) ~= "table" or type(device.get_latest_state) ~= "function" then
+    if type(event) ~= "table" or event.state_change == true or type(device.get_latest_state) ~= "function" then
       return false
     end
 

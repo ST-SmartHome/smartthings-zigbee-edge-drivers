@@ -165,6 +165,13 @@ register(moes_zm108m, {
   device_helpers.create_fingerprint("_TZ3210_mldzab8w", "TS130F"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(registrations, {
+  {1, "rpt-gtd"},
+  {2, "rpt-tqk"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.covers.z2m_absorption",
   registrations = registrations,

@@ -1,434 +1,434 @@
-local function load_command_sender(zcl)
-local send_request,build_or_reuse_mapping_context=require"zcl_common.attribute_reader"(zcl)local cluster_base=require"st.zigbee.cluster_base"
-local data_types=require"st.zigbee.data_types"
-local messages=require"st.zigbee.messages"
-local zigbee_constants=require"st.zigbee.constants"
-local zcl_clusters=require"st.zigbee.zcl.clusters"
-local zcl_messages=require"st.zigbee.zcl"
-local FrameCtrl=require"st.zigbee.zcl.frame_ctrl"
-local generic_body=require"st.zigbee.generic_body"
-local log=require"log"
-local default_sender_key="__default"
-local sender_registry={}
-local function send_cluster_specific_command(
-device,cluster_id,command_id,payload,endpoint,direction,mfg_code,disable_default_response)local frame_ctrl=FrameCtrl(0x00)frame_ctrl:set_cluster_specific()if direction=="client"then
-frame_ctrl:set_direction_client()
+local function aj(j)
+local o,x=require"zcl_common.attribute_reader"(j)local am=require"st.zigbee.cluster_base"
+local q=require"st.zigbee.data_types"
+local aA=require"st.zigbee.messages"
+local B=require"st.zigbee.constants"
+local O=require"st.zigbee.zcl.clusters"
+local aq=require"st.zigbee.zcl"
+local aJ=require"st.zigbee.zcl.frame_ctrl"
+local az=require"st.zigbee.generic_body"
+local ai=require"log"
+local T="__default"
+local D={}
+local function s(
+b,h,p,H,f,G,A,w)local L=aJ(0)L:set_cluster_specific()if G=="client"then
+L:set_direction_client()
 end
-if mfg_code~=nil then
-frame_ctrl:set_mfg_specific()
+if A~=nil then
+L:set_mfg_specific()
 end
-if disable_default_response then
-frame_ctrl:set_disable_default_response()
+if w then
+L:set_disable_default_response()
 end
-local zcl_header={
-cmd=data_types.ZCLCommandId(command_id),frame_ctrl=frame_ctrl,}if mfg_code~=nil then
-zcl_header.mfg_code=data_types.Uint16(mfg_code)
+local at={
+cmd=q.ZCLCommandId(p),frame_ctrl=L,}if A~=nil then
+at.mfg_code=q.Uint16(A)
 end
-return send_request(
-device,messages.ZigbeeMessageTx({
-address_header=messages.AddressHeader(
-zigbee_constants.HUB.ADDR,zigbee_constants.HUB.ENDPOINT,device:get_short_address(),device:get_endpoint(cluster_id),zigbee_constants.HA_PROFILE_ID,cluster_id),body=zcl_messages.ZclMessageBody({
-zcl_header=zcl_messages.ZclHeader(zcl_header),zcl_body=generic_body.GenericBody(payload or""),}),}),endpoint)
+return o(
+b,aA.ZigbeeMessageTx({
+address_header=aA.AddressHeader(
+B.HUB.ADDR,B.HUB.ENDPOINT,b:get_short_address(),b:get_endpoint(h),B.HA_PROFILE_ID,h),body=aq.ZclMessageBody({
+zcl_header=aq.ZclHeader(at),zcl_body=az.GenericBody(H or""),}),}),f)
 end
-local function send_cluster_command(device,cluster_id,command_id,payload,endpoint,direction)
-return send_cluster_specific_command(device,cluster_id,command_id,payload,endpoint,direction,nil)
+local function m(b,h,p,H,f,G)
+return s(b,h,p,H,f,G,nil)
 end
-local function send_manufacturer_specific_command(device,cluster_id,command_id,mfg_code,payload,endpoint,direction)
-return send_cluster_specific_command(device,cluster_id,command_id,payload,endpoint,direction,mfg_code)
+local function J(b,h,p,A,H,f,G)
+return s(b,h,p,H,f,G,A)
 end
-local function write_attribute(device,cluster_id,attribute_id,value,write_type,endpoint)
-return send_request(
-device,cluster_base.write_attribute(
-device,data_types.ClusterId(cluster_id),data_types.AttributeId(attribute_id),write_type(value)),endpoint)
+local function N(b,h,t,value,i,f)
+return o(
+b,am.write_attribute(
+b,q.ClusterId(h),q.AttributeId(t),i(value)),f)
 end
-local function write_manufacturer_specific_attribute(device,cluster_id,attribute_id,mfg_code,value,write_type,endpoint)
-return send_request(
-device,cluster_base.write_manufacturer_specific_attribute(
-device,cluster_id,attribute_id,mfg_code,write_type,value),endpoint)
+local function E(b,h,t,A,value,i,f)
+return o(
+b,am.write_manufacturer_specific_attribute(
+b,h,t,A,i,value),f)
 end
-local function write_generated_attribute(device,attribute_def,value,endpoint)
-return send_request(device,attribute_def:write(device,attribute_def(value)),endpoint)
+local function v(b,k,value,f)
+return o(b,k:write(b,k(value)),f)
 end
-local function clamp_integer(value,min_value,max_value)
-return math.max(min_value,math.min(max_value,math.floor(value)))
+local function r(value,aL,aK)
+return math.max(aL,math.min(aK,math.floor(value)))
 end
 local function encode_uint16_le(value)
-return string.char(bit32.band(value,0xFF))..string.char(bit32.rshift(bit32.band(value,0xFF00),8))
+return string.char(bit32.band(value,255))..string.char(bit32.rshift(bit32.band(value,65280),8))
 end
-local function clamp_encoded_for_write_type(encoded,write_type,meta)
-if type(encoded)~="number"or type(write_type)~="table"then
-return encoded
+local function Q(c,i,d)
+if type(c)~="number"or type(i)~="table"then
+return c
 end
-local ranges={
-Uint8={0,0xFF},Uint16={0,0xFFFF},Uint24={0,0xFFFFFF},Uint32={0,0xFFFFFFFF},Int8={-0x80,0x7F},Int16={-0x8000,0x7FFF},Int24={-0x800000,0x7FFFFF},Int32={-0x80000000,0x7FFFFFFF},Enum8={0,0xFF},}local range=ranges[write_type.NAME]if range==nil then
-return encoded
+local aQ={
+Uint8={0,255},Uint16={0,65535},Uint24={0,0xFFFFFF},Uint32={0,0xFFFFFFFF},Int8={-128,127},Int16={-32768,32767},Int24={-8388608,8388607},Int32={-0x80000000,0x7FFFFFFF},Enum8={0,255},}local aH=aQ[i.NAME]if aH==nil then
+return c
 end
-local clamped=math.max(range[1],math.min(range[2],math.floor(encoded+0.5)))if clamped~=encoded then
-log.warn(string.format(
-"ZCL write value clamped for cluster 0x%04X attribute 0x%04X name '%s': %s -> %s",meta and meta.cluster_id or 0,meta and meta.attribute_id or 0,tostring(meta and meta.name or"unknown"),tostring(encoded),tostring(clamped)))
+local au=math.max(aH[1],math.min(aH[2],math.floor(c+0.5)))if au~=c then
+ai.warn(string.format(
+"ZCL write value clamped for cluster 0x%04X attribute 0x%04X name '%s': %s -> %s",d and d.cluster_id or 0,d and d.attribute_id or 0,tostring(d and d.name or"unknown"),tostring(c),tostring(au)))
 end
-return clamped
+return au
 end
-local function write_type_name(write_type)
-return type(write_type)=="table"and write_type.NAME or nil
+local function ad(i)
+return type(i)=="table"and i.NAME or nil
 end
-local function is_integer_like_write_type(write_type)
-local name=write_type_name(write_type)if type(name)~="string"then
+local function C(i)
+local an=ad(i)if type(an)~="string"then
 return false
 end
-return name:match("^Uint")~=nil or name:match("^Int")~=nil or name:match("^Enum")~=nil
+return an:match("^Uint")~=nil or an:match("^Int")~=nil or an:match("^Enum")~=nil
 end
-local function should_prefer_plain_attribute_write(meta)
-if type(meta)~="table"then
+local function I(d)
+if type(d)~="table"then
 return false
 end
-if meta.prefer_plain_attribute_write==true then
+if d.prefer_plain_attribute_write==true then
 return true
 end
-if meta.mfg_code~=nil then
+if d.mfg_code~=nil then
 return true
 end
-if type(meta.attribute_id)=="number"and meta.attribute_id>=0x8000 then
+if type(d.attribute_id)=="number"and d.attribute_id>=32768 then
 return true
 end
 return false
 end
-local function resolve_write_type(meta,encoded_value)
-if meta.write_type~=nil then
-return meta.write_type
+local function ao(d,ay)
+if d.write_type~=nil then
+return d.write_type
 end
-if meta.attribute_def~=nil and meta.attribute_def.base_type~=nil then
-return meta.attribute_def.base_type
+if d.attribute_def~=nil and d.attribute_def.base_type~=nil then
+return d.attribute_def.base_type
 end
-if type(encoded_value)=="boolean"then
-return data_types.Boolean
+if type(ay)=="boolean"then
+return q.Boolean
 end
 return nil
 end
-local function encode_mapping_value(device,mapping,value,mapping_context,meta)
-local encoded=value
-if meta.to_device~=nil then
-encoded=meta.to_device(value,device,mapping_context,mapping)
+local function af(b,e,value,a,d)
+local c=value
+if d.to_device~=nil then
+c=d.to_device(value,b,a,e)
 end
-if type(encoded)=="string"and type(mapping)=="table"then
-local converter=type(mapping.converter)=="table"and mapping.converter or nil
-local fallback_to_device=converter and type(converter.to)=="function"and converter.to or nil
-if fallback_to_device~=nil then
-local fallback_encoded=fallback_to_device(encoded,device,mapping_context,mapping)if fallback_encoded~=nil then
-encoded=fallback_encoded
+if type(c)=="string"and type(e)=="table"then
+local u=type(e.converter)=="table"and e.converter or nil
+local U=u and type(u.to)=="function"and u.to or nil
+if U~=nil then
+local Y=U(c,b,a,e)if Y~=nil then
+c=Y
 end
 end
 end
-if encoded==nil then
+if c==nil then
 return nil
 end
-if type(encoded)=="number"and type(meta.scale)=="number"and meta.scale~=0 and meta.scale~=1 then
-encoded=math.floor(encoded*meta.scale)
+if type(c)=="number"and type(d.scale)=="number"and d.scale~=0 and d.scale~=1 then
+c=math.floor(c*d.scale)
 end
-return encoded
+return c
 end
-local function normalize_enum_encoded_value(device,encoded,mapping,mapping_context,meta)
-local write_type=meta and meta.write_type or nil
-local type_name=write_type_name(write_type)if type_name==nil or not tostring(type_name):match("^Enum")then
-return encoded
+local function R(b,c,e,a,d)
+local i=d and d.write_type or nil
+local ax=ad(i)if ax==nil or not tostring(ax):match("^Enum")then
+return c
 end
-if type(encoded)=="number"then
-return encoded
+if type(c)=="number"then
+return c
 end
-local raw_value=type(mapping_context)=="table"and mapping_context.raw_value or encoded
-local converter=type(mapping)=="table"and type(mapping.converter)=="table"and mapping.converter or nil
-local converter_to=converter and type(converter.to)=="function"and converter.to or nil
-if converter_to~=nil then
-local converted=converter_to(raw_value,device,mapping_context,mapping)if type(converted)=="number"then
-return converted
+local ab=type(a)=="table"and a.raw_value or c
+local u=type(e)=="table"and type(e.converter)=="table"and e.converter or nil
+local F=u and type(u.to)=="function"and u.to or nil
+if F~=nil then
+local aw=F(ab,b,a,e)if type(aw)=="number"then
+return aw
 end
 end
-local numeric=tonumber(encoded)if type(numeric)=="number"then
-return numeric
+local aE=tonumber(c)if type(aE)=="number"then
+return aE
 end
-log.warn(string.format(
-"ZCL enum write conversion failed for cluster 0x%04X attribute 0x%04X name '%s': raw=%s encoded=%s",meta and meta.cluster_id or 0,meta and meta.attribute_id or 0,tostring(meta and meta.name or"unknown"),tostring(raw_value),tostring(encoded)))return nil
+ai.warn(string.format(
+"ZCL enum write conversion failed for cluster 0x%04X attribute 0x%04X name '%s': raw=%s encoded=%s",d and d.cluster_id or 0,d and d.attribute_id or 0,tostring(d and d.name or"unknown"),tostring(ab),tostring(c)))return nil
 end
-local function retry_encoded_with_converter(device,mapping,mapping_context,meta,encoded)
-if type(mapping)~="table"then
-return encoded
+local function S(b,e,a,d,c)
+if type(e)~="table"then
+return c
 end
-local converter=type(mapping.converter)=="table"and mapping.converter or nil
-local converter_to=converter and type(converter.to)=="function"and converter.to or nil
-if converter_to==nil then
-return encoded
+local u=type(e.converter)=="table"and e.converter or nil
+local F=u and type(u.to)=="function"and u.to or nil
+if F==nil then
+return c
 end
-local raw_value=type(mapping_context)=="table"and mapping_context.raw_value or encoded
-local retried=converter_to(raw_value,device,mapping_context,mapping)if retried~=nil then
-return retried
+local ab=type(a)=="table"and a.raw_value or c
+local aG=F(ab,b,a,e)if aG~=nil then
+return aG
 end
-return encoded
+return c
 end
-local function encode_command_value(device,mapping,value,mapping_context)
-local meta=zcl.mapping_meta(mapping)if meta==nil then
+local function l(b,e,value,a)
+local d=j.mapping_meta(e)if d==nil then
 return nil
 end
-local encoded=value
-if meta.to_device~=nil then
-encoded=meta.to_device(value,device,mapping_context,mapping)
+local c=value
+if d.to_device~=nil then
+c=d.to_device(value,b,a,e)
 end
-return encoded
+return c
 end
-local function normalize_command_args(encoded)
-if encoded==nil then
+local function ae(c)
+if c==nil then
 return{}
 end
-if type(encoded)=="table"and encoded[1]~=nil then
-return encoded
+if type(c)=="table"and c[1]~=nil then
+return c
 end
-return{encoded}
+return{c}
 end
-local function send_mapping_command(device,mapping,value,context)
-local meta=zcl.mapping_meta(mapping)if meta==nil or meta.tx_command_id==nil or meta.cluster_id==nil then
+local function ag(b,e,value,W)
+local d=j.mapping_meta(e)if d==nil or d.tx_command_id==nil or d.cluster_id==nil then
 return false
 end
-local mapping_context=build_or_reuse_mapping_context(device,mapping,context,value)local encoded=encode_command_value(device,mapping,value,mapping_context)local generated_command=nil
-if meta.tx_command_direction=="client"then
-generated_command=zcl.get_generated_client_command and
-zcl.get_generated_client_command(meta.cluster_id,meta.tx_command_id)or nil
+local a=x(b,e,W,value)local c=l(b,e,value,a)local y=nil
+if d.tx_command_direction=="client"then
+y=j.get_generated_client_command and
+j.get_generated_client_command(d.cluster_id,d.tx_command_id)or nil
 else
-generated_command=zcl.get_generated_server_command and
-zcl.get_generated_server_command(meta.cluster_id,meta.tx_command_id)or nil
+y=j.get_generated_server_command and
+j.get_generated_server_command(d.cluster_id,d.tx_command_id)or nil
 end
-if generated_command~=nil and type(encoded)~="string"then
-return send_request(device,generated_command(device,table.unpack(normalize_command_args(encoded))),mapping_context.endpoint)
+if y~=nil and type(c)~="string"then
+return o(b,y(b,table.unpack(ae(c))),a.endpoint)
 end
-if type(encoded)~="string"and encoded~=nil then
-log.warn(string.format(
-"ZCL generic command fallback requires string payload for cluster 0x%04X command 0x%02X name '%s'",meta.cluster_id,meta.tx_command_id,tostring(meta.name)))return false
+if type(c)~="string"and c~=nil then
+ai.warn(string.format(
+"ZCL generic command fallback requires string payload for cluster 0x%04X command 0x%02X name '%s'",d.cluster_id,d.tx_command_id,tostring(d.name)))return false
 end
-if meta.mfg_code~=nil then
-return send_manufacturer_specific_command(
-device,meta.cluster_id,meta.tx_command_id,meta.mfg_code,encoded or"",mapping_context.endpoint,meta.tx_command_direction)
+if d.mfg_code~=nil then
+return J(
+b,d.cluster_id,d.tx_command_id,d.mfg_code,c or"",a.endpoint,d.tx_command_direction)
 end
-return send_cluster_command(
-device,meta.cluster_id,meta.tx_command_id,encoded or"",mapping_context.endpoint,meta.tx_command_direction)
+return m(
+b,d.cluster_id,d.tx_command_id,c or"",a.endpoint,d.tx_command_direction)
 end
-local function write_mapping_value(device,mapping,value,context)
-local meta=zcl.mapping_meta(mapping)if meta==nil then
+local function al(b,e,value,W)
+local d=j.mapping_meta(e)if d==nil then
 return false
 end
-local mapping_context=build_or_reuse_mapping_context(device,mapping,context,value)mapping_context.raw_value=value
-local encoded=encode_mapping_value(device,mapping,value,mapping_context,meta)if encoded==nil then
+local a=x(b,e,W,value)a.raw_value=value
+local c=af(b,e,value,a,d)if c==nil then
 return false
 end
-local write_type=resolve_write_type(meta,encoded)if write_type==nil then
-log.warn(string.format(
-"ZCL write requires explicit write_type/data_type for cluster 0x%04X attribute 0x%04X name '%s'",meta.cluster_id or 0,meta.attribute_id or 0,tostring(meta.name)))return false
+local i=ao(d,c)if i==nil then
+ai.warn(string.format(
+"ZCL write requires explicit write_type/data_type for cluster 0x%04X attribute 0x%04X name '%s'",d.cluster_id or 0,d.attribute_id or 0,tostring(d.name)))return false
 end
-if type(encoded)~="number"then
-encoded=retry_encoded_with_converter(device,mapping,mapping_context,meta,encoded)
+if type(c)~="number"then
+c=S(b,e,a,d,c)
 end
-encoded=normalize_enum_encoded_value(device,encoded,mapping,mapping_context,meta)if encoded==nil then
+c=R(b,c,e,a,d)if c==nil then
 return false
 end
-if type(encoded)=="number"and is_integer_like_write_type(write_type)then
-encoded=math.floor(encoded+0.5)
+if type(c)=="number"and C(i)then
+c=math.floor(c+0.5)
 end
-if type(encoded)=="string"and is_integer_like_write_type(write_type)then
-log.warn(string.format(
-"ZCL write aborted because encoded value is still non-numeric for cluster 0x%04X attribute 0x%04X name '%s': %s",meta.cluster_id or 0,meta.attribute_id or 0,tostring(meta.name),tostring(encoded)))return false
+if type(c)=="string"and C(i)then
+ai.warn(string.format(
+"ZCL write aborted because encoded value is still non-numeric for cluster 0x%04X attribute 0x%04X name '%s': %s",d.cluster_id or 0,d.attribute_id or 0,tostring(d.name),tostring(c)))return false
 end
-encoded=clamp_encoded_for_write_type(encoded,write_type,meta)mapping_context.encoded_value=encoded
-if meta.mfg_code~=nil then
-local ok,result=pcall(
-write_manufacturer_specific_attribute,device,meta.cluster_id,meta.attribute_id,meta.mfg_code,encoded,write_type,mapping_context.endpoint)if ok then
-return result
+c=Q(c,i,d)a.encoded_value=c
+if d.mfg_code~=nil then
+local ok,V=pcall(
+E,b,d.cluster_id,d.attribute_id,d.mfg_code,c,i,a.endpoint)if ok then
+return V
 end
-log.error(string.format(
-"ZCL manufacturer write failed for cluster 0x%04X attribute 0x%04X name '%s': %s",meta.cluster_id or 0,meta.attribute_id or 0,tostring(meta.name),tostring(result)))return false
+ai.error(string.format(
+"ZCL manufacturer write failed for cluster 0x%04X attribute 0x%04X name '%s': %s",d.cluster_id or 0,d.attribute_id or 0,tostring(d.name),tostring(V)))return false
 end
-if not should_prefer_plain_attribute_write(meta)and meta.attribute_def~=nil and type(meta.attribute_def.write)=="function"then
-local ok,result=pcall(write_generated_attribute,device,meta.attribute_def,encoded,mapping_context.endpoint)if ok then
-return result
+if not I(d)and d.attribute_def~=nil and type(d.attribute_def.write)=="function"then
+local ok,V=pcall(v,b,d.attribute_def,c,a.endpoint)if ok then
+return V
 end
-log.error(string.format(
-"ZCL generated write failed for cluster 0x%04X attribute 0x%04X name '%s': %s",meta.cluster_id or 0,meta.attribute_id or 0,tostring(meta.name),tostring(result)))return false
+ai.error(string.format(
+"ZCL generated write failed for cluster 0x%04X attribute 0x%04X name '%s': %s",d.cluster_id or 0,d.attribute_id or 0,tostring(d.name),tostring(V)))return false
 end
-local ok,result=pcall(
-write_attribute,device,meta.cluster_id,meta.attribute_id,encoded,write_type,mapping_context.endpoint)if ok then
-return result
+local ok,V=pcall(
+N,b,d.cluster_id,d.attribute_id,c,i,a.endpoint)if ok then
+return V
 end
-log.error(string.format(
-"ZCL write failed for cluster 0x%04X attribute 0x%04X name '%s': %s",meta.cluster_id or 0,meta.attribute_id or 0,tostring(meta.name),tostring(result)))return false
+ai.error(string.format(
+"ZCL write failed for cluster 0x%04X attribute 0x%04X name '%s': %s",d.cluster_id or 0,d.attribute_id or 0,tostring(d.name),tostring(V)))return false
 end
-local function schedule_zll_switch_refresh(device,label)
-if type(device)~="table"or
-type(device.get_profile_id)~="function"or
-device:get_profile_id()~=zigbee_constants.ZLL_PROFILE_ID or
-type(device.thread)~="table"or
-type(device.thread.call_with_delay)~="function"or
-type(device.refresh)~="function"then
+local function z(b,aR)
+if type(b)~="table"or
+type(b.get_profile_id)~="function"or
+b:get_profile_id()~=B.ZLL_PROFILE_ID or
+type(b.thread)~="table"or
+type(b.thread.call_with_delay)~="function"or
+type(b.refresh)~="function"then
 return
 end
-device.thread:call_with_delay(2,function()
-device:refresh()
-end,label)
+b.thread:call_with_delay(2,function()
+b:refresh()
+end,aR)
 end
-local function send_on_off(device,on_off,mapping_context)
-local component_id=type(mapping_context)=="table"and mapping_context.component_id or nil
-local endpoint=type(mapping_context)=="table"and mapping_context.endpoint or nil
-local request=on_off and
-zcl_clusters.OnOff.server.commands.On(device)or
-zcl_clusters.OnOff.server.commands.Off(device)
-if type(component_id)=="string"and component_id~=""and type(device.send_to_component)=="function"then
-device:send_to_component(component_id,request)schedule_zll_switch_refresh(device,on_off and"on delayed read"or"off delayed read")return true
+local function aC(b,ar,a)
+local X=type(a)=="table"and a.component_id or nil
+local f=type(a)=="table"and a.endpoint or nil
+local aF=ar and
+O.OnOff.server.commands.On(b)or
+O.OnOff.server.commands.Off(b)
+if type(X)=="string"and X~=""and type(b.send_to_component)=="function"then
+b:send_to_component(X,aF)z(b,ar and"on delayed read"or"off delayed read")return true
 end
-if send_request(device,request,endpoint)then
-schedule_zll_switch_refresh(device,on_off and"on delayed read"or"off delayed read")return true
+if o(b,aF,f)then
+z(b,ar and"on delayed read"or"off delayed read")return true
 end
-return send_cluster_command(device,zcl.CLUSTER_ON_OFF,on_off and 0x01 or 0x00,"",endpoint)
+return m(b,j.CLUSTER_ON_OFF,ar and 1 or 0,"",f)
 end
-local function send_level(device,level,transition_time,endpoint)
-local command_def=zcl.get_generated_server_command and
-zcl.get_generated_server_command(zcl.CLUSTER_LEVEL_CONTROL,0x04)or nil
-if command_def~=nil then
-return send_request(
-device,command_def(
-device,data_types.Uint8(clamp_integer(level,0,254)),data_types.Uint16(clamp_integer(transition_time or 0,0,0xFFFF)),0x00,0x00),endpoint)
+local function aI(b,aN,ac,f)
+local n=j.get_generated_server_command and
+j.get_generated_server_command(j.CLUSTER_LEVEL_CONTROL,4)or nil
+if n~=nil then
+return o(
+b,n(
+b,q.Uint8(r(aN,0,254)),q.Uint16(r(ac or 0,0,65535)),0,0),f)
 end
-local payload=string.char(clamp_integer(level,0,254))..encode_uint16_le(clamp_integer(transition_time or 0,0,0xFFFF))return send_cluster_command(device,zcl.CLUSTER_LEVEL_CONTROL,0x04,payload,endpoint)
+local H=string.char(r(aN,0,254))..encode_uint16_le(r(ac or 0,0,65535))return m(b,j.CLUSTER_LEVEL_CONTROL,4,H,f)
 end
-local function send_cover_position(device,percentage,endpoint)
-local command_def=zcl.get_generated_server_command and
-zcl.get_generated_server_command(zcl.CLUSTER_WINDOW_COVERING,0x05)or nil
-if command_def~=nil then
-return send_request(
-device,command_def(device,data_types.Uint8(clamp_integer(percentage,0,100))),endpoint)
+local function ak(b,M,f)
+local n=j.get_generated_server_command and
+j.get_generated_server_command(j.CLUSTER_WINDOW_COVERING,5)or nil
+if n~=nil then
+return o(
+b,n(b,q.Uint8(r(M,0,100))),f)
 end
-return send_cluster_command(
-device,zcl.CLUSTER_WINDOW_COVERING,0x05,string.char(clamp_integer(percentage,0,100)),endpoint)
+return m(
+b,j.CLUSTER_WINDOW_COVERING,5,string.char(r(M,0,100)),f)
 end
-local function send_cover_tilt(device,percentage,endpoint)
-local command_def=zcl.get_generated_server_command and
-zcl.get_generated_server_command(zcl.CLUSTER_WINDOW_COVERING,0x08)or nil
-if command_def~=nil then
-return send_request(
-device,command_def(device,data_types.Uint8(clamp_integer(percentage,0,100))),endpoint)
+local function as(b,M,f)
+local n=j.get_generated_server_command and
+j.get_generated_server_command(j.CLUSTER_WINDOW_COVERING,8)or nil
+if n~=nil then
+return o(
+b,n(b,q.Uint8(r(M,0,100))),f)
 end
-return send_cluster_command(
-device,zcl.CLUSTER_WINDOW_COVERING,0x08,string.char(clamp_integer(percentage,0,100)),endpoint)
+return m(
+b,j.CLUSTER_WINDOW_COVERING,8,string.char(r(M,0,100)),f)
 end
-local function send_cover_command(device,command,endpoint)
-local command_ids={
-open=0x00,close=0x01,stop=0x02,}local command_id=command_ids[command]if command_id==nil then
-log.warn(string.format("ZCL unknown cover command: %s",tostring(command)))return false
+local function ap(b,aD,f)
+local aB={
+open=0,close=1,stop=2,}local p=aB[aD]if p==nil then
+ai.warn(string.format("ZCL unknown cover command: %s",tostring(aD)))return false
 end
-local command_def=zcl.get_generated_server_command and
-zcl.get_generated_server_command(zcl.CLUSTER_WINDOW_COVERING,command_id)or nil
-if command_def~=nil then
-return send_request(device,command_def(device),endpoint)
+local n=j.get_generated_server_command and
+j.get_generated_server_command(j.CLUSTER_WINDOW_COVERING,p)or nil
+if n~=nil then
+return o(b,n(b),f)
 end
-return send_cluster_command(device,zcl.CLUSTER_WINDOW_COVERING,command_id,"",endpoint)
+return m(b,j.CLUSTER_WINDOW_COVERING,p,"",f)
 end
-function zcl.send_raw_cluster_command(
-device,cluster_id,command_id,payload,endpoint,direction,mfg_code,disable_default_response)return send_cluster_specific_command(
-device,cluster_id,command_id,payload,endpoint,direction,mfg_code,disable_default_response)
+function j.send_raw_cluster_command(
+b,h,p,H,f,G,A,w)return s(
+b,h,p,H,f,G,A,w)
 end
-local function send_thermostat_setpoint(device,temperature_celsius,endpoint)
-local attribute_def=zcl.get_generated_attribute and
-zcl.get_generated_attribute(zcl.CLUSTER_THERMOSTAT,zcl.ATTR_OCCUPIED_HEATING_SETPOINT)or nil
-if attribute_def~=nil and type(attribute_def.write)=="function"then
-return write_generated_attribute(device,attribute_def,math.floor(temperature_celsius*100),endpoint)
+local function Z(b,P,f)
+local k=j.get_generated_attribute and
+j.get_generated_attribute(j.CLUSTER_THERMOSTAT,j.ATTR_OCCUPIED_HEATING_SETPOINT)or nil
+if k~=nil and type(k.write)=="function"then
+return v(b,k,math.floor(P*100),f)
 end
-return write_attribute(
-device,zcl.CLUSTER_THERMOSTAT,zcl.ATTR_OCCUPIED_HEATING_SETPOINT,math.floor(temperature_celsius*100),data_types.Int16,endpoint)
+return N(
+b,j.CLUSTER_THERMOSTAT,j.ATTR_OCCUPIED_HEATING_SETPOINT,math.floor(P*100),q.Int16,f)
 end
-local function send_thermostat_mode(device,mode,endpoint)
-local attribute_def=zcl.get_generated_attribute and
-zcl.get_generated_attribute(zcl.CLUSTER_THERMOSTAT,zcl.ATTR_SYSTEM_MODE)or nil
-if attribute_def~=nil and type(attribute_def.write)=="function"then
-return write_generated_attribute(device,attribute_def,mode,endpoint)
+local function ah(b,aO,f)
+local k=j.get_generated_attribute and
+j.get_generated_attribute(j.CLUSTER_THERMOSTAT,j.ATTR_SYSTEM_MODE)or nil
+if k~=nil and type(k.write)=="function"then
+return v(b,k,aO,f)
 end
-return write_attribute(
-device,zcl.CLUSTER_THERMOSTAT,zcl.ATTR_SYSTEM_MODE,mode,data_types.Enum8,endpoint)
+return N(
+b,j.CLUSTER_THERMOSTAT,j.ATTR_SYSTEM_MODE,aO,q.Enum8,f)
 end
-function zcl.register_sender(cluster_id,attribute_id,sender)
-if cluster_id==nil or type(sender)~="function"then
-log.warn(string.format(
-"skip invalid zcl sender registration cluster=%s attribute=%s sender=%s",tostring(cluster_id),tostring(attribute_id),type(sender)))return nil
+function j.register_sender(h,t,aa)
+if h==nil or type(aa)~="function"then
+ai.warn(string.format(
+"skip invalid zcl sender registration cluster=%s attribute=%s sender=%s",tostring(h),tostring(t),type(aa)))return nil
 end
-sender_registry[cluster_id]=sender_registry[cluster_id]or{}sender_registry[cluster_id][attribute_id or default_sender_key]=sender
-return sender
+D[h]=D[h]or{}D[h][t or T]=aa
+return aa
 end
-function zcl.get_sender(cluster_id,attribute_id)
-local cluster_senders=sender_registry[cluster_id]if cluster_senders==nil then
+function j.get_sender(h,t)
+local K=D[h]if K==nil then
 return nil
 end
-return cluster_senders[attribute_id]or cluster_senders[default_sender_key]
+return K[t]or K[T]
 end
-local function resolve_sender(mapping)
-return zcl.get_sender(mapping.cluster_id,mapping.attribute_id)
+local function av(e)
+return j.get_sender(e.cluster_id,e.attribute_id)
 end
-zcl.register_sender(zcl.CLUSTER_ON_OFF,zcl.ATTR_ON_OFF,function(device,mapping,value,mapping_context)
-return send_on_off(device,value==true or value=="on"or value=="open",mapping_context)
+j.register_sender(j.CLUSTER_ON_OFF,j.ATTR_ON_OFF,function(b,e,value,a)
+return aC(b,value==true or value=="on"or value=="open",a)
 end)
-zcl.register_sender(zcl.CLUSTER_LEVEL_CONTROL,zcl.ATTR_LEVEL_CURRENT_LEVEL,function(device,mapping,value,mapping_context)
-local encoded=encode_command_value(device,mapping,value,mapping_context)if type(encoded)~="number"then
+j.register_sender(j.CLUSTER_LEVEL_CONTROL,j.ATTR_LEVEL_CURRENT_LEVEL,function(b,e,value,a)
+local c=l(b,e,value,a)if type(c)~="number"then
 return false
 end
-return send_level(device,encoded,nil,mapping_context.endpoint)
+return aI(b,c,nil,a.endpoint)
 end)
-zcl.register_sender(zcl.CLUSTER_WINDOW_COVERING,nil,function(device,mapping,value,mapping_context)
+j.register_sender(j.CLUSTER_WINDOW_COVERING,nil,function(b,e,value,a)
 if type(value)=="string"then
-return send_cover_command(device,value,mapping_context.endpoint)
+return ap(b,value,a.endpoint)
 end
-local encoded=encode_command_value(device,mapping,value,mapping_context)if type(encoded)=="number"then
-return send_cover_position(device,encoded,mapping_context.endpoint)
-end
-return false
-end)
-zcl.register_sender(zcl.CLUSTER_WINDOW_COVERING,zcl.ATTR_CURRENT_POSITION_TILT_PERCENTAGE,function(device,mapping,value,mapping_context)
-local encoded=encode_command_value(device,mapping,value,mapping_context)if type(encoded)=="number"then
-return send_cover_tilt(device,encoded,mapping_context.endpoint)
+local c=l(b,e,value,a)if type(c)=="number"then
+return ak(b,c,a.endpoint)
 end
 return false
 end)
-zcl.register_sender(zcl.CLUSTER_THERMOSTAT,zcl.ATTR_OCCUPIED_HEATING_SETPOINT,function(device,mapping,value,mapping_context)
-local encoded=encode_command_value(device,mapping,value,mapping_context)if type(encoded)~="number"then
-return false
+j.register_sender(j.CLUSTER_WINDOW_COVERING,j.ATTR_CURRENT_POSITION_TILT_PERCENTAGE,function(b,e,value,a)
+local c=l(b,e,value,a)if type(c)=="number"then
+return as(b,c,a.endpoint)
 end
-return send_thermostat_setpoint(device,encoded,mapping_context.endpoint)
+return false
 end)
-zcl.register_sender(zcl.CLUSTER_THERMOSTAT,zcl.ATTR_SYSTEM_MODE,function(device,mapping,value,mapping_context)
-local encoded=encode_command_value(device,mapping,value,mapping_context)if encoded==nil then
+j.register_sender(j.CLUSTER_THERMOSTAT,j.ATTR_OCCUPIED_HEATING_SETPOINT,function(b,e,value,a)
+local c=l(b,e,value,a)if type(c)~="number"then
 return false
 end
-return send_thermostat_mode(device,encoded,mapping_context.endpoint)
+return Z(b,c,a.endpoint)
 end)
-function zcl.send_named_command(device,zcl_clusters,name,value,context)
-local mapping=zcl.find_mapping_by_name(zcl_clusters,name,device,context)if mapping==nil then
+j.register_sender(j.CLUSTER_THERMOSTAT,j.ATTR_SYSTEM_MODE,function(b,e,value,a)
+local c=l(b,e,value,a)if c==nil then
 return false
 end
-local meta=zcl.mapping_meta(mapping)if meta==nil then
+return ah(b,c,a.endpoint)
+end)
+function j.send_named_command(b,O,an,value,W)
+local e=j.find_mapping_by_name(O,an,b,W)if e==nil then
 return false
 end
-if meta.read_only then
-log.warn(string.format("ZCL send_named_command: mapping '%s' is read-only",tostring(name)))return false
-end
-local mapping_context=zcl.build_mapping_context(device,mapping,context,value)mapping_context.raw_value=value
-if meta.sender~=nil then
-return meta.sender(device,mapping,value,mapping_context)~=false
-end
-local sender=resolve_sender(mapping)if sender~=nil then
-return sender(device,mapping,value,mapping_context)
-end
-if meta.tx_command_id~=nil then
-return send_mapping_command(device,mapping,value,mapping_context)
-end
-if meta.cluster_id==nil or meta.attribute_id==nil then
+local d=j.mapping_meta(e)if d==nil then
 return false
 end
-if write_mapping_value(device,mapping,value,mapping_context)then
+if d.read_only then
+ai.warn(string.format("ZCL send_named_command: mapping '%s' is read-only",tostring(an)))return false
+end
+local a=j.build_mapping_context(b,e,W,value)a.raw_value=value
+if d.sender~=nil then
+return d.sender(b,e,value,a)~=false
+end
+local aa=av(e)if aa~=nil then
+return aa(b,e,value,a)
+end
+if d.tx_command_id~=nil then
+return ag(b,e,value,a)
+end
+if d.cluster_id==nil or d.attribute_id==nil then
+return false
+end
+if al(b,e,value,a)then
 return true
 end
-log.warn(string.format(
-"ZCL send_named_command: no sender for cluster 0x%04X attribute 0x%04X name '%s'",meta.cluster_id,meta.attribute_id,tostring(name)))return false
+ai.warn(string.format(
+"ZCL send_named_command: no sender for cluster 0x%04X attribute 0x%04X name '%s'",d.cluster_id,d.attribute_id,tostring(an)))return false
 end
 end
-return load_command_sender
+return aj

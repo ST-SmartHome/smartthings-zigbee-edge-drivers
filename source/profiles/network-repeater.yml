@@ -6,36 +6,35 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: GenericSensor
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: firmwareUpdate
-        version: 1
-        group: main
-    actions:
-      - component: main
-        capability: refresh
-        version: 1
-        group: main
-        values:
-          - command: "refresh"
-    basicPlus: []
-  detailView:
     - component: main
       capability: firmwareUpdate
-      version: 1
+      group: main
+    actions:
     - component: main
       capability: refresh
-      version: 1
+      group: main
+      values:
+      - command: refresh
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: firmwareUpdate
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: firmwareUpdate
-        version: 1
+    - component: main
+      capability: firmwareUpdate
+    - component: main
+      capability: signalStrength
     actions:
-      - component: main
-        capability: refresh
-        version: 1
+    - component: main
+      capability: refresh

@@ -1,0 +1,1 @@
+{name: rpt-tvcf,components:[{id: main,capabilities:[{id: motionSensor,version: 1},{id: concertmirror08464.batteryLow,version: 1},{id: refresh,version: 1},{id: signalStrength,version: 1},{id: concertmirror08464.zclIasReportMin,version: 1},{id: concertmirror08464.zclIasReportMax,version: 1}],categories:[{name: MotionSensor}]}]}

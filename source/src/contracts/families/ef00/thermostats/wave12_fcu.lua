@@ -19,7 +19,7 @@ local function bac_power_from_device(value, device)
 end
 
 local function bac_mode_from_device(value, device)
-  local mode = ({ [0] = "cool", [1] = "heat", [2] = "fan_only" })[tonumber(value)] or "cool"
+  local mode = ({ [0] = "cool", [1] = "heat", [2] = "fanonly" })[tonumber(value)] or "cool"
   device:set_field(BAC_MODE_FIELD, mode, { persist = false })
   if device:get_field(BAC_POWER_FIELD) == false then return "off" end
   return mode
@@ -29,7 +29,7 @@ local function bac_mode_write(_, value)
   if value == "off" then
     return { { dp = 1, datatype = tuya.DP_TYPE_BOOL, value = false } }
   end
-  local raw = ({ cool = 0, heat = 1, fan_only = 2 })[value]
+  local raw = ({ cool = 0, heat = 1, fanonly = 2 })[value]
   if raw == nil then return nil end
   return {
     { dp = 1, datatype = tuya.DP_TYPE_BOOL, value = true },
@@ -68,7 +68,7 @@ local bac = {
   }),
 }
 wave12.override_named_writer(bac, "system_mode", bac_mode_write)
-thermostat_metadata.attach(bac, { "off", "cool", "heat", "fan_only" }, 5, 35, 0.5)
+thermostat_metadata.attach(bac, { "off", "cool", "heat", "fanonly" }, 5, 35, 0.5)
 register_device_definition(bac, ef00_helpers.ts0601_fingerprints({ "_TZE204_hpkusvom" }))
 
 -- Current Z2M b9facb8 (2026-09-15): Gluon ST001 FCU thermostat.

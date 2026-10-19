@@ -5,22 +5,38 @@ components:
       - {id: concertmirror08464.lincukooWFourAlarmStatus, version: 1}
       - {id: concertmirror08464.lincukooWFourAlarmSwitch, version: 1}
       - {id: concertmirror08464.lincukooWFourBatteryState, version: 1}
+      - {id: signalStrength, version: 1}
     categories: [{name: LeakSensor}]
 deviceConfig:
   dashboard:
     states:
-      - {component: main, capability: concertmirror08464.lincukooWFourAlarmStatus, version: 1, group: main}
-      - {component: main, capability: concertmirror08464.lincukooWFourBatteryState, version: 1, group: main}
+    - component: main
+      capability: concertmirror08464.lincukooWFourAlarmStatus
+      group: main
+    - component: main
+      capability: concertmirror08464.lincukooWFourBatteryState
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - {component: main, capability: concertmirror08464.lincukooWFourAlarmStatus, version: 1}
-    - {component: main, capability: concertmirror08464.lincukooWFourAlarmSwitch, version: 1}
-    - {component: main, capability: concertmirror08464.lincukooWFourBatteryState, version: 1}
+  - component: main
+    capability: concertmirror08464.lincukooWFourAlarmStatus
+  - component: main
+    capability: concertmirror08464.lincukooWFourAlarmSwitch
+  - component: main
+    capability: concertmirror08464.lincukooWFourBatteryState
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - {component: main, capability: concertmirror08464.lincukooWFourAlarmStatus, version: 1}
-      - {component: main, capability: concertmirror08464.lincukooWFourAlarmSwitch, version: 1}
-      - {component: main, capability: concertmirror08464.lincukooWFourBatteryState, version: 1}
+    - component: main
+      capability: concertmirror08464.lincukooWFourAlarmStatus
+    - component: main
+      capability: concertmirror08464.lincukooWFourAlarmSwitch
+    - component: main
+      capability: concertmirror08464.lincukooWFourBatteryState
+    - component: main
+      capability: signalStrength
     actions:
-      - {component: main, capability: concertmirror08464.lincukooWFourAlarmSwitch, version: 1}
+    - component: main
+      capability: concertmirror08464.lincukooWFourAlarmSwitch

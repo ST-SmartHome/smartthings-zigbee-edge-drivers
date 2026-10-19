@@ -4,7 +4,7 @@ local emit = require "capabilities.events.all"
 local device_management = require "st.zigbee.device_management"
 local data_types = require "st.zigbee.data_types"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 -- Z2M v26.99.0 sonoff.ts: IAS alarm_1 is the CO alarm,
 -- msCarbonMonoxide/measuredValue is ppm, and the eWeLink battery helper
@@ -24,15 +24,12 @@ local ewelink_7037_co_sensor = {
       endpoint = 1,
       minimum_interval = 3600,
       maximum_interval = 7200,
-      reportable_change = 2,
-      read_on_configure = true,
     }),
     zcl.battery_voltage({
       endpoint = 1,
       minimum_interval = 3600,
       maximum_interval = 7200,
       reportable_change = 100,
-      read_on_configure = true,
     }),
   },
   configure = function(driver, device)
@@ -52,9 +49,15 @@ local ewelink_7037_co_sensor = {
   end,
 }
 
-register_device_definition(ewelink_7037_co_sensor, {
+register(ewelink_7037_co_sensor, {
   device_helpers.create_fingerprint("eWeLink", "CK-TLSR8656-Z123SE24DY-01(7037)"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-cnp"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.z2m_absorption_ewelink_7037",

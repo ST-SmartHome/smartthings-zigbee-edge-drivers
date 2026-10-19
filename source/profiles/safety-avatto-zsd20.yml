@@ -6,5 +6,6 @@ components:
       - {id: battery, version: 1}
       - {id: concertmirror08464.zsd20SelfCheck, version: 1}
       - {id: concertmirror08464.zsd20Muffling, version: 1}
+      - {id: signalStrength, version: 1}
     categories:
       - {name: SmokeDetector}

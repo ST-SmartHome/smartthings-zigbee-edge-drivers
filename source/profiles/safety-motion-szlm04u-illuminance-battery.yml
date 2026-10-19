@@ -16,60 +16,50 @@ components:
         version: 1
       - id: concertmirror08464.driverMessage
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: MotionSensor
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: motionSensor
-        version: 1
-        group: main
+    - component: main
+      capability: motionSensor
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: motionSensor
-      version: 1
-    - component: main
-      capability: battery
-      version: 1
-    - component: main
-      capability: illuminanceMeasurement
-      version: 1
-    - component: main
-      capability: concertmirror08464.szlm04uUsbPower
-      version: 1
-    - component: main
-      capability: concertmirror08464.szlm04uSensorSwitch
-      version: 1
-    - component: main
-      capability: concertmirror08464.szlm04uFadingTime
-      version: 1
-    - component: main
-      capability: concertmirror08464.driverMessage
-      version: 1
+  - component: main
+    capability: motionSensor
+  - component: main
+    capability: battery
+  - component: main
+    capability: illuminanceMeasurement
+  - component: main
+    capability: concertmirror08464.szlm04uUsbPower
+  - component: main
+    capability: concertmirror08464.szlm04uSensorSwitch
+  - component: main
+    capability: concertmirror08464.szlm04uFadingTime
+  - component: main
+    capability: concertmirror08464.driverMessage
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: motionSensor
-        version: 1
-      - component: main
-        capability: battery
-        version: 1
-      - component: main
-        capability: illuminanceMeasurement
-        version: 1
-      - component: main
-        capability: concertmirror08464.szlm04uUsbPower
-        version: 1
-      - component: main
-        capability: concertmirror08464.szlm04uSensorSwitch
-        version: 1
-      - component: main
-        capability: concertmirror08464.szlm04uFadingTime
-        version: 1
+    - component: main
+      capability: motionSensor
+    - component: main
+      capability: battery
+    - component: main
+      capability: illuminanceMeasurement
+    - component: main
+      capability: concertmirror08464.szlm04uUsbPower
+    - component: main
+      capability: concertmirror08464.szlm04uSensorSwitch
+    - component: main
+      capability: concertmirror08464.szlm04uFadingTime
+    - component: main
+      capability: signalStrength
     actions:
-      - component: main
-        capability: concertmirror08464.szlm04uFadingTime
-        version: 1
+    - component: main
+      capability: concertmirror08464.szlm04uFadingTime

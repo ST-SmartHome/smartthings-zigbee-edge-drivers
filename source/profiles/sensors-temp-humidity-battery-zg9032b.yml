@@ -18,6 +18,7 @@ components:
     version: 1
   - id: refresh
     version: 1
+  - {id: signalStrength, version: 1}
   categories:
   - name: TempHumiditySensor
 preferences:
@@ -28,71 +29,57 @@ preferences:
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: temperatureMeasurement
-        version: 1
-        group: main
-        values:
-          - label: "{{temperature.value}}{{temperature.unit}}"
-        composite: true
-      - component: main
-        capability: relativeHumidityMeasurement
-        version: 1
-        group: main
-        values:
-          - label: " {{humidity.value}}{{humidity.unit}}"
-        composite: true
+    - component: main
+      capability: temperatureMeasurement
+      group: main
+      values:
+      - label: '{{temperature.value}}{{temperature.unit}}'
+      composite: true
+    - component: main
+      capability: relativeHumidityMeasurement
+      group: main
+      values:
+      - label: ' {{humidity.value}}{{humidity.unit}}'
+      composite: true
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: temperatureMeasurement
-      version: 1
-    - component: main
-      capability: relativeHumidityMeasurement
-      version: 1
-    - component: main
-      capability: battery
-      version: 1
-    - component: main
-      capability: concertmirror08464.zg9032bTemperatureCompensation
-      version: 1
-    - component: main
-      capability: concertmirror08464.zg9032bTemperatureDisplayUnit
-      version: 1
-    - component: main
-      capability: concertmirror08464.zg9032bHumidityCompensation
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: temperatureMeasurement
+  - component: main
+    capability: relativeHumidityMeasurement
+  - component: main
+    capability: battery
+  - component: main
+    capability: concertmirror08464.zg9032bTemperatureCompensation
+  - component: main
+    capability: concertmirror08464.zg9032bTemperatureDisplayUnit
+  - component: main
+    capability: concertmirror08464.zg9032bHumidityCompensation
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: temperatureMeasurement
-        version: 1
-      - component: main
-        capability: relativeHumidityMeasurement
-        version: 1
-      - component: main
-        capability: battery
-        version: 1
-      - component: main
-        capability: concertmirror08464.zg9032bTemperatureCompensation
-        version: 1
-      - component: main
-        capability: concertmirror08464.zg9032bTemperatureDisplayUnit
-        version: 1
-      - component: main
-        capability: concertmirror08464.zg9032bHumidityCompensation
-        version: 1
+    - component: main
+      capability: temperatureMeasurement
+    - component: main
+      capability: relativeHumidityMeasurement
+    - component: main
+      capability: battery
+    - component: main
+      capability: concertmirror08464.zg9032bTemperatureCompensation
+    - component: main
+      capability: concertmirror08464.zg9032bTemperatureDisplayUnit
+    - component: main
+      capability: concertmirror08464.zg9032bHumidityCompensation
+    - component: main
+      capability: signalStrength
     actions:
-      - component: main
-        capability: concertmirror08464.zg9032bTemperatureCompensation
-        version: 1
-      - component: main
-        capability: concertmirror08464.zg9032bTemperatureDisplayUnit
-        version: 1
-      - component: main
-        capability: concertmirror08464.zg9032bHumidityCompensation
-        version: 1
+    - component: main
+      capability: concertmirror08464.zg9032bTemperatureCompensation
+    - component: main
+      capability: concertmirror08464.zg9032bTemperatureDisplayUnit
+    - component: main
+      capability: concertmirror08464.zg9032bHumidityCompensation

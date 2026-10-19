@@ -20,81 +20,64 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: PresenceSensor
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: presenceSensor
-        version: 1
-        group: main
+    - component: main
+      capability: presenceSensor
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: presenceSensor
-      version: 1
-    - component: main
-      capability: concertmirror08464.zym10024gState
-      version: 1
-    - component: main
-      capability: concertmirror08464.zym10024gTargetDistance
-      version: 1
-    - component: main
-      capability: illuminanceMeasurement
-      version: 1
-    - component: main
-      capability: concertmirror08464.zym10024gMoveSensitivity
-      version: 1
-    - component: main
-      capability: concertmirror08464.zym10024gSensitivity
-      version: 1
-    - component: main
-      capability: concertmirror08464.zym10024gMaxRange
-      version: 1
-    - component: main
-      capability: concertmirror08464.zym10024gTimeout
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: presenceSensor
+  - component: main
+    capability: concertmirror08464.zym10024gState
+  - component: main
+    capability: concertmirror08464.zym10024gTargetDistance
+  - component: main
+    capability: illuminanceMeasurement
+  - component: main
+    capability: concertmirror08464.zym10024gMoveSensitivity
+  - component: main
+    capability: concertmirror08464.zym10024gSensitivity
+  - component: main
+    capability: concertmirror08464.zym10024gMaxRange
+  - component: main
+    capability: concertmirror08464.zym10024gTimeout
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: presenceSensor
-        version: 1
-      - component: main
-        capability: illuminanceMeasurement
-        version: 1
-      - component: main
-        capability: concertmirror08464.zym10024gState
-        version: 1
-      - component: main
-        capability: concertmirror08464.zym10024gTargetDistance
-        version: 1
-      - component: main
-        capability: concertmirror08464.zym10024gMoveSensitivity
-        version: 1
-      - component: main
-        capability: concertmirror08464.zym10024gSensitivity
-        version: 1
-      - component: main
-        capability: concertmirror08464.zym10024gMaxRange
-        version: 1
-      - component: main
-        capability: concertmirror08464.zym10024gTimeout
-        version: 1
+    - component: main
+      capability: presenceSensor
+    - component: main
+      capability: illuminanceMeasurement
+    - component: main
+      capability: concertmirror08464.zym10024gState
+    - component: main
+      capability: concertmirror08464.zym10024gTargetDistance
+    - component: main
+      capability: concertmirror08464.zym10024gMoveSensitivity
+    - component: main
+      capability: concertmirror08464.zym10024gSensitivity
+    - component: main
+      capability: concertmirror08464.zym10024gMaxRange
+    - component: main
+      capability: concertmirror08464.zym10024gTimeout
+    - component: main
+      capability: signalStrength
     actions:
-      - component: main
-        capability: concertmirror08464.zym10024gMoveSensitivity
-        version: 1
-      - component: main
-        capability: concertmirror08464.zym10024gSensitivity
-        version: 1
-      - component: main
-        capability: concertmirror08464.zym10024gMaxRange
-        version: 1
-      - component: main
-        capability: concertmirror08464.zym10024gTimeout
-        version: 1
+    - component: main
+      capability: concertmirror08464.zym10024gMoveSensitivity
+    - component: main
+      capability: concertmirror08464.zym10024gSensitivity
+    - component: main
+      capability: concertmirror08464.zym10024gMaxRange
+    - component: main
+      capability: concertmirror08464.zym10024gTimeout

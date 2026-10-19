@@ -47,6 +47,12 @@ register_device_definition(rgb_controller, {
   device_helpers.create_fingerprint("_TZ3210_778drfdt", "TS0503B"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tot"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.lights.miboxer",
   registrations = device_definitions,

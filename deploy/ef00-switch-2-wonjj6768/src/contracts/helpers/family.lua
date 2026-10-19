@@ -1,131 +1,131 @@
-local helpers={}
-local function indexed_entries(source,context,allow_named_fields)
-context=context or"mapping list"
-local list={}if type(source)~="table"then
-error(string.format("%s must be a table",context))
+local t={}
+local function n(M,c,A)
+c=c or"mapping list"
+local N={}if type(M)~="table"then
+error(string.format("%s must be a table",c))
 end
-local maximum_index=0
-local indexed_count=0
-for key in pairs(source)do
-if type(key)=="number"then
-if key<1 or key%1~=0 then
-error(string.format("%s has invalid numeric index %s",context,tostring(key)))
+local j=0
+local m=0
+for z in pairs(M)do
+if type(z)=="number"then
+if z<1 or z%1~=0 then
+error(string.format("%s has invalid numeric index %s",c,tostring(z)))
 end
-maximum_index=math.max(maximum_index,key)indexed_count=indexed_count+1
-elseif not allow_named_fields then
-error(string.format("%s has unexpected named field %s",context,tostring(key)))
+j=math.max(j,z)m=m+1
+elseif not A then
+error(string.format("%s has unexpected named field %s",c,tostring(z)))
 end
 end
-if maximum_index~=indexed_count then
+if j~=m then
 error(string.format(
-"%s must be a dense list (highest index %d, entries %d)",context,maximum_index,indexed_count))
+"%s must be a dense list (highest index %d, entries %d)",c,j,m))
 end
-for index=1,maximum_index do
-list[index]=source[index]
+for I=1,j do
+N[I]=M[I]
 end
-return list
+return N
 end
-local function append_entries(target,entries)
-target=target or{}for _,entry in ipairs(entries)do
-target[#target+1]=entry
+local function s(D,H)
+D=D or{}for _,a in ipairs(H)do
+D[#D+1]=a
 end
-return target
+return D
 end
-local function has_named_fields(value)
-if type(value)~="table"then
+local function G(J)
+if type(J)~="table"then
 return false
 end
-for key in pairs(value)do
-if type(key)~="number"then
+for z in pairs(J)do
+if type(z)~="number"then
 return true
 end
 end
 return false
 end
-local function split_mapping_entries(entries,context)
-context=context or"mapping list"
-local datapoints={}local zcl_clusters={}local unknown={}for index,entry in ipairs(entries)do
-local is_zcl=type(entry)=="table"and entry.cluster_id~=nil and(
-entry.attribute_id~=nil or
-(entry.write_only==true and type(entry.sender)=="function")or
-(entry.read_only==true and entry.command_id~=nil and type(entry.command_extractor)=="function"))
-local is_datapoint=type(entry)=="table"and entry.dp~=nil and entry.datatype~=nil
-if is_zcl and is_datapoint then
-error(string.format("%s[%d] mixes datapoint and ZCL fields",context,index))elseif is_zcl then
-zcl_clusters[#zcl_clusters+1]=entry
-elseif is_datapoint then
-datapoints[#datapoints+1]=entry
+local function h(H,c)
+c=c or"mapping list"
+local e={}local d={}local l={}for I,a in ipairs(H)do
+local Q=type(a)=="table"and a.cluster_id~=nil and(
+a.attribute_id~=nil or
+(a.write_only==true and type(a.sender)=="function")or
+(a.read_only==true and a.command_id~=nil and type(a.command_extractor)=="function"))
+local B=type(a)=="table"and a.dp~=nil and a.datatype~=nil
+if Q and B then
+error(string.format("%s[%d] mixes datapoint and ZCL fields",c,I))elseif Q then
+d[#d+1]=a
+elseif B then
+e[#e+1]=a
 else
-unknown[#unknown+1]=entry
+l[#l+1]=a
 end
 end
-return datapoints,zcl_clusters,unknown
+return e,d,l
 end
-local function mapping_count_error(context,count,kind)
-error(string.format("%s contains %d %s mapping(s)",context,count,kind))
+local function f(c,T,V)
+error(string.format("%s contains %d %s mapping(s)",c,T,V))
 end
-local function normalize_structured_entry(definitions_or_table)
-local entry={}for key,value in pairs(definitions_or_table)do
-if type(key)~="number"and key~="fingerprints"then
-entry[key]=value
+local function o(b)
+local a={}for z,J in pairs(b)do
+if type(z)~="number"and z~="fingerprints"then
+a[z]=J
 end
 end
-local profile=tostring(entry.profile)local list=indexed_entries(definitions_or_table,"family profile "..profile,true)local datapoints,zcl_clusters,unknown=split_mapping_entries(list,"family profile "..profile)if #unknown>0 then
-mapping_count_error("family profile "..profile,#unknown,"unknown indexed")
+local profile=tostring(a.profile)local N=n(b,"family profile "..profile,true)local e,d,l=h(N,"family profile "..profile)if #l>0 then
+f("family profile "..profile,#l,"unknown indexed")
 end
-local function validate_named_mapping_list(field_name,expected_kind)
-local mappings=entry[field_name]if mappings==nil then
+local function i(v,x)
+local K=a[v]if K==nil then
 return
 end
-local context=string.format("family profile %s %s",profile,field_name)local dense=indexed_entries(mappings,context,false)local found_datapoints,found_zcl,found_unknown=split_mapping_entries(dense,context)if #found_unknown>0 then
-mapping_count_error(context,#found_unknown,"incomplete or nested")
+local c=string.format("family profile %s %s",profile,v)local R=n(K,c,false)local F,P,y=h(R,c)if #y>0 then
+f(c,#y,"incomplete or nested")
 end
-local wrong_mappings=expected_kind=="datapoint"and found_zcl or found_datapoints
-if #wrong_mappings>0 then
-local wrong_kind=expected_kind=="datapoint"and"ZCL"or"datapoint"
-mapping_count_error(context,#wrong_mappings,wrong_kind)
+local u=x=="datapoint"and P or F
+if #u>0 then
+local O=x=="datapoint"and"ZCL"or"datapoint"
+f(c,#u,O)
 end
-entry[field_name]=dense
+a[v]=R
 end
-validate_named_mapping_list("datapoints","datapoint")validate_named_mapping_list("zcl_clusters","zcl")if #datapoints>0 then
-entry.datapoints=append_entries(entry.datapoints,datapoints)
+i("datapoints","datapoint")i("zcl_clusters","zcl")if #e>0 then
+a.datapoints=s(a.datapoints,e)
 end
-if #zcl_clusters>0 then
-entry.zcl_clusters=append_entries(entry.zcl_clusters,zcl_clusters)
+if #d>0 then
+a.zcl_clusters=s(a.zcl_clusters,d)
 end
-return entry
+return a
 end
-function helpers.create_fingerprint(manufacturer_name,model_name)
-return{manufacturer=manufacturer_name,model=model_name}
+function t.create_fingerprint(g,w)
+return{manufacturer=g,model=w}
 end
-function helpers.create_fingerprints(model_name,manufacturer_names)
-local fingerprints={}for _,manufacturer_name in ipairs(manufacturer_names)do
-local manufacturer,model=string.match(manufacturer_name,"^(.-):(.+)$")if manufacturer==nil then
-manufacturer,model=manufacturer_name,model_name
+function t.create_fingerprints(w,C)
+local q={}for _,g in ipairs(C)do
+local r,model=string.match(g,"^(.-):(.+)$")if r==nil then
+r,model=g,w
 end
-fingerprints[#fingerprints+1]=helpers.create_fingerprint(manufacturer,model)
+q[#q+1]=t.create_fingerprint(r,model)
 end
-return fingerprints
+return q
 end
-function helpers.definition_registry()
-local device_definitions={}
-local function register_device_definition(definitions_or_table,fingerprint_list)
-local entry=nil
-if has_named_fields(definitions_or_table)then
-entry=normalize_structured_entry(definitions_or_table)else
-local root_entries=indexed_entries(definitions_or_table,"device definition",true)local datapoints,zcl_clusters,unknown=split_mapping_entries(root_entries,"device definition")if #unknown>0 then
-mapping_count_error("device definition",#unknown,"incomplete or nested")
+function t.definition_registry()
+local k={}
+local function p(b,E)
+local a=nil
+if G(b)then
+a=o(b)else
+local L=n(b,"device definition",true)local e,d,l=h(L,"device definition")if #l>0 then
+f("device definition",#l,"incomplete or nested")
 end
-entry={}if #datapoints>0 then
-entry.datapoints=datapoints
+a={}if #e>0 then
+a.datapoints=e
 end
-if #zcl_clusters>0 then
-entry.zcl_clusters=zcl_clusters
+if #d>0 then
+a.zcl_clusters=d
 end
 end
-entry.fingerprints=fingerprint_list
-device_definitions[#device_definitions+1]=entry
+a.fingerprints=E
+k[#k+1]=a
 end
-return device_definitions,register_device_definition
+return k,p
 end
-return helpers
+return t

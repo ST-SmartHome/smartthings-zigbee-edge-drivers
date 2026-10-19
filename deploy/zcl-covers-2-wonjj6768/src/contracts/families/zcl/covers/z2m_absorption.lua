@@ -1,101 +1,102 @@
-local zcl=require"protocol.zcl"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local data_types=require"st.zigbee.data_types"
-local cluster_base=require"st.zigbee.cluster_base"
-local registrations,register=device_helpers.definition_registry()local somfy_glydea2={
+local f=require"protocol.zcl"
+local k=require"capabilities.events.all"
+local e=require"contracts.helpers.family"
+local c=require"st.zigbee.data_types"
+local w=require"st.zigbee.cluster_base"
+local l,o=e.definition_registry()local v={
 profile="covers-somfy-glydea2",zcl_clusters={
-zcl.cover_position({
+f.cover_position({
 endpoint=1,component="main",minimum_interval=1,maximum_interval=65000,reportable_change=1,converter={
-from=function(value)return value>=0 and value<=100 and 100-value or nil end,
-to=function(value)return 100-value end,
-},}),zcl.window_shade_state({
+from=function(a)return a>=0 and a<=100 and 100-a or nil end,
+to=function(a)return 100-a end,
+},}),f.window_shade_state({
 endpoint=1,component="main",configure_reporting=false,read_on_configure=false,
-converter={from=function(value)
-if value<0 or value>100 then return nil end
-return value==0 and"open"or value==100 and"closed"or"partially open"
+converter={from=function(a)
+if a<0 or a>100 then return nil end
+return a==0 and"open"or a==100 and"closed"or"partially open"
 end},
-}),zcl.cover_state({endpoint=1,component="main"}),zcl.battery({
+}),f.cover_state({endpoint=1,component="main"}),f.battery({
 endpoint=232,component="main",minimum_interval=3600,maximum_interval=65000,reportable_change=10,}),},
-configure=function(driver,device)
-local hub_eui=driver.environment_info.hub_zigbee_eui
-zcl.bind_cluster(device,0x0102,hub_eui,1)zcl.bind_cluster(device,0x0001,hub_eui,232)
+configure=function(x,b)
+local i=x.environment_info.hub_zigbee_eui
+f.bind_cluster(b,258,i,1)f.bind_cluster(b,1,i,232)
 end,
-}register(somfy_glydea2,{
-device_helpers.create_fingerprint("SOMFY","Glydea 2 Ultra WF Curtain"),})
-local function allesin_identify_sender(device,_,value,context)
-local seconds=value or 3
-if type(seconds)~="number"or seconds<1 or seconds>30 or seconds%1~=0 then return false end
-return zcl.send_raw_cluster_command(device,0x0003,0x00,string.char(seconds,0),context.endpoint or 1)
+}o(v,{
+e.create_fingerprint("SOMFY","Glydea 2 Ultra WF Curtain"),})
+local function h(b,_,a,q)
+local j=a or 3
+if type(j)~="number"or j<1 or j>30 or j%1~=0 then return false end
+return f.send_raw_cluster_command(b,3,0,string.char(j,0),q.endpoint or 1)
 end
-local allesin_cover={
+local u={
 profile="covers-allesin-roller-shade",zcl_clusters={
-zcl.cover_position({
+f.cover_position({
 endpoint=1,component="main",minimum_interval=1,maximum_interval=65000,reportable_change=1,converter={
-from=function(value)return value>=0 and value<=100 and 100-value or nil end,
-to=function(value)return 100-value end,
-},}),zcl.window_shade_state({
+from=function(a)return a>=0 and a<=100 and 100-a or nil end,
+to=function(a)return 100-a end,
+},}),f.window_shade_state({
 endpoint=1,component="main",configure_reporting=false,read_on_configure=false,
-converter={from=function(value)
-if value<0 or value>100 then return nil end
-return value==0 and"open"or value==100 and"closed"or"partially open"
+converter={from=function(a)
+if a<0 or a>100 then return nil end
+return a==0 and"open"or a==100 and"closed"or"partially open"
 end},
-}),zcl.cover_state({endpoint=1,component="main"}),zcl.battery({
+}),f.cover_state({endpoint=1,component="main"}),f.battery({
 endpoint=1,component="main",scale=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-converter={from=function(value)return value<255 and value or nil end},
-}),zcl.cluster_attribute(0x0003,nil,{
-name="allesin_identify",endpoint=1,component="main",write_only=true,sender=allesin_identify_sender,}),},capability_commands={
+converter={from=function(a)return a<255 and a or nil end},
+}),f.cluster_attribute(3,nil,{
+name="allesin_identify",endpoint=1,component="main",write_only=true,sender=h,}),},capability_commands={
 {capability_id="concertmirror08464.allesinIdentify",command_name="identify",argument_name="seconds",mapping_name="allesin_identify"},},
-configure=function(driver,device)
-local hub_eui=driver.environment_info.hub_zigbee_eui
-zcl.bind_cluster(device,0x0102,hub_eui,1)zcl.bind_cluster(device,0x0001,hub_eui,1)
+configure=function(x,b)
+local i=x.environment_info.hub_zigbee_eui
+f.bind_cluster(b,258,i,1)f.bind_cluster(b,1,i,1)
 end,
-}register(allesin_cover,{
-device_helpers.create_fingerprint("Aubor","TLSR82xx"),})
-local function zm108m_enum(name,cluster,attribute,emitter,values,read_only)
-local reverse={}
-for raw,value in pairs(values)do reverse[value]=raw end
-local mapping=zcl.cluster_attribute(cluster,attribute,{
-name=name,endpoint=1,component="main",emit=emitter,data_type=data_types.Enum8,write_type=data_types.Enum8,read_only=read_only,read_on_configure=false,converter={
-from=function(value)
-if type(value)=="table"then value=value.value end
-return values[value]
+}o(u,{
+e.create_fingerprint("Aubor","TLSR82xx"),})
+local function d(E,p,s,C,B,t)
+local r={}
+for F,a in pairs(B)do r[a]=F end
+local z=f.cluster_attribute(p,s,{
+name=E,endpoint=1,component="main",emit=C,data_type=c.Enum8,write_type=c.Enum8,read_only=t,read_on_configure=false,converter={
+from=function(a)
+if type(a)=="table"then a=a.value end
+return B[a]
 end,
-to=function(value)return reverse[value]end,
-},})if not read_only then
-mapping.sender=function(device,_,value,context)
-local request=cluster_base.write_attribute(
-device,data_types.ClusterId(cluster),data_types.AttributeId(attribute),data_types.Enum8(reverse[value]))
-if cluster==0xE001 then request.body.zcl_header.frame_ctrl:set_disable_default_response()end
-device:send(request:to_endpoint(context.endpoint or 1))return true
+to=function(a)return r[a]end,
+},})if not t then
+z.sender=function(b,_,a,q)
+local A=w.write_attribute(
+b,c.ClusterId(p),c.AttributeId(s),c.Enum8(r[a]))
+if p==57345 then A.body.zcl_header.frame_ctrl:set_disable_default_response()end
+b:send(A:to_endpoint(q.endpoint or 1))return true
 end
 end
-return mapping
+return z
 end
-local zm108m_switch_type=zm108m_enum(
-"zm108m_switch_type",0xE001,0xD030,emit.zm108mSwitchType(),{[0]="flip-switch",[1]="sync-switch",[2]="button-switch",[3]="button2-switch"})
-local function zm108m_position(value,device)
-if value<0 or value>100 then return nil end
-return device.preferences.invertCover==true and 100-value or value
+local m=d(
+"zm108m_switch_type",57345,53296,k.zm108mSwitchType(),{[0]="flip-switch",[1]="sync-switch",[2]="button-switch",[3]="button2-switch"})
+local function g(a,b)
+if a<0 or a>100 then return nil end
+return b.preferences.invertCover==true and 100-a or a
 end
-local moes_zm108m={
+local y={
 profile="covers-moes-zm108m",zcl_clusters={
-zcl.tuya_magic_packet({read_on_configure=false}),zcl.cluster_attribute(0x0102,8,{
-name="cover_position",endpoint=1,data_type=data_types.Uint8,emit=emit.shade_level(),read_on_configure=false,converter={from=zm108m_position,to=zm108m_position},}),zcl.cluster_attribute(0x0102,8,{
-name="window_shade_state",endpoint=1,data_type=data_types.Uint8,emit=emit.shade_state(),read_only=true,read_on_configure=false,
-converter={from=function(value,device)
-local position=zm108m_position(value,device)
-if position==nil then return nil end
-return position==0 and"closed"or position==100 and"open"or"partially open"
+f.tuya_magic_packet({read_on_configure=false}),f.cluster_attribute(258,8,{
+name="cover_position",endpoint=1,data_type=c.Uint8,emit=k.shade_level(),read_on_configure=false,converter={from=g,to=g},}),f.cluster_attribute(258,8,{
+name="window_shade_state",endpoint=1,data_type=c.Uint8,emit=k.shade_state(),read_only=true,read_on_configure=false,
+converter={from=function(a,b)
+local n=g(a,b)
+if n==nil then return nil end
+return n==0 and"closed"or n==100 and"open"or"partially open"
 end},
-}),zcl.cover_state({endpoint=1}),zm108m_enum("zm108m_moving",0x0102,0xF000,emit.zm108mMoving(),{[0]="UP",[1]="STOP",[2]="DOWN"},true),zm108m_enum("zm108m_motor_reversal",0x0102,0xF002,emit.zm108mMotorReversal(),{[0]="OFF",[1]="ON"}),zm108m_enum("zm108m_calibration",0x0102,0xF001,emit.zm108mCalibration(),{[0]="ON",[1]="OFF"}),zcl.cluster_attribute(0x0102,0xF003,{
-name="zm108m_calibration_time",endpoint=1,read_only=true,read_on_configure=false,data_type=data_types.Uint16,scale=10,emit=emit.zm108mCalibrationTime(),}),zm108m_enum("zm108m_indicator_mode",6,0x8001,emit.zm108mIndicatorMode(),{[0]="off",[1]="off/on",[2]="on/off",[3]="on"}),zm108m_enum("zm108m_backlight_mode",6,0x5000,emit.zm108mBacklightMode(),{[0]="OFF",[1]="ON"}),zm108m_switch_type,},
-parent_refresh=function(device)
-for _,item in ipairs({{0x0102,8},{0x0102,0xF000},{0x0102,0xF001},{0x0102,0xF002},{0x0102,0xF003},{6,0x8001},{6,0x5000},{0xE001,0xD030}})do
-zcl.read_attribute(device,item[1],item[2],1)
+}),f.cover_state({endpoint=1}),d("zm108m_moving",258,61440,k.zm108mMoving(),{[0]="UP",[1]="STOP",[2]="DOWN"},true),d("zm108m_motor_reversal",258,61442,k.zm108mMotorReversal(),{[0]="OFF",[1]="ON"}),d("zm108m_calibration",258,61441,k.zm108mCalibration(),{[0]="ON",[1]="OFF"}),f.cluster_attribute(258,61443,{
+name="zm108m_calibration_time",endpoint=1,read_only=true,read_on_configure=false,data_type=c.Uint16,scale=10,emit=k.zm108mCalibrationTime(),}),d("zm108m_indicator_mode",6,32769,k.zm108mIndicatorMode(),{[0]="off",[1]="off/on",[2]="on/off",[3]="on"}),d("zm108m_backlight_mode",6,20480,k.zm108mBacklightMode(),{[0]="OFF",[1]="ON"}),m,},
+parent_refresh=function(b)
+for _,D in ipairs({{258,8},{258,61440},{258,61441},{258,61442},{258,61443},{6,32769},{6,20480},{57345,53296}})do
+f.read_attribute(b,D[1],D[2],1)
 end
 return true
 end,
-}register(moes_zm108m,{
-device_helpers.create_fingerprint("_TZ3210_mldzab8w","TS130F"),})return{
-id="zcl.covers.z2m_absorption",registrations=registrations,}
+}o(y,{
+e.create_fingerprint("_TZ3210_mldzab8w","TS130F"),})f.attach_reporting_capabilities(l,{
+{1,"rpt-gtd"},{2,"rpt-tqk"},})return{
+id="zcl.covers.z2m_absorption",registrations=l,}

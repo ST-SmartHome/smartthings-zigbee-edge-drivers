@@ -1,349 +1,340 @@
-local function load_runtime(zcl)
-local MAPPING_BUCKET_TAG="__zcl_mapping_bucket"
-local meta_cache=setmetatable({},{__mode="k"})local index_cache=setmetatable({},{__mode="k"})local prepared_mappings=setmetatable({},{__mode="k"})
-local function is_callable_type(value)
-if type(value)=="function"then
-return true
-end
-if type(value)~="table"then
-return false
-end
-local metatable=getmetatable(value)
-return type(metatable)=="table"and type(metatable.__call)=="function"
-end
-local function normalize_endpoint(endpoint)
-if type(endpoint)~="number"or endpoint%1~=0 then
+local function af(M)
+local O="__zcl_mapping_bucket"
+local ad=setmetatable({},{__mode="k"})local ab=setmetatable({},{__mode="k"})local R=setmetatable({},{__mode="k"})local S=require("runtime.capability_support").is_callable
+local function r(g)
+if type(g)~="number"or g%1~=0 then
 return nil
 end
-return endpoint
+return g
 end
-local function resolve_context_component_id(device,context)
-if type(context)~="table"then
+local function n(c,b)
+if type(b)~="table"then
 return nil
 end
-local component_id=context.component_id or context.component
-if type(component_id)=="string"and component_id~=""then
-return component_id
+local e=b.component_id or b.component
+if type(e)=="string"and e~=""then
+return e
 end
-local endpoint=normalize_endpoint(context.endpoint or context.src_endpoint)
-if endpoint~=nil and type(device.get_component_id_for_endpoint)=="function"then
-local resolved=device:get_component_id_for_endpoint(endpoint)if type(resolved)=="string"and resolved~=""then
-return resolved
+local g=r(b.endpoint or b.src_endpoint)
+if g~=nil and type(c.get_component_id_for_endpoint)=="function"then
+local G=c:get_component_id_for_endpoint(g)if type(G)=="string"and G~=""then
+return G
 end
 end
 return nil
 end
-local function resolve_context_endpoint(device,context)
-if type(context)~="table"then
+local function k(c,b)
+if type(b)~="table"then
 return nil
 end
-local endpoint=normalize_endpoint(context.endpoint or context.src_endpoint)if endpoint~=nil then
-return endpoint
+local g=r(b.endpoint or b.src_endpoint)if g~=nil then
+return g
 end
-local component_id=context.component_id or context.component
-if type(component_id)=="string"and component_id~=""and type(device.get_endpoint_for_component_id)=="function"then
-local resolved=device:get_endpoint_for_component_id(component_id)if type(resolved)=="table"then
-resolved=resolved[1]
+local e=b.component_id or b.component
+if type(e)=="string"and e~=""and type(c.get_endpoint_for_component_id)=="function"then
+local G=c:get_endpoint_for_component_id(e)if type(G)=="table"then
+G=G[1]
 end
-return normalize_endpoint(resolved)
+return r(G)
 end
 return nil
 end
-local function build_mapping_meta(mapping)
-local cached=meta_cache[mapping]if cached~=nil then
-return cached
+local function w(a,ah)
+local Z=ad[a]if Z~=nil then
+return Z
 end
-local converter=type(mapping.converter)=="table"and mapping.converter or nil
-local custom_from_device=type(mapping.from_device)=="function"and mapping.from_device or nil
-local converter_from_device=converter and type(converter.from)=="function"and converter.from or nil
-local prefer_typed_value=mapping.prefer_typed_value==true or
-(converter and converter.prefer_typed_value==true)or
+local A=type(a.converter)=="table"and a.converter or nil
+local P=type(a.from_device)=="function"and a.from_device or nil
+local L=A and type(A.from)=="function"and A.from or nil
+local aa=a.prefer_typed_value==true or
+(A and A.prefer_typed_value==true)or
 false
-local configured_data_type=is_callable_type(mapping.data_type)and mapping.data_type or nil
-local configured_write_type=is_callable_type(mapping.write_type)and mapping.write_type or configured_data_type
-local attribute_def=nil
-if mapping.cluster_id~=nil and mapping.attribute_id~=nil and zcl.get_generated_attribute~=nil then
-attribute_def=zcl.get_generated_attribute(mapping.cluster_id,mapping.attribute_id)
+local B=S(a.data_type)and a.data_type or nil
+local K=S(a.write_type)and a.write_type or B
+local l=nil
+if a.cluster_id~=nil and a.attribute_id~=nil and M.get_generated_attribute~=nil then
+l=M.get_generated_attribute(a.cluster_id,a.attribute_id)
 end
-if attribute_def==nil and mapping.cluster_id~=nil and mapping.attribute_id~=nil and zcl.build_dynamic_attribute~=nil then
-local dynamic_base_type=configured_data_type or configured_write_type
-if dynamic_base_type~=nil then
-attribute_def=zcl.build_dynamic_attribute(
-mapping.cluster_id,mapping.attribute_id,dynamic_base_type,mapping.read_only~=true,mapping.attribute_name,mapping.complex_type==true)
+if l==nil and a.cluster_id~=nil and a.attribute_id~=nil and M.build_dynamic_attribute~=nil then
+local Q=B or K
+if Q~=nil then
+l=M.build_dynamic_attribute(
+a.cluster_id,a.attribute_id,Q,a.read_only~=true,a.attribute_name,a.complex_type==true)
 end
 end
-local meta={
-from_device=custom_from_device or converter_from_device,custom_from_device=custom_from_device~=nil,converter_from_device=converter_from_device~=nil,prefer_typed_value=prefer_typed_value,prefer_plain_attribute_write=mapping.prefer_plain_attribute_write==true,
-to_device=type(mapping.to_device)=="function"and mapping.to_device or
-(converter and type(converter.to)=="function"and converter.to or nil),
-emit=type(mapping.emit)=="function"and mapping.emit or nil,
-handler=type(mapping.handler)=="function"and mapping.handler or nil,
-sender=type(mapping.sender)=="function"and mapping.sender or nil,
-command_id=type(mapping.command_id)=="number"and mapping.command_id or nil,
-command_extractor=type(mapping.command_extractor)=="function"and mapping.command_extractor or nil,
-tx_command_id=type(mapping.tx_command_id)=="number"and mapping.tx_command_id or nil,tx_command_direction=mapping.tx_command_direction=="client"and"client"or"server",
-endpoint=(type(mapping.endpoint)=="number"or type(mapping.endpoint)=="function")and mapping.endpoint or nil,
-component=(type(mapping.component)=="string"or type(mapping.component)=="function")and mapping.component or nil,
-read_only=mapping.read_only==true,write_only=mapping.write_only==true,minimum_interval=mapping.minimum_interval,maximum_interval=mapping.maximum_interval,reportable_change=mapping.reportable_change,physical_reportable_change=type(mapping.physical_reportable_change)=="number"and
-mapping.physical_reportable_change or nil,read_on_configure=mapping.read_on_configure==true,poll_interval=type(mapping.poll_interval)=="number"and mapping.poll_interval or nil,ias_configure_method=mapping.ias_configure_method,mfg_code=type(mapping.mfg_code)=="number"and mapping.mfg_code or nil,profile_id=type(mapping.profile_id)=="number"and mapping.profile_id or nil,metering_kind=type(mapping.metering_kind)=="string"and mapping.metering_kind or nil,scale=type(mapping.scale)=="number"and mapping.scale or nil,ignore_reported_scaler=mapping.ignore_reported_scaler==true,attribute_def=attribute_def,data_type=configured_data_type or
-(attribute_def and attribute_def.base_type or nil),write_type=configured_write_type or
-(attribute_def and attribute_def.base_type or nil),name=mapping.name,cluster_id=mapping.cluster_id,attribute_id=mapping.attribute_id,}meta_cache[mapping]=meta
-return meta
+local ae={
+from_device=P or L,custom_from_device=P~=nil,converter_from_device=L~=nil,prefer_typed_value=aa,prefer_plain_attribute_write=a.prefer_plain_attribute_write==true,
+to_device=type(a.to_device)=="function"and a.to_device or
+(A and type(A.to)=="function"and A.to or nil),
+emit=type(a.emit)=="function"and a.emit or nil,
+handler=type(a.handler)=="function"and a.handler or nil,
+sender=type(a.sender)=="function"and a.sender or nil,
+command_id=type(a.command_id)=="number"and a.command_id or nil,
+command_extractor=type(a.command_extractor)=="function"and a.command_extractor or nil,
+tx_command_id=type(a.tx_command_id)=="number"and a.tx_command_id or nil,tx_command_direction=a.tx_command_direction=="client"and"client"or"server",
+endpoint=(type(a.endpoint)=="number"or type(a.endpoint)=="function")and a.endpoint or nil,
+component=(type(a.component)=="string"or type(a.component)=="function")and a.component or nil,
+read_only=a.read_only==true,write_only=a.write_only==true,minimum_interval=a.minimum_interval,maximum_interval=a.maximum_interval,reportable_change=a.reportable_change,reporting_defaults=a.reporting_defaults,physical_reportable_change=type(a.physical_reportable_change)=="number"and
+a.physical_reportable_change or nil,read_on_configure=a.read_on_configure==true,read_on_refresh=a.read_on_refresh,poll_interval=type(a.poll_interval)=="number"and a.poll_interval or nil,ias_configure_method=a.ias_configure_method,mfg_code=type(a.mfg_code)=="number"and a.mfg_code or nil,profile_id=type(a.profile_id)=="number"and a.profile_id or nil,metering_kind=type(a.metering_kind)=="string"and a.metering_kind or nil,scale=type(a.scale)=="number"and a.scale or nil,ignore_reported_scaler=a.ignore_reported_scaler==true,attribute_def=l,data_type=B or
+(l and l.base_type or nil),write_type=K or
+(l and l.base_type or nil),name=a.name,cluster_id=a.cluster_id,attribute_id=a.attribute_id,}
+if ah~=false then ad[a]=ae end
+return ae
 end
-local function resolve_mapping_endpoint(device,mapping,context)
-local meta=build_mapping_meta(mapping)local endpoint=meta.endpoint
-if type(endpoint)=="function"then
-endpoint=endpoint(device,mapping,context)
+local function t(c,a,b)
+local ae=w(a)local g=ae.endpoint
+if type(g)=="function"then
+g=g(c,a,b)
 end
-return normalize_endpoint(endpoint)
+return r(g)
 end
-local function resolve_mapping_component_id(device,mapping,context)
-local meta=build_mapping_meta(mapping)local component_id=meta.component
-if type(component_id)=="function"then
-component_id=component_id(device,mapping,context)
+local function o(c,a,b)
+local ae=w(a)local e=ae.component
+if type(e)=="function"then
+e=e(c,a,b)
 end
-if type(component_id)=="string"and component_id~=""then
-return component_id
+if type(e)=="string"and e~=""then
+return e
 end
 return nil
 end
-local function build_mapping_context(device,mapping,context,value)
-local mapping_context={
-mapping=mapping,value=value,}if type(context)=="table"then
-for key,item in pairs(context)do
-mapping_context[key]=item
+local function W(c,a,b,ai)
+local f={
+mapping=a,value=ai,}if type(b)=="table"then
+for aj,am in pairs(b)do
+f[aj]=am
 end
 end
-if mapping_context.cluster_id==nil and type(mapping)=="table"then
-mapping_context.cluster_id=mapping.cluster_id
+if f.cluster_id==nil and type(a)=="table"then
+f.cluster_id=a.cluster_id
 end
-if mapping_context.attribute_id==nil and type(mapping)=="table"then
-mapping_context.attribute_id=mapping.attribute_id
+if f.attribute_id==nil and type(a)=="table"then
+f.attribute_id=a.attribute_id
 end
-local endpoint=resolve_mapping_endpoint(device,mapping,mapping_context)if endpoint==nil then
-endpoint=resolve_context_endpoint(device,mapping_context)
+local g=t(c,a,f)if g==nil then
+g=k(c,f)
 end
-local component_id=resolve_mapping_component_id(device,mapping,mapping_context)if component_id==nil then
-if endpoint~=nil and type(device.get_component_id_for_endpoint)=="function"then
-component_id=device:get_component_id_for_endpoint(endpoint)else
-component_id=resolve_context_component_id(device,mapping_context)
+local e=o(c,a,f)if e==nil then
+if g~=nil and type(c.get_component_id_for_endpoint)=="function"then
+e=c:get_component_id_for_endpoint(g)else
+e=n(c,f)
 end
 end
-mapping_context.endpoint=endpoint
-mapping_context.component_id=component_id
-mapping_context.component=component_id and device.profile and device.profile.components and device.profile.components[component_id]or nil
-return mapping_context
+f.endpoint=g
+f.component_id=e
+f.component=e and c.profile and c.profile.components and c.profile.components[e]or nil
+return f
 end
-local function mapping_match_score(mapping,device,context)
-if type(mapping)~="table"or device==nil then
+local function u(a,c,b)
+if type(a)~="table"or c==nil then
 return 0
 end
-local expected_endpoint=resolve_mapping_endpoint(device,mapping,context)local expected_component_id=resolve_mapping_component_id(device,mapping,context)local expected_mfg_code=build_mapping_meta(mapping).mfg_code
-local actual_endpoint=resolve_context_endpoint(device,context)local actual_component_id=resolve_context_component_id(device,context)local actual_mfg_code=type(context)=="table"and context.mfg_code or nil
-if actual_endpoint==nil and actual_component_id~=nil then
-actual_endpoint=resolve_context_endpoint(device,{component_id=actual_component_id})
+local x=t(c,a,b)local z=o(c,a,b)local H=w(a).mfg_code
+local v=k(c,b)local m=n(c,b)local ac=type(b)=="table"and b.mfg_code or nil
+if v==nil and m~=nil then
+v=k(c,{component_id=m})
 end
-if actual_component_id==nil and actual_endpoint~=nil and type(device.get_component_id_for_endpoint)=="function"then
-actual_component_id=device:get_component_id_for_endpoint(actual_endpoint)
+if m==nil and v~=nil and type(c.get_component_id_for_endpoint)=="function"then
+m=c:get_component_id_for_endpoint(v)
 end
-if expected_endpoint~=nil and actual_endpoint~=expected_endpoint then
+if x~=nil and v~=x then
 return-1
 end
-local received_on_explicit_endpoint=expected_endpoint~=nil and type(context)=="table"and context.zb_rx~=nil
-if expected_component_id~=nil and actual_component_id~=expected_component_id and not received_on_explicit_endpoint then
+local N=x~=nil and type(b)=="table"and b.zb_rx~=nil
+if z~=nil and m~=z and not N then
 return-1
 end
-local strict_mfg_match=type(context)=="table"and(
-context.mfg_code~=nil or
-context.zb_rx~=nil or
-context.command_id~=nil)if strict_mfg_match and expected_mfg_code~=nil and actual_mfg_code~=expected_mfg_code then
+local T=type(b)=="table"and(
+b.mfg_code~=nil or
+b.zb_rx~=nil or
+b.command_id~=nil)if T and H~=nil and ac~=H then
 return-1
 end
-local score=0
-if expected_endpoint~=nil then
-score=score+2
+local C=0
+if x~=nil then
+C=C+2
 end
-if expected_component_id~=nil then
-score=score+1
+if z~=nil then
+C=C+1
 end
-if strict_mfg_match and expected_mfg_code~=nil then
-score=score+4
+if T and H~=nil then
+C=C+4
 end
-return score
+return C
 end
-local function is_mapping_bucket(candidate)
-return type(candidate)=="table"and candidate[MAPPING_BUCKET_TAG]==true
+local function I(h)
+return type(h)=="table"and h[O]==true
 end
-local function add_index_entry(index,key,mapping)
-local current=index[key]if current==nil then
-index[key]=mapping
+local function U(q,aj,a)
+local X=q[aj]if X==nil then
+q[aj]=a
 return
 end
-if is_mapping_bucket(current)then
-current[#current+1]=mapping
+if I(X)then
+X[#X+1]=a
 return
 end
-index[key]={
-[MAPPING_BUCKET_TAG]=true,current,mapping,}
+q[aj]={
+[O]=true,X,a,}
 end
-local function select_mapping_entry(candidate,device,context)
-if candidate==nil then
+local function D(h,c,b)
+if h==nil then
 return nil
 end
-if not is_mapping_bucket(candidate)then
-if device==nil or mapping_match_score(candidate,device,context)>=0 then
-return candidate
+if not I(h)then
+if c==nil or u(h,c,b)>=0 then
+return h
 end
 return nil
 end
-if device==nil then
-return candidate[1]
+if c==nil then
+return h[1]
 end
-local selected=nil
-local selected_score=-1
-for _,mapping in ipairs(candidate)do
-local score=mapping_match_score(mapping,device,context)if score>selected_score then
-selected=mapping
-selected_score=score
+local J=nil
+local p=-1
+for _,a in ipairs(h)do
+local C=u(a,c,b)if C>p then
+J=a
+p=C
 end
 end
-return selected
+return J
 end
-local function collect_matching_entries(candidate,device,context)
-if candidate==nil then
+local function F(h,c,b)
+if h==nil then
 return{}
 end
-if not is_mapping_bucket(candidate)then
-if device==nil or mapping_match_score(candidate,device,context)>=0 then
-return{candidate}
+if not I(h)then
+if c==nil or u(h,c,b)>=0 then
+return{h}
 end
 return{}
 end
-local selected={}local selected_score=nil
-for _,mapping in ipairs(candidate)do
-local score=device==nil and 0 or mapping_match_score(mapping,device,context)if score>=0 then
-if selected_score==nil or score>selected_score then
-selected={mapping}selected_score=score
-elseif score==selected_score then
-selected[#selected+1]=mapping
+local J={}local p=nil
+for _,a in ipairs(h)do
+local C=c==nil and 0 or u(a,c,b)if C>=0 then
+if p==nil or C>p then
+J={a}p=C
+elseif C==p then
+J[#J+1]=a
 end
 end
 end
-return selected
+return J
 end
-local function build_mapping_index(zcl_clusters)
-if zcl_clusters==nil then
+local function j(d)
+if d==nil then
 return nil
 end
-local cached=index_cache[zcl_clusters]if cached~=nil then
-return cached
+local Z=ab[d]if Z~=nil then
+return Z
 end
-local by_cluster_attribute={}local by_name={}local cluster_ids={}local seen_clusters={}for _,mapping in ipairs(zcl_clusters)do
-if type(mapping)=="table"then
-local cluster_id=mapping.cluster_id
-local attribute_id=mapping.attribute_id
-if cluster_id~=nil and attribute_id~=nil then
-by_cluster_attribute[cluster_id]=by_cluster_attribute[cluster_id]or{}add_index_entry(by_cluster_attribute[cluster_id],attribute_id,mapping)if not seen_clusters[cluster_id]then
-seen_clusters[cluster_id]=true
-cluster_ids[#cluster_ids+1]=cluster_id
-end
-end
-if mapping.name~=nil then
-add_index_entry(by_name,mapping.name,mapping)
+local s={}local ag={}local V={}local Y={}for _,a in ipairs(d)do
+if type(a)=="table"then
+local i=a.cluster_id
+local y=a.attribute_id
+if i~=nil and y~=nil then
+s[i]=s[i]or{}U(s[i],y,a)if not Y[i]then
+Y[i]=true
+V[#V+1]=i
 end
 end
+if a.name~=nil then
+U(ag,a.name,a)
 end
-local index={
-by_cluster_attribute=by_cluster_attribute,by_name=by_name,cluster_ids=cluster_ids,}index_cache[zcl_clusters]=index
-return index
 end
-function zcl.normalize_endpoint(endpoint)
-return normalize_endpoint(endpoint)
 end
-function zcl.mapping_meta(mapping)
-if type(mapping)~="table"then
+local q={
+by_cluster_attribute=s,by_name=ag,cluster_ids=V,}ab[d]=q
+return q
+end
+function M.normalize_endpoint(g)
+return r(g)
+end
+function M.mapping_meta(a,ah)
+if type(a)~="table"then
 return nil
 end
-return build_mapping_meta(mapping)
+return w(a,ah)
 end
-function zcl.resolve_context_component_id(device,context)
-return resolve_context_component_id(device,context)
+function M.resolve_context_component_id(c,b)
+return n(c,b)
 end
-function zcl.resolve_context_endpoint(device,context)
-return resolve_context_endpoint(device,context)
+function M.resolve_context_endpoint(c,b)
+return k(c,b)
 end
-function zcl.resolve_mapping_endpoint(device,mapping,context)
-return resolve_mapping_endpoint(device,mapping,context)
+function M.resolve_mapping_endpoint(c,a,b)
+return t(c,a,b)
 end
-function zcl.resolve_mapping_component_id(device,mapping,context)
-return resolve_mapping_component_id(device,mapping,context)
+function M.resolve_mapping_component_id(c,a,b)
+return o(c,a,b)
 end
-function zcl.build_mapping_context(device,mapping,context,value)
-return build_mapping_context(device,mapping,context,value)
+function M.build_mapping_context(c,a,b,ai)
+return W(c,a,b,ai)
 end
-function zcl.select_mapping_entry(candidate,device,context)
-return select_mapping_entry(candidate,device,context)
+function M.select_mapping_entry(h,c,b)
+return D(h,c,b)
 end
-function zcl.collect_matching_entries(candidate,device,context)
-return collect_matching_entries(candidate,device,context)
+function M.collect_matching_entries(h,c,b)
+return F(h,c,b)
 end
-function zcl.build_mapping_index(zcl_clusters)
-return build_mapping_index(zcl_clusters)
+function M.build_mapping_index(d)
+return j(d)
 end
-function zcl.prepare_mappings(zcl_clusters)
-if type(zcl_clusters)~="table"then
-return zcl_clusters
+function M.prepare_mappings(d)
+if type(d)~="table"then
+return d
 end
-if not prepared_mappings[zcl_clusters]then
-prepared_mappings[zcl_clusters]=true
-build_mapping_index(zcl_clusters)
+if not R[d]then
+R[d]=true
+j(d)
 end
-return zcl_clusters
+return d
 end
-function zcl.find_mapping(zcl_clusters,cluster_id,attribute_id,device,context)
-local index=build_mapping_index(zcl_clusters)if index==nil then
+function M.find_mapping(d,i,y,c,b)
+local q=j(d)if q==nil then
 return nil
 end
-local cluster_index=index.by_cluster_attribute[cluster_id]if cluster_index==nil then
+local E=q.by_cluster_attribute[i]if E==nil then
 return nil
 end
-return select_mapping_entry(cluster_index[attribute_id],device,context)
+return D(E[y],c,b)
 end
-function zcl.find_mappings(zcl_clusters,cluster_id,attribute_id,device,context)
-local index=build_mapping_index(zcl_clusters)if index==nil then
+function M.find_mappings(d,i,y,c,b)
+local q=j(d)if q==nil then
 return{}
 end
-local cluster_index=index.by_cluster_attribute[cluster_id]if cluster_index==nil then
+local E=q.by_cluster_attribute[i]if E==nil then
 return{}
 end
-return collect_matching_entries(cluster_index[attribute_id],device,context)
+return F(E[y],c,b)
 end
-function zcl.find_mapping_by_name(zcl_clusters,name,device,context)
-if zcl_clusters==nil or name==nil then
+function M.find_mapping_by_name(d,al,c,b)
+if d==nil or al==nil then
 return nil
 end
-local index=build_mapping_index(zcl_clusters)if index==nil then
+local q=j(d)if q==nil then
 return nil
 end
-return select_mapping_entry(index.by_name[name],device,context)
+return D(q.by_name[al],c,b)
 end
-function zcl.has_cluster(zcl_clusters,cluster_id)
-if zcl_clusters==nil then
+function M.has_cluster(d,i)
+if d==nil then
 return false
 end
-local index=build_mapping_index(zcl_clusters)return index~=nil and index.by_cluster_attribute[cluster_id]~=nil
+local q=j(d)return q~=nil and q.by_cluster_attribute[i]~=nil
 end
-function zcl.get_cluster_ids(zcl_clusters)
-if zcl_clusters==nil then
+function M.get_cluster_ids(d)
+if d==nil then
 return{}
 end
-local index=build_mapping_index(zcl_clusters)if index==nil then
+local q=j(d)if q==nil then
 return{}
 end
-local ids={}for _,cluster_id in ipairs(index.cluster_ids)do
-ids[#ids+1]=cluster_id
+local ak={}for _,i in ipairs(q.cluster_ids)do
+ak[#ak+1]=i
 end
-return ids
+return ak
 end
 end
-return load_runtime
+return af

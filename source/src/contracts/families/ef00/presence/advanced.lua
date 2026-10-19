@@ -1356,6 +1356,12 @@ register_presence_definition(presence_model_zp_301z, {
 
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {14, "rpt-tai"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "ef00.presence.advanced",
   registrations = device_definitions,

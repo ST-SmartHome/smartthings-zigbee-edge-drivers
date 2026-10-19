@@ -1,38 +1,38 @@
-local registrations=require"generated.package_registry"
-local registry={}local fingerprint_index=nil
-local function copy_entry_without_fingerprints(entry)
-local copied={}if type(entry)~="table"then
-return copied
+local i=require"generated.package_registry"
+local f={}local a=nil
+local function c(g)
+local j={}if type(g)~="table"then
+return j
 end
-for key,value in pairs(entry)do
-if key~="fingerprints"then
-copied[key]=value
-end
-end
-return copied
-end
-local function build_index()
-if fingerprint_index then
-return fingerprint_index
-end
-fingerprint_index={}for _,entry in ipairs(registrations)do
-for _,fp in ipairs(entry.fingerprints)do
-local manufacturer=fp.manufacturer
-local model=fp.model
-if model~=nil and manufacturer~=nil then
-fingerprint_index[manufacturer]=fingerprint_index[manufacturer]or{}fingerprint_index[manufacturer][model]=copy_entry_without_fingerprints(entry)
+for m,l in pairs(g)do
+if m~="fingerprints"then
+j[m]=l
 end
 end
+return j
 end
-return fingerprint_index
+local function e()
+if a then
+return a
 end
-function registry.find(manufacturer,model)
-local index=build_index()local by_manufacturer=index[manufacturer]if by_manufacturer and by_manufacturer[model]then
-return by_manufacturer[model]
+a={}for _,g in ipairs(i)do
+for _,n in ipairs(g.fingerprints)do
+local b=n.manufacturer
+local h=n.model
+if h~=nil and b~=nil then
+a[b]=a[b]or{}a[b][h]=c(g)
+end
+end
+end
+return a
+end
+function f.find(b,h)
+local k=e()local d=k[b]if d and d[h]then
+return d[h]
 end
 return nil
 end
-function registry.all()
-return build_index()
+function f.all()
+return e()
 end
-return registry
+return f

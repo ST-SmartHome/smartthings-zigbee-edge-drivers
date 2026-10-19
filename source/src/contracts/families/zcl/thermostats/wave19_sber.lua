@@ -499,6 +499,12 @@ register_device_definition(sber, {
   device_helpers.create_fingerprint("SDevices", "SBDV-00205"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-sas"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.thermostats.wave19.sber",
   registrations = device_definitions,

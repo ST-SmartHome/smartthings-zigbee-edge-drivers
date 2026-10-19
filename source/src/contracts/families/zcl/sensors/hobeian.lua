@@ -5,7 +5,7 @@ local device_helpers = require "contracts.helpers.family"
 local capabilities = require "st.capabilities"
 local data_types = require "st.zigbee.data_types"
 
-local registrations, register_device_definition = device_helpers.definition_registry()
+local registrations, register = device_helpers.definition_registry()
 
 local function status_bit(mask)
   return function(value)
@@ -57,7 +57,7 @@ local zg222z = {
     zcl.battery({
       endpoint = 1, read_only = true, from_device = battery_percentage,
       minimum_interval = 3600, maximum_interval = 65000,
-      reportable_change = 0, read_on_configure = true,
+      reportable_change = 0, 
     }),
     -- fz.battery also accepts a reported BatteryAlarmState. Do not request or
     -- configure it: this definition configures only BatteryPercentageRemaining.
@@ -74,7 +74,7 @@ local zg222z = {
   end,
 }
 
-register_device_definition(zg222z, {
+register(zg222z, {
   device_helpers.create_fingerprint("HOBEIAN", "ZG-222Z"),
 })
 
@@ -115,9 +115,16 @@ local zg102z = {
   parent_refresh = function() end,
 }
 
-register_device_definition(zg102z, {
+register(zg102z, {
   device_helpers.create_fingerprint("HOBEIAN", "ZG-102Z"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(registrations, {
+  {1, "rpt-zmq"},
+  {2, "rpt-zpd"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.hobeian",

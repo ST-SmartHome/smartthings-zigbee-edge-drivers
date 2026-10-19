@@ -1,8 +1,9 @@
-local zcl=require"protocol.zcl"
-local device_helpers=require"contracts.helpers.family"
-local registrations,register_device_definition=device_helpers.definition_registry()local water_tamper_battery_low_battery_sensor={
+local e=require"protocol.zcl"
+local c=require"contracts.helpers.family"
+local d,b=c.definition_registry()local a={
 profile="safety-water-leak-tamper-battery-low-battery",zcl_clusters={
-zcl.water(),zcl.tamper(),zcl.battery_low(),zcl.battery(),},}register_device_definition(water_tamper_battery_low_battery_sensor,{
-device_helpers.create_fingerprint(
-"_TZ3000_eit7p838"..string.char(0x20),"TS0207"),})return{
-id="zcl.sensors.wave19_exact_aliases",registrations=registrations,}
+e.water(),e.tamper(),e.battery_low(),e.battery(),},}b(a,{
+c.create_fingerprint(
+"_TZ3000_eit7p838"..string.char(32),"TS0207"),})e.attach_reporting_capabilities(d,{
+{1,"rpt-tej"},})return{
+id="zcl.sensors.wave19_exact_aliases",registrations=d,}

@@ -72,6 +72,12 @@ register_device_definition(definition, device_helpers.create_fingerprints("TS000
   "_TZ3210_cm9mbpr1",
 }))
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(registrations, {
+  {1, "rpt-txr"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "ef00.controls.tuya_fingerbot_plus",
   registrations = registrations,

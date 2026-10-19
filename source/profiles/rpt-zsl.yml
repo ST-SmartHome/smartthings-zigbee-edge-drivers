@@ -1,0 +1,20 @@
+name: rpt-zsl
+components:
+- id: main
+  capabilities:
+  - id: motionSensor
+    version: 1
+  - id: battery
+    version: 1
+  - id: refresh
+    version: 1
+  - id: signalStrength
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMin
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMax
+    version: 1
+  - id: concertmirror08464.zclBatteryReportChange20
+    version: 1
+  categories:
+  - name: MotionSensor

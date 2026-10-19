@@ -10,6 +10,9 @@ local device_management = require "st.zigbee.device_management"
 local function build_stub()
   local zcl = {}
 
+  function zcl.attach_reporting_capabilities(...) end
+  function zcl.configure_reporting(...) return false end
+
   zcl.CLUSTER_ON_OFF = 0x0006
   zcl.CLUSTER_POWER_CONFIGURATION = 0x0001
   zcl.CLUSTER_IAS_ZONE = 0x0500

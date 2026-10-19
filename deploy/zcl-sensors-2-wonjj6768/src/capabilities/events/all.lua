@@ -1,619 +1,475 @@
-local capabilities=require"st.capabilities"
-local custom_capabilities=require"runtime.capability_metadata"
-local battery_refresh=require"runtime.battery_refresh"
-local energy_reset=require"runtime.energy_reset"
-local utf8_text=require"runtime.utf8_text"
-local log=require"log"
-local emit={}local last_power_response_time_definition=custom_capabilities.by_emit_name.last_power_response_time
-local LAST_POWER_RESPONSE_AT_FIELD="_tuya_last_power_response_at"
-local LAST_POWER_RESPONSE_WAITING_TEXT="waiting"
-local function is_callable(value)
-if type(value)=="function"then
-return true
+local b=require"st.capabilities"
+local k=require"runtime.capability_metadata"
+local X=require"runtime.battery_refresh"
+local ab=require"runtime.energy_reset"
+local Q=require"runtime.utf8_text"
+local ak=require"log"
+local i={}local u=k.by_emit_name.last_power_response_time
+local q="_tuya_last_power_response_at"
+local w="waiting"
+local p=require("runtime.capability_support").is_callable
+local function h(v,M)
+local f=b[v]local m=f and f[M]or nil
+if not p(m)and f and type(f.attributes)=="table"then
+m=f.attributes[M]
 end
-if type(value)~="table"then
-return false
+return f,m
 end
-local metatable=getmetatable(value)
-return type(metatable)=="table"and type(metatable.__call)=="function"
-end
-local function resolve_capability_attribute(capability_id,attribute_name)
-local capability=capabilities[capability_id]local attribute=capability and capability[attribute_name]or nil
-if not is_callable(attribute)and capability and type(capability.attributes)=="table"then
-attribute=capability.attributes[attribute_name]
-end
-return capability,attribute
-end
-local function resolve_numeric_value_limit(attribute,key)
-if type(attribute)~="table"or type(attribute.schema)~="table"then
+local function s(m,ah)
+if type(m)~="table"or type(m.schema)~="table"then
 return nil
 end
-local schema=attribute.schema
-if type(schema.properties)~="table"or type(schema.properties.value)~="table"then
+local ac=m.schema
+if type(ac.properties)~="table"or type(ac.properties.value)~="table"then
 return nil
 end
-local value_schema=schema.properties.value
-local limit_key=key or"maximum"
-if type(value_schema[limit_key])=="number"then
-return value_schema[limit_key]
+local R=ac.properties.value
+local aa=ah or"maximum"
+if type(R[aa])=="number"then
+return R[aa]
 end
 return nil
 end
-local function supports_capability(device,capability_id)
-if type(device)~="table"or type(capability_id)~="string"then
+local function P(e,v)
+if type(e)~="table"or type(v)~="string"then
 return false
 end
-local components=device.profile and device.profile.components or nil
-local main=type(components)=="table"and components.main or nil
-local capability_list=type(main)=="table"and main.capabilities or nil
-if type(capability_list)~="table"then
+local Y=e.profile and e.profile.components or nil
+local aj=type(Y)=="table"and Y.main or nil
+local J=type(aj)=="table"and aj.capabilities or nil
+if type(J)~="table"then
 return false
 end
-for _,capability in ipairs(capability_list)do
-if type(capability)=="table"and capability.id==capability_id then
+for _,f in ipairs(J)do
+if type(f)=="table"and f.id==v then
 return true
 end
 end
 return false
 end
-local function format_power_response_time(epoch)
-if type(epoch)~="number"or epoch<=0 then
-return LAST_POWER_RESPONSE_WAITING_TEXT
+local function E(T)
+if type(T)~="number"or T<=0 then
+return w
 end
-return os.date("!%Y-%m-%d %H:%M:%S UTC",epoch)
+return os.date("!%Y-%m-%d %H:%M:%S UTC",T)
 end
-local function last_power_response_event(device)
-local definition=last_power_response_time_definition
-if type(definition)~="table"or not supports_capability(device,definition.capability_id)then
+local function F(e)
+local c=u
+if type(c)~="table"or not P(e,c.capability_id)then
 return nil
 end
-local _,attribute=resolve_capability_attribute(definition.capability_id,definition.attribute_name)if not is_callable(attribute)then
+local _,m=h(c.capability_id,c.attribute_name)if not p(m)then
 return nil
 end
-local epoch=os.time()if type(epoch)=="number"then
-device:set_field(LAST_POWER_RESPONSE_AT_FIELD,epoch,{persist=false})
+local T=os.time()if type(T)=="number"then
+e:set_field(q,T,{persist=false})
 end
-return attribute({
-value=format_power_response_time(device:get_field(LAST_POWER_RESPONSE_AT_FIELD)),})
+return m({
+value=E(e:get_field(q)),})
 end
-local function log_missing_custom_binding(device,definition,reason)
-if type(device)~="table"or type(definition)~="table"then
+local function d(e,c,ag)
+if type(e)~="table"or type(c)~="table"then
 return
 end
-local key=string.format("__custom_emit_missing__:%s:%s",definition.capability_id or"unknown",reason or"unknown")if device.get_field~=nil and device.set_field~=nil and device:get_field(key)then
+local ah=string.format("__custom_emit_missing__:%s:%s",c.capability_id or"unknown",ag or"unknown")if e.get_field~=nil and e.set_field~=nil and e:get_field(ah)then
 return
 end
-if device.set_field~=nil then
-device:set_field(key,true,{persist=false})
+if e.set_field~=nil then
+e:set_field(ah,true,{persist=false})
 end
-log.error(string.format(
-"[%s] Custom capability emit binding missing (%s): %s.%s",device.label or device.id or"device",reason or"unknown",definition.capability_id or"unknown",definition.attribute_name or"unknown"))
+ak.error(string.format(
+"[%s] Custom capability emit binding missing (%s): %s.%s",e.label or e.id or"device",ag or"unknown",c.capability_id or"unknown",c.attribute_name or"unknown"))
 end
-function emit.all(...)
-local emitters={...}
-return function(device,value,dp_info,mapping_context)
-local events={}for _,emitter in ipairs(emitters)do
-if type(emitter)=="function"then
-local event=emitter(device,value,dp_info,mapping_context)if type(event)=="table"and event[1]~=nil then
-for _,item in ipairs(event)do
-events[#events+1]=item
+function i.switch()
+return function(_,a)
+if a then
+return b.switch.switch.on()else
+return b.switch.switch.off()
 end
-elseif event~=nil then
-events[#events+1]=event
 end
 end
+function i.contact()
+return function(_,a)
+if a then
+return b.contactSensor.contact.open()else
+return b.contactSensor.contact.closed()
 end
-if #events>0 then
-return events
 end
 end
+function i.motion()
+return function(_,a)
+if a then
+return b.motionSensor.motion.active()else
+return b.motionSensor.motion.inactive()
 end
-function emit.switch()
-return function(_,value)
-if value then
-return capabilities.switch.switch.on()else
-return capabilities.switch.switch.off()
 end
 end
+function i.water()
+return function(_,a)
+if a then
+return b.waterSensor.water.wet()else
+return b.waterSensor.water.dry()
 end
-function emit.contact()
-return function(_,value)
-if value then
-return capabilities.contactSensor.contact.open()else
-return capabilities.contactSensor.contact.closed()
 end
 end
+function i.smoke()
+return function(_,a)
+if a then
+return b.smokeDetector.smoke.detected()else
+return b.smokeDetector.smoke.clear()
 end
-function emit.motion()
-return function(_,value)
-if value then
-return capabilities.motionSensor.motion.active()else
-return capabilities.motionSensor.motion.inactive()
 end
 end
+function i.carbon_monoxide()
+return function(_,a)
+if a then
+return b.carbonMonoxideDetector.carbonMonoxide.detected()else
+return b.carbonMonoxideDetector.carbonMonoxide.clear()
 end
-function emit.water()
-return function(_,value)
-if value then
-return capabilities.waterSensor.water.wet()else
-return capabilities.waterSensor.water.dry()
 end
 end
+function i.tamper()
+return function(_,a)
+if a then
+return b.tamperAlert.tamper.detected()else
+return b.tamperAlert.tamper.clear()
 end
-function emit.smoke()
-return function(_,value)
-if value then
-return capabilities.smokeDetector.smoke.detected()else
-return capabilities.smokeDetector.smoke.clear()
 end
 end
+function i.presence()
+return function(_,a)
+if a then
+return b.presenceSensor.presence.present()else
+return b.presenceSensor.presence.not_present()
 end
-function emit.carbon_monoxide()
-return function(_,value)
-if value then
-return capabilities.carbonMonoxideDetector.carbonMonoxide.detected()else
-return capabilities.carbonMonoxideDetector.carbonMonoxide.clear()
 end
 end
+function i.valve()
+return function(_,a)
+if a~=nil then
+return b.valve.valve(a)
 end
-function emit.tamper()
-return function(_,value)
-if value then
-return capabilities.tamperAlert.tamper.detected()else
-return capabilities.tamperAlert.tamper.clear()
 end
 end
+function i.occupancy()
+return function(_,a)
+if a then
+return b.occupancySensor.occupancy.occupied()else
+return b.occupancySensor.occupancy.unoccupied()
 end
-function emit.presence()
-return function(_,value)
-if value then
-return capabilities.presenceSensor.presence.present()else
-return capabilities.presenceSensor.presence.not_present()
 end
 end
+function i.acceleration()
+return function(_,a)
+if a then
+return b.accelerationSensor.acceleration.active()else
+return b.accelerationSensor.acceleration.inactive()
 end
-function emit.gas()
-return function(_,value)
-if value then
-return capabilities.gasDetector.gas.detected()else
-return capabilities.gasDetector.gas.clear()
 end
 end
+function i.alarm()
+return function(_,a)
+if a=="strobe"then
+return b.alarm.alarm.strobe()elseif a=="both"then
+return b.alarm.alarm.both()elseif a=="off"then
+return b.alarm.alarm.off()elseif a=="siren"or a then
+return b.alarm.alarm.siren()else
+return b.alarm.alarm.off()
 end
-function emit.hardware_fault()
-return function(_,value)
-if value then
-return capabilities.hardwareFault.hardwareFault.detected()
 end
-return capabilities.hardwareFault.hardwareFault.clear()
 end
+function i.temperature(D)
+D=D or"C"
+return function(_,a)
+if a~=nil then
+return b.temperatureMeasurement.temperature({value=a,unit=D})
 end
-function emit.valve()
-return function(_,value)
-if value~=nil then
-return capabilities.valve.valve(value)
 end
 end
+function i.humidity()
+return function(_,a)
+if a~=nil then
+return b.relativeHumidityMeasurement.humidity({value=a})
 end
-function emit.occupancy()
-return function(_,value)
-if value then
-return capabilities.occupancySensor.occupancy.occupied()else
-return capabilities.occupancySensor.occupancy.unoccupied()
 end
 end
+function i.battery()
+return function(e,a)
+if a~=nil then
+X.note_report(e)local j=a<0 and 0 or(a>100 and 100 or a)local ai=math.floor(j+0.5)return b.battery.battery(ai)
 end
-function emit.acceleration()
-return function(_,value)
-if value then
-return capabilities.accelerationSensor.acceleration.active()else
-return capabilities.accelerationSensor.acceleration.inactive()
 end
 end
+function i.illuminance()
+return function(_,a)
+if a~=nil then
+return b.illuminanceMeasurement.illuminance({value=a})
 end
-function emit.alarm()
-return function(_,value)
-if value=="strobe"then
-return capabilities.alarm.alarm.strobe()elseif value=="both"then
-return capabilities.alarm.alarm.both()elseif value=="off"then
-return capabilities.alarm.alarm.off()elseif value=="siren"or value then
-return capabilities.alarm.alarm.siren()else
-return capabilities.alarm.alarm.off()
 end
 end
+function i.carbon_monoxide_level()
+return function(_,a)
+if a~=nil then
+return b.carbonMonoxideMeasurement.carbonMonoxideLevel({value=a,unit="ppm"})
 end
-function emit.temperature(unit)
-unit=unit or"C"
-return function(_,value)
-if value~=nil then
-return capabilities.temperatureMeasurement.temperature({value=value,unit=unit})
 end
 end
+function i.co2()
+return function(_,a)
+if a~=nil then
+return b.carbonDioxideMeasurement.carbonDioxide({value=a,unit="ppm"})
 end
-function emit.humidity()
-return function(_,value)
-if value~=nil then
-return capabilities.relativeHumidityMeasurement.humidity({value=value})
 end
 end
+function i.formaldehyde(D)
+D=D or"mg/m^3"
+return function(_,a)
+if a~=nil then
+return b.formaldehydeMeasurement.formaldehydeLevel({value=a,unit=D})
 end
-function emit.battery()
-return function(device,value)
-if value~=nil then
-battery_refresh.note_report(device)local clamped=value<0 and 0 or(value>100 and 100 or value)local rounded=math.floor(clamped+0.5)return capabilities.battery.battery(rounded)
 end
 end
+function i.pm25()
+return function(_,a)
+if a~=nil then
+return b.fineDustSensor.fineDustLevel({value=a})
 end
-function emit.illuminance()
-return function(_,value)
-if value~=nil then
-return capabilities.illuminanceMeasurement.illuminance({value=value})
 end
 end
-end
-function emit.carbon_monoxide_level()
-return function(_,value)
-if value~=nil then
-return capabilities.carbonMonoxideMeasurement.carbonMonoxideLevel({value=value,unit="ppm"})
-end
-end
-end
-function emit.atmospheric_pressure()
-return function(_,value)
-if value~=nil then
-return capabilities.atmosphericPressureMeasurement.atmosphericPressure({value=value,unit="kPa"})
-end
-end
-end
-function emit.co2()
-return function(_,value)
-if value~=nil then
-return capabilities.carbonDioxideMeasurement.carbonDioxide({value=value,unit="ppm"})
-end
-end
-end
-function emit.voc(unit)
-unit=unit or"ppb"
-return function(_,value)
-if value~=nil then
-return capabilities.tvocMeasurement.tvocLevel({value=value,unit=unit})
-end
-end
-end
-function emit.formaldehyde(unit)
-unit=unit or"mg/m^3"
-return function(_,value)
-if value~=nil then
-return capabilities.formaldehydeMeasurement.formaldehydeLevel({value=value,unit=unit})
-end
-end
-end
-function emit.pm25()
-return function(_,value)
-if value~=nil then
-return capabilities.fineDustSensor.fineDustLevel({value=value})
-end
-end
-end
-function emit.power()
-return function(device,value)
-if value~=nil then
-local power_event=capabilities.powerMeter.power({value=value,unit="W"})local response_event=last_power_response_event(device)if response_event~=nil then
-return{power_event,response_event}
-end
-return power_event
-end
-end
-end
-local function explicit_energy_component_id(context)
-if type(context)~="table"then
+local function l(n)
+if type(n)~="table"then
 return nil
 end
-if type(context.component_id)=="string"and context.component_id~=""then
-return context.component_id
+if type(n.component_id)=="string"and n.component_id~=""then
+return n.component_id
 end
-if type(context.component)=="table"
-and type(context.component.id)=="string"
-and context.component.id~=""then
-return context.component.id
+if type(n.component)=="table"
+and type(n.component.id)=="string"
+and n.component.id~=""then
+return n.component.id
 end
 return nil
 end
-local function mapped_energy_component_id(context)
-if type(context)=="table"and type(context.component)=="string"and context.component~=""then
-return context.component
+local function o(n)
+if type(n)=="table"and type(n.component)=="string"and n.component~=""then
+return n.component
 end
 return nil
 end
-function emit.energy()
-return function(device,value,first_context,second_context)
-if value~=nil then
-local component_id=explicit_energy_component_id(second_context)or explicit_energy_component_id(first_context)or mapped_energy_component_id(second_context)or mapped_energy_component_id(first_context)return capabilities.energyMeter.energy({
-value=energy_reset.apply_report(device,value,component_id),unit="kWh",})
+function i.power()
+return function(e,a,t,r)
+if a~=nil then
+local L=b.powerMeter.power({value=a,unit="W"})local A=F(e)if A~=nil then
+local x=l(r)or l(t)or o(r)or o(t)if x~=nil and x~="main"then
+e:emit_event(A)return L
+end
+return{L,A}
+end
+return L
 end
 end
 end
-function emit.voltage()
-return function(_,value)
-if value~=nil then
-return capabilities.voltageMeasurement.voltage({value=value,unit="V"})
+function i.energy()
+return function(e,a,t,r)
+if a~=nil then
+local x=l(r)or l(t)or o(r)or o(t)return b.energyMeter.energy({
+value=ab.apply_report(e,a,x),unit="kWh",})
 end
 end
 end
-function emit.current()
-return function(_,value)
-if value~=nil then
-return capabilities.currentMeasurement.current({value=value,unit="A"})
+function i.voltage()
+return function(_,a)
+if a~=nil then
+return b.voltageMeasurement.voltage({value=a,unit="V"})
 end
 end
 end
-function emit.audio_volume()
-return function(_,value)
-if value~=nil then
-local clamped=value<0 and 0 or(value>100 and 100 or value)return capabilities.audioVolume.volume(math.floor(clamped+0.5))
+function i.current()
+return function(_,a)
+if a~=nil then
+return b.currentMeasurement.current({value=a,unit="A"})
 end
 end
 end
-function emit.level()
-return function(_,value)
-if value~=nil then
-local clamped=value<0 and 0 or(value>100 and 100 or value)return capabilities.switchLevel.level(clamped)
+function i.level()
+return function(_,a)
+if a~=nil then
+local j=a<0 and 0 or(a>100 and 100 or a)return b.switchLevel.level(j)
 end
 end
 end
-function emit.shade_level()
-return function(_,value)
-if value~=nil then
-return capabilities.windowShadeLevel.shadeLevel(value)
-end
-end
-end
-function emit.shade_tilt_level()
-return function(_,value)
-if value~=nil then
-return capabilities.windowShadeTiltLevel.shadeTiltLevel(value)
-end
-end
-end
-function emit.shade_preset_position()
-return function(_,value)
-if value~=nil then
-return capabilities.windowShadePreset.position(value)
-end
-end
-end
-function emit.heating_setpoint(unit)
-unit=unit or"C"
-return function(_,value)
-if value~=nil then
-return capabilities.thermostatHeatingSetpoint.heatingSetpoint({value=value,unit=unit})
-end
-end
-end
-function emit.cooling_setpoint(unit)
-unit=unit or"C"
-return function(_,value)
-if value~=nil then
-return capabilities.thermostatCoolingSetpoint.coolingSetpoint({value=value,unit=unit})
-end
-end
-end
-function emit.soil_moisture()
-return function(_,value)
-if value~=nil then
-local clamped=value<0 and 0 or(value>100 and 100 or value)return capabilities["concertmirror08464.soilMoisture"].soilMoisture({value=clamped,unit="%"})
-end
-end
-end
-function emit.probe_temperature(unit)
-unit=unit or"C"
-return function(_,value)
-if value~=nil then
-return capabilities["connectamber53538.probeTemperature"].temperature({value=value,unit=unit})
-end
-end
-end
-function emit.soil_ec()
-return function(_,value)
-if value~=nil then
-return capabilities["concertmirror08464.soilEc"].soilEc({value=value,unit="uS/cm"})
-end
-end
-end
-local function emit_numeric_custom(definition)
-return function(device,value)
-if value==nil then
+local function O(c)
+return function(e,a)
+if a==nil then
 return
 end
-local clamped=value
-local minimum=definition.event_minimum or(definition.default_range and definition.default_range.minimum or nil)local maximum=definition.event_maximum or(definition.default_range and definition.default_range.maximum or nil)local _,attribute_fn=resolve_capability_attribute(definition.capability_id,definition.attribute_name)local schema_minimum=resolve_numeric_value_limit(attribute_fn,"minimum")local schema_maximum=resolve_numeric_value_limit(attribute_fn)if type(schema_minimum)=="number"then
-if type(minimum)~="number"or schema_minimum>minimum then
-minimum=schema_minimum
+local j=a
+local H=c.event_minimum or(c.default_range and c.default_range.minimum or nil)local G=c.event_maximum or(c.default_range and c.default_range.maximum or nil)local _,g=h(c.capability_id,c.attribute_name)local C=s(g,"minimum")local B=s(g)if type(C)=="number"then
+if type(H)~="number"or C>H then
+H=C
 end
 end
-if type(schema_maximum)=="number"then
-if type(maximum)~="number"or schema_maximum<maximum then
-maximum=schema_maximum
+if type(B)=="number"then
+if type(G)~="number"or B<G then
+G=B
 end
 end
-if type(minimum)=="number"and clamped<minimum then
-clamped=minimum
+if type(H)=="number"and j<H then
+j=H
 end
-if type(maximum)=="number"and clamped>maximum then
-clamped=maximum
+if type(G)=="number"and j>G then
+j=G
 end
-local capability=capabilities[definition.capability_id]if not is_callable(attribute_fn)and capability and type(capability.attributes)=="table"then
-attribute_fn=capability.attributes[definition.attribute_name]
+local f=b[c.capability_id]if not p(g)and f and type(f.attributes)=="table"then
+g=f.attributes[c.attribute_name]
 end
-if not is_callable(attribute_fn)then
-if capability==nil then
-log_missing_custom_binding(device,definition,"capability")else
-log_missing_custom_binding(device,definition,"attribute")
+if not p(g)then
+if f==nil then
+d(e,c,"capability")else
+d(e,c,"attribute")
 end
 return
 end
-local unit=definition.event_unit or(definition.default_range and definition.default_range.unit or nil)if unit~=nil then
-return attribute_fn({value=clamped,unit=unit})
+local D=c.event_unit or(c.default_range and c.default_range.unit or nil)if D~=nil then
+return g({value=j,unit=D})
 end
-return attribute_fn({value=clamped})
-end
-end
-local function emit_enum_custom(definition)
-return function(device,value)
-if type(value)=="boolean"and type(definition.supported_values)=="table"then
-local has_on=false
-local has_off=false
-local has_normal=false
-local has_low=false
-local supported_count=0
-for _,supported in ipairs(definition.supported_values)do
-supported_count=supported_count+1
-if supported=="on"then
-has_on=true
-elseif supported=="off"then
-has_off=true
-elseif supported=="normal"then
-has_normal=true
-elseif supported=="low"then
-has_low=true
+return g({value=j})
 end
 end
-if has_on and has_off then
-value=value and"on"or"off"
-elseif supported_count==2 and has_normal and has_low then
-value=value and"low"or"normal"
+local function V(c)
+return function(e,a)
+if type(a)=="boolean"and type(c.supported_values)=="table"then
+local af=false
+local ae=false
+local Z=false
+local ad=false
+local y=0
+for _,K in ipairs(c.supported_values)do
+y=y+1
+if K=="on"then
+af=true
+elseif K=="off"then
+ae=true
+elseif K=="normal"then
+Z=true
+elseif K=="low"then
+ad=true
 end
 end
-if type(value)~="string"or value==""then
+if af and ae then
+a=a and"on"or"off"
+elseif y==2 and Z and ad then
+a=a and"low"or"normal"
+end
+end
+if type(a)~="string"or a==""then
 return
 end
-local capability,attribute_fn=resolve_capability_attribute(definition.capability_id,definition.attribute_name)if not is_callable(attribute_fn)then
-if capability==nil then
-log_missing_custom_binding(device,definition,"capability")else
-log_missing_custom_binding(device,definition,"attribute")
-end
-return
-end
-return attribute_fn({value=value})
-end
-end
-local function emit_text_custom(definition,options)
-return function(device,value)
-if type(value)~="string"or(value==""and not(options and options.allow_empty))then
-return
-end
-local capability,attribute_fn=resolve_capability_attribute(definition.capability_id,definition.attribute_name)if not is_callable(attribute_fn)then
-if capability==nil then
-log_missing_custom_binding(device,definition,"capability")else
-log_missing_custom_binding(device,definition,"attribute")
+local f,g=h(c.capability_id,c.attribute_name)if not p(g)then
+if f==nil then
+d(e,c,"capability")else
+d(e,c,"attribute")
 end
 return
 end
-local maximum_length=definition.maximum_length or utf8_text.length(value)local message=utf8_text.truncate(value,maximum_length)if message==nil then
+return g({value=a})
+end
+end
+local function W(c,U)
+return function(e,a)
+if type(a)~="string"or(a==""and not(U and U.allow_empty))then
 return
 end
-return attribute_fn({value=message})
-end
-end
-for _,definition in ipairs(custom_capabilities.numeric)do
-emit[definition.emit_name]=function()
-return emit_numeric_custom(definition)
-end
-end
-for _,definition in ipairs(custom_capabilities.enum)do
-emit[definition.emit_name]=function()
-return emit_enum_custom(definition)
-end
-end
-for _,definition in ipairs(custom_capabilities.text)do
-emit[definition.emit_name]=function(options)
-return emit_text_custom(definition,options)
-end
-end
-function emit.driver_message()
-return function(device,value)
-if type(value)=="string"and value~=""then
-local definition=custom_capabilities.driver_message
-local capability,attribute_fn=resolve_capability_attribute(definition.capability_id,definition.attribute_name)if not is_callable(attribute_fn)then
-if capability==nil then
-log_missing_custom_binding(device,definition,"capability")else
-log_missing_custom_binding(device,definition,"attribute")
+local f,g=h(c.capability_id,c.attribute_name)if not p(g)then
+if f==nil then
+d(e,c,"capability")else
+d(e,c,"attribute")
 end
 return
 end
-local maximum_length=definition.maximum_length or 512
-local message=utf8_text.truncate(value,maximum_length)if message==nil then
+local z=c.maximum_length or Q.length(a)local N=Q.truncate(a,z)if N==nil then
 return
 end
-return attribute_fn({value=message})
+return g({value=N})
+end
+end
+for _,c in ipairs(k.numeric)do
+i[c.emit_name]=function()
+return O(c)
+end
+end
+for _,c in ipairs(k.enum)do
+i[c.emit_name]=function()
+return V(c)
+end
+end
+for _,c in ipairs(k.text)do
+i[c.emit_name]=function(U)
+return W(c,U)
+end
+end
+function i.driver_message()
+return function(e,a)
+if type(a)=="string"and a~=""then
+local c=k.driver_message
+local f,g=h(c.capability_id,c.attribute_name)if not p(g)then
+if f==nil then
+d(e,c,"capability")else
+d(e,c,"attribute")
+end
+return
+end
+local z=c.maximum_length or 512
+local N=Q.truncate(a,z)if N==nil then
+return
+end
+return g({value=N})
 end
 end
 end
-function emit.thermostat_mode()
-return function(_,value)
-if value~=nil then
-return capabilities.thermostatMode.thermostatMode(value)
+function i.thermostat_operating_state()
+return function(_,a)
+if a~=nil then
+return b.thermostatOperatingState.thermostatOperatingState(a)
 end
 end
 end
-function emit.thermostat_operating_state()
-return function(_,value)
-if value~=nil then
-return capabilities.thermostatOperatingState.thermostatOperatingState(value)
+function i.fan_mode()
+return function(_,a)
+if a~=nil then
+return b.fanMode.fanMode(a)
 end
 end
 end
-function emit.fan_mode()
-return function(_,value)
-if value~=nil then
-return capabilities.fanMode.fanMode(value)
+function i.color_temperature()
+return function(_,a)
+if a~=nil then
+local j=a<1 and 1 or(a>30000 and 30000 or a)return b.colorTemperature.colorTemperature(j)
 end
 end
 end
-function emit.color_temperature()
-return function(_,value)
-if value~=nil then
-local clamped=value<1 and 1 or(value>30000 and 30000 or value)return capabilities.colorTemperature.colorTemperature(clamped)
+function i.color_hue()
+return function(_,a)
+if a~=nil then
+local j=a<0 and 0 or(a>100 and 100 or a)return b.colorControl.hue(j)
 end
 end
 end
-function emit.color_hue()
-return function(_,value)
-if value~=nil then
-local clamped=value<0 and 0 or(value>100 and 100 or value)return capabilities.colorControl.hue(clamped)
+function i.color_saturation()
+return function(_,a)
+if a~=nil then
+local j=a<0 and 0 or(a>100 and 100 or a)return b.colorControl.saturation(j)
 end
 end
 end
-function emit.color_saturation()
-return function(_,value)
-if value~=nil then
-local clamped=value<0 and 0 or(value>100 and 100 or value)return capabilities.colorControl.saturation(clamped)
-end
-end
-end
-function emit.shade_state()
-return function(_,value)
-if value~=nil then
-return capabilities.windowShade.windowShade(value)
-end
-end
-end
-function emit.value(capability_attr,unit)
-return function(_,value)
-if value~=nil then
-if unit then
-return capability_attr({value=value,unit=unit})else
-return capability_attr(value)
+function i.value(I,D)
+return function(_,a)
+if a~=nil then
+if D then
+return I({value=a,unit=D})else
+return I(a)
 end
 end
 end
 end
-function emit.binary(capability_attr,true_val,false_val)
-return function(_,value)
-if value then
-return capability_attr(true_val)else
-return capability_attr(false_val)
-end
-end
-end
-return emit
+return i

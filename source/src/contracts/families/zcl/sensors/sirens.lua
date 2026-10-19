@@ -161,6 +161,16 @@ register_device_definition(frient_sirzb112, {
   device_helpers.create_fingerprint("frient A/S", "SIRZB-112"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tbv"},
+  {2, "rpt-tkjy"},
+  {3, "rpt-tiuv"},
+  {4, "rpt-tiuv"},
+  {5, "rpt-swk"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.sensors.sirens",
   registrations = device_definitions,

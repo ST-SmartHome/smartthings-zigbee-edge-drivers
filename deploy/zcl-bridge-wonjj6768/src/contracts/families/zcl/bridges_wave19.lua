@@ -1,265 +1,266 @@
-local zcl=require"protocol.zcl"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local device_management=require"st.zigbee.device_management"
-local data_types=require"st.zigbee.data_types"
-local capabilities=require"st.capabilities"
-local device_definitions,register_device_definition=device_helpers.definition_registry()local NAMESPACE="concertmirror08464."
-local CLUSTER_ON_OFF=0x0006
-local ATTR_ON_OFF=0x0000
-local CLUSTER_POWER_CONFIGURATION=0x0001
-local CLUSTER_HEIMAN_IR=0xFC82
-local HEIMAN_MFG_CODE=0x120B
-local function custom(capability_id)
-return assert(emit[capability_id],"missing Wave19 bridge emitter: "..capability_id)()
+local G=require"protocol.zcl"
+local bi=require"capabilities.events.all"
+local j=require"contracts.helpers.family"
+local A=require"st.zigbee.device_management"
+local B=require"st.zigbee.data_types"
+local D=require"st.capabilities"
+local y,d=j.definition_registry()local at="concertmirror08464."
+local ao=6
+local aK=0
+local as=1
+local l=64642
+local ak=4619
+local function E(capability_id)
+return assert(bi[capability_id],"missing Wave19 bridge emitter: "..capability_id)()
 end
-local function emit_main(device,event)
-if event~=nil and type(device.emit_event)=="function"then
-device:emit_event(event)
-end
-end
-local kinetic_press_names={
-[1]="single",[2]="double",[3]="triple",[4]="quadruple",[5]="quintuple",}local kinetic_action_emitter=custom("candeoRfHubAction")
-local function field_get(device,key)
-if type(device.get_field)~="function"then return nil end
-return device:get_field(key)
-end
-local function field_set(device,key,value)
-if type(device.set_field)=="function"then
-device:set_field(key,value,{persist=false})
+local function au(a,w)
+if w~=nil and type(a.emit_event)=="function"then
+a:emit_event(w)
 end
 end
-local function cancel_timer(device,timer)
-if timer==nil then return end
-if type(device.thread)=="table"and type(device.thread.cancel_timer)=="function"then
-device.thread:cancel_timer(timer)
-elseif type(timer)=="table"and type(timer.cancel)=="function"then
-timer:cancel()
+local V={
+[1]="single",[2]="double",[3]="triple",[4]="quadruple",[5]="quintuple",}local H=E("candeoRfHubAction")
+local function z(a,bk)
+if type(a.get_field)~="function"then return nil end
+return a:get_field(bk)
+end
+local function i(a,bk,b)
+if type(a.set_field)=="function"then
+a:set_field(bk,b,{persist=false})
 end
 end
-local function emit_kinetic_action(device,endpoint,count)
-local press=kinetic_press_names[count]
-if press==nil then return false end
-local event=kinetic_action_emitter(device,string.format("button_%d_%s_pressed",endpoint,press))
-if event==nil then return false end
-event.state_change=true
-emit_main(device,event)return true
+local function aF(a,T)
+if T==nil then return end
+if type(a.thread)=="table"and type(a.thread.cancel_timer)=="function"then
+a.thread:cancel_timer(T)
+elseif type(T)=="table"and type(T.cancel)=="function"then
+T:cancel()
 end
-local function kinetic_sequence(context)
-local header=context and context.zb_rx and context.zb_rx.body and context.zb_rx.body.zcl_header or nil
-local seqno=header and header.seqno or nil
-local value=type(seqno)=="table"and seqno.value or seqno
-return type(value)=="number"and value or nil
 end
-local function handle_kinetic_press(device,_,context)
-local endpoint=tonumber(context and(context.src_endpoint or context.endpoint))
-if endpoint==nil or endpoint<1 or endpoint>10 or endpoint%1~=0 then return end
-local sequence=kinetic_sequence(context)if sequence~=nil then
-local sequence_field=string.format("__wave19_candeo_rf_sequences_%d",endpoint)local previous=field_get(device,sequence_field)
-if type(previous)~="table"then previous={}end
-for _,seen in ipairs(previous)do
-if seen==sequence then return end
+local function u(a,g,aC)
+local bc=V[aC]
+if bc==nil then return false end
+local w=H(a,string.format("button_%d_%s_pressed",g,bc))
+if w==nil then return false end
+w.state_change=true
+au(a,w)return true
 end
-local updated={sequence}for index=1,math.min(#previous,4)do
-updated[#updated+1]=previous[index]
+local function ai(c)
+local aW=c and c.zb_rx and c.zb_rx.body and c.zb_rx.body.zcl_header or nil
+local aS=aW and aW.seqno or nil
+local b=type(aS)=="table"and aS.value or aS
+return type(b)=="number"and b or nil
 end
-field_set(device,sequence_field,updated)
+local function Q(a,_,c)
+local g=tonumber(c and(c.src_endpoint or c.endpoint))
+if g==nil or g<1 or g>10 or g%1~=0 then return end
+local aj=ai(c)if aj~=nil then
+local N=string.format("__wave19_candeo_rf_sequences_%d",g)local F=z(a,N)
+if type(F)~="table"then F={}end
+for _,bo in ipairs(F)do
+if bo==aj then return end
 end
-local count_field=string.format("__wave19_candeo_rf_count_%d",endpoint)local timer_field=string.format("__wave19_candeo_rf_timer_%d",endpoint)local count=(tonumber(field_get(device,count_field))or 0)+1
-field_set(device,count_field,count)local previous_timer=field_get(device,timer_field)cancel_timer(device,previous_timer)
-if type(device.thread)~="table"or type(device.thread.call_with_delay)~="function"then
-field_set(device,count_field,0)field_set(device,timer_field,nil)emit_kinetic_action(device,endpoint,count)return
+local ar={aj}for aP=1,math.min(#F,4)do
+ar[#ar+1]=F[aP]
 end
-local timer=device.thread:call_with_delay(1,function()
-local final_count=tonumber(field_get(device,count_field))or 0
-field_set(device,count_field,0)field_set(device,timer_field,nil)emit_kinetic_action(device,endpoint,final_count)
-end,string.format("Candeo RF button %d multi-press",endpoint))
-field_set(device,timer_field,timer)
+i(a,N,ar)
 end
-local candeo_rf_hub={
+local q=string.format("__wave19_candeo_rf_count_%d",g)local x=string.format("__wave19_candeo_rf_timer_%d",g)local aC=(tonumber(z(a,q))or 0)+1
+i(a,q,aC)local aq=z(a,x)aF(a,aq)
+if type(a.thread)~="table"or type(a.thread.call_with_delay)~="function"then
+i(a,q,0)i(a,x,nil)u(a,g,aC)return
+end
+local T=a.thread:call_with_delay(1,function()
+local aL=tonumber(z(a,q))or 0
+i(a,q,0)i(a,x,nil)u(a,g,aL)
+end,string.format("Candeo RF button %d multi-press",g))
+i(a,x,T)
+end
+local aw={
 profile="bridges-wave19-candeo-rf-hub",package_group="wave19-bridge",transport_classification="CUSTOM_ZCL",z2m_converter_source="fzLocal.kinetic_rf_button_multi_press",wire_cluster="genOnOff attribute 0x0000 endpoints 1..10",placeholder_custom_states=false,zcl_clusters={
-zcl.cluster_attribute(CLUSTER_ON_OFF,ATTR_ON_OFF,{
-name="candeo_rf_hub_press",read_only=true,handler=handle_kinetic_press,}),},}register_device_definition(candeo_rf_hub,{
-device_helpers.create_fingerprint("Candeo","C-RFZB-HUB"),})
-local function body_bytes(zb_rx)
-local body=zb_rx and zb_rx.body and zb_rx.body.zcl_body or nil
-return type(body)=="table"and body.body_bytes or nil
+G.cluster_attribute(ao,aK,{
+name="candeo_rf_hub_press",read_only=true,handler=Q,}),},}d(aw,{
+j.create_fingerprint("Candeo","C-RFZB-HUB"),})
+local function O(t)
+local bh=t and t.body and t.body.zcl_body or nil
+return type(bh)=="table"and bh.body_bytes or nil
 end
-local function uint8(value)
-local number=tonumber(value)
-if number==nil or number%1~=0 or number<0 or number>0xFF then return nil end
-return number
+local function aU(b)
+local Z=tonumber(b)
+if Z==nil or Z%1~=0 or Z<0 or Z>255 then return nil end
+return Z
 end
-local function parse_pair(value)
-if type(value)~="string"then return nil end
-local first,second=string.match(value,"^%s*(%d+)%s*[:/,]%s*(%d+)%s*$")first,second=uint8(first),uint8(second)
-if first==nil or second==nil then return nil end
-return first,second
+local function aR(b)
+if type(b)~="string"then return nil end
+local P,second=string.match(b,"^%s*(%d+)%s*[:/,]%s*(%d+)%s*$")P,second=aU(P),aU(second)
+if P==nil or second==nil then return nil end
+return P,second
 end
-local function parse_single(value)
-if type(value)~="string"and type(value)~="number"then return nil end
-if type(value)=="string"then
-value=string.match(value,"^%s*(%d+)%s*$")
+local function aI(b)
+if type(b)~="string"and type(b)~="number"then return nil end
+if type(b)=="string"then
+b=string.match(b,"^%s*(%d+)%s*$")
 end
-return uint8(value)
+return aU(b)
 end
-local function send_heiman_command(device,command_id,payload,context)
-return zcl.send_raw_cluster_command(
-device,CLUSTER_HEIMAN_IR,command_id,payload,context and context.endpoint or 1,nil,nil,false)
+local function m(a,n,e,c)
+return G.send_raw_cluster_command(
+a,l,n,e,c and c.endpoint or 1,nil,nil,false)
 end
-local function pair_sender(command_id)
-return function(device,_,value,context)
-local first,second=parse_pair(value)
-if first==nil then return false end
-return send_heiman_command(device,command_id,string.char(first,second),context)
+local function I(n)
+return function(a,_,b,c)
+local P,second=aR(b)
+if P==nil then return false end
+return m(a,n,string.char(P,second),c)
 end
 end
-local function create_sender(device,_,value,context)
-local model_type=parse_single(value)
-if model_type==nil then return false end
-return send_heiman_command(device,0xF4,string.char(model_type),context)
+local function az(a,_,b,c)
+local o=aI(b)
+if o==nil then return false end
+return m(a,244,string.char(o),c)
 end
-local function list_sender(device,_,_,context)
-return send_heiman_command(device,0xF6,"",context)
+local function aM(a,_,_,c)
+return m(a,246,"",c)
 end
-local function command_mapping(name,sender)
-return zcl.cluster_attribute(CLUSTER_HEIMAN_IR,nil,{
-name=name,endpoint=1,write_only=true,sender=sender,})
+local function al(bn,bm)
+return G.cluster_attribute(l,nil,{
+name=bn,endpoint=1,write_only=true,sender=bm,})
 end
-local function parse_study_response(zb_rx)
-local payload=body_bytes(zb_rx)
-if type(payload)~="string"or #payload~=3 then return nil end
-local id,key_code,result=string.byte(payload,1,3)return{id=id,key_code=key_code,result=result}
+local function R(t)
+local e=O(t)
+if type(e)~="string"or #e~=3 then return nil end
+local id,ah,bl=string.byte(e,1,3)return{id=id,key_code=ah,result=bl}
 end
-local function parse_create_response(zb_rx)
-local payload=body_bytes(zb_rx)
-if type(payload)~="string"or #payload~=2 then return nil end
-local id,model_type=string.byte(payload,1,2)return{id=id,model_type=model_type}
+local function L(t)
+local e=O(t)
+if type(e)~="string"or #e~=2 then return nil end
+local id,o=string.byte(e,1,2)return{id=id,model_type=o}
 end
-local function compact_devices(records)
-local encoded={}for _,record in ipairs(records)do
-local keys={}
-for _,key_code in ipairs(record.key_codes)do keys[#keys+1]=tostring(key_code)end
-encoded[#encoded+1]=string.format("%d:%d:%s",record.id,record.model_type,table.concat(keys,","))
+local function am(M)
+local ap={}for _,aa in ipairs(M)do
+local bb={}
+for _,ah in ipairs(aa.key_codes)do bb[#bb+1]=tostring(ah)end
+ap[#ap+1]=string.format("%d:%d:%s",aa.id,aa.model_type,table.concat(bb,","))
 end
-local value=table.concat(encoded,";")
-if #value>2048 then return nil end
-return value
+local b=table.concat(ap,";")
+if #b>2048 then return nil end
+return b
 end
-local function parse_list_packet(zb_rx,device,prefix)
-local field="__wave19_"..prefix.."_ir_list"
-local function reject()
-field_set(device,field,nil)return nil
+local function ae(t,a,prefix)
+local aD="__wave19_"..prefix.."_ir_list"
+local function ab()
+i(a,aD,nil)return nil
 end
-local payload=body_bytes(zb_rx)
-if type(payload)~="string"or #payload<3 then return reject()end
-local total,packet,length=string.byte(payload,1,3)
-if total<1 or packet<1 or packet>total or length>70 or #payload~=length+3 then return reject()end
-local records={}local offset=4
-local final=#payload
-while offset<=final do
-if offset+2>final then return reject()end
-local id,model_type,key_count=string.byte(payload,offset,offset+2)
-if offset+2+key_count>final then return reject()end
-local key_codes={}for index=offset+3,offset+2+key_count do
-key_codes[#key_codes+1]=string.byte(payload,index)
+local e=O(t)
+if type(e)~="string"or #e<3 then return ab()end
+local an,K,aX=string.byte(e,1,3)
+if an<1 or K<1 or K>an or aX>70 or #e~=aX+3 then return ab()end
+local M={}local s=4
+local aO=#e
+while s<=aO do
+if s+2>aO then return ab()end
+local id,o,Y=string.byte(e,s,s+2)
+if s+2+Y>aO then return ab()end
+local X={}for aP=s+3,s+2+Y do
+X[#X+1]=string.byte(e,aP)
 end
-records[#records+1]={id=id,model_type=model_type,key_codes=key_codes}offset=offset+3+key_count
+M[#M+1]={id=id,model_type=o,key_codes=X}s=s+3+Y
 end
-local state=field_get(device,field)if packet==1 then
-state={total=total,next_packet=1,records={}}
+local C=z(a,aD)if K==1 then
+C={total=an,next_packet=1,records={}}
 end
-if type(state)~="table"or state.total~=total or state.next_packet~=packet then
-return reject()
+if type(C)~="table"or C.total~=an or C.next_packet~=K then
+return ab()
 end
-for _,record in ipairs(records)do state.records[#state.records+1]=record end
-state.next_packet=packet+1
-if packet<total then
-field_set(device,field,state)return nil
+for _,aa in ipairs(M)do C.records[#C.records+1]=aa end
+C.next_packet=K+1
+if K<an then
+i(a,aD,C)return nil
 end
-field_set(device,field,nil)return compact_devices(state.records)
+i(a,aD,nil)return am(C.records)
 end
-local function emit_value(device,emitter,value,state_change)
-if value==nil then return end
-local event=emitter(device,value)
-if event~=nil and state_change then event.state_change=true end
-emit_main(device,event)
+local function h(a,be,b,aJ)
+if b==nil then return end
+local w=be(a,b)
+if w~=nil and aJ then w.state_change=true end
+au(a,w)
 end
-local function response_mapping(attribute_id,command_id,extractor,handler)
-return zcl.cluster_attribute(CLUSTER_HEIMAN_IR,attribute_id,{
-name=string.format("heiman_ir_response_%02x",command_id),endpoint=1,read_only=true,command_id=command_id,command_extractor=extractor,handler=handler,mfg_code=HEIMAN_MFG_CODE,})
+local function r(aE,n,aV,bf)
+return G.cluster_attribute(l,aE,{
+name=string.format("heiman_ir_response_%02x",n),endpoint=1,read_only=true,command_id=n,command_extractor=aV,handler=bf,mfg_code=ak,})
 end
-local function configure_heiman_ir(driver,device)
-device:send(device_management.build_bind_request(
-device,CLUSTER_HEIMAN_IR,driver.environment_info.hub_zigbee_eui,1))
+local function U(W,a)
+a:send(A.build_bind_request(
+a,l,W.environment_info.hub_zigbee_eui,1))
 end
-local function build_heiman_definition(options)
-local capability_prefix=options.capability_prefix
-local mapping_prefix=options.mapping_prefix
-local action_emit=custom(capability_prefix.."Action")local result_emit=custom(capability_prefix.."ActionResult")local id_emit=custom(capability_prefix.."ActionId")local key_emit=custom(capability_prefix.."ActionKeyCode")local model_emit=custom(capability_prefix.."ActionModelType")local devices_emit=custom(capability_prefix.."Devices")local mappings={}if options.has_battery then
-mappings[#mappings+1]=zcl.battery({
+local function p(ad)
+local capability_prefix=ad.capability_prefix
+local v=ad.mapping_prefix
+local af=E(capability_prefix.."Action")local ag=E(capability_prefix.."ActionResult")local aN=E(capability_prefix.."ActionId")local ba=E(capability_prefix.."ActionKeyCode")local aQ=E(capability_prefix.."ActionModelType")local aH=E(capability_prefix.."Devices")local k={}if ad.has_battery then
+k[#k+1]=G.battery({
 endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true,})
 end
-local command_specs={
-{"send_key",pair_sender(0xF0)},{"create_id",create_sender},{"learn_key",pair_sender(0xF1)},{"delete_key",pair_sender(0xF3)},{"request_list",list_sender},}for _,spec in ipairs(command_specs)do
-mappings[#mappings+1]=command_mapping(mapping_prefix.."_"..spec[1],spec[2])
+local ay={
+{"send_key",I(240)},{"create_id",az},{"learn_key",I(241)},{"delete_key",I(243)},{"request_list",aM},}for _,spec in ipairs(ay)do
+k[#k+1]=al(v.."_"..spec[1],spec[2])
 end
-mappings[#mappings+1]=response_mapping(0xF201,0xF2,parse_study_response,function(device,value)
-emit_value(device,action_emit,"learn",true)emit_value(device,result_emit,value.result==1 and"success"or"error",true)emit_value(device,key_emit,value.key_code)
-if value.result==1 then emit_value(device,id_emit,value.id)end
+k[#k+1]=r(61953,242,R,function(a,b)
+h(a,af,"learn",true)h(a,ag,b.result==1 and"success"or"error",true)h(a,ba,b.key_code)
+if b.result==1 then h(a,aN,b.id)end
 end)
-mappings[#mappings+1]=response_mapping(0xF501,0xF5,parse_create_response,function(device,value)
-emit_value(device,action_emit,"create",true)emit_value(device,result_emit,value.id==0xFF and"error"or"success",true)emit_value(device,model_emit,value.model_type)
-if value.id~=0xFF then emit_value(device,id_emit,value.id)end
+k[#k+1]=r(62721,245,L,function(a,b)
+h(a,af,"create",true)h(a,ag,b.id==255 and"error"or"success",true)h(a,aQ,b.model_type)
+if b.id~=255 then h(a,aN,b.id)end
 end)
-mappings[#mappings+1]=response_mapping(0xF701,0xF7,function(zb_rx,device)
-return parse_list_packet(zb_rx,device,mapping_prefix)
-end,function(device,value)
-emit_value(device,devices_emit,value)
+k[#k+1]=r(63233,247,function(t,a)
+return ae(t,a,v)
+end,function(a,b)
+h(a,aH,b)
 end)
-local function command(capability_suffix,command_name,argument_name,mapping_suffix,value)
+local function J(capability_suffix,aG,av,mapping_suffix,b)
 return{
-capability_id=NAMESPACE ..capability_prefix..capability_suffix,command_name=command_name,argument_name=argument_name,mapping_name=mapping_prefix.."_"..mapping_suffix,value=value,}
+capability_id=at ..capability_prefix..capability_suffix,command_name=aG,argument_name=av,mapping_name=v.."_"..mapping_suffix,value=b,}
 end
 return{
-profile=options.profile,package_group="wave19-bridge",transport_classification="CUSTOM_ZCL",z2m_converter_source="fzLocal/tzLocal.heiman_ir_remote",wire_cluster="0xFC82 commands F0/F1/F3/F4/F6 responses F2/F5/F7 endpoint 1",placeholder_custom_states=false,zcl_clusters=mappings,configure=configure_heiman_ir,capability_commands={
-command("SendKey","sendKey","key","send_key"),command("CreateId","createId","modelType","create_id"),command("LearnKey","learnKey","key","learn_key"),command("DeleteKey","deleteKey","key","delete_key"),command("RequestList","requestList",nil,"request_list",true),},}
+profile=ad.profile,package_group="wave19-bridge",transport_classification="CUSTOM_ZCL",z2m_converter_source="fzLocal/tzLocal.heiman_ir_remote",wire_cluster="0xFC82 commands F0/F1/F3/F4/F6 responses F2/F5/F7 endpoint 1",placeholder_custom_states=false,zcl_clusters=k,configure=U,capability_commands={
+J("SendKey","sendKey","key","send_key"),J("CreateId","createId","modelType","create_id"),J("LearnKey","learnKey","key","learn_key"),J("DeleteKey","deleteKey","key","delete_key"),J("RequestList","requestList",nil,"request_list",true),},}
 end
-local heiman_hs_one=build_heiman_definition({
-profile="bridges-wave19-heiman-hs-one-ir",capability_prefix="heimanHsOneIr",mapping_prefix="heiman_hs_one_ir",has_battery=true,})local heiman_hs_two=build_heiman_definition({
-profile="bridges-wave19-heiman-hs-two-ir",capability_prefix="heimanHsTwoIr",mapping_prefix="heiman_hs_two_ir",has_battery=false,})register_device_definition(heiman_hs_one,{
-device_helpers.create_fingerprint("HEIMAN","IRControl-EM"),})register_device_definition(heiman_hs_two,{
-device_helpers.create_fingerprint("HEIMAN","IRControl2-EF-3.0"),})local ti_router_power_emit=emit.tiRouterTransmitPower()local ti_router={
+local aA=p({
+profile="bridges-wave19-heiman-hs-one-ir",capability_prefix="heimanHsOneIr",mapping_prefix="heiman_hs_one_ir",has_battery=true,})local aB=p({
+profile="bridges-wave19-heiman-hs-two-ir",capability_prefix="heimanHsTwoIr",mapping_prefix="heiman_hs_two_ir",has_battery=false,})d(aA,{
+j.create_fingerprint("HEIMAN","IRControl-EM"),})d(aB,{
+j.create_fingerprint("HEIMAN","IRControl2-EF-3.0"),})local S=bi.tiRouterTransmitPower()local aY={
 profile="bridges-ti-router",zcl_clusters={
-zcl.cluster_attribute(0x0000,0x1337,{
-name="ti_router_transmit_power",endpoint=8,data_type=data_types.Int8,write_type=data_types.Int8,prefer_plain_attribute_write=true,
-emit=function(device,value,context)
-return{ti_router_power_emit(device,value),capabilities.signalStrength.lqi({value=context.zb_rx.lqi.value})}
+G.cluster_attribute(0,4919,{
+name="ti_router_transmit_power",endpoint=8,data_type=B.Int8,write_type=B.Int8,prefer_plain_attribute_write=true,
+emit=function(a,b,c)
+return{S(a,b),D.signalStrength.lqi({value=c.zb_rx.lqi.value})}
 end,
-}),zcl.cluster_attribute(0x0000,0x0000,{
-name="ti_router_heartbeat",endpoint=8,read_only=true,data_type=data_types.Uint8,minimum_interval=0,maximum_interval=3600,reportable_change=0,
-emit=function(_,_,context)return capabilities.signalStrength.lqi({value=context.zb_rx.lqi.value})end,
+}),G.cluster_attribute(0,0,{
+name="ti_router_heartbeat",endpoint=8,read_only=true,data_type=B.Uint8,minimum_interval=0,maximum_interval=3600,reportable_change=0,
+emit=function(_,_,c)return D.signalStrength.lqi({value=c.zb_rx.lqi.value})end,
 }),},
-configure=function(driver,device)
-device:send(device_management.build_bind_request(device,0x0000,driver.environment_info.hub_zigbee_eui,8))
+configure=function(W,a)
+a:send(A.build_bind_request(a,0,W.environment_info.hub_zigbee_eui,8))
 end,
-parent_refresh=function(device)
-return zcl.read_mapping(device,zcl.cluster_attribute(0x0000,0x1337,{endpoint=8}))
+parent_refresh=function(a)
+return G.read_mapping(a,G.cluster_attribute(0,4919,{endpoint=8}))
 end,
-}register_device_definition(ti_router,{device_helpers.create_fingerprint("TexasInstruments","ti.router")})local slzb07mg26={
+}d(aY,{j.create_fingerprint("TexasInstruments","ti.router")})local aT={
 profile="bridges-slzb07mg26",magic_packet=false,placeholder_custom_states=false,zcl_clusters={
-zcl.cluster_attribute(0,0,{
-name="slzb07_link_quality",endpoint=1,read_only=true,data_type=data_types.Uint8,minimum_interval=3600,maximum_interval=14400,reportable_change=0,read_on_configure=true,
-emit=function(_,_,context)
-return capabilities.signalStrength.lqi({value=context.zb_rx.lqi.value})
+G.cluster_attribute(0,0,{
+name="slzb07_link_quality",endpoint=1,read_only=true,data_type=B.Uint8,minimum_interval=3600,maximum_interval=14400,reportable_change=0,read_on_configure=true,
+emit=function(_,_,c)
+return D.signalStrength.lqi({value=c.zb_rx.lqi.value})
 end,
-}),zcl.cluster_attribute(0,nil,{
+}),G.cluster_attribute(0,nil,{
 name="slzb07_reset",endpoint=1,write_only=true,
-sender=function(device)return zcl.send_raw_cluster_command(device,0,0,"",1,nil,nil,true)end,
+sender=function(a)return G.send_raw_cluster_command(a,0,0,"",1,nil,nil,true)end,
 }),},capability_commands={
-{capability_id=NAMESPACE.."slzb07Reset",command_name="reset",value=true,mapping_name="slzb07_reset"},},
-configure=function(driver,device)
-zcl.bind_cluster(device,0,driver.environment_info.hub_zigbee_eui,1)
+{capability_id=at.."slzb07Reset",command_name="reset",value=true,mapping_name="slzb07_reset"},},
+configure=function(W,a)
+G.bind_cluster(a,0,W.environment_info.hub_zigbee_eui,1)
 end,
-}register_device_definition(slzb07mg26,{device_helpers.create_fingerprint("SMLIGHT","SLZB-07MG26")})return{
-id="zcl.bridges.wave19",registrations=device_definitions,}
+}d(aT,{j.create_fingerprint("SMLIGHT","SLZB-07MG26")})G.attach_reporting_capabilities(y,{
+{2,"rpt-itx"},{4,"rpt-tcea"},{5,"rpt-snc"},})return{
+id="zcl.bridges.wave19",registrations=y,}

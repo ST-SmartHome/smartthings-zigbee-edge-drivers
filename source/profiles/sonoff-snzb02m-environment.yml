@@ -13,5 +13,6 @@ components:
       - {id: concertmirror08464.sonoffSnzb02mVpd, version: 1}
       - {id: firmwareUpdate, version: 1}
       - {id: refresh, version: 1}
+      - {id: signalStrength, version: 1}
     categories:
       - name: EnvironmentSensor

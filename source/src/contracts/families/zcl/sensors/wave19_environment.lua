@@ -14,7 +14,7 @@ local device_management = require "st.zigbee.device_management"
 local cluster_base = require "st.zigbee.cluster_base"
 local buf = require "st.buf"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 local CLUSTER_POWER_CONFIGURATION = 0x0001
 local CLUSTER_TIME = 0x000A
@@ -156,7 +156,7 @@ local heiman = {
   configure = configure_heiman,
 }
 
-register_device_definition(heiman, {
+register(heiman, {
   fp("HEIMAN", "HS2AQ-EF-3.0"),
 })
 
@@ -207,7 +207,7 @@ local plaid = {
   configure = configure_plaid,
 }
 
-register_device_definition(plaid, {
+register(plaid, {
   fp("PLAID SYSTEMS", "PS-SPRZMS-SLP3"),
 })
 
@@ -249,7 +249,7 @@ local zigbeetlc_th05_core = {
   profile = "sensors-zigbeetlc-th05-core",
   zcl_clusters = zigbeetlc_th_clusters(10, 100),
 }
-register_device_definition(zigbeetlc_th05_core, {
+register(zigbeetlc_th05_core, {
   fp("Tuya", "TH05-z"),
   fp("Xiaomi", "LYWSD03MMC-z"),
   fp("Xiaomi", "MJWSD06MMC-z"),
@@ -271,7 +271,7 @@ local zigbeetlc_display_core = {
   profile = "sensors-zigbeetlc-display-core",
   zcl_clusters = zigbeetlc_th_clusters(10, 100),
 }
-register_device_definition(zigbeetlc_display_core, {
+register(zigbeetlc_display_core, {
   fp("Qingping", "CGDK2-z"),
   fp("Qingping", "CGDK2-bz"),
   fp("Tuya", "LKTMZL02-z"),
@@ -281,7 +281,7 @@ local zigbeetlc_basic_core = {
   profile = "sensors-zigbeetlc-basic-core",
   zcl_clusters = zigbeetlc_th_clusters(10, 100),
 }
-register_device_definition(zigbeetlc_basic_core, {
+register(zigbeetlc_basic_core, {
   fp("Tuya", "TS0201-z"),
   fp("Wing", "TS0201-z"),
   fp("Tuya", "TH03Z-z"),
@@ -298,7 +298,7 @@ local zigbeetlc_zg227_core = {
   profile = "sensors-zigbeetlc-zg227-core",
   zcl_clusters = zigbeetlc_th_clusters(100, 100),
 }
-register_device_definition(zigbeetlc_zg227_core, {
+register(zigbeetlc_zg227_core, {
   fp("Tuya", "ZG-227Z-z"),
 })
 
@@ -306,7 +306,7 @@ local zigbeetlc_zbeacon_core = {
   profile = "sensors-zigbeetlc-zbeacon-core",
   zcl_clusters = zigbeetlc_th_clusters(10, 50),
 }
-register_device_definition(zigbeetlc_zbeacon_core, {
+register(zigbeetlc_zbeacon_core, {
   fp("ZBeacon", "MC-z"),
   fp("ZBeacon", "TH01-z"),
   fp("ZBeacon", "TH01-2-z"),
@@ -325,7 +325,7 @@ local zigbeetlc_ts202pir1_core = {
       scale=10, read_only=true, read_on_configure=true, from_device=core_battery_value}),
   },
 }
-register_device_definition(zigbeetlc_ts202pir1_core, {
+register(zigbeetlc_ts202pir1_core, {
   fp("Tuya", "TS202PIR1-z"),
 })
 
@@ -389,7 +389,7 @@ local bosch_radion_core = {
   parent_refresh=radion_refresh,
   zcl_clusters=radion_clusters(),
 }
-register_device_definition(bosch_radion_core, {
+register(bosch_radion_core, {
   fp("BOSCH", "RFDL-ZB-MS"),
   fp("BOSCH", "RFDL-ZB"),
   fp("BOSCH", "RFDL-ZB-EU"),
@@ -425,7 +425,7 @@ local develco_hmszb_core = {
     }),
   },
 }
-register_device_definition(develco_hmszb_core, {
+register(develco_hmszb_core, {
   fp("Develco Products A/S", "HMSZB-110"),
   fp("Develco Products A/S", "HMSZB-120"),
   fp("frient A/S", "HMSZB-110"),
@@ -449,7 +449,7 @@ local develco_moszb130_core = {
   profile = "safety-motion-moszb130-core",
   zcl_clusters = {moszb_motion_mapping()},
 }
-register_device_definition(develco_moszb130_core, {
+register(develco_moszb130_core, {
   fp("Develco Products A/S", "MOSZB-130"),
 })
 
@@ -457,7 +457,7 @@ local develco_moszb141_core = {
   profile = "safety-motion-moszb141-core",
   zcl_clusters = {moszb_motion_mapping()},
 }
-register_device_definition(develco_moszb141_core, {
+register(develco_moszb141_core, {
   fp("Develco Products A/S", "MOSZB-141"),
   fp("frient A/S", "MOSZB-141"),
 })
@@ -481,7 +481,7 @@ local develco_moszb140_core = {
     }),
   },
 }
-register_device_definition(develco_moszb140_core, {
+register(develco_moszb140_core, {
   fp("Develco Products A/S", "MOSZB-140"),
   fp("frient A/S", "MOSZB-140"),
   fp("Develco Products A/S", "GWA1511_MotionSensor"),
@@ -504,7 +504,7 @@ local frient_moszb153_core = {
     }),
   },
 }
-register_device_definition(frient_moszb153_core, {
+register(frient_moszb153_core, {
   fp("frient A/S", "MOSZB-153"),
   fp("Develco Products A/S", "MOSZB-153"),
 })
@@ -540,7 +540,7 @@ local centralite_motion_a_core = {
     }),
   },
 }
-register_device_definition(centralite_motion_a_core, {
+register(centralite_motion_a_core, {
   fp("CentraLite", "Motion Sensor-A"),
 })
 
@@ -577,7 +577,7 @@ local owon_ths317_et = {
       reportable_change=0, from_device=owon_voltage_from_device}),
   },
 }
-register_device_definition(owon_ths317_et, {
+register(owon_ths317_et, {
   fp("OWON", "THS317-ET"),
 })
 
@@ -601,7 +601,7 @@ local devbis_lywsd03mmc_core = {
     core_battery({endpoint=1, minimum_interval=3600, maximum_interval=65000, reportable_change=10}),
   },
 }
-register_device_definition(devbis_lywsd03mmc_core, {
+register(devbis_lywsd03mmc_core, {
   fp("Xiaomi", "LYWSD03MMC"),
 })
 
@@ -617,7 +617,7 @@ local zigbeetlc_zg204zl_core = {
     core_battery({endpoint=1, minimum_interval=3600, maximum_interval=65000, reportable_change=10}),
   },
 }
-register_device_definition(zigbeetlc_zg204zl_core, {
+register(zigbeetlc_zg204zl_core, {
   fp("Sonoff", "ZG-204ZL-z"),
 })
 
@@ -629,7 +629,7 @@ local nodon_stph_core = {
     core_battery({endpoint=1, minimum_interval=3600, maximum_interval=65000, reportable_change=10}),
   },
 }
-register_device_definition(nodon_stph_core, {
+register(nodon_stph_core, {
   fp("NodOn", "STPH-4-1-00"),
 })
 
@@ -667,7 +667,7 @@ local namron_4512765_core = {
     without_reporting(core_battery({endpoint=1})),
   },
 }
-register_device_definition(namron_4512765_core, {
+register(namron_4512765_core, {
   fp("Namron AS", "4512765"),
 })
 
@@ -681,7 +681,7 @@ local namron_4512763_core = {
     without_reporting(core_voltage({endpoint=1})),
   },
 }
-register_device_definition(namron_4512763_core, {
+register(namron_4512763_core, {
   fp("Namron AS", "4512763"),
 })
 
@@ -702,7 +702,7 @@ local openlumi_router_temperature_core = {
     }),
   },
 }
-register_device_definition(openlumi_router_temperature_core, {
+register(openlumi_router_temperature_core, {
   fp("OpenLumi", "openlumi.gw_router.dgnwg05lm"),
   fp("OpenLumi", "openlumi.gw_router.zhwg11lm"),
 })
@@ -714,7 +714,7 @@ local salus_ss909zb_core = {
     battery_2500_3000_mapping("ss909zb_battery",9,true),
   },
 }
-register_device_definition(salus_ss909zb_core, {
+register(salus_ss909zb_core, {
   fp("Computime", "SS909ZB"),
   fp("Computime", "PS600"),
 })
@@ -737,7 +737,7 @@ local centralite_3310_core = {
       read_only=true,read_on_configure=false,emit=core_battery_alarm}),
   },
 }
-register_device_definition(centralite_3310_core, {
+register(centralite_3310_core, {
   fp("CentraLite", "3310-G"),
   fp("CentraLite", "3310-S"),
   fp("SmartThings", "3310-S"),
@@ -753,7 +753,7 @@ local feibit_sth01_core = {
     feibit_battery,
   },
 }
-register_device_definition(feibit_sth01_core, {
+register(feibit_sth01_core, {
   fp("fei","FNB54-THM17ML1.1"),
   fp("Feibit Inc co.","FNB54-THM17ML1.1"),
   fp("Feibit Inc co.","FB56-THM12HM1.2"),
@@ -768,7 +768,7 @@ local centralite_3328_core = {
     standard_temp(),
   },
 }
-register_device_definition(centralite_3328_core, {
+register(centralite_3328_core, {
   fp("CentraLite", "3328-G"),
 })
 
@@ -810,7 +810,7 @@ local iris_3326_core = {
   parent_refresh=function() end,
   zcl_clusters=iris_motion_clusters("iris_battery","iris_alarm"),
 }
-register_device_definition(iris_3326_core, {
+register(iris_3326_core, {
   fp("CentraLite", "3326-L"),
   fp("iMagic by GreatStar", "3326-L"),
 })
@@ -832,7 +832,7 @@ local sihas_tsm300_core = {
     }),
   },
 }
-register_device_definition(sihas_tsm300_core, {
+register(sihas_tsm300_core, {
   fp("ShinaSystem","TSM-300Z"),
 })
 
@@ -844,7 +844,7 @@ local konke_th_core = {
     battery_2500_3000_mapping(),
   },
 }
-register_device_definition(konke_th_core, {
+register(konke_th_core, {
   fp("Konke", "3AFE140103020000"),
   fp("Konke", "3AFE220103020000"),
 })
@@ -862,7 +862,7 @@ local ikea_vallhorn_core = {
     core_voltage({endpoint=1, minimum_interval=3600, maximum_interval=65000, reportable_change=10}),
   },
 }
-register_device_definition(ikea_vallhorn_core, {
+register(ikea_vallhorn_core, {
   fp("IKEA of Sweden", "VALLHORN Wireless Motion Sensor"),
 })
 
@@ -905,7 +905,7 @@ local tuya_sm0202_core = {
     passive_voltage(1),
   },
 }
-register_device_definition(tuya_sm0202_core, {
+register(tuya_sm0202_core, {
   fp("_TYZB01_u6uejz21","SM0202"),
 })
 
@@ -921,7 +921,7 @@ local bitron_av2010_22_core = {
     notification_low_core(),
   },
 }
-register_device_definition(bitron_av2010_22_core, {
+register(bitron_av2010_22_core, {
   fp("SMaBiT","902010/22"),
   fp("SMaBiT","AV2010/22"),
   fp("Bitron Home","902010/22"),
@@ -944,7 +944,7 @@ local bitron_av2010_14_core = {
     notification_low_core(),
   },
 }
-register_device_definition(bitron_av2010_14_core, {
+register(bitron_av2010_14_core, {
   fp("SMaBiT","902010/14"),
   fp("SMaBiT","AV2010/14"),
   fp("Bitron Home","902010/14"),
@@ -982,7 +982,7 @@ local smartthings_motionv4_core = {
     }),
   },
 }
-register_device_definition(smartthings_motionv4_core, {
+register(smartthings_motionv4_core, {
   fp("SmartThings","motionv4"),
 })
 
@@ -1014,7 +1014,7 @@ local sercomm_pir02_core = {
     }),
   },
 }
-register_device_definition(sercomm_pir02_core, {
+register(sercomm_pir02_core, {
   fp("Sercomm Corp.","SZ-PIR02"),
   fp("Sercomm Corp.","SZ-PIR02_SF"),
 })
@@ -1037,7 +1037,7 @@ local sercomm_pir04_core = {
     }),
   },
 }
-register_device_definition(sercomm_pir04_core, {
+register(sercomm_pir04_core, {
   fp("Sercomm Corp.","SZ-PIR04N"),
   fp("Sercomm Corp.","SZ-PIR04N_EU"),
 })
@@ -1052,7 +1052,7 @@ local bosch_isw_core = {
     battery_2500_3000_mapping("isw_battery",5,true),
   },
 }
-register_device_definition(bosch_isw_core, {
+register(bosch_isw_core, {
   fp("Bosch", "ISW-ZPR1-WP13"),
   fp("BOSCH", "ISW-ZPR1-WP13"),
 })
@@ -1065,7 +1065,7 @@ local hive_mot003_core = {
     core_battery({endpoint=6, minimum_interval=3600, maximum_interval=65000, reportable_change=0}),
   },
 }
-register_device_definition(hive_mot003_core, {
+register(hive_mot003_core, {
   fp("HiveHome.com", "MOT003"),
 })
 
@@ -1076,7 +1076,7 @@ local konke_motion_core = {
     without_reporting(battery_2500_3000_mapping()),
   },
 }
-register_device_definition(konke_motion_core, {
+register(konke_motion_core, {
   fp("Konke", "3AFE14010402000D"),
   fp("Konke", "3AFE27010402000D"),
   fp("Konke", "3AFE28010402000D"),
@@ -1097,7 +1097,7 @@ local centralite_3305_core = {
       read_only=true,read_on_configure=false,emit=core_battery_alarm}),
   },
 }
-register_device_definition(centralite_3305_core, {
+register(centralite_3305_core, {
   fp("CentraLite","3305-S"),
   fp("CentraLite","3305"),
   fp("SmartThings","3305-S"),
@@ -1109,7 +1109,7 @@ local centralite_3325_core = {
   parent_refresh=function() end,
   zcl_clusters=iris_motion_clusters("centralite_3325_battery","centralite_3325_alarm"),
 }
-register_device_definition(centralite_3325_core, {
+register(centralite_3325_core, {
   fp("CentraLite","3325-S"),
   fp("SmartThings","3325-S"),
 })
@@ -1122,7 +1122,7 @@ local smartthings_motionv5_core = {
     battery_2500_3000_mapping(),
   },
 }
-register_device_definition(smartthings_motionv5_core, {
+register(smartthings_motionv5_core, {
   fp("SmartThings","motionv5"),
 })
 
@@ -1142,7 +1142,7 @@ local keen_home_th_core = {
       read_only=true,read_on_configure=false,emit=core_battery_alarm}),
   },
 }
-register_device_definition(keen_home_th_core, {
+register(keen_home_th_core, {
   fp("LUMI","RS-THP-MP-1.0"),
   fp("Keen Home Inc","RS-THP-MP-1.0"),
 })
@@ -1154,7 +1154,7 @@ local linkind_motion_core = {
     core_battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=0}),
   },
 }
-register_device_definition(linkind_motion_core, {
+register(linkind_motion_core, {
   fp("lk","ZB-MotionSensor-D0003"),
 })
 
@@ -1167,7 +1167,7 @@ local trust_zpir_core = {
     core_battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true}),
   },
 }
-register_device_definition(trust_zpir_core, {
+register(trust_zpir_core, {
   fp("ADUROLIGHT","VMS_ADUROLIGHT"),
   fp("Trust International B.V.","VMS_ADUROLIGHT"),
   fp("AduroSmart Eria","VMS_ADUROLIGHT"),
@@ -1181,7 +1181,7 @@ local livingwise_motion_core = {
     passive_voltage(1),
   },
 }
-register_device_definition(livingwise_motion_core, {
+register(livingwise_motion_core, {
   fp("ORVIBO","895a2d80097f4ae2b2d40500d5e03dcc"),
   fp("中性","700ae5aab3414ec09c1872efe7b8755a"),
 })
@@ -1203,7 +1203,7 @@ local hue_sml001_core = {
   profile="safety-motion-hue-sml001-core",
   zcl_clusters=hue_motion_core_clusters(),
 }
-register_device_definition(hue_sml001_core, {
+register(hue_sml001_core, {
   fp("Philips","SML001"),
 })
 
@@ -1211,7 +1211,7 @@ local hue_sml002_core = {
   profile="safety-motion-hue-sml002-core",
   zcl_clusters=hue_motion_core_clusters(),
 }
-register_device_definition(hue_sml002_core, {
+register(hue_sml002_core, {
   fp("Philips","SML002"),
 })
 
@@ -1233,7 +1233,7 @@ local hue_sml003_core = {
   parent_refresh=hue_current_refresh,
   zcl_clusters=hue_current_clusters(),
 }
-register_device_definition(hue_sml003_core, {
+register(hue_sml003_core, {
   fp("Signify Netherlands B.V.","SML003"),
   fp("Philips","SML003"),
 })
@@ -1243,7 +1243,7 @@ local hue_sml004_core = {
   parent_refresh=hue_current_refresh,
   zcl_clusters=hue_current_clusters(),
 }
-register_device_definition(hue_sml004_core, {
+register(hue_sml004_core, {
   fp("Signify Netherlands B.V.","SML004"),
   fp("Philips","SML004"),
 })
@@ -1252,7 +1252,7 @@ local adeo_ldsenk10_core = {
   profile="safety-motion-adeo-ldsenk10-core",
   zcl_clusters={ias_notification_motion(1,false)},
 }
-register_device_definition(adeo_ldsenk10_core, {
+register(adeo_ldsenk10_core, {
   fp("ADEO","LDSENK10"),
 })
 
@@ -1300,7 +1300,7 @@ local sonoff_snzb06p24_core = {
     end
   end,
 }
-register_device_definition(sonoff_snzb06p24_core, {
+register(sonoff_snzb06p24_core, {
   fp("SONOFF","SNZB-06P24"),
 })
 
@@ -1308,7 +1308,7 @@ local third_reality_r3_core = {
   profile="safety-presence-third-reality-r3-core",
   zcl_clusters=standard_presence_core_clusters(),
 }
-register_device_definition(third_reality_r3_core, {
+register(third_reality_r3_core, {
   fp("Third Reality, Inc","3RPL01084Z"),
 })
 
@@ -1326,7 +1326,7 @@ local orvibo_st20_core = {
   profile="sensors-orvibo-st20-core",
   zcl_clusters=orvibo_th_core_clusters(),
 }
-register_device_definition(orvibo_st20_core, {
+register(orvibo_st20_core, {
   fp("Heiman","b467083cfc864f5e826459e5d8ea6079"),
   fp("ORVIBO","b467083cfc864f5e826459e5d8ea6079"),
 })
@@ -1335,7 +1335,7 @@ local orvibo_st21_core = {
   profile="sensors-orvibo-st21-core",
   zcl_clusters=orvibo_th_core_clusters(),
 }
-register_device_definition(orvibo_st21_core, {
+register(orvibo_st21_core, {
   fp("HEIMAN","888a434f3cfc47f29ec4a3a03e9fc442"),
   fp("ORVIBO","888a434f3cfc47f29ec4a3a03e9fc442"),
 })
@@ -1355,7 +1355,7 @@ local imagic_1117_core = {
     core_battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10}),
   },
 }
-register_device_definition(imagic_1117_core, {
+register(imagic_1117_core, {
   fp("iMagic by GreatStar","1117-S"),
 })
 
@@ -1366,7 +1366,7 @@ local aurora_motion51_core = {
     zcl.illuminance({minimum_interval=10,maximum_interval=3600,reportable_change=5}),
   },
 }
-register_device_definition(aurora_motion51_core, {
+register(aurora_motion51_core, {
   fp("Aurora","MotionSensor51AU"),
 })
 
@@ -1381,7 +1381,7 @@ local sengled_e1m_core = {
     core_battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10}),
   },
 }
-register_device_definition(sengled_e1m_core, {
+register(sengled_e1m_core, {
   fp("sengled","E1M-G7H"),
 })
 
@@ -1399,7 +1399,7 @@ local samjin_motion_core = {
       read_only=true,read_on_configure=false,emit=core_battery_alarm}),
   },
 }
-register_device_definition(samjin_motion_core, {
+register(samjin_motion_core, {
   fp("Samjin","motion"),
   fp("SmartThings","motion"),
 })
@@ -1412,7 +1412,7 @@ local thirdreality_3rms_core = {
     passive_voltage(1),
   },
 }
-register_device_definition(thirdreality_3rms_core, {
+register(thirdreality_3rms_core, {
   fp("THIRDREALITY","3RMS16BZ"),
 })
 
@@ -1429,7 +1429,7 @@ local efekta_th_v1_lr_core = {
   profile="sensors-efekta-th-v1-lr-core",magic_packet=false,
   zcl_clusters=efekta_th_lr_core_clusters(),
 }
-register_device_definition(efekta_th_v1_lr_core, {
+register(efekta_th_v1_lr_core, {
   fp("EfektaLab","EFEKTA_TH_v1_LR"),
 })
 
@@ -1437,7 +1437,7 @@ local efekta_th_v2_lr_core = {
   profile="sensors-efekta-th-v2-lr-core",magic_packet=false,
   zcl_clusters=efekta_th_lr_core_clusters(),
 }
-register_device_definition(efekta_th_v2_lr_core, {
+register(efekta_th_v2_lr_core, {
   fp("EfektaLab","EFEKTA_TH_v2_LR"),
   fp("EfektaLab_for_Zigbee-Shop.ru","EFEKTA_TH_v2_LR"),
 })
@@ -1458,7 +1458,7 @@ local efekta_th_pow_r_core = {
       read_only=true,read_on_configure=false,emit=core_battery_alarm}),
   },
 }
-register_device_definition(efekta_th_pow_r_core, {
+register(efekta_th_pow_r_core, {
   fp("EfektaLab_for_Zigbee-Shop.ru","EFEKTA_TH_POW_R"),
   fp("EfektaLab","EFEKTA_TH_POW_R"),
   fp("EfektaLab","EFEKTA_TH_POW_E"),
@@ -1473,7 +1473,7 @@ local efekta_t1_v2_lr_core = {
     core_voltage({minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true}),
   },
 }
-register_device_definition(efekta_t1_v2_lr_core, {
+register(efekta_t1_v2_lr_core, {
   fp("EfektaLab","EFEKTA_T1_v2_LR"),
   fp("EfektaLab_for_Zigbee-Shop.ru","EFEKTA_T1_v2_LR"),
 })
@@ -1492,7 +1492,7 @@ local efekta_t1_max_e_core = {
       read_only=true,read_on_configure=false,emit=core_battery_alarm}),
   },
 }
-register_device_definition(efekta_t1_max_e_core, {
+register(efekta_t1_max_e_core, {
   fp("EfektaLab","EFEKTA_T1_MAX_E"),
   fp("EfektaLab","EFEKTA_T1_MAX_R"),
 })
@@ -1501,7 +1501,7 @@ local efekta_eth102z_core = {
   profile="sensors-efekta-eth102z-core",magic_packet=false,
   zcl_clusters=efekta_th_lr_core_clusters(),
 }
-register_device_definition(efekta_eth102z_core, {
+register(efekta_eth102z_core, {
   fp("efektalab.com","EFEKTA_eTH102z"),
 })
 
@@ -1515,7 +1515,7 @@ local efekta_eon29wz_core = {
     passive_voltage(),
   },
 }
-register_device_definition(efekta_eon29wz_core, {
+register(efekta_eon29wz_core, {
   fp("EfektaLab","EFEKTA_eON29wz"),
 })
 
@@ -1536,7 +1536,7 @@ local ikea_vindstyrka_core = {
     }),
   },
 }
-register_device_definition(ikea_vindstyrka_core, {
+register(ikea_vindstyrka_core, {
   fp("IKEA of Sweden","VINDSTYRKA"),
 })
 
@@ -1548,7 +1548,7 @@ local miamiaoce_mho_c401n_core = {
     core_battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true}),
   },
 }
-register_device_definition(miamiaoce_mho_c401n_core, {
+register(miamiaoce_mho_c401n_core, {
   fp("MiaMiaoCe","MHO-C401N"),
 })
 
@@ -1561,7 +1561,7 @@ local zigbeetlc_mho_c401n_core = {
     passive_voltage(1),
   },
 }
-register_device_definition(zigbeetlc_mho_c401n_core, {
+register(zigbeetlc_mho_c401n_core, {
   fp("MiaMiaoCe","MHO-C401N-z"),
 })
 
@@ -1579,7 +1579,7 @@ local sonoff_snzb02dr2_core = {
       driver.environment_info.hub_zigbee_eui,endpoint):to_endpoint(endpoint))
   end,
 }
-register_device_definition(sonoff_snzb02dr2_core, {
+register(sonoff_snzb02dr2_core, {
   fp("SONOFF","SNZB-02DR2"),
 })
 
@@ -1603,7 +1603,7 @@ local efekta_th_duo_core = {
     }),
   },
 }
-register_device_definition(efekta_th_duo_core, {
+register(efekta_th_duo_core, {
   fp("EfektaLab","EFEKTA_TH_DUO_LR"),
 })
 
@@ -1623,7 +1623,7 @@ local efekta_t1_y_core = {
     }),
   },
 }
-register_device_definition(efekta_t1_y_core, {
+register(efekta_t1_y_core, {
   fp("EfektaLab","EFEKTA_T1_Y"),
   fp("EfektaLab","EFEKTA_T1_Y_LR"),
 })
@@ -1644,7 +1644,7 @@ local efekta_t1_v2_core = {
     }),
   },
 }
-register_device_definition(efekta_t1_v2_core, {
+register(efekta_t1_v2_core, {
   fp("EfektaLab","EFEKTA_T1_v2"),
 })
 
@@ -1662,20 +1662,20 @@ local gs_sthm_i1h_core = {
     }),
   },
 }
-register_device_definition(gs_sthm_i1h_core, {
+register(gs_sthm_i1h_core, {
   fp("GS","STHM-I1H"),
 })
 
 local pushok_pok005_core = {
   profile="sensors-pushok-pok005-core",magic_packet=false,
   zcl_clusters={
-    without_reporting(zcl.temperature({read_on_configure=true})),
-    without_reporting(zcl.humidity({read_on_configure=true})),
+    without_reporting(zcl.temperature({})),
+    without_reporting(zcl.humidity({})),
     passive_battery(),
     passive_voltage(),
   },
 }
-register_device_definition(pushok_pok005_core, {
+register(pushok_pok005_core, {
   fp("PushOk Hardware","POK005"),
 })
 
@@ -1688,7 +1688,7 @@ local slacky_ts0201_core = {
     core_voltage({minimum_interval=3600,maximum_interval=21600,reportable_change=0,read_on_configure=true}),
   },
 }
-register_device_definition(slacky_ts0201_core, {
+register(slacky_ts0201_core, {
   fp("Slacky-DIY","TS0201-z-SlD"),
   fp("Slacky-DIY","TS0201-z21-SlD"),
   fp("Slacky-DIY","TS0201-z22-SlD"),
@@ -1710,7 +1710,7 @@ local yandex_00528_core = {
     passive_voltage(),
   },
 }
-register_device_definition(yandex_00528_core, {
+register(yandex_00528_core, {
   fp("Yandex","YNDX-00528"),
 })
 
@@ -1723,7 +1723,7 @@ local yandex_00529_core = {
     passive_voltage(),
   },
 }
-register_device_definition(yandex_00529_core, {
+register(yandex_00529_core, {
   fp("Yandex","YNDX-00529"),
 })
 
@@ -1747,7 +1747,7 @@ local pushok_extended_probe_core = {
     passive_voltage(),
   },
 }
-register_device_definition(pushok_extended_probe_core, {
+register(pushok_extended_probe_core, {
   fp("PushOk Hardware","POK014"),
   fp("PushOk Hardware","POK015"),
 })
@@ -1780,7 +1780,7 @@ local kmpcil_res005_core = {
     end
   end,
 }
-register_device_definition(kmpcil_res005_core, {
+register(kmpcil_res005_core, {
   fp("KMPCIL","RES005"),
 })
 
@@ -1793,7 +1793,7 @@ local schneider_cct593011_core = {
     passive_voltage(1),
   },
 }
-register_device_definition(schneider_cct593011_core, {
+register(schneider_cct593011_core, {
   fp("Schneider Electric","CCT593011_AS"),
 })
 
@@ -1813,7 +1813,7 @@ local schneider_cct595011_core = {
     zcl.illuminance({minimum_interval=10,maximum_interval=3600,reportable_change=5}),
   },
 }
-register_device_definition(schneider_cct595011_core, {
+register(schneider_cct595011_core, {
   fp("Schneider Electric","CCT595011_AS"),
 })
 
@@ -1833,7 +1833,7 @@ local hobeian_zg204z_core = {
     core_voltage({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true}),
   },
 }
-register_device_definition(hobeian_zg204z_core, {
+register(hobeian_zg204z_core, {
   fp("HOBEIAN","ZG-204Z"),
 })
 
@@ -1851,7 +1851,7 @@ local aqara_fp1e_core = {
     }),
   },
 }
-register_device_definition(aqara_fp1e_core, {
+register(aqara_fp1e_core, {
   fp("aqara","lumi.sensor_occupy.agl1"),
 })
 
@@ -1871,7 +1871,7 @@ local tcl_ms01_core = {
     core_voltage({endpoint=1,minimum_interval=3600,maximum_interval=7200,reportable_change=100,read_on_configure=true}),
   },
 }
-register_device_definition(tcl_ms01_core, {
+register(tcl_ms01_core, {
   fp("TCL","MS01"),
 })
 
@@ -1887,7 +1887,7 @@ local orvibo_sn10zw_core = {
       read_only=true,read_on_configure=false,emit=core_battery_alarm}),
   },
 }
-register_device_definition(orvibo_sn10zw_core, {
+register(orvibo_sn10zw_core, {
   fp("欧瑞","585fdfb8c2304119a2432e9845cf2623"),
   fp("ORVIBO","131c854783bc45c9b2ac58088d09571c"),
   fp("ORVIBO","b2e57a0f606546cd879a1a54790827d6"),
@@ -1923,7 +1923,7 @@ local tuya_ts0201_standard_core = {
   profile="sensors-tuya-ts0201-standard-core",
   zcl_clusters=ts0201_core_clusters(100),
 }
-register_device_definition(tuya_ts0201_standard_core, {
+register(tuya_ts0201_standard_core, {
   fp("_TZ2000_a476raq2","TS0201"),
   fp("_TZ3000_i8jfiezr","TS0201"),
   fp("_TYZB01_a476raq2","TS0201"),
@@ -1957,7 +1957,7 @@ local tuya_ty0201_ncw_core = {
   profile="sensors-tuya-ty0201-ncw-core",
   zcl_clusters=ts0201_core_clusters(10),
 }
-register_device_definition(tuya_ty0201_ncw_core, {
+register(tuya_ty0201_ncw_core, {
   fp("_TZ3210_ncw88jfq","TY0201"),
 })
 
@@ -1970,7 +1970,7 @@ local tuyatec_rh3052_core = {
     passive_voltage(),
   },
 }
-register_device_definition(tuyatec_rh3052_core, {
+register(tuyatec_rh3052_core, {
   fp("TUYATEC-prhs1rsd","RH3052"),
   fp("TUYATEC-jigsujrv","RH3052"),
   fp("TUYATEC-yg5dcbfu","RH3052"),
@@ -1987,7 +1987,7 @@ local visonic_mp841_core = {
   profile="safety-motion-visonic-mp841-core",magic_packet=false,
   zcl_clusters={ias_notification_motion(nil,false)},
 }
-register_device_definition(visonic_mp841_core, {
+register(visonic_mp841_core, {
   fp("Visonic","MP-841"),
 })
 
@@ -2001,7 +2001,7 @@ local dawon_th110_core = {
       from_device=function() return nil end}),
   },
 }
-register_device_definition(dawon_th110_core, {
+register(dawon_th110_core, {
   fp("DAWON_DNS","ZB30C2"),
 })
 
@@ -2013,7 +2013,7 @@ local swann_motion_core = {
     notification_low_core(),
   },
 }
-register_device_definition(swann_motion_core, {
+register(swann_motion_core, {
   fp("SWANN","SWO-MOS1PA"),
 })
 
@@ -2034,7 +2034,7 @@ local visonic_mp840_core = {
     }),
   },
 }
-register_device_definition(visonic_mp840_core, {
+register(visonic_mp840_core, {
   fp("Visonic","MP-840"),
 })
 
@@ -2057,7 +2057,7 @@ local universal_xhs1_core = {
     }),
   },
 }
-register_device_definition(universal_xhs1_core, {
+register(universal_xhs1_core, {
   fp("Universal Electronics Inc","URC4470BC0-X-R"),
 })
 
@@ -2111,7 +2111,7 @@ local universal_xhs2_core = {
     }),
   },
 }
-register_device_definition(universal_xhs2_core, {
+register(universal_xhs2_core, {
   fp("Universal Electronics Inc","URC4460BC0-X-R"),
 })
 
@@ -2130,7 +2130,7 @@ local namron_4512770_core = {
     device:send(device_management.build_bind_request(device,0x0405,driver.environment_info.hub_zigbee_eui,4))
   end,
 }
-register_device_definition(namron_4512770_core, {
+register(namron_4512770_core, {
   fp("NAMRON AS","4512770"),
   fp("NAMRON AS","4512771"),
   fp("Namron AS","4512770"),
@@ -2149,7 +2149,7 @@ local tuya_ts0202_core = {
     core_voltage({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true}),
   },
 }
-register_device_definition(tuya_ts0202_core, {
+register(tuya_ts0202_core, {
   fp("_TZ3000_mmtwjmaq","TS0202"),
   fp("_TZ3000_kmh5qpmb","TS0202"),
   fp("_TZ3000_0b0c7d6h","TS0202"),
@@ -2170,7 +2170,7 @@ local tuyatec_rh3040_core = {
     passive_voltage(),
   },
 }
-register_device_definition(tuyatec_rh3040_core, {
+register(tuyatec_rh3040_core, {
   fp("TUYATEC-zn9wyqtr","RH3040"),
   fp("TUYATEC-bd5faf9p","RH3040"),
   fp("TUYATEC-b3ov3nor","RH3040"),
@@ -2205,7 +2205,7 @@ local nyce_3041_core = {
   profile="safety-motion-nyce-3041-core",magic_packet=false,
   zcl_clusters=nyce_motion_core_clusters(1),
 }
-register_device_definition(nyce_3041_core, {
+register(nyce_3041_core, {
   fp("NYCE","3041"),
 })
 
@@ -2213,7 +2213,7 @@ local nyce_3043_core = {
   profile="safety-motion-nyce-3043-core",magic_packet=false,
   zcl_clusters=nyce_motion_core_clusters(2),
 }
-register_device_definition(nyce_3043_core, {
+register(nyce_3043_core, {
   fp("NYCE","3043"),
 })
 
@@ -2221,7 +2221,7 @@ local nyce_3045_core = {
   profile="safety-motion-nyce-3045-core",magic_packet=false,
   zcl_clusters=nyce_motion_core_clusters(1),
 }
-register_device_definition(nyce_3045_core, {
+register(nyce_3045_core, {
   fp("NYCE","3045"),
 })
 
@@ -2230,7 +2230,7 @@ local bosch_radion_notification_core = {
   parent_refresh=radion_refresh,
   zcl_clusters=radion_clusters(),
 }
-register_device_definition(bosch_radion_notification_core, {
+register(bosch_radion_notification_core, {
   fp("Bosch","RFPR-ZB"),
   fp("Bosch","RFDL-ZB-MS"),
   fp("Bosch","RFPR-ZB-MS"),
@@ -2304,7 +2304,7 @@ local aqara_high_precision_core = {
     }),
   },
 }
-register_device_definition(aqara_high_precision_core, {
+register(aqara_high_precision_core, {
   fp("LUMI","lumi.motion.agl04"),
 })
 
@@ -2338,7 +2338,7 @@ local develco_aqszb110_core = {
     })),
   },
 }
-register_device_definition(develco_aqszb110_core, {
+register(develco_aqszb110_core, {
   fp("frient A/S","AQSZB-110"),
 })
 
@@ -2402,7 +2402,7 @@ local aqara_fp310_core = {
     }),
   },
 }
-register_device_definition(aqara_fp310_core, {
+register(aqara_fp310_core, {
   fp("Aqara","lumi.sensor_occupy.acn1"),
 })
 
@@ -2428,9 +2428,92 @@ local aqara_fp1_core = {
     }),
   },
 }
-register_device_definition(aqara_fp1_core, {
+register(aqara_fp1_core, {
   fp("aqara","lumi.motion.ac01"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-hbj"},
+  {2, "rpt-pha"},
+  {3, "rpt-tjc"},
+  {4, "rpt-tjc"},
+  {5, "rpt-tjc"},
+  {6, "rpt-tjc"},
+  {7, "rpt-tjc"},
+  {8, "rpt-tla"},
+  {9, "rpt-rkp"},
+  {10, "rpt-hew"},
+  {13, "rpt-mos"},
+  {14, "rpt-mnz"},
+  {15, "rpt-min"},
+  {16, "rpt-twu"},
+  {17, "rpt-lrf"},
+  {18, "rpt-zfm"},
+  {19, "rpt-lrf"},
+  {21, "rpt-zqa"},
+  {22, "rpt-oyj"},
+  {23, "rpt-scj"},
+  {24, "rpt-zus"},
+  {26, "rpt-zdq"},
+  {27, "rpt-zif"},
+  {28, "rpt-hew"},
+  {29, "rpt-zun"},
+  {30, "rpt-vaw"},
+  {31, "rpt-slz"},
+  {34, "rpt-mzh"},
+  {35, "rpt-sfw"},
+  {36, "rpt-slc"},
+  {37, "rpt-ioq"},
+  {38, "rpt-mgr"},
+  {40, "rpt-zbp"},
+  {41, "rpt-zbp"},
+  {42, "rpt-mex"},
+  {44, "rpt-zsl"},
+  {45, "rpt-vjq"},
+  {47, "rpt-sjc"},
+  {48, "rpt-sjc"},
+  {49, "rpt-skq"},
+  {50, "rpt-skq"},
+  {53, "rpt-zxi"},
+  {54, "rpt-bbf"},
+  {55, "rpt-bbf"},
+  {56, "rpt-zth"},
+  {57, "rpt-moz"},
+  {58, "rpt-zsl"},
+  {59, "rpt-zbp"},
+  {61, "rpt-ejv"},
+  {62, "rpt-ejv"},
+  {63, "rpt-enq"},
+  {64, "rpt-ekk"},
+  {65, "rpt-els"},
+  {66, "rpt-ejv"},
+  {67, "rpt-eou"},
+  {68, "rpt-vbu"},
+  {69, "rpt-lrf"},
+  {70, "rpt-tjc"},
+  {71, "rpt-sxh"},
+  {72, "rpt-eoa", {["zr040200001"] = "Temp", ["zr040200002"] = "TempTwo", ["zr040500001"] = "Humidity", ["zr040500002"] = "HumidityTwo"}},
+  {74, "rpt-esn"},
+  {75, "rpt-tjc"},
+  {77, "rpt-sxh"},
+  {78, "rpt-ybf"},
+  {79, "rpt-tjc"},
+  {81, "rpt-rgu"},
+  {82, "rpt-cfw"},
+  {83, "rpt-csr"},
+  {84, "rpt-znf"},
+  {86, "rpt-znf"},
+  {92, "rpt-zfz"},
+  {95, "rpt-uis"},
+  {96, "rpt-uti"},
+  {97, "rpt-zim"},
+  {98, "rpt-tue"},
+  {103, "rpt-rkp"},
+  {105, "rpt-ala"},
+  {106, "rpt-lam"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.wave19_environment",

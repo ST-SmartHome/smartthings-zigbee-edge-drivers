@@ -165,6 +165,7 @@ for endpoint = 1, 3 do
     read_only = false,
     configure_reporting = false,
     read_on_configure = false,
+    reporting_defaults = {minimum_interval=0, maximum_interval=65000},
   })
   mappings[#mappings + 1] = zcl.cluster_attribute(CLUSTER_ON_OFF, ATTR_STARTUP_ON_OFF, {
     name = "terncy_ws07_power_on_behavior_" .. string.lower(word),
@@ -209,21 +210,12 @@ local function configure(driver, device)
       driver.environment_info.hub_zigbee_eui,
       endpoint
     ))
-    for _, item in ipairs({
-      { ATTR_ON_OFF, data_types.Boolean },
-      { ATTR_STARTUP_ON_OFF, data_types.Enum8 },
-    }) do
-      device:send(cluster_base.configure_reporting(
-        device,
-        data_types.ClusterId(CLUSTER_ON_OFF),
-        data_types.AttributeId(item[1]),
-        data_types.ZigbeeDataType(item[2].ID),
-        0,
-        65000,
-        1
-      ):to_endpoint(endpoint))
-      zcl.read_attribute(device, CLUSTER_ON_OFF, item[1], endpoint)
-    end
+    zcl.configure_reporting(device, {
+      cluster=CLUSTER_ON_OFF, attribute=ATTR_ON_OFF, data_type=data_types.Boolean,
+      minimum_interval=0, maximum_interval=65000,
+    }, endpoint)
+    zcl.read_attribute(device, CLUSTER_ON_OFF, ATTR_ON_OFF, endpoint)
+    zcl.read_attribute(device, CLUSTER_ON_OFF, ATTR_STARTUP_ON_OFF, endpoint)
   end
 end
 
@@ -244,6 +236,12 @@ local terncy_ws07 = {
 register_device_definition(terncy_ws07, {
   device_helpers.create_fingerprint("Xiaoyan", "TERNCY-WS07-D3"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tbh", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "wave14.terncy.zcl_switch",

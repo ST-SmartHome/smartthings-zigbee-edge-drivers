@@ -7,5 +7,6 @@ components:
       - {id: concertmirror08464.rpsSensitivity, version: 1}
       - {id: concertmirror08464.rpsCalibration, version: 1}
       - {id: refresh, version: 1}
+      - {id: signalStrength, version: 1}
     categories:
       - name: MotionSensor

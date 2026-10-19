@@ -1,179 +1,179 @@
-local battery_refresh=require"runtime.battery_refresh"
-local function load_read_only_datapoints(tuya,allow_enum)
-function tuya.build_named_map(mappings,key_field)
-local named={}for _,mapping in ipairs(mappings or{})do
-local name=mapping[key_field or"name"]
-if name~=nil then named[name]=mapping end
+local t=require"runtime.battery_refresh"
+local function q(x,N)
+function x.build_named_map(S,P)
+local T={}for _,a in ipairs(S or{})do
+local U=a[P or"name"]
+if U~=nil then T[U]=a end
 end
-return named
+return T
 end
-local REPORT_COMMANDS={
-[tuya.GET_DATA]=true,[tuya.SET_DATA_RESPONSE]=true,[tuya.REPORT_STATUS]=true,[tuya.ACTIVE_STATUS_REPORT]=true,}local DP_TYPE_BOOL=0x01
-local DP_TYPE_VALUE=0x02
-local function extract_payload(message)
-if type(message)=="string"then
-return message
+local C={
+[x.GET_DATA]=true,[x.SET_DATA_RESPONSE]=true,[x.REPORT_STATUS]=true,[x.ACTIVE_STATUS_REPORT]=true,}local J=1
+local H=2
+local function E(c)
+if type(c)=="string"then
+return c
 end
-if type(message)~="table"then
+if type(c)~="table"then
 return nil
 end
-return message.body and message.body.zcl_body and message.body.zcl_body.body_bytes or nil
+return c.body and c.body.zcl_body and c.body.zcl_body.body_bytes or nil
 end
-local function extract_command_id(message)
-if type(message)~="table"then
+local function p(c)
+if type(c)~="table"then
 return nil
 end
-return message.body and message.body.zcl_header and
-message.body.zcl_header.cmd and message.body.zcl_header.cmd.value or nil
+return c.body and c.body.zcl_header and
+c.body.zcl_header.cmd and c.body.zcl_header.cmd.value or nil
 end
-local function extract_source_endpoint(message)
-if type(message)~="table"then
+local function s(c)
+if type(c)~="table"then
 return nil
 end
-local endpoint=message.address_header and message.address_header.src_endpoint and
-message.address_header.src_endpoint.value or nil
-return type(endpoint)=="number"and endpoint or nil
+local n=c.address_header and c.address_header.src_endpoint and
+c.address_header.src_endpoint.value or nil
+return type(n)=="number"and n or nil
 end
-local function parse_uint(buffer)
-if type(buffer)~="string"or #buffer<1 then
+local function w(r)
+if type(r)~="string"or #r<1 then
 return nil
 end
-local value=0
-for index=1,#buffer do
-value=value*256+string.byte(buffer,index)
+local l=0
+for V=1,#r do
+l=l*256+string.byte(r,V)
 end
-return value
+return l
 end
-local function parse_value(datatype,value_bytes)
-if datatype==DP_TYPE_BOOL then
-local value=string.byte(value_bytes,1)
-if value==0 then return false end
-if value==1 then return true end
+local function L(h,f)
+if h==J then
+local l=string.byte(f,1)
+if l==0 then return false end
+if l==1 then return true end
 return nil
 end
-if datatype==DP_TYPE_VALUE then
-return parse_uint(value_bytes)
+if h==H then
+return w(f)
 end
-if allow_enum and datatype==0x04 and #value_bytes==1 then
-return string.byte(value_bytes,1)
-end
-return nil
-end
-local function parse_int(buffer)
-local unsigned=parse_uint(buffer)if unsigned==nil then
-return nil
-end
-local maximum=2 ^(#buffer*8)if unsigned>=maximum/2 then
-return unsigned-maximum
-end
-return unsigned
-end
-local function parse_datapoint(payload,cursor)
-if #payload<cursor+3 then
-return nil
-end
-local length=string.byte(payload,cursor+2)*256+string.byte(payload,cursor+3)local value_start=cursor+4
-local next_index=value_start+length
-if next_index-1>#payload then
-return nil
-end
-local datatype=string.byte(payload,cursor+1)local value_bytes=string.sub(payload,value_start,next_index-1)return{
-dp=string.byte(payload,cursor),datatype=datatype,length=length,value_bytes=value_bytes,value=parse_value(datatype,value_bytes),int_value=parse_uint(value_bytes),signed_value=parse_int(value_bytes),next_index=next_index,}
-end
-function tuya.parse_read_only_datapoint_report(message)
-local payload=extract_payload(message)if type(payload)~="string"or #payload<2 then
-return nil
-end
-local frame={
-command_id=extract_command_id(message),endpoint=extract_source_endpoint(message),status=string.byte(payload,1),transaction=string.byte(payload,2),payload=payload,datapoints={},}local cursor=3
-while cursor<=#payload do
-local datapoint=parse_datapoint(payload,cursor)if datapoint==nil then
-return nil
-end
-datapoint.endpoint=frame.endpoint
-frame.datapoints[#frame.datapoints+1]=datapoint
-cursor=datapoint.next_index
-end
-return frame
-end
-local function find_mapping(datapoints,dp)
-for _,mapping in ipairs(datapoints or{})do
-if mapping.dp==dp and mapping.write_only~=true then
-return mapping
-end
+if N and h==4 and #f==1 then
+return string.byte(f,1)
 end
 return nil
 end
-local function mapping_context(device,mapping,frame,datapoint)
-local endpoint=datapoint.endpoint or frame.endpoint
-local component_id=mapping.component
-if component_id==nil and endpoint~=nil and type(device.get_component_id_for_endpoint)=="function"then
-component_id=device:get_component_id_for_endpoint(endpoint)
+local function R(r)
+local y=w(r)if y==nil then
+return nil
+end
+local M=2 ^(#r*8)if y>=M/2 then
+return y-M
+end
+return y
+end
+local function G(e,k)
+if #e<k+3 then
+return nil
+end
+local Q=string.byte(e,k+2)*256+string.byte(e,k+3)local B=k+4
+local v=B+Q
+if v-1>#e then
+return nil
+end
+local h=string.byte(e,k+1)local f=string.sub(e,B,v-1)return{
+dp=string.byte(e,k),datatype=h,length=Q,value_bytes=f,value=L(h,f),int_value=w(f),signed_value=R(f),next_index=v,}
+end
+function x.parse_read_only_datapoint_report(c)
+local e=E(c)if type(e)~="string"or #e<2 then
+return nil
+end
+local j={
+command_id=p(c),endpoint=s(c),status=string.byte(e,1),transaction=string.byte(e,2),payload=e,datapoints={},}local k=3
+while k<=#e do
+local b=G(e,k)if b==nil then
+return nil
+end
+b.endpoint=j.endpoint
+j.datapoints[#j.datapoints+1]=b
+k=b.next_index
+end
+return j
+end
+local function K(u,Y)
+for _,a in ipairs(u or{})do
+if a.dp==Y and a.write_only~=true then
+return a
+end
+end
+return nil
+end
+local function F(d,a,j,b)
+local n=b.endpoint or j.endpoint
+local g=a.component
+if g==nil and n~=nil and type(d.get_component_id_for_endpoint)=="function"then
+g=d:get_component_id_for_endpoint(n)
 end
 return{
-mapping=mapping,value=datapoint.value,dp=datapoint.dp,frame=frame,endpoint=endpoint,component_id=component_id,component=component_id and device.profile and device.profile.components and
-device.profile.components[component_id]or nil,}
+mapping=a,value=b.value,dp=b.dp,frame=j,endpoint=n,component_id=g,component=g and d.profile and d.profile.components and
+d.profile.components[g]or nil,}
 end
-local function emit_event(device,event,context)
-if not event then
+local function D(d,o,i)
+if not o then
 return
 end
-battery_refresh.maybe_schedule_after_event(device,event)
-if context.component~=nil and type(device.emit_component_event)=="function"then
-device:emit_component_event(context.component,event)
-elseif context.endpoint~=nil and type(device.emit_event_for_endpoint)=="function"then
-device:emit_event_for_endpoint(context.endpoint,event)else
-device:emit_event(event)
+t.maybe_schedule_after_event(d,o)
+if i.component~=nil and type(d.emit_component_event)=="function"then
+d:emit_component_event(i.component,o)
+elseif i.endpoint~=nil and type(d.emit_event_for_endpoint)=="function"then
+d:emit_event_for_endpoint(i.endpoint,o)else
+d:emit_event(o)
 end
 end
-local function apply_mapping(device,mapping,frame,datapoint)
-local datatype_matches=mapping.datatype==datapoint.datatype
-for _,datatype in ipairs(mapping.receive_datatypes or{})do
-datatype_matches=datatype_matches or datatype==datapoint.datatype
+local function I(d,a,j,b)
+local m=a.datatype==b.datatype
+for _,h in ipairs(a.receive_datatypes or{})do
+m=m or h==b.datatype
 end
-if not datatype_matches or datapoint.value==nil then
+if not m or b.value==nil then
 return
 end
-local context=mapping_context(device,mapping,frame,datapoint)local converter=type(mapping.converter)=="table"and mapping.converter or nil
-local from_device=type(mapping.from_device)=="function"and mapping.from_device or
-(converter and type(converter.from)=="function"and converter.from or nil)
-local value=datapoint.value
-if from_device~=nil then
-value=from_device(value,device,datapoint,context)
+local i=F(d,a,j,b)local z=type(a.converter)=="table"and a.converter or nil
+local A=type(a.from_device)=="function"and a.from_device or
+(z and type(z.from)=="function"and z.from or nil)
+local l=b.value
+if A~=nil then
+l=A(l,d,b,i)
 end
-if type(mapping.field)=="string"and mapping.field~=""then
-device:set_field(mapping.field,value,{persist=mapping.persist==true})
+if type(a.field)=="string"and a.field~=""then
+d:set_field(a.field,l,{persist=a.persist==true})
 end
-if value==nil then
+if l==nil then
 return
 end
-if mapping.name=="battery"or mapping.name=="battery_voltage"then
-battery_refresh.note_report(device)
+if a.name=="battery"or a.name=="battery_voltage"then
+t.note_report(d)
 end
-if type(mapping.emit)=="function"then
-local event=mapping.emit(device,value,datapoint,context)if type(event)=="table"and event[1]~=nil then
-for _,item in ipairs(event)do
-emit_event(device,item,context)
+if type(a.emit)=="function"then
+local o=a.emit(d,l,b,i)if type(o)=="table"and o[1]~=nil then
+for _,W in ipairs(o)do
+D(d,W,i)
 end
 else
-emit_event(device,event,context)
+D(d,o,i)
 end
 end
 end
-function tuya.apply_read_only_datapoints(device,message,datapoints)
-local command_id=extract_command_id(message)if REPORT_COMMANDS[command_id]~=true then
+function x.apply_read_only_datapoints(d,c,u)
+local O=p(c)if C[O]~=true then
 return false
 end
-local frame=tuya.parse_read_only_datapoint_report(message)if frame==nil then
+local j=x.parse_read_only_datapoint_report(c)if j==nil then
 return false
 end
-for _,datapoint in ipairs(frame.datapoints)do
-local mapping=find_mapping(datapoints,datapoint.dp)if mapping~=nil then
-apply_mapping(device,mapping,frame,datapoint)
+for _,b in ipairs(j.datapoints)do
+local a=K(u,b.dp)if a~=nil then
+I(d,a,j,b)
 end
 end
 return true
 end
-return tuya
+return x
 end
-return load_read_only_datapoints
+return q

@@ -28,130 +28,98 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: PresenceSensor
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: presenceSensor
-        version: 1
-        group: main
-      - component: main
-        capability: switch
-        version: 1
-    actions:
-      - component: main
-        capability: switch
-        version: 1
-        group: main
-        values:
-          - command: "on"
-          - command: "off"
-    basicPlus: []
-  detailView:
     - component: main
       capability: presenceSensor
-      version: 1
+      group: main
     - component: main
       capability: switch
-      version: 1
+    actions:
     - component: main
-      capability: illuminanceMeasurement
-      version: 1
-    - component: main
-      capability: concertmirror08464.zis04DetectionDistance
-      version: 1
-    - component: main
-      capability: concertmirror08464.zis03DetectionRange
-      version: 1
-    - component: main
-      capability: concertmirror08464.zis03Sensitivity
-      version: 1
-    - component: main
-      capability: concertmirror08464.zis03DetectionArea
-      version: 1
-    - component: main
-      capability: concertmirror08464.zis03FadingTime
-      version: 1
-    - component: main
-      capability: concertmirror08464.zis03Radar
-      version: 1
-    - component: main
-      capability: concertmirror08464.zis03Indicator
-      version: 1
-    - component: main
-      capability: concertmirror08464.zis03StateReversal
-      version: 1
-    - component: main
-      capability: concertmirror08464.zis03Compensation
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+      capability: switch
+      group: main
+      values:
+      - command: 'on'
+      - command: 'off'
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: presenceSensor
+  - component: main
+    capability: switch
+  - component: main
+    capability: illuminanceMeasurement
+  - component: main
+    capability: concertmirror08464.zis04DetectionDistance
+  - component: main
+    capability: concertmirror08464.zis03DetectionRange
+  - component: main
+    capability: concertmirror08464.zis03Sensitivity
+  - component: main
+    capability: concertmirror08464.zis03DetectionArea
+  - component: main
+    capability: concertmirror08464.zis03FadingTime
+  - component: main
+    capability: concertmirror08464.zis03Radar
+  - component: main
+    capability: concertmirror08464.zis03Indicator
+  - component: main
+    capability: concertmirror08464.zis03StateReversal
+  - component: main
+    capability: concertmirror08464.zis03Compensation
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: presenceSensor
-        version: 1
-      - component: main
-        capability: switch
-        version: 1
-      - component: main
-        capability: illuminanceMeasurement
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis04DetectionDistance
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03DetectionRange
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03Sensitivity
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03DetectionArea
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03FadingTime
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03Radar
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03Indicator
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03StateReversal
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03Compensation
-        version: 1
+    - component: main
+      capability: presenceSensor
+    - component: main
+      capability: switch
+    - component: main
+      capability: illuminanceMeasurement
+    - component: main
+      capability: concertmirror08464.zis04DetectionDistance
+    - component: main
+      capability: concertmirror08464.zis03DetectionRange
+    - component: main
+      capability: concertmirror08464.zis03Sensitivity
+    - component: main
+      capability: concertmirror08464.zis03DetectionArea
+    - component: main
+      capability: concertmirror08464.zis03FadingTime
+    - component: main
+      capability: concertmirror08464.zis03Radar
+    - component: main
+      capability: concertmirror08464.zis03Indicator
+    - component: main
+      capability: concertmirror08464.zis03StateReversal
+    - component: main
+      capability: concertmirror08464.zis03Compensation
+    - component: main
+      capability: signalStrength
     actions:
-      - component: main
-        capability: switch
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03DetectionRange
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03Sensitivity
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03DetectionArea
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03FadingTime
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03Radar
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03Indicator
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03StateReversal
-        version: 1
-      - component: main
-        capability: concertmirror08464.zis03Compensation
-        version: 1
+    - component: main
+      capability: switch
+    - component: main
+      capability: concertmirror08464.zis03DetectionRange
+    - component: main
+      capability: concertmirror08464.zis03Sensitivity
+    - component: main
+      capability: concertmirror08464.zis03DetectionArea
+    - component: main
+      capability: concertmirror08464.zis03FadingTime
+    - component: main
+      capability: concertmirror08464.zis03Radar
+    - component: main
+      capability: concertmirror08464.zis03Indicator
+    - component: main
+      capability: concertmirror08464.zis03StateReversal
+    - component: main
+      capability: concertmirror08464.zis03Compensation

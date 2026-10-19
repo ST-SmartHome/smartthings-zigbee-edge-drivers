@@ -128,8 +128,8 @@ local classic_trv = {
   profile = "thermostats-thermostat-classic-trv",
   package_group = "trv-1",
   force_time_updates = true,
-  tuya.dp_current_heating_setpoint(2, { scale = 10 }),
-  tuya.dp_local_temperature(3, { scale = 10 }),
+  tuya.dp_current_heating_setpoint(2, { scale = 10, emit = emit.heating_setpoint("C") }),
+  tuya.dp_local_temperature(3, { scale = 10, emit = emit.temperature("C") }),
   -- Z2M TS0601_thermostat (tuya.ts:8570) drives this family through
   -- legacy.fz.tuya_thermostat (legacy.ts:2405).  DP4 is the preset, which also
   -- maps onto a system mode, DP106 is the force mode and DP109 carries both the
@@ -151,6 +151,7 @@ local classic_trv = {
   tuya.dp_system_mode(4, {
     from_device = classic_trv_preset_to_system_mode,
     to_device = classic_trv_system_mode_to_preset,
+    emit = emit.thermostat_mode(),
   }),
   tuya.dp_binary(7, {
     name = "child_lock",
@@ -192,7 +193,10 @@ local classic_trv = {
   tuya.dp_numeric(108, { name = "eco_temperature", emit = emit.classicTrvEcoTemperature() }),
   tuya.dp_numeric(109, { name = "position", read_only = true, emit = emit.classicTrvPosition() }),
   tuya.dp_running_state(109, {
+    datatype = tuya.DP_TYPE_VALUE,
+    read_only = true,
     from_device = valve_position_to_running_state,
+    emit = emit.thermostat_operating_state(),
   }),
   tuya.dp_binary(110, {
     name = "battery_low",

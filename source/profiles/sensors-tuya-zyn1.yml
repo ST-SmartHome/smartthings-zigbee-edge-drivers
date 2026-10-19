@@ -14,5 +14,6 @@ components:
       - {id: concertmirror08464.zyN1NoiseDelay, version: 1}
       - {id: concertmirror08464.zyN1ReportThreshold, version: 1}
       - {id: concertmirror08464.zyN1Indicator, version: 1}
+      - {id: signalStrength, version: 1}
     categories:
       - {name: SoundSensor}

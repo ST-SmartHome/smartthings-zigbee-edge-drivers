@@ -682,6 +682,19 @@ register_device_definition(qs_s10_three, {
   device_helpers.create_fingerprint("_TZ3000_ly9apzky", "TS0003"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tgv", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {2, "rpt-tjh", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {3, "rpt-aft", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {4, "rpt-tqs"},
+  {5, "rpt-cbp"},
+  {6, "rpt-tgk"},
+  {7, "rpt-tesc"},
+  {9, "rpt-tjs"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.switches.z2m_absorption",
   registrations = device_definitions,

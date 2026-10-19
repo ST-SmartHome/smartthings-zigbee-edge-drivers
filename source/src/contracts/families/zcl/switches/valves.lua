@@ -202,6 +202,20 @@ register_device_definition(multi_zone_valve, device_helpers.create_fingerprints(
   "_TZ3000_j0ktmul1",
 }))
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tlw"},
+  {2, "rpt-tlw"},
+  {3, "rpt-tlw"},
+  {4, "rpt-tlw"},
+  {5, "rpt-tuf"},
+  {6, "rpt-tuf"},
+  {7, "rpt-taq"},
+  {8, "rpt-tgd"},
+  {9, "rpt-tgm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive"}},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.switches.valves",
   registrations = device_definitions,

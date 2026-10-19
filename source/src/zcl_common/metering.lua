@@ -115,18 +115,7 @@ local function load_metering(zcl)
     return false
   end
 
-  local function is_callable(value)
-    if type(value) == "function" then
-      return true
-    end
-
-    if type(value) ~= "table" then
-      return false
-    end
-
-    local metatable = getmetatable(value)
-    return type(metatable) == "table" and type(metatable.__call) == "function"
-  end
+  local is_callable = capability_support.is_callable
 
   local function resolve_capability_attribute(device, metadata, attribute_name)
     if type(metadata) ~= "table" or type(attribute_name) ~= "string" or attribute_name == "" then
@@ -508,7 +497,8 @@ local function load_metering(zcl)
             seen[key] = true
             local reportable_change = exact_raw_reportable_change(device, mapping, meta, spec, endpoint)
             if reportable_change ~= nil then
-              local request = device_management.attr_config(device, {
+              local reporting = require "zcl_common.reporting"
+              local config = reporting.configuration(zcl, device, mapping, reportable_change) or {
                 cluster = meta.cluster_id,
                 attribute = meta.attribute_id,
                 minimum_interval = meta.minimum_interval or 0,
@@ -516,11 +506,9 @@ local function load_metering(zcl)
                 data_type = meta.data_type,
                 reportable_change = reportable_change,
                 mfg_code = meta.mfg_code,
-              })
-              if type(request.to_endpoint) == "function" then
-                request = request:to_endpoint(endpoint)
-              end
-              device:send(request)
+              }
+              local descriptor = reporting.describe(zcl, mapping, device)
+              reporting.send_config(device, descriptor and descriptor.key, config, endpoint)
               sent = true
             end
           end
@@ -719,7 +707,7 @@ local function load_metering(zcl)
       if type(mapping) == "table" then
         local meta = zcl.mapping_meta(mapping)
         local spec = meta and meta.metering_kind and metering_specs[meta.metering_kind] or nil
-        if spec ~= nil then
+        if spec ~= nil and not meta.ignore_reported_scaler then
           local mapping_context = zcl.build_mapping_context(device, mapping, nil)
           local endpoint = normalize_endpoint(mapping_context.endpoint)
 

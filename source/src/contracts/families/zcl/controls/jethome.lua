@@ -62,6 +62,12 @@ register_device_definition(jet_home_ws7, {
   device_helpers.create_fingerprint("JetHome", "WS7"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-wik"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.controls.jethome",
   registrations = device_definitions,

@@ -342,6 +342,45 @@ register_device_definition(scene_four, device_helpers.create_fingerprints("TS072
   "_TZ300A_vkflnsl0", "_TZ3002_eda6eitk", "_TZ3000_hurauima", "_TZ3002_tdf2m4ch",
 }))
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tmrj"},
+  {2, "rpt-tnb", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {3, "rpt-tmrj"},
+  {4, "rpt-tmrj"},
+  {5, "rpt-tnb", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {6, "rpt-tyi", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {7, "rpt-tyi", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {8, "rpt-tyi", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {9, "rpt-tql", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {10, "rpt-thq", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {11, "rpt-tbc", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {13, "rpt-tyi", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {14, "rpt-tql", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {15, "rpt-tmrj"},
+  {16, "rpt-tdp", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {17, "rpt-trv", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {18, "rpt-tpu", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {19, "rpt-tmrj"},
+  {20, "rpt-tnb", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {21, "rpt-tmrj"},
+  {22, "rpt-tmrj"},
+  {23, "rpt-tnb", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {24, "rpt-tyi", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {25, "rpt-tyi", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {26, "rpt-tyi", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {27, "rpt-tql", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {28, "rpt-thq", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {29, "rpt-tyi", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {30, "rpt-tql", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {31, "rpt-tbc", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {32, "rpt-tmrj"},
+  {33, "rpt-tdp", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {34, "rpt-trv", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {35, "rpt-tpu", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.controls.scene_switches",
   registrations = device_definitions,

@@ -1,0 +1,28 @@
+name: rpt-tgd
+components:
+- id: main
+  capabilities:
+  - id: valve
+    version: 1
+  - id: battery
+    version: 1
+  - id: concertmirror08464.lyaiRainState
+    version: 1
+  - id: concertmirror08464.lyaiRainEnabled
+    version: 1
+  - id: concertmirror08464.lyaiChargeState
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMax
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMin
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMax
+    version: 1
+  - id: concertmirror08464.zclBatteryReportChange20
+    version: 1
+  categories:
+  - name: WaterValve

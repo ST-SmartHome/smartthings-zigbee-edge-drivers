@@ -1,13 +1,13 @@
-local switches=require"contracts.families.zcl.switches.switches"
-local din_rail=require"contracts.families.zcl.switches.din_rail"
-local valves=require"contracts.families.zcl.switches.valves"
-local retail_switches=require"contracts.families.zcl.switches.retail_switches"
-local easyiot=require"contracts.families.zcl.switches.easyiot"
-local catalogs={
-switches,din_rail,valves,retail_switches,easyiot,}local registrations={}for _,catalog in ipairs(catalogs)do
-for _,registration in ipairs(catalog.registrations)do
-registrations[#registrations+1]=registration
+local f=require"contracts.families.zcl.switches.switches"
+local e=require"contracts.families.zcl.switches.din_rail"
+local i=require"contracts.families.zcl.switches.valves"
+local b=require"contracts.families.zcl.switches.retail_switches"
+local h=require"contracts.families.zcl.switches.easyiot"
+local d={
+f,e,i,b,h,}local a={}for _,g in ipairs(d)do
+for _,c in ipairs(g.registrations)do
+a[#a+1]=c
 end
 end
 return{
-id="zcl.switches",registrations=registrations,}
+id="zcl.switches",registrations=a,}

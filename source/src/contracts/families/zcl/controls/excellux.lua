@@ -60,6 +60,12 @@ register_device_definition(excellux_scene_switch, {
   device_helpers.create_fingerprint("DSS0010", "Excellux"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tnc"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.controls.excellux",
   registrations = device_definitions,

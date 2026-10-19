@@ -1,89 +1,89 @@
-local tuya=require"protocol.tuya"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local converter=tuya.converter
-local device_definitions,register_device_definition=device_helpers.definition_registry()local valve_open_closed_converter=converter.lookup_from_to({
-open=true,closed=false,})local naswv03b_status=converter.lookup_from_to({
-off=0,on_auto=1,button_locked=2,on_manual_app=3,on_manual_button=4,})local naswv03b_on_off=converter.lookup_from_to({off=false,on=true})
-local naswv03b_trigger=function(value)return value==true and"refresh"or nil end
-local naswv03b_reset_from=function(value)return value==true and"reset"or nil end
-local naswv03b_fault_from=function(value)return tonumber(value)~=0 and"fault"or"normal"end
-local NASWV03B_UNIT_EMITTERS={
+local d=require"protocol.tuya"
+local b=require"capabilities.events.all"
+local f=require"contracts.helpers.family"
+local e=d.converter
+local t,a=f.definition_registry()local c=e.lookup_from_to({
+open=true,closed=false,})local A=e.lookup_from_to({
+off=0,on_auto=1,button_locked=2,on_manual_app=3,on_manual_button=4,})local m=e.lookup_from_to({off=false,on=true})
+local x=function(l)return l==true and"refresh"or nil end
+local s=function(l)return l==true and"reset"or nil end
+local r=function(l)return tonumber(l)~=0 and"fault"or"normal"end
+local n={
 gallons={
-current=emit.nasThreeCurrentGallons(),total=emit.nasThreeTotalGallons(),quantitative=emit.nasThreeQuantitativeGallons(),surplus=emit.nasThreeSurplusGallons(),single_amount=emit.nasThreeSingleAmountGallons(),},liters={
-current=emit.nasThreeCurrentLiters(),total=emit.nasThreeTotalLiters(),quantitative=emit.nasThreeQuantitativeLiters(),surplus=emit.nasThreeSurplusLiters(),single_amount=emit.nasThreeSingleAmountLiters(),},}
-local function naswv03b_definition(profile,unit_kind,include_on_countdown)
-local unit_emitters=assert(NASWV03B_UNIT_EMITTERS[unit_kind])local definition={
-profile=profile,time_start="2000",tuya.dp_on_off(1,{name="switch",emit=emit.switch()}),tuya.dp_enum(3,{name="naswv03b_status",read_only=true,emit=emit.nasThreeStatus(),converter=naswv03b_status}),tuya.dp_numeric(5,{name="naswv03b_countdown",emit=emit.nasThreeCountdown()}),tuya.dp_numeric(6,{name="naswv03b_countdown_left",read_only=true,emit=emit.nasThreeCountdownLeft()}),tuya.dp_numeric(9,{name="naswv03b_water_current",read_only=true,emit=unit_emitters.current,converter=converter.divide_by_pair(1000)}),tuya.dp_battery(11,{read_only=true,emit=emit.battery()}),tuya.dp_numeric(15,{name="naswv03b_water_total",read_only=true,emit=unit_emitters.total,converter=converter.divide_by_pair(1000)}),tuya.dp_bitmap(19,{name="naswv03b_fault",read_only=true,emit=emit.nasThreeFault(),converter=converter.from_only(naswv03b_fault_from)}),
-tuya.dp_binary(101,{name="naswv03b_water_total_reset",emit=emit.nasThreeWaterTotalReset(),converter=converter.from_to(naswv03b_reset_from,function(value)return value=="reset"end)}),
-tuya.dp_numeric(102,{name="naswv03b_quantitative_watering",emit=unit_emitters.quantitative}),tuya.dp_binary(103,{name="naswv03b_flow_switch",emit=emit.nasThreeFlowSwitch(),converter=naswv03b_on_off}),tuya.dp_binary(104,{name="naswv03b_child_lock",emit=emit.nasThreeChildLock(),converter=naswv03b_on_off}),tuya.dp_numeric(105,{name="naswv03b_surplus_flow",read_only=true,emit=unit_emitters.surplus}),tuya.dp_numeric(106,{name="naswv03b_single_watering_duration",read_only=true,emit=emit.nasThreeSingleWateringDuration()}),
-tuya.dp_binary(107,{name="naswv03b_refresh",emit=emit.nasThreeRefresh(),converter=converter.from_to(naswv03b_trigger,function(value)return value=="refresh"end)}),
-tuya.dp_numeric(108,{name="naswv03b_single_watering_amount",read_only=true,emit=unit_emitters.single_amount}),}if include_on_countdown then
-definition[#definition+1]=tuya.dp_numeric(109,{name="naswv03b_on_with_countdown",emit=emit.nasThreeOnWithCountdown()})
+current=b.nasThreeCurrentGallons(),total=b.nasThreeTotalGallons(),quantitative=b.nasThreeQuantitativeGallons(),surplus=b.nasThreeSurplusGallons(),single_amount=b.nasThreeSingleAmountGallons(),},liters={
+current=b.nasThreeCurrentLiters(),total=b.nasThreeTotalLiters(),quantitative=b.nasThreeQuantitativeLiters(),surplus=b.nasThreeSurplusLiters(),single_amount=b.nasThreeSingleAmountLiters(),},}
+local function j(G,F,q)
+local i=assert(n[F])local p={
+profile=G,time_start="2000",d.dp_on_off(1,{name="switch",emit=b.switch()}),d.dp_enum(3,{name="naswv03b_status",read_only=true,emit=b.nasThreeStatus(),converter=A}),d.dp_numeric(5,{name="naswv03b_countdown",emit=b.nasThreeCountdown()}),d.dp_numeric(6,{name="naswv03b_countdown_left",read_only=true,emit=b.nasThreeCountdownLeft()}),d.dp_numeric(9,{name="naswv03b_water_current",read_only=true,emit=i.current,converter=e.divide_by_pair(1000)}),d.dp_battery(11,{read_only=true,emit=b.battery()}),d.dp_numeric(15,{name="naswv03b_water_total",read_only=true,emit=i.total,converter=e.divide_by_pair(1000)}),d.dp_bitmap(19,{name="naswv03b_fault",read_only=true,emit=b.nasThreeFault(),converter=e.from_only(r)}),
+d.dp_binary(101,{name="naswv03b_water_total_reset",emit=b.nasThreeWaterTotalReset(),converter=e.from_to(s,function(l)return l=="reset"end)}),
+d.dp_numeric(102,{name="naswv03b_quantitative_watering",emit=i.quantitative}),d.dp_binary(103,{name="naswv03b_flow_switch",emit=b.nasThreeFlowSwitch(),converter=m}),d.dp_binary(104,{name="naswv03b_child_lock",emit=b.nasThreeChildLock(),converter=m}),d.dp_numeric(105,{name="naswv03b_surplus_flow",read_only=true,emit=i.surplus}),d.dp_numeric(106,{name="naswv03b_single_watering_duration",read_only=true,emit=b.nasThreeSingleWateringDuration()}),
+d.dp_binary(107,{name="naswv03b_refresh",emit=b.nasThreeRefresh(),converter=e.from_to(x,function(l)return l=="refresh"end)}),
+d.dp_numeric(108,{name="naswv03b_single_watering_amount",read_only=true,emit=i.single_amount}),}if q then
+p[#p+1]=d.dp_numeric(109,{name="naswv03b_on_with_countdown",emit=b.nasThreeOnWithCountdown()})
 end
-return definition
+return p
 end
-local naswv03b_gallons=naswv03b_definition("valves-nas-wv03b-gallons","gallons",true)register_device_definition(naswv03b_gallons,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_nnhwcvbk","_TZE284_nnhwcvbk","_TZE204_rzrrjkz2","_TZE284_rzrrjkz2","_TZE204_uab532m0","_TZE284_uab532m0",}))local naswv03b_gallons_no_on=naswv03b_definition("valves-nas-wv03b-gallons-no-on-countdown","gallons",false)register_device_definition(naswv03b_gallons_no_on,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_4fblxpma","_TZE284_4fblxpma",}))local naswv03b_liters=naswv03b_definition("valves-nas-wv03b-liters","liters",true)register_device_definition(naswv03b_liters,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_z7a2jmyy","_TZE284_z7a2jmyy",}))local battery_valve={
-profile="valves-valve-battery-state-zpv01",tuya.dp_on_off(1,{
-name="valve",emit=emit.valve(),converter=valve_open_closed_converter,}),tuya.dp_enum(8,{
-name="valve_state",read_only=true,emit=emit.zpv01ValveState(),converter=converter.lookup_from_to({
-unknown=0,open=1,closed=2,}),}),tuya.dp_battery(101,{read_only=true,emit=emit.battery()}),}register_device_definition(battery_valve,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_dsagrkvg","_TZE284_zm8zpwas","_TZE284_sdvbnmj5",}))local frankever_valve={
-profile="valves-valve-threshold-timer-fkv02",magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,query_on_announce=false,initial_custom_states=false,refresh_state_query=false,time_start="off",tuya.dp_on_off(1,{
-name="valve",emit=emit.valve(),converter=valve_open_closed_converter,}),tuya.dp_numeric(9,{
-name="fkv02_countdown",emit=emit.fkv02Countdown(),}),tuya.dp_enum(27,{
-name="fkv02_power_off_state",emit=emit.fkv02PowerOffState(),converter=converter.lookup_from_to({off=0,on=1,maintain=2}),}),tuya.dp_numeric(101,{
-name="threshold",emit=emit.fkv02Threshold(),}),}register_device_definition(frankever_valve,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_wt9agwf3","_TZE200_5uodvhgc","_TZE200_1n2zev06",}))local position_valve={
-profile="valves-valve-position-hbnfokum",tuya.dp_on_off(1,{
-name="valve",emit=emit.valve(),converter=valve_open_closed_converter,}),tuya.dp_numeric(101,{name="position",emit=emit.valvePositionHbnfokum()}),tuya.dp_numeric(102,{name="position_current",read_only=true,emit=emit.valveCurrentPositionHbnfokum()}),}register_device_definition(position_valve,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_hbnfokum",}))local zvg1_valve={
-profile="valves-valve-battery-timer-zvg1",tuya.dp_on_off(1,{
-name="valve",emit=emit.valve(),converter=valve_open_closed_converter,}),tuya.dp_numeric(5,{
-name="water_consumed",read_only=true,emit=emit.zvg1WaterConsumed(),converter=converter.divide_by_from_only(33.8140226),}),tuya.dp_battery(7,{read_only=true,emit=emit.battery()}),tuya.dp_enum(10,{
-name="weather_delay",emit=emit.zvg1WeatherDelay(),converter=converter.lookup_from_to({
-disabled=0,["24h"]=1,["48h"]=2,["72h"]=3,}),}),tuya.dp_numeric(11,{
-name="timer",emit=emit.zvg1Timer(),converter=converter.divide_by_pair(60),}),tuya.dp_numeric(11,{
-name="timer_time_left",read_only=true,emit=emit.zvg1TimerTimeLeft(),converter=converter.divide_by_from_only(60),}),tuya.dp_enum(12,{
-name="timer_state",read_only=true,emit=emit.zvg1TimerState(),converter=converter.from_only(converter.lookup_value({
-[0]="disabled",[1]="active",},"enabled")),}),tuya.dp_numeric(15,{
-name="last_valve_open_duration",read_only=true,emit=emit.zvg1LastValveDuration(),converter=converter.divide_by_from_only(60),}),}register_device_definition(zvg1_valve,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_akjefhj5","_TZE200_2wg5qrjy","_TZE200_81isopgh","_TZE204_qtnjuoae","_TZE284_qtnjuoae","_TZE284_xuflgcnz",}))local irrigation_zvl_pro={
-profile="valves-valve-battery-countdown-zvl-pro",tuya.dp_on_off(1,{
-name="valve",emit=emit.valve(),converter=valve_open_closed_converter,}),tuya.dp_raw(4,{name="fault",read_only=true}),tuya.dp_numeric(5,{name="water_once",read_only=true,emit=emit.zvlProWaterOnce()}),tuya.dp_battery(7,{read_only=true,emit=emit.battery()}),tuya.dp_numeric(11,{name="countdown",emit=emit.zvlProCountdown()}),tuya.dp_enum(12,{
-name="work_state",read_only=true,emit=emit.zvlProWorkState(),converter=converter.lookup_from_to({
-auto=0,manual=1,idle=2,}),}),}register_device_definition(irrigation_zvl_pro,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_fphxkxue",}))local gx03_valve_state_converter=converter.lookup_from_to({
-manual=0,auto=1,closed=2,})local gx03_valve={
-profile="valves-valve-2-battery-timer-gx03",magic_packet=true,query_on_configure=true,time_start="off",tuya.dp_on_off(1,{
-name="valve",component="main",emit=emit.valve(),converter=valve_open_closed_converter,}),tuya.dp_on_off(2,{
-name="valve",component="valve2",emit=emit.valve(),converter=valve_open_closed_converter,}),tuya.dp_numeric(13,{name="timer",component="main",emit=emit.gx03Timer()}),tuya.dp_numeric(14,{name="timer",component="valve2",emit=emit.gx03Timer()}),tuya.dp_numeric(25,{
-name="last_duration",component="main",read_only=true,emit=emit.gx03LastDuration(),}),tuya.dp_numeric(26,{
-name="last_duration",component="valve2",read_only=true,emit=emit.gx03LastDuration(),}),tuya.dp_battery(59,{read_only=true,emit=emit.battery()}),tuya.dp_enum(104,{
-name="valve_state",component="main",emit=emit.gx03ValveState(),converter=gx03_valve_state_converter,read_only=true,}),tuya.dp_enum(105,{
-name="valve_state",component="valve2",emit=emit.gx03ValveState(),converter=gx03_valve_state_converter,read_only=true,}),}register_device_definition(gx03_valve,device_helpers.create_fingerprints("TS0601",{
-"_TZE284_8zizsafo","_TZE284_iilebqoo","_TZE284_n41i9jyt",}))local dual_water_switch_status_converter=converter.lookup_from_to({
-manual=0,auto=1,idle=2,})local dual_water_switch={
-profile="valves-valve-2-battery-status",tuya.dp_on_off(1,{
-name="valve",component="main",emit=emit.valve(),converter=valve_open_closed_converter,}),tuya.dp_on_off(2,{
-name="valve",component="valve2",emit=emit.valve(),converter=valve_open_closed_converter,}),tuya.dp_numeric(13,{name="countdown",component="main",emit=emit.waterSwitchCountdown()}),tuya.dp_numeric(14,{name="countdown",component="valve2",emit=emit.waterSwitchCountdown()}),tuya.dp_numeric(25,{
-name="valve_duration",component="main",read_only=true,emit=emit.waterSwitchDuration(),}),tuya.dp_numeric(26,{
-name="valve_duration",component="valve2",read_only=true,emit=emit.waterSwitchDuration(),}),tuya.dp_battery(59,{read_only=true,emit=emit.battery()}),tuya.dp_enum(104,{
-name="valve_status",component="main",emit=emit.valveStatusDualIrrigationMode(),converter=dual_water_switch_status_converter,read_only=true,}),tuya.dp_enum(105,{
-name="valve_status",component="valve2",emit=emit.valveStatusDualIrrigationMode(),converter=dual_water_switch_status_converter,read_only=true,}),}register_device_definition(dual_water_switch,device_helpers.create_fingerprints("TS0601",{
-"_TZE284_eaet5qt5","_TZE284_fhvpaltk",}))local ultrasonic_water_meter_valve={
-profile="valves-valve-ultrasonic-meter",tuya.dp_numeric(1,{
-name="water_consumed",read_only=true,emit=emit.vuwtqx0tWaterConsumed(),}),tuya.dp_month_consumption(2,{
-raw=true,raw_bytes=4,raw_from_tail=true,scale=1,read_only=true,emit=emit.vuwtqx0tMonthConsumption(),}),tuya.dp_daily_consumption(3,{
-raw=true,raw_bytes=4,raw_from_tail=true,scale=1,read_only=true,emit=emit.vuwtqx0tDailyConsumption(),}),tuya.dp_numeric(4,{
-name="report_period",converter=converter.report_period_hours(),emit=emit.vuwtqx0tReportPeriod(),}),tuya.dp_water_meter_faults(5,{read_only=true,emit=emit.vuwtqx0tFaults()}),tuya.dp_on_off(13,{
-name="valve",emit=emit.valve(),converter=valve_open_closed_converter,}),tuya.dp_on_off(14,{
-name="auto_clean",emit=emit.autoCleanUltrasonicValve(),converter=converter.lookup_from_to({
-on=true,off=false,}),}),tuya.dp_meter_id(16,{read_only=true,emit=emit.vuwtqx0tMeterId()}),tuya.dp_reverse_water_consumed(18,{
-raw=true,raw_bytes=4,read_only=true,emit=emit.vuwtqx0tReverseConsumed(),}),tuya.dp_flow_rate(21,{
-raw=true,raw_bytes=4,scale=1,read_only=true,emit=emit.vuwtqx0tFlowRate(),}),tuya.dp_temperature(22,{name="temperature",scale=100,read_only=true,emit=emit.temperature("C")}),tuya.dp_battery_voltage(26,{name="battery_voltage",read_only=true,emit=emit.batteryVoltage()}),}register_device_definition(ultrasonic_water_meter_valve,device_helpers.create_fingerprints("TS0601",{
+local w=j("valves-nas-wv03b-gallons","gallons",true)a(w,f.create_fingerprints("TS0601",{
+"_TZE204_nnhwcvbk","_TZE284_nnhwcvbk","_TZE204_rzrrjkz2","_TZE284_rzrrjkz2","_TZE204_uab532m0","_TZE284_uab532m0",}))local o=j("valves-nas-wv03b-gallons-no-on-countdown","gallons",false)a(o,f.create_fingerprints("TS0601",{
+"_TZE204_4fblxpma","_TZE284_4fblxpma",}))local z=j("valves-nas-wv03b-liters","liters",true)a(z,f.create_fingerprints("TS0601",{
+"_TZE204_z7a2jmyy","_TZE284_z7a2jmyy",}))local C={
+profile="valves-valve-battery-state-zpv01",d.dp_on_off(1,{
+name="valve",emit=b.valve(),converter=c,}),d.dp_enum(8,{
+name="valve_state",read_only=true,emit=b.zpv01ValveState(),converter=e.lookup_from_to({
+unknown=0,open=1,closed=2,}),}),d.dp_battery(101,{read_only=true,emit=b.battery()}),}a(C,f.create_fingerprints("TS0601",{
+"_TZE204_dsagrkvg","_TZE284_zm8zpwas","_TZE284_sdvbnmj5",}))local y={
+profile="valves-valve-threshold-timer-fkv02",magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,query_on_announce=false,initial_custom_states=false,refresh_state_query=false,time_start="off",d.dp_on_off(1,{
+name="valve",emit=b.valve(),converter=c,}),d.dp_numeric(9,{
+name="fkv02_countdown",emit=b.fkv02Countdown(),}),d.dp_enum(27,{
+name="fkv02_power_off_state",emit=b.fkv02PowerOffState(),converter=e.lookup_from_to({off=0,on=1,maintain=2}),}),d.dp_numeric(101,{
+name="threshold",emit=b.fkv02Threshold(),}),}a(y,f.create_fingerprints("TS0601",{
+"_TZE200_wt9agwf3","_TZE200_5uodvhgc","_TZE200_1n2zev06",}))local B={
+profile="valves-valve-position-hbnfokum",d.dp_on_off(1,{
+name="valve",emit=b.valve(),converter=c,}),d.dp_numeric(101,{name="position",emit=b.valvePositionHbnfokum()}),d.dp_numeric(102,{name="position_current",read_only=true,emit=b.valveCurrentPositionHbnfokum()}),}a(B,f.create_fingerprints("TS0601",{
+"_TZE200_hbnfokum",}))local E={
+profile="valves-valve-battery-timer-zvg1",d.dp_on_off(1,{
+name="valve",emit=b.valve(),converter=c,}),d.dp_numeric(5,{
+name="water_consumed",read_only=true,emit=b.zvg1WaterConsumed(),converter=e.divide_by_from_only(33.8140226),}),d.dp_battery(7,{read_only=true,emit=b.battery()}),d.dp_enum(10,{
+name="weather_delay",emit=b.zvg1WeatherDelay(),converter=e.lookup_from_to({
+disabled=0,["24h"]=1,["48h"]=2,["72h"]=3,}),}),d.dp_numeric(11,{
+name="timer",emit=b.zvg1Timer(),converter=e.divide_by_pair(60),}),d.dp_numeric(11,{
+name="timer_time_left",read_only=true,emit=b.zvg1TimerTimeLeft(),converter=e.divide_by_from_only(60),}),d.dp_enum(12,{
+name="timer_state",read_only=true,emit=b.zvg1TimerState(),converter=e.from_only(e.lookup_value({
+[0]="disabled",[1]="active",},"enabled")),}),d.dp_numeric(15,{
+name="last_valve_open_duration",read_only=true,emit=b.zvg1LastValveDuration(),converter=e.divide_by_from_only(60),}),}a(E,f.create_fingerprints("TS0601",{
+"_TZE200_akjefhj5","_TZE200_2wg5qrjy","_TZE200_81isopgh","_TZE204_qtnjuoae","_TZE284_qtnjuoae","_TZE284_xuflgcnz",}))local u={
+profile="valves-valve-battery-countdown-zvl-pro",d.dp_on_off(1,{
+name="valve",emit=b.valve(),converter=c,}),d.dp_raw(4,{name="fault",read_only=true}),d.dp_numeric(5,{name="water_once",read_only=true,emit=b.zvlProWaterOnce()}),d.dp_battery(7,{read_only=true,emit=b.battery()}),d.dp_numeric(11,{name="countdown",emit=b.zvlProCountdown()}),d.dp_enum(12,{
+name="work_state",read_only=true,emit=b.zvlProWorkState(),converter=e.lookup_from_to({
+auto=0,manual=1,idle=2,}),}),}a(u,f.create_fingerprints("TS0601",{
+"_TZE200_fphxkxue",}))local h=e.lookup_from_to({
+manual=0,auto=1,closed=2,})local D={
+profile="valves-valve-2-battery-timer-gx03",magic_packet=true,query_on_configure=true,time_start="off",d.dp_on_off(1,{
+name="valve",component="main",emit=b.valve(),converter=c,}),d.dp_on_off(2,{
+name="valve",component="valve2",emit=b.valve(),converter=c,}),d.dp_numeric(13,{name="timer",component="main",emit=b.gx03Timer()}),d.dp_numeric(14,{name="timer",component="valve2",emit=b.gx03Timer()}),d.dp_numeric(25,{
+name="last_duration",component="main",read_only=true,emit=b.gx03LastDuration(),}),d.dp_numeric(26,{
+name="last_duration",component="valve2",read_only=true,emit=b.gx03LastDuration(),}),d.dp_battery(59,{read_only=true,emit=b.battery()}),d.dp_enum(104,{
+name="valve_state",component="main",emit=b.gx03ValveState(),converter=h,read_only=true,}),d.dp_enum(105,{
+name="valve_state",component="valve2",emit=b.gx03ValveState(),converter=h,read_only=true,}),}a(D,f.create_fingerprints("TS0601",{
+"_TZE284_8zizsafo","_TZE284_iilebqoo","_TZE284_n41i9jyt",}))local g=e.lookup_from_to({
+manual=0,auto=1,idle=2,})local v={
+profile="valves-valve-2-battery-status",d.dp_on_off(1,{
+name="valve",component="main",emit=b.valve(),converter=c,}),d.dp_on_off(2,{
+name="valve",component="valve2",emit=b.valve(),converter=c,}),d.dp_numeric(13,{name="countdown",component="main",emit=b.waterSwitchCountdown()}),d.dp_numeric(14,{name="countdown",component="valve2",emit=b.waterSwitchCountdown()}),d.dp_numeric(25,{
+name="valve_duration",component="main",read_only=true,emit=b.waterSwitchDuration(),}),d.dp_numeric(26,{
+name="valve_duration",component="valve2",read_only=true,emit=b.waterSwitchDuration(),}),d.dp_battery(59,{read_only=true,emit=b.battery()}),d.dp_enum(104,{
+name="valve_status",component="main",emit=b.valveStatusDualIrrigationMode(),converter=g,read_only=true,}),d.dp_enum(105,{
+name="valve_status",component="valve2",emit=b.valveStatusDualIrrigationMode(),converter=g,read_only=true,}),}a(v,f.create_fingerprints("TS0601",{
+"_TZE284_eaet5qt5","_TZE284_fhvpaltk",}))local k={
+profile="valves-valve-ultrasonic-meter",d.dp_numeric(1,{
+name="water_consumed",read_only=true,emit=b.vuwtqx0tWaterConsumed(),}),d.dp_month_consumption(2,{
+raw=true,raw_bytes=4,raw_from_tail=true,scale=1,read_only=true,emit=b.vuwtqx0tMonthConsumption(),}),d.dp_daily_consumption(3,{
+raw=true,raw_bytes=4,raw_from_tail=true,scale=1,read_only=true,emit=b.vuwtqx0tDailyConsumption(),}),d.dp_numeric(4,{
+name="report_period",converter=e.report_period_hours(),emit=b.vuwtqx0tReportPeriod(),}),d.dp_water_meter_faults(5,{read_only=true,emit=b.vuwtqx0tFaults()}),d.dp_on_off(13,{
+name="valve",emit=b.valve(),converter=c,}),d.dp_on_off(14,{
+name="auto_clean",emit=b.autoCleanUltrasonicValve(),converter=e.lookup_from_to({
+on=true,off=false,}),}),d.dp_meter_id(16,{read_only=true,emit=b.vuwtqx0tMeterId()}),d.dp_reverse_water_consumed(18,{
+raw=true,raw_bytes=4,read_only=true,emit=b.vuwtqx0tReverseConsumed(),}),d.dp_flow_rate(21,{
+raw=true,raw_bytes=4,scale=1,read_only=true,emit=b.vuwtqx0tFlowRate(),}),d.dp_temperature(22,{name="temperature",scale=100,read_only=true,emit=b.temperature("C")}),d.dp_battery_voltage(26,{name="battery_voltage",read_only=true,emit=b.batteryVoltage()}),}a(k,f.create_fingerprints("TS0601",{
 "_TZE200_vuwtqx0t","_TZE284_vuwtqx0t",}))return{
-id="ef00.valves",registrations=device_definitions,}
+id="ef00.valves",registrations=t,}

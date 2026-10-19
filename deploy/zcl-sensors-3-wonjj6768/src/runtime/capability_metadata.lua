@@ -1,79 +1,79 @@
-local custom_capabilities={}local strings={"s","sonoffSafetyOccupancyTimeout","occupancyTimeout","sonoff_safety_occupancy_timeout","Sonoff Safety Occupancy Timeout","sonoffSafetyAlarmDuration","alarmDuration","sonoff_safety_alarm_duration","Sonoff Safety Alarm Duration","%","zg303zSoilMoisture","soilMoisture","zg303z_soil_moisture","Zg303z Soil Moisture","lx","shellyBluMotionDarkThreshold","darkThreshold","shelly_blu_motion_dark_threshold","Shelly Blu Motion Dark Threshold","shellyBluMotionBrightThreshold","brightThreshold","shelly_blu_motion_bright_threshold","Shelly Blu Motion Bright Threshold","shellyBluDoorDarkThreshold","shelly_blu_door_dark_threshold","Shelly Blu Door Dark Threshold","shellyBluDoorBrightThreshold","shelly_blu_door_bright_threshold","Shelly Blu Door Bright Threshold","shellyBluDisplayDarkThreshold","shelly_blu_display_dark_threshold","Shelly Blu Display Dark Threshold","shellyBluDisplayBrightThreshold","shelly_blu_display_bright_threshold","Shelly Blu Display Bright Threshold","ppm","airCubeEquivalentCo2","equivalentCarbonDioxide","aircube_equivalent_co2","Air Cube Equivalent Co2","airCubeVocLevel","vocLevel","aircube_voc_level","Air Cube Voc Level","battery_low","batteryLow","Battery low","normal","low","shellyBluDoorHandlePosition","shelly_handle_position","Shelly Blu Door Handle Position","open","closed","tilted","sonoffSafetyOccupancySensitivity","occupancySensitivity","sonoff_safety_occupancy_sensitivity","Sonoff Safety Occupancy Sensitivity","medium","high","sonoffSafetyIllumination","illumination","sonoff_safety_illumination","Sonoff Safety Illumination","dim","bright","sonoffSafetyAlarmSoundEnable","alarmSoundEnable","sonoff_safety_alarm_sound_enable","Sonoff Safety Alarm Sound Enable","off","on","sonoffSafetyAlarmLightEnable","alarmLightEnable","sonoff_safety_alarm_light_enable","Sonoff Safety Alarm Light Enable","sonoffSafetyAlarmSoundType","alarmSoundType","sonoff_safety_alarm_sound_type","Sonoff Safety Alarm Sound Type","siren_classic","siren_steady","siren_rising","siren_warning","siren_rapid","siren_emergency","tone_chirp","tone_hi_lo","tone_intermittent","tone_pulse","sonoffSafetyAlarmVolume","alarmVolume","sonoff_safety_alarm_volume","Sonoff Safety Alarm Volume","max","shellyBluSensitivity","sensitivity","shelly_blu_motion_sensitivity","Shelly Blu Sensitivity","shellyBluMotionLightLevel","shelly_blu_motion_light_level","Shelly Blu Motion Light Level","dark","twilight","shellyBluDoorLightLevel","shelly_blu_door_light_level","Shelly Blu Door Light Level","shellyBluDisplayLightLevel","shelly_blu_display_light_level","Shelly Blu Display Light Level","trust808BatteryLow","trust808_battery_low","Trust808Battery Low","besisMs01Identify","identify","besis_ms01_identify","Besis Ms01Identify","last_power_response_time","lastPowerResponseTime","Last power response time"}
-local function string_value(value)
-if type(value)=="number"then return strings[value]end
-return value
+local a={}local H={"lx","low","bright","medium","high","dark","twilight","s","normal","off","on","darkThreshold","brightThreshold","battery_low","batteryLow","shellyBluDoorHandlePosition","shellyBluMotionLightLevel","shellyBluDoorLightLevel","shellyBluDisplayLightLevel","identify","sonoffSafetyOccupancyTimeout","sonoffSafetyAlarmDuration","%","zg303zSoilMoisture","shellyBluMotionDarkThreshold","shellyBluMotionBrightThreshold","shellyBluDoorDarkThreshold","shellyBluDoorBrightThreshold","shellyBluDisplayDarkThreshold","shellyBluDisplayBrightThreshold","ppm","airCubeEquivalentCo2","airCubeVocLevel","open","closed","tilted","sonoffSafetyOccupancySensitivity","sonoffSafetyIllumination","dim","sonoffSafetyAlarmSoundEnable","sonoffSafetyAlarmLightEnable","sonoffSafetyAlarmSoundType","siren_classic","siren_steady","siren_rising","siren_warning","siren_rapid","siren_emergency","tone_chirp","tone_hi_lo","tone_intermittent","tone_pulse","sonoffSafetyAlarmVolume","max","shellyBluSensitivity","trust808BatteryLow","besisMs01Identify","lastPowerResponseTime"}
+local function b(g)
+if type(g)=="number"then return H[g]end
+return g
 end
-local function capability_id(value)local suffix=string_value(value);if suffix==nil then return nil end;return"concertmirror08464."..suffix end
-local table_groups={}
-local function grouped_table(group_id)
-if type(group_id)~="number"then return{}end
-local existing=table_groups[group_id]
-if existing~=nil then return existing end
-local out={}table_groups[group_id]=out
-return out
+local function p(g)local suffix=b(g);if suffix==nil then return nil end;return"concertmirror08464."..suffix end
+local t={}
+local function q(k)
+if type(k)~="number"then return{}end
+local x=t[k]
+if x~=nil then return x end
+local n={}t[k]=n
+return n
 end
-local function string_list(values,group_id)
-if type(values)~="table"then return nil end
-local out=grouped_table(group_id)
-for index,value in ipairs(values)do out[index]=string_value(value)end
-return out
+local function s(D,k)
+if type(D)~="table"then return nil end
+local n=q(k)
+for A,g in ipairs(D)do n[A]=b(g)end
+return n
 end
-local function optional_string(value,default)
-if value==nil then return default end
-if value==0 then return nil end
-return string_value(value)
+local function i(g,E)
+if g==nil then return E end
+if g==0 then return nil end
+return b(g)
 end
-local function command_default(attribute_name)
+local function m(attribute_name)
 if type(attribute_name)~="string"or attribute_name==""then return nil end
 return"set"..attribute_name:sub(1,1):upper()..attribute_name:sub(2)
 end
-local function range(value)
-if type(value)~="table"then return nil end
-local out=grouped_table(value[6])out.minimum=value[1]out.maximum=value[2]out.step=value[3]out.unit=string_value(value[4])out.allowed_values=string_list(value[5],value[7])return out
+local function J(g)
+if type(g)~="table"then return nil end
+local n=q(g[6])n.minimum=g[1]n.maximum=g[2]n.step=g[3]n.unit=b(g[4])n.allowed_values=s(g[5],g[7])return n
 end
-local function allowed_range(allowed_values,group_id)
-if allowed_values==nil and group_id==nil then return nil end
-local out=grouped_table(group_id)out.allowed_values=allowed_values
-return out
+local function w(j,k)
+if j==nil and k==nil then return nil end
+local n=q(k)n.allowed_values=j
+return n
 end
-local function numeric(row)
-local attribute_name=string_value(row[4])return{kind="numeric",emit_name=string_value(row[1]),range_key=string_value(row[2]),capability_id=capability_id(row[3]),attribute_name=attribute_name,range_attribute_name=string_value(row[5]),command_name=optional_string(row[6],command_default(attribute_name)),argument_name=optional_string(row[7],attribute_name),mapping_name=string_value(row[8]),label=string_value(row[9]),default_range=range(row[10]),event_minimum=row[11],event_maximum=row[12],event_unit=string_value(row[13])}
+local function G(f)
+local attribute_name=b(f[4])return{kind="numeric",emit_name=b(f[1]),range_key=b(f[2]),capability_id=p(f[3]),attribute_name=attribute_name,range_attribute_name=b(f[5]),command_name=i(f[6],m(attribute_name)),argument_name=i(f[7],attribute_name),mapping_name=b(f[8]),label=b(f[9]),default_range=J(f[10]),event_minimum=f[11],event_maximum=f[12],event_unit=b(f[13])}
 end
-local function enum(row)
-local attribute_name=string_value(row[4])local supported_values=string_list(row[10],row[12])local default_allowed_values=string_list(row[11],row[14])local default_range=allowed_range(default_allowed_values,row[13])return{kind="enum",emit_name=string_value(row[1]),range_key=string_value(row[2]),capability_id=capability_id(row[3]),attribute_name=attribute_name,supported_attribute_name=string_value(row[5]),command_name=optional_string(row[6],command_default(attribute_name)),argument_name=optional_string(row[7],attribute_name),mapping_name=string_value(row[8]),label=string_value(row[9]),supported_values=supported_values,default_range=default_range}
+local function K(f)
+local attribute_name=b(f[4])local u=s(f[10],f[12])local r=s(f[11],f[14])local d=w(r,f[13])return{kind="enum",emit_name=b(f[1]),range_key=b(f[2]),capability_id=p(f[3]),attribute_name=attribute_name,supported_attribute_name=b(f[5]),command_name=i(f[6],m(attribute_name)),argument_name=i(f[7],attribute_name),mapping_name=b(f[8]),label=b(f[9]),supported_values=u,default_range=d}
 end
-local function text(row)
-local attribute_name=string_value(row[3])return{kind="text",emit_name=string_value(row[1]),capability_id=capability_id(row[2]),attribute_name=attribute_name,command_name=optional_string(row[4],command_default(attribute_name)),argument_name=optional_string(row[5],attribute_name),mapping_name=string_value(row[6]),label=string_value(row[7]),maximum_length=row[8]}
+local function M(f)
+local attribute_name=b(f[3])return{kind="text",emit_name=b(f[1]),capability_id=p(f[2]),attribute_name=attribute_name,command_name=i(f[4],m(attribute_name)),argument_name=i(f[5],attribute_name),mapping_name=b(f[6]),label=b(f[7]),maximum_length=f[8]}
 end
-local function build(rows,factory)
-local out={}
-for _,row in ipairs(rows)do out[#out+1]=factory(row)end
-return out
+local function z(L,F)
+local n={}
+for _,f in ipairs(L)do n[#n+1]=F(f)end
+return n
 end
-custom_capabilities.numeric=build({{2,nil,2,3,nil,nil,nil,4,5,{15,65535,1,1,nil,1,nil},nil,nil,1},{6,nil,6,7,nil,nil,nil,8,9,{1,900,1,1,nil,2,nil},nil,nil,1},{11,nil,11,12,nil,0,0,13,14,{0,100,0.01,10,nil,3,nil},nil,nil,10},{16,nil,16,17,nil,nil,nil,18,19,{0,65535,1,15,nil,4,nil},nil,nil,15},{20,nil,20,21,nil,nil,nil,22,23,{0,65535,1,15,nil,5,nil},nil,nil,15},{24,nil,24,17,nil,nil,nil,25,26,{0,65535,1,15,nil,6,nil},nil,nil,15},{27,nil,27,21,nil,nil,nil,28,29,{0,65535,1,15,nil,7,nil},nil,nil,15},{30,nil,30,17,nil,nil,nil,31,32,{0,65535,1,15,nil,8,nil},nil,nil,15},{33,nil,33,21,nil,nil,nil,34,35,{0,65535,1,15,nil,9,nil},nil,nil,15},{37,nil,37,38,nil,0,0,39,40,{400,8192,1,36,nil,10,nil},nil,nil,36},{41,nil,41,42,nil,0,0,43,44,{0,500,1,nil,nil,11,nil},nil,nil,nil}},numeric)custom_capabilities.enum=build({{45,45,46,46,nil,nil,nil,45,47,{48,49},{48,49},12,13,12},{50,nil,50,50,nil,0,0,51,52,{53,54,55},{53,54,55},14,15,14},{56,nil,56,57,nil,nil,nil,58,59,{49,60,61},{49,60,61},16,17,16},{62,nil,62,63,nil,0,0,64,65,{66,67},{66,67},18,19,18},{68,nil,68,69,nil,nil,nil,70,71,{72,73},{72,73},20,21,20},{74,nil,74,75,nil,nil,nil,76,77,{72,73},{72,73},22,23,22},{78,nil,78,79,nil,nil,nil,80,81,{82,83,84,85,86,87,88,89,90,91},{82,83,84,85,86,87,88,89,90,91},24,25,24},{92,nil,92,93,nil,nil,nil,94,95,{49,60,61,96},{49,60,61,96},26,27,26},{97,nil,97,98,nil,nil,nil,99,100,{49,60,61},{49,60,61},28,29,28},{101,nil,101,101,nil,0,0,102,103,{104,105,67},{104,105,67},30,31,30},{106,nil,106,106,nil,0,0,107,108,{104,105,67},{104,105,67},32,33,32},{109,nil,109,109,nil,0,0,110,111,{104,105,67},{104,105,67},34,35,34},{112,nil,112,46,nil,0,0,113,114,{48,49},{48,49},36,37,36},{115,nil,115,116,nil,nil,nil,117,118,{116},{116},38,39,38}},enum)custom_capabilities.text=build({{119,120,120,0,0,nil,121,64}},text)custom_capabilities.driver_message={["attribute_name"]="driverMessage",["capability_id"]="concertmirror08464.driverMessage",["emit_name"]="driver_message",["label"]="Driver message",["maximum_length"]=512}custom_capabilities.by_range_key={}custom_capabilities.by_emit_name={}custom_capabilities.by_capability_id={}
-local function index_metadata(definitions)
-for _,metadata in ipairs(definitions)do
-custom_capabilities.by_emit_name[metadata.emit_name]=metadata
-if type(metadata.capability_id)=="string"and metadata.capability_id~=""then custom_capabilities.by_capability_id[metadata.capability_id]=metadata end
-if type(metadata.range_key)=="string"and metadata.range_key~=""then custom_capabilities.by_range_key[metadata.range_key]=metadata end
+a.numeric=z({{21,nil,21,"occupancyTimeout",nil,nil,nil,"sonoff_safety_occupancy_timeout","Sonoff Safety Occupancy Timeout",{15,65535,1,8,nil,1},nil,nil,8},{22,nil,22,"alarmDuration",nil,nil,nil,"sonoff_safety_alarm_duration","Sonoff Safety Alarm Duration",{1,900,1,8,nil,2},nil,nil,8},{24,nil,24,"soilMoisture",nil,0,0,"zg303z_soil_moisture","Zg303z Soil Moisture",{0,100,0.01,23,nil,3},nil,nil,23},{25,nil,25,12,nil,nil,nil,"shelly_blu_motion_dark_threshold","Shelly Blu Motion Dark Threshold",{0,65535,1,1,nil,4},nil,nil,1},{26,nil,26,13,nil,nil,nil,"shelly_blu_motion_bright_threshold","Shelly Blu Motion Bright Threshold",{0,65535,1,1,nil,5},nil,nil,1},{27,nil,27,12,nil,nil,nil,"shelly_blu_door_dark_threshold","Shelly Blu Door Dark Threshold",{0,65535,1,1,nil,6},nil,nil,1},{28,nil,28,13,nil,nil,nil,"shelly_blu_door_bright_threshold","Shelly Blu Door Bright Threshold",{0,65535,1,1,nil,7},nil,nil,1},{29,nil,29,12,nil,nil,nil,"shelly_blu_display_dark_threshold","Shelly Blu Display Dark Threshold",{0,65535,1,1,nil,8},nil,nil,1},{30,nil,30,13,nil,nil,nil,"shelly_blu_display_bright_threshold","Shelly Blu Display Bright Threshold",{0,65535,1,1,nil,9},nil,nil,1},{32,nil,32,"equivalentCarbonDioxide",nil,0,0,"aircube_equivalent_co2","Air Cube Equivalent Co2",{400,8192,1,31,nil,10},nil,nil,31},{33,nil,33,"vocLevel",nil,0,0,"aircube_voc_level","Air Cube Voc Level",{0,500,1,nil,nil,11}}},G)a.enum=z({{14,14,15,15,nil,nil,nil,14,"Battery low",{9,2},{9,2},12,13,12},{16,nil,16,16,nil,0,0,"shelly_handle_position","Shelly Blu Door Handle Position",{34,35,36},{34,35,36},14,15,14},{37,nil,37,"occupancySensitivity",nil,nil,nil,"sonoff_safety_occupancy_sensitivity","Sonoff Safety Occupancy Sensitivity",{2,4,5},{2,4,5},16,17,16},{38,nil,38,"illumination",nil,0,0,"sonoff_safety_illumination","Sonoff Safety Illumination",{39,3},{39,3},18,19,18},{40,nil,40,"alarmSoundEnable",nil,nil,nil,"sonoff_safety_alarm_sound_enable","Sonoff Safety Alarm Sound Enable",{10,11},{10,11},20,21,20},{41,nil,41,"alarmLightEnable",nil,nil,nil,"sonoff_safety_alarm_light_enable","Sonoff Safety Alarm Light Enable",{10,11},{10,11},22,23,22},{42,nil,42,"alarmSoundType",nil,nil,nil,"sonoff_safety_alarm_sound_type","Sonoff Safety Alarm Sound Type",{43,44,45,46,47,48,49,50,51,52},{43,44,45,46,47,48,49,50,51,52},24,25,24},{53,nil,53,"alarmVolume",nil,nil,nil,"sonoff_safety_alarm_volume","Sonoff Safety Alarm Volume",{2,4,5,54},{2,4,5,54},26,27,26},{55,nil,55,"sensitivity",nil,nil,nil,"shelly_blu_motion_sensitivity","Shelly Blu Sensitivity",{2,4,5},{2,4,5},28,29,28},{17,nil,17,17,nil,0,0,"shelly_blu_motion_light_level","Shelly Blu Motion Light Level",{6,7,3},{6,7,3},30,31,30},{18,nil,18,18,nil,0,0,"shelly_blu_door_light_level","Shelly Blu Door Light Level",{6,7,3},{6,7,3},32,33,32},{19,nil,19,19,nil,0,0,"shelly_blu_display_light_level","Shelly Blu Display Light Level",{6,7,3},{6,7,3},34,35,34},{56,nil,56,15,nil,0,0,"trust808_battery_low","Trust808Battery Low",{9,2},{9,2},36,37,36},{57,nil,57,20,nil,nil,nil,"besis_ms01_identify","Besis Ms01Identify",{20},{20},38,39,38}},K)a.text=z({{"last_power_response_time",58,58,0,0,nil,"Last power response time",64}},M)a.driver_message={["attribute_name"]="driverMessage",["capability_id"]="concertmirror08464.driverMessage",["emit_name"]="driver_message",["label"]="Driver message",["maximum_length"]=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
+local function o(y)
+for _,e in ipairs(y)do
+a.by_emit_name[e.emit_name]=e
+if type(e.capability_id)=="string"and e.capability_id~=""then a.by_capability_id[e.capability_id]=e end
+if type(e.range_key)=="string"and e.range_key~=""then a.by_range_key[e.range_key]=e end
 end
 end
-index_metadata(custom_capabilities.numeric)index_metadata(custom_capabilities.enum)index_metadata(custom_capabilities.text)custom_capabilities.by_emit_name[custom_capabilities.driver_message.emit_name]=custom_capabilities.driver_message
-custom_capabilities.by_capability_id[custom_capabilities.driver_message.capability_id]=custom_capabilities.driver_message
-local function clone_allowed_values(allowed_values)
-if type(allowed_values)~="table"then return nil end
-local copied={}
-for index,value in ipairs(allowed_values)do copied[index]=value end
-return copied
+o(a.numeric)o(a.enum)o(a.text)a.by_emit_name[a.driver_message.emit_name]=a.driver_message
+a.by_capability_id[a.driver_message.capability_id]=a.driver_message
+local function l(j)
+if type(j)~="table"then return nil end
+local B={}
+for A,g in ipairs(j)do B[A]=g end
+return B
 end
-function custom_capabilities.resolve_range(definition,metadata)
-if type(metadata)~="table"then return nil end
-local default_range=type(metadata.default_range)=="table"and metadata.default_range or nil
-local ranges=type(definition)=="table"and definition.presence_capability_ranges or nil
-local resolved=type(ranges)=="table"and ranges[metadata.range_key]or nil
-if type(resolved)~="table"then resolved=default_range end
-if type(resolved)~="table"then return nil end
+function a.resolve_range(v,e)
+if type(e)~="table"then return nil end
+local d=type(e.default_range)=="table"and e.default_range or nil
+local C=type(v)=="table"and v.presence_capability_ranges or nil
+local h=type(C)=="table"and C[e.range_key]or nil
+if type(h)~="table"then h=d end
+if type(h)~="table"then return nil end
 return{
-minimum=type(resolved.minimum)=="number"and resolved.minimum or(default_range and default_range.minimum or nil),maximum=type(resolved.maximum)=="number"and resolved.maximum or(default_range and default_range.maximum or nil),step=type(resolved.step)=="number"and resolved.step or(default_range and default_range.step or nil),unit=type(resolved.unit)=="string"and resolved.unit or(default_range and default_range.unit or nil),allowed_values=type(resolved.allowed_values)=="table"and clone_allowed_values(resolved.allowed_values)or clone_allowed_values(default_range and default_range.allowed_values or nil),}
+minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil),}
 end
-return custom_capabilities
+return a

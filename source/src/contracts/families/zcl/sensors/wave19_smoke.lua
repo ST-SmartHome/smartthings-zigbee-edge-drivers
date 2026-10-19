@@ -8,7 +8,7 @@ local data_types = require "st.zigbee.data_types"
 local capabilities = require "st.capabilities"
 local cluster_base = require "st.zigbee.cluster_base"
 
-local registrations, register_device_definition = device_helpers.definition_registry()
+local registrations, register = device_helpers.definition_registry()
 
 local function alarm1(value)
   if type(value) == "table" then
@@ -81,7 +81,7 @@ local ewelink_7035 = {
   end,
 }
 
-register_device_definition(ewelink_7035, {
+register(ewelink_7035, {
   fp(
     "eWeLink",
     "CK-TLSR8656-Z123SE22DY-01(7035)"
@@ -122,7 +122,7 @@ for _, mapping in ipairs(develco_smszb_core.zcl_clusters) do
     mapping.reportable_change = nil
   end
 end
-register_device_definition(develco_smszb_core, {
+register(develco_smszb_core, {
   fp("Develco Products A/S", "SMSZB-120"),
   fp("Develco Products A/S", "GWA1512_SmokeSensor"),
   fp("frient A/S", "SMSZB-120"),
@@ -148,7 +148,7 @@ local multir_sm100_core = {
       reportable_change=10, from_device=battery_percent}),
   },
 }
-register_device_definition(multir_sm100_core, {
+register(multir_sm100_core, {
   fp("MultIR", "MIR-SM100-E"),
 })
 
@@ -223,7 +223,7 @@ local aqara_smoke_acn03_core = {
       device, 0xFCC0, 0x014B, 0x115F, data_types.Uint8, 1):to_endpoint(1))
   end,
 }
-register_device_definition(aqara_smoke_acn03_core, {
+register(aqara_smoke_acn03_core, {
   fp("LUMI", "lumi.sensor_smoke.acn03"),
 })
 
@@ -253,7 +253,7 @@ local mijia_smoke_core = {
     }),
   },
 }
-register_device_definition(mijia_smoke_core, {
+register(mijia_smoke_core, {
   fp("LUMI", "lumi.sensor_smoke"),
 })
 
@@ -268,7 +268,7 @@ local function standard_smoke_core_clusters(feibit)
   local mappings={
     smoke,
     low,
-    zcl.battery({endpoint=1,read_only=true,read_on_configure=true,
+    zcl.battery({endpoint=1,read_only=true,
       minimum_interval=3600,maximum_interval=65000,reportable_change=0,
       from_device=battery_percent}),
     zcl.cluster_attribute(1,0x20,{
@@ -300,7 +300,7 @@ local feibit_ssa01_core = {
   profile="safety-smoke-feibit-ssa01-core",magic_packet=false,
   zcl_clusters=standard_smoke_core_clusters(true),
 }
-register_device_definition(feibit_ssa01_core, {
+register(feibit_ssa01_core, {
   fp("feibit","FNB56-SMF06FB1.6"),
   fp("Feibit Inc co.","FNB56-SMF06FB1.6"),
   fp("Feibit Inc co.","FNB56-SMF06FB2.0"),
@@ -310,7 +310,7 @@ local heimgard_htsmo2_core = {
   profile="safety-smoke-heimgard-htsmo2-core",magic_packet=false,
   zcl_clusters=standard_smoke_core_clusters(false),
 }
-register_device_definition(heimgard_htsmo2_core, {
+register(heimgard_htsmo2_core, {
   fp("Heimgard","HT-SMO-2"),
 })
 
@@ -333,7 +333,7 @@ local tuya_ts0205_core = {
     zcl.read_attribute(device,1,0x20,1)
   end,
 }
-register_device_definition(tuya_ts0205_core, {
+register(tuya_ts0205_core, {
   fp("_TYZB01_dsjszp0x","TS0205"),
   fp("_TZ3000_hl7yraue","TS0205"),
   fp("_TYZB01_hr7c7xlf","TS0205"),
@@ -353,7 +353,7 @@ local function gs_sshm_core_clusters()
   for _, mapping in ipairs({tamper,low}) do
     mapping.minimum_interval,mapping.maximum_interval,mapping.reportable_change=nil,nil,nil
   end
-  return {smoke,tamper,low,zcl.battery({endpoint=1,read_on_configure=true,
+  return {smoke,tamper,low,zcl.battery({endpoint=1,
     minimum_interval=3600,maximum_interval=65000,reportable_change=10,
     from_device=battery_percent})}
 end
@@ -362,7 +362,7 @@ local gs_sshm_i1_core = {
   profile="safety-smoke-gs-sshm-i1-core",magic_packet=false,
   zcl_clusters=gs_sshm_core_clusters(),
 }
-register_device_definition(gs_sshm_i1_core, {
+register(gs_sshm_i1_core, {
   fp("GS","SSHM-I1"),
 })
 
@@ -384,7 +384,7 @@ local bitron_av2010_24_core = {
   profile="safety-smoke-bitron-av2010-24-core",magic_packet=false,
   zcl_clusters=bitron_smoke_core_clusters(),
 }
-register_device_definition(bitron_av2010_24_core, {
+register(bitron_av2010_24_core, {
   fp("SMaBiT","902010/24"),
   fp("SMaBiT","AV2010/24"),
   fp("Bitron Home","902010/24"),
@@ -398,6 +398,17 @@ register_device_definition(bitron_av2010_24_core, {
   fp("Bitron Video","902010/24A"),
   fp("Bitron Video","AV2010/24A"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(registrations, {
+  {1, "rpt-cdi"},
+  {2, "rpt-soa"},
+  {3, "rpt-mam"},
+  {6, "rpt-fil"},
+  {7, "rpt-hne"},
+  {9, "rpt-ska"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.wave19_smoke",

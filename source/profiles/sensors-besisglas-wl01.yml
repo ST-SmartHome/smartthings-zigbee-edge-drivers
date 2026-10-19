@@ -6,4 +6,5 @@ components:
       - {id: battery, version: 1}
       - {id: batteryLevel, version: 1}
       - {id: refresh, version: 1}
+      - {id: signalStrength, version: 1}
     categories: [{name: LeakSensor}]

@@ -10,9 +10,6 @@ local MAIN_COMPONENT = "main"
 local INITIAL_CUSTOM_STATE_QUERY_KEY = "__initialCustomStateQueryRequested"
 local UNKNOWN_PROFILE_TOKEN = "__unknown_profile__"
 local REFRESHED_PROFILE_CAPABILITIES = {}
--- The initial state query is scheduled 2 s after init, so placeholders wait long
--- enough for the device to answer before any fabricated value is published.
-local PLACEHOLDER_STATE_DELAY_S = 30
 
 local numeric_definitions = custom_capabilities.numeric
 local enum_definitions = custom_capabilities.enum
@@ -62,18 +59,7 @@ local function get_profile_refresh_state(device)
   return state
 end
 
-local function is_callable(value)
-  if type(value) == "function" then
-    return true
-  end
-
-  if type(value) ~= "table" then
-    return false
-  end
-
-  local metatable = getmetatable(value)
-  return type(metatable) == "table" and type(metatable.__call) == "function"
-end
+local is_callable = capability_support.is_callable
 
 local function resolve_capability_attribute(capability_id, attribute_name)
   local capability = capabilities[capability_id]
@@ -514,48 +500,6 @@ local function create(options)
     end)
   end
 
-  local function emit_placeholder_states(device, definition)
-    for_each_supported_metadata(device, numeric_definitions, MAIN_COMPONENT, function(metadata)
-      if is_latest_state_missing(device, MAIN_COMPONENT, metadata) then
-        local range = resolve_numeric_range(device, definition, metadata, MAIN_COMPONENT)
-        if type(range) == "table" and range.minimum ~= nil then
-          emit_custom_numeric_state(device, MAIN_COMPONENT, metadata, range.minimum, range.unit)
-        end
-      end
-    end)
-
-    for_each_supported_metadata(device, enum_definitions, MAIN_COMPONENT, function(metadata)
-      if is_latest_state_missing(device, MAIN_COMPONENT, metadata) then
-        local allowed_values = resolve_enum_values(definition, metadata)
-        if type(allowed_values) == "table" and allowed_values[1] ~= nil then
-          emit_custom_enum_state(device, MAIN_COMPONENT, metadata, allowed_values[1])
-        end
-      end
-    end)
-  end
-
-  -- Placeholders exist only so the app can render a control before the device has
-  -- ever reported. They must not race the initial state query: emitting them at
-  -- init time publishes a fabricated minimum that looks like a real reading, and
-  -- it sticks permanently on sleepy devices that answer late or not at all.
-  -- Waiting until after the query has had time to land keeps reported values
-  -- authoritative and leaves placeholders as a last resort.
-  local function schedule_placeholder_states(device, definition)
-    if type(definition) == "table" and definition.placeholder_custom_states == false then
-      return false
-    end
-
-    local function run()
-      emit_placeholder_states(device, definition)
-    end
-
-    if schedule_device_task(device, PLACEHOLDER_STATE_DELAY_S, "custom placeholder states", run) then
-      return
-    end
-
-    run()
-  end
-
   local function diagnose_bindings(device)
     if type(device) ~= "table" then
       return
@@ -669,30 +613,8 @@ local function create(options)
     return value
   end
 
-  local function emit_numeric_zero_rollback(device, component_id, metadata, range)
-    component_id = component_id or MAIN_COMPONENT
-    emit_custom_numeric_state(device, component_id, metadata, 0, resolve_numeric_event_unit(metadata, range))
-
-    schedule_device_task(device, 1, string.format("unsupported numeric rollback %s", tostring(metadata.capability_id or "unknown")), function()
-      emit_custom_numeric_state(device, component_id, metadata, 0, resolve_numeric_event_unit(metadata, range))
-    end)
-  end
-
-  local function rollback_numeric_capability(device, component_id, metadata, range, message)
-    emit_numeric_zero_rollback(device, component_id, metadata, range)
-    if type(message) == "string" and message ~= "" then
-      emit_driver_message(device, message)
-    end
-  end
-
-  local function reject_numeric_command(device, component_id, metadata, range, reason)
-    rollback_numeric_capability(
-      device,
-      component_id,
-      metadata,
-      range,
-      string.format("%s %s", metadata.label, reason)
-    )
+  local function reject_numeric_command(device, metadata, reason)
+    emit_driver_message(device, string.format("%s %s No change applied.", metadata.label, reason))
   end
 
   -- Command handlers
@@ -703,7 +625,7 @@ local function create(options)
     handlers[metadata.capability_id][metadata.command_name] = function(_, device, command)
       local component_id = command.component or MAIN_COMPONENT
       if not find_mapping(device, component_id, metadata.mapping_name) then
-        reject_numeric_command(device, component_id, metadata, metadata.default_range, "is not supported by this device. Reverted to 0.")
+        reject_numeric_command(device, metadata, "is not supported by this device.")
         return
       end
 
@@ -719,7 +641,7 @@ local function create(options)
       )
 
       if normalized == nil then
-        reject_numeric_command(device, component_id, metadata, range, "value is invalid. Reverted to 0.")
+        reject_numeric_command(device, metadata, "value is invalid.")
         return
       end
 
@@ -729,13 +651,13 @@ local function create(options)
 
       local send_ok, handled = pcall(send, device, command, metadata.mapping_name, normalized)
       if not send_ok then
-        reject_numeric_command(device, component_id, metadata, range, "command failed. Reverted to 0.")
+        reject_numeric_command(device, metadata, "command failed.")
         log.error(string.format("[%s] Failed to send %s: %s", device_name(device), metadata.capability_id, tostring(handled)))
         return
       end
 
       if not handled then
-        reject_numeric_command(device, component_id, metadata, range, "is not supported by this device. Reverted to 0.")
+        reject_numeric_command(device, metadata, "is not supported by this device.")
         return
       end
 
@@ -858,9 +780,7 @@ local function create(options)
     emit_driver_message = emit_driver_message,
     emit_enum_metadata = emit_enum_metadata,
     emit_numeric_metadata = emit_numeric_metadata,
-    emit_placeholder_states = emit_placeholder_states,
     maybe_request_initial_custom_state = maybe_request_initial_custom_state,
-    schedule_placeholder_states = schedule_placeholder_states,
     refresh_definitions = refresh_profile_definitions,
     register_handlers = register_handlers,
   }

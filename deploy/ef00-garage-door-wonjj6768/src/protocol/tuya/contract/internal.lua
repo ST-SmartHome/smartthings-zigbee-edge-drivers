@@ -1,2 +1,2 @@
-local shared=require"tuya_common.foundation"
-local internal={}shared.apply_constants(internal)require"tuya_common.converters"(internal,shared)require"tuya_common.datapoint_factory"(internal,shared)require"tuya_common.datapoint_preset"(internal,shared,nil)return internal
+local b=require"tuya_common.foundation"
+local a={}b.apply_constants(a)require"tuya_common.converters"(a,b)require"tuya_common.datapoint_factory"(a,b)require"tuya_common.datapoint_preset"(a,b,nil)return a

@@ -1,12 +1,12 @@
-local ewelink_7037=require"contracts.families.zcl.sensors.z2m_absorption_ewelink_7037"
-local water=require"contracts.families.zcl.sensors.z2m_absorption_water"
-local heiwa=require"contracts.families.zcl.sensors.z2m_absorption_heiwa"
-local linknlink=require"contracts.families.zcl.sensors.linknlink"
-local shelly_presence=require"contracts.families.zcl.sensors.shelly_presence"
-local catalogs={ewelink_7037,water,heiwa,linknlink,shelly_presence}local registrations={}for _,catalog in ipairs(catalogs)do
-for _,registration in ipairs(catalog.registrations)do
-registrations[#registrations+1]=registration
+local c=require"contracts.families.zcl.sensors.z2m_absorption_ewelink_7037"
+local i=require"contracts.families.zcl.sensors.z2m_absorption_water"
+local h=require"contracts.families.zcl.sensors.z2m_absorption_heiwa"
+local e=require"contracts.families.zcl.sensors.linknlink"
+local b=require"contracts.families.zcl.sensors.shelly_presence"
+local f={c,i,h,e,b}local a={}for _,g in ipairs(f)do
+for _,d in ipairs(g.registrations)do
+a[#a+1]=d
 end
 end
 return{
-id="zcl.sensors.z2m_absorption",registrations=registrations,}
+id="zcl.sensors.z2m_absorption",registrations=a,}

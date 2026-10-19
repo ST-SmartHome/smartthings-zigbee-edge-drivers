@@ -13,4 +13,5 @@ components:
       - {id: concertmirror08464.szlrEightTRelayMode, version: 1}
       - {id: concertmirror08464.szlrEightTRadarMode, version: 1}
       - {id: refresh, version: 1}
+      - {id: signalStrength, version: 1}
     categories: [{name: PresenceSensor}]

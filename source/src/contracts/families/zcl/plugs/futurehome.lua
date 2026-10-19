@@ -179,6 +179,12 @@ end
 
 register_device_definition(futurehome_charge, { device_helpers.create_fingerprint("Futurehome", "Charge") })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-clr"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.plugs.futurehome",
   registrations = device_definitions,

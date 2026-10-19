@@ -1,69 +1,69 @@
-local tuya=require"protocol.tuya"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local converter=tuya.converter
-local device_definitions,register_device_definition=device_helpers.definition_registry()local WORDS={
+local h=require"protocol.tuya"
+local v=require"capabilities.events.all"
+local l=require"contracts.helpers.family"
+local f=h.converter
+local m,j=l.definition_registry()local WORDS={
 "One","Two","Three","Four","Five","Six","Seven","Eight",}local LOWER_WORDS={
-"one","two","three","four","five","six","seven","eight",}local COLORS={
+"one","two","three","four","five","six","seven","eight",}local r={
 red=0,orange=1,green=2,cyan=3,blue=4,purple=5,magenta=6,cold_white=7,warm_yellow=8,}
-local function custom(name)
-return assert(emit[name],"missing Wave13 custom emitter: "..name)()
+local function g(name)
+return assert(v[name],"missing Wave13 custom emitter: "..name)()
 end
-local function state_dp(index)
-return index<=6 and index or index+107
+local function s(d)
+return d<=6 and d or d+107
 end
-local function countdown_dp(index)
-return index<=6 and index+6 or index+109
+local function p(d)
+return d<=6 and d+6 or d+109
 end
-local function component(index)
-return index==1 and"main"or("switch"..tostring(index))
+local function o(d)
+return d==1 and"main"or("switch"..tostring(d))
 end
-local function append(definition,mapping)
-definition.datapoints[#definition.datapoints+1]=mapping
+local function e(b,t)
+b.datapoints[#b.datapoints+1]=t
 end
-local function build_mh(profile,capability_prefix,mapping_prefix,gangs)
-local definition={
-profile=profile,package_group="screen-switch",transport_classification="EF00_DP",z2m_converter_source="meta.tuyaDatapoints",wire_cluster="manuSpecificTuya",magic_packet=true,query_on_configure=false,respond_to_mcu_version_response=true,datapoints={},component_to_endpoint_map={},endpoint_to_component_map={[1]="main"},}for index=1,gangs do
-definition.component_to_endpoint_map[component(index)]=1
-append(definition,tuya.dp_on_off(state_dp(index),{
-name="switch",component=component(index),endpoint=1,emit=emit.switch(),}))
+local function i(u,a,c,n)
+local b={
+profile=u,package_group="screen-switch",transport_classification="EF00_DP",z2m_converter_source="meta.tuyaDatapoints",wire_cluster="manuSpecificTuya",magic_packet=true,query_on_configure=false,respond_to_mcu_version_response=true,datapoints={},component_to_endpoint_map={},endpoint_to_component_map={[1]="main"},}for d=1,n do
+b.component_to_endpoint_map[o(d)]=1
+e(b,h.dp_on_off(s(d),{
+name="switch",component=o(d),endpoint=1,emit=v.switch(),}))
 end
-for index=1,gangs do
-append(definition,tuya.dp_numeric(countdown_dp(index),{
-name=mapping_prefix.."_countdown_"..LOWER_WORDS[index],emit=custom(capability_prefix.."Countdown"..WORDS[index]),}))
+for d=1,n do
+e(b,h.dp_numeric(p(d),{
+name=c.."_countdown_"..LOWER_WORDS[d],emit=g(a.."Countdown"..WORDS[d]),}))
 end
-append(definition,tuya.dp_enum(14,{
-name=mapping_prefix.."_relay_status",converter=converter.lookup_from_to({off=0,on=1,memory=2}),emit=custom(capability_prefix.."RelayStatus"),}))append(definition,tuya.dp_enum(15,{
-name=mapping_prefix.."_light_mode",converter=converter.lookup_from_to({none=0,relay=1,pos=2}),emit=custom(capability_prefix.."LightMode"),}))append(definition,tuya.dp_binary(16,{
-name=mapping_prefix.."_backlight_switch",converter=converter.lookup_from_to({ON=true,OFF=false}),emit=custom(capability_prefix.."BacklightSwitch"),}))append(definition,tuya.dp_numeric(101,{
-name=mapping_prefix.."_backlight_lightness",emit=custom(capability_prefix.."BacklightLightness"),}))append(definition,tuya.dp_enum(102,{
-name=mapping_prefix.."_on_color",converter=converter.lookup_from_to(COLORS),emit=custom(capability_prefix.."OnColor"),}))append(definition,tuya.dp_enum(103,{
-name=mapping_prefix.."_off_color",converter=converter.lookup_from_to(COLORS),emit=custom(capability_prefix.."OffColor"),}))append(definition,tuya.dp_numeric(104,{
-name=mapping_prefix.."_displayoff_delay",emit=custom(capability_prefix.."DisplayOffDelay"),}))append(definition,tuya.dp_binary(105,{
-name=mapping_prefix.."_child_lock",converter=converter.lookup_from_to({ON=true,OFF=false}),emit=custom(capability_prefix.."ChildLock"),}))for index=1,gangs do
-append(definition,tuya.dp_string(105+index,{
-name=mapping_prefix.."_switch_name_"..LOWER_WORDS[index],emit=custom(capability_prefix.."SwitchName"..WORDS[index]),}))
+e(b,h.dp_enum(14,{
+name=c.."_relay_status",converter=f.lookup_from_to({off=0,on=1,memory=2}),emit=g(a.."RelayStatus"),}))e(b,h.dp_enum(15,{
+name=c.."_light_mode",converter=f.lookup_from_to({none=0,relay=1,pos=2}),emit=g(a.."LightMode"),}))e(b,h.dp_binary(16,{
+name=c.."_backlight_switch",converter=f.lookup_from_to({ON=true,OFF=false}),emit=g(a.."BacklightSwitch"),}))e(b,h.dp_numeric(101,{
+name=c.."_backlight_lightness",emit=g(a.."BacklightLightness"),}))e(b,h.dp_enum(102,{
+name=c.."_on_color",converter=f.lookup_from_to(r),emit=g(a.."OnColor"),}))e(b,h.dp_enum(103,{
+name=c.."_off_color",converter=f.lookup_from_to(r),emit=g(a.."OffColor"),}))e(b,h.dp_numeric(104,{
+name=c.."_displayoff_delay",emit=g(a.."DisplayOffDelay"),}))e(b,h.dp_binary(105,{
+name=c.."_child_lock",converter=f.lookup_from_to({ON=true,OFF=false}),emit=g(a.."ChildLock"),}))for d=1,n do
+e(b,h.dp_string(105+d,{
+name=c.."_switch_name_"..LOWER_WORDS[d],emit=g(a.."SwitchName"..WORDS[d]),}))
 end
-if gangs>1 then
-local press_values={disable=0}
-for index=1,gangs do press_values["press_switch_"..tostring(index)]=index end
-append(definition,tuya.dp_enum(118,{
-name=mapping_prefix.."_press_on_function",converter=converter.lookup_from_to(press_values),emit=custom(capability_prefix.."PressOnFunction"),}))append(definition,tuya.dp_enum(119,{
-name=mapping_prefix.."_press_off_function",converter=converter.lookup_from_to(press_values),emit=custom(capability_prefix.."PressOffFunction"),}))
+if n>1 then
+local k={disable=0}
+for d=1,n do k["press_switch_"..tostring(d)]=d end
+e(b,h.dp_enum(118,{
+name=c.."_press_on_function",converter=f.lookup_from_to(k),emit=g(a.."PressOnFunction"),}))e(b,h.dp_enum(119,{
+name=c.."_press_off_function",converter=f.lookup_from_to(k),emit=g(a.."PressOffFunction"),}))
 end
-return definition
+return b
 end
-local definitions={
+local q={
 {
-build_mh("switches-wave13-manhot-mh03-1","mhOne","mh_one",1),{"_TZE284_ncc7uahd","_TZE28C1000000_ncc7uahd"},},{
-build_mh("switches-wave13-manhot-mh03-2","mhTwo","mh_two",2),{"_TZE284_dnhhp8ew","_TZE28C1000000_dnhhp8ew"},},{
-build_mh("switches-wave13-manhot-mh03-3","mhThree","mh_three",3),{"_TZE284_59dz7ioi","_TZE28C1000000_59dz7ioi"},},{
-build_mh("switches-wave13-manhot-mh03-4","mhFour","mh_four",4),{"_TZE284_esnu2jxv","_TZE28C1000000_esnu2jxv"},},{
-build_mh("switches-wave13-manhot-mh03-6","mhSix","mh_six",6),{
+i("switches-wave13-manhot-mh03-1","mhOne","mh_one",1),{"_TZE284_ncc7uahd","_TZE28C1000000_ncc7uahd"},},{
+i("switches-wave13-manhot-mh03-2","mhTwo","mh_two",2),{"_TZE284_dnhhp8ew","_TZE28C1000000_dnhhp8ew"},},{
+i("switches-wave13-manhot-mh03-3","mhThree","mh_three",3),{"_TZE284_59dz7ioi","_TZE28C1000000_59dz7ioi"},},{
+i("switches-wave13-manhot-mh03-4","mhFour","mh_four",4),{"_TZE284_esnu2jxv","_TZE28C1000000_esnu2jxv"},},{
+i("switches-wave13-manhot-mh03-6","mhSix","mh_six",6),{
 "_TZE284_zykra2yj","_TZE28C1000000_zykra2yj","_TZE284_wkvfb2ld","_TZE28C1000000_wkvfb2ld",},},{
-build_mh("switches-wave13-manhot-mh03-8","mhEight","mh_eight",8),{
-"_TZE284_hwv3by9k","_TZE28C1000000_hwv3by9k","_TZE284_4ngwn2pj","_TZE28C1000000_4ngwn2pj",},},}for _,item in ipairs(definitions)do
-register_device_definition(item[1],device_helpers.create_fingerprints("TS0601",item[2]))
+i("switches-wave13-manhot-mh03-8","mhEight","mh_eight",8),{
+"_TZE284_hwv3by9k","_TZE28C1000000_hwv3by9k","_TZE284_4ngwn2pj","_TZE28C1000000_4ngwn2pj",},},}for _,w in ipairs(q)do
+j(w[1],l.create_fingerprints("TS0601",w[2]))
 end
 return{
-id="ef00.switches.wave13.manhot",registrations=device_definitions,}
+id="ef00.switches.wave13.manhot",registrations=m,}

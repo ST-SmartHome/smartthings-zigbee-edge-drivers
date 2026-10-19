@@ -1,241 +1,241 @@
-local function load_ir_session(zcl)
-local custom_capabilities=require"runtime.capability_metadata"
-local custom_capability_binding=require"runtime.capability_binding"
-local log=require"log"
-local learn_ir_code_metadata=custom_capabilities.by_emit_name.learn_ir_code
-local learned_ir_code_metadata=custom_capabilities.by_emit_name.learned_ir_code
-local ir_code_to_send_metadata=custom_capabilities.by_emit_name.ir_code_to_send
-local IR_CONTROL_CLUSTER=0xE004
-local IR_TRANSMIT_CLUSTER=0xED00
-local IR_ENDPOINT=1
-local IR_MAX_CHUNK=0x38
-local IR_LEARNING_FIELD="__ir_learning"
-local IR_NEXT_SEQ_FIELD="__ir_next_seq"
-local IR_OUTGOING_FIELD="__ir_outgoing_messages"
-local IR_INCOMING_FIELD="__ir_incoming_bytes"
-local IR_INCOMING_LENGTH_FIELD="__ir_incoming_length"
-local IR_LAST_LEARNED_FIELD="__ir_last_learned_code"
-local IR_LAST_SENT_FIELD="__ir_last_sent_code"
-local function encode_le16(value)
-local clamped=math.max(0,math.min(0xFFFF,math.floor(value or 0)))return string.char(bit32.band(clamped,0xFF))..string.char(bit32.band(bit32.rshift(clamped,8),0xFF))
+local function ae(B)
+local t=require"runtime.capability_metadata"
+local l=require"runtime.capability_binding"
+local aw=require"log"
+local R=t.by_emit_name.learn_ir_code
+local N=t.by_emit_name.learned_ir_code
+local M=t.by_emit_name.ir_code_to_send
+local p=57348
+local g=60672
+local ak=1
+local Z=56
+local y="__ir_learning"
+local G="__ir_next_seq"
+local H="__ir_outgoing_messages"
+local i="__ir_incoming_bytes"
+local m="__ir_incoming_length"
+local z="__ir_last_learned_code"
+local F="__ir_last_sent_code"
+local function encode_le16(ao)
+local C=math.max(0,math.min(65535,math.floor(ao or 0)))return string.char(bit32.band(C,255))..string.char(bit32.band(bit32.rshift(C,8),255))
 end
-local function encode_le32(value)
-local clamped=math.max(0,math.min(0xFFFFFFFF,math.floor(value or 0)))return string.char(bit32.band(clamped,0xFF))..string.char(bit32.band(bit32.rshift(clamped,8),0xFF))..string.char(bit32.band(bit32.rshift(clamped,16),0xFF))..string.char(bit32.band(bit32.rshift(clamped,24),0xFF))
+local function encode_le32(ao)
+local C=math.max(0,math.min(0xFFFFFFFF,math.floor(ao or 0)))return string.char(bit32.band(C,255))..string.char(bit32.band(bit32.rshift(C,8),255))..string.char(bit32.band(bit32.rshift(C,16),255))..string.char(bit32.band(bit32.rshift(C,24),255))
 end
-local function decode_le16(bytes,offset)
-offset=offset or 1
-if type(bytes)~="string"or #bytes<offset+1 then
+local function s(A,r)
+r=r or 1
+if type(A)~="string"or #A<r+1 then
 return nil
 end
-local b1=string.byte(bytes,offset)or 0
-local b2=string.byte(bytes,offset+1)or 0
+local b1=string.byte(A,r)or 0
+local b2=string.byte(A,r+1)or 0
 return b1+bit32.lshift(b2,8)
 end
-local function decode_le32(bytes,offset)
-offset=offset or 1
-if type(bytes)~="string"or #bytes<offset+3 then
+local function D(A,r)
+r=r or 1
+if type(A)~="string"or #A<r+3 then
 return nil
 end
-local b1=string.byte(bytes,offset)or 0
-local b2=string.byte(bytes,offset+1)or 0
-local b3=string.byte(bytes,offset+2)or 0
-local b4=string.byte(bytes,offset+3)or 0
+local b1=string.byte(A,r)or 0
+local b2=string.byte(A,r+1)or 0
+local b3=string.byte(A,r+2)or 0
+local b4=string.byte(A,r+3)or 0
 return b1+
 bit32.lshift(b2,8)+
 bit32.lshift(b3,16)+
 bit32.lshift(b4,24)
 end
-local function compute_crc(payload)
-if type(payload)~="string"then
+local function ac(L)
+if type(L)~="string"then
 return 0
 end
-local crc=0
-for index=1,#payload do
-crc=(crc+(string.byte(payload,index)or 0))%0x100
+local ai=0
+for E=1,#L do
+ai=(ai+(string.byte(L,E)or 0))%256
 end
-return crc
+return ai
 end
-local function base64_encode(data)
-if type(data)~="string"or data==""then
+local function ah(af)
+if type(af)~="string"or af==""then
 return""
 end
-local alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-local encoded={}local length=#data
-local index=1
-while index<=length do
-local a=string.byte(data,index)or 0
-local b=string.byte(data,index+1)or 0
-local c=string.byte(data,index+2)or 0
+local U="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+local j={}local O=#af
+local E=1
+while E<=O do
+local a=string.byte(af,E)or 0
+local b=string.byte(af,E+1)or 0
+local c=string.byte(af,E+2)or 0
 local n=bit32.lshift(a,16)+bit32.lshift(b,8)+c
-encoded[#encoded+1]=alphabet:sub(bit32.rshift(n,18)+1,bit32.rshift(n,18)+1)encoded[#encoded+1]=alphabet:sub(bit32.band(bit32.rshift(n,12),0x3F)+1,bit32.band(bit32.rshift(n,12),0x3F)+1)if index+1<=length then
-encoded[#encoded+1]=alphabet:sub(bit32.band(bit32.rshift(n,6),0x3F)+1,bit32.band(bit32.rshift(n,6),0x3F)+1)else
-encoded[#encoded+1]="="
+j[#j+1]=U:sub(bit32.rshift(n,18)+1,bit32.rshift(n,18)+1)j[#j+1]=U:sub(bit32.band(bit32.rshift(n,12),63)+1,bit32.band(bit32.rshift(n,12),63)+1)if E+1<=O then
+j[#j+1]=U:sub(bit32.band(bit32.rshift(n,6),63)+1,bit32.band(bit32.rshift(n,6),63)+1)else
+j[#j+1]="="
 end
-if index+2<=length then
-encoded[#encoded+1]=alphabet:sub(bit32.band(n,0x3F)+1,bit32.band(n,0x3F)+1)else
-encoded[#encoded+1]="="
+if E+2<=O then
+j[#j+1]=U:sub(bit32.band(n,63)+1,bit32.band(n,63)+1)else
+j[#j+1]="="
 end
-index=index+3
+E=E+3
 end
-return table.concat(encoded)
+return table.concat(j)
 end
-local function get_endpoint(preset)
-return type(preset)=="table"and type(preset.ir_endpoint)=="number"and preset.ir_endpoint or IR_ENDPOINT
+local function k(f)
+return type(f)=="table"and type(f.ir_endpoint)=="number"and f.ir_endpoint or ak
 end
-local function get_outgoing_messages(device)
-local messages=type(device)=="table"and device:get_field(IR_OUTGOING_FIELD)or nil
-if type(messages)~="table"then
-messages={}device:set_field(IR_OUTGOING_FIELD,messages,{persist=false})
+local function q(d)
+local X=type(d)=="table"and d:get_field(H)or nil
+if type(X)~="table"then
+X={}d:set_field(H,X,{persist=false})
 end
-return messages
+return X
 end
-local function next_seq(device)
-local seq=type(device)=="table"and device:get_field(IR_NEXT_SEQ_FIELD)or 0
-if type(seq)~="number"then
-seq=0
+local function aq(d)
+local o=type(d)=="table"and d:get_field(G)or 0
+if type(o)~="number"then
+o=0
 end
-seq=(seq+1)%0x10000
-device:set_field(IR_NEXT_SEQ_FIELD,seq,{persist=false})return seq
+o=(o+1)%65536
+d:set_field(G,o,{persist=false})return o
 end
-local function emit_learning_state(device,state)
-custom_capability_binding.emit_state(device,"main",learn_ir_code_metadata,state)
+local function u(d,av)
+l.emit_state(d,"main",R,av)
 end
-local function emit_learned_code(device,code)
-custom_capability_binding.emit_state(device,"main",learned_ir_code_metadata,code or"")
+local function J(d,W)
+l.emit_state(d,"main",N,W or"")
 end
-local function emit_code_to_send(device,code)
-custom_capability_binding.emit_state(device,"main",ir_code_to_send_metadata,code or"")
+local function I(d,W)
+l.emit_state(d,"main",M,W or"")
 end
-function zcl.emit_ir_state(device,preset)
-if type(preset)~="table"or preset.ir_controller~=true then
+function B.emit_ir_state(d,f)
+if type(f)~="table"or f.ir_controller~=true then
 return
 end
-local learning=device:get_field(IR_LEARNING_FIELD)==true
-emit_learning_state(device,learning and"start"or"stop")emit_learned_code(device,device:get_field(IR_LAST_LEARNED_FIELD)or"")emit_code_to_send(device,device:get_field(IR_LAST_SENT_FIELD)or"")
+local ap=d:get_field(y)==true
+u(d,ap and"start"or"stop")J(d,d:get_field(z)or"")I(d,d:get_field(F)or"")
 end
-function zcl.start_ir_learning(device,preset)
-if zcl.send_raw_cluster_command==nil then
+function B.start_ir_learning(d,f)
+if B.send_raw_cluster_command==nil then
 return false
 end
-device:set_field(IR_LEARNING_FIELD,true,{persist=false})emit_learning_state(device,"start")return zcl.send_raw_cluster_command(device,IR_CONTROL_CLUSTER,0x00,'{"study":0}',get_endpoint(preset))
+d:set_field(y,true,{persist=false})u(d,"start")return B.send_raw_cluster_command(d,p,0,'{"study":0}',k(f))
 end
-function zcl.stop_ir_learning(device,preset)
-if zcl.send_raw_cluster_command==nil then
+function B.stop_ir_learning(d,f)
+if B.send_raw_cluster_command==nil then
 return false
 end
-device:set_field(IR_LEARNING_FIELD,false,{persist=false})emit_learning_state(device,"stop")return zcl.send_raw_cluster_command(device,IR_CONTROL_CLUSTER,0x00,'{"study":1}',get_endpoint(preset))
+d:set_field(y,false,{persist=false})u(d,"stop")return B.send_raw_cluster_command(d,p,0,'{"study":1}',k(f))
 end
-function zcl.send_ir_code(device,preset,code)
-if zcl.send_raw_cluster_command==nil or type(code)~="string"or code==""then
+function B.send_ir_code(d,f,W)
+if B.send_raw_cluster_command==nil or type(W)~="string"or W==""then
 return false
 end
-local seq=next_seq(device)local payload=string.format(
-'{"key_num":1,"delay":300,"key1":{"num":1,"freq":38000,"type":1,"key_code":"%s"}}',code)local outgoing=get_outgoing_messages(device)outgoing[seq]=payload
-device:set_field(IR_LAST_SENT_FIELD,code,{persist=false})emit_code_to_send(device,code)return zcl.send_raw_cluster_command(
-device,IR_TRANSMIT_CLUSTER,0x00,encode_le16(seq)..
-encode_le32(#payload)..
+local o=aq(d)local L=string.format(
+'{"key_num":1,"delay":300,"key1":{"num":1,"freq":38000,"type":1,"key_code":"%s"}}',W)local ad=q(d)ad[o]=L
+d:set_field(F,W,{persist=false})I(d,W)return B.send_raw_cluster_command(
+d,g,0,encode_le16(o)..
+encode_le32(#L)..
 encode_le32(0)..
-encode_le16(IR_CONTROL_CLUSTER)..
-string.char(0x01)..
-string.char(0x02)..
-encode_le16(0),get_endpoint(preset))
+encode_le16(p)..
+string.char(1)..
+string.char(2)..
+encode_le16(0),k(f))
 end
-local function request_ir_chunk(device,preset,seq,position)
-return zcl.send_raw_cluster_command(
-device,IR_TRANSMIT_CLUSTER,0x02,encode_le16(seq)..encode_le32(position)..string.char(IR_MAX_CHUNK),get_endpoint(preset))
+local function P(d,f,o,e)
+return B.send_raw_cluster_command(
+d,g,2,encode_le16(o)..encode_le32(e)..string.char(Z),k(f))
 end
-local function send_outgoing_chunk(device,preset,seq,position,maxlen)
-local outgoing=get_outgoing_messages(device)local message=outgoing[seq]if type(message)~="string"then
-log.warn(string.format("missing pending IR message for seq=%s",tostring(seq)))return false
+local function Y(d,f,o,e,aj)
+local ad=q(d)local ag=ad[o]if type(ag)~="string"then
+aw.warn(string.format("missing pending IR message for seq=%s",tostring(o)))return false
 end
-local start_index=position+1
-local last_index=math.min(#message,position+maxlen)local part=message:sub(start_index,last_index)local crc=compute_crc(part)return zcl.send_raw_cluster_command(
-device,IR_TRANSMIT_CLUSTER,0x03,string.char(0x00)..
-encode_le16(seq)..
-encode_le32(position)..
+local al=e+1
+local an=math.min(#ag,e+aj)local part=ag:sub(al,an)local ai=ac(part)return B.send_raw_cluster_command(
+d,g,3,string.char(0)..
+encode_le16(o)..
+encode_le32(e)..
 string.char(#part)..
 part..
-string.char(crc),get_endpoint(preset))
+string.char(ai),k(f))
 end
-local function append_incoming_part(device,position,part,total_length)
-local current=device:get_field(IR_INCOMING_FIELD)if type(current)~="string"then
-current=string.rep("\0",total_length)elseif #current<total_length then
-current=current..string.rep("\0",total_length-#current)
+local function V(d,e,part,h)
+local x=d:get_field(i)if type(x)~="string"then
+x=string.rep("\0",h)elseif #x<h then
+x=x..string.rep("\0",h-#x)
 end
-local prefix=position>0 and current:sub(1,position)or""
-local suffix_start=position+#part+1
-local suffix=suffix_start<=#current and current:sub(suffix_start)or""
-local updated=prefix..part..suffix
-device:set_field(IR_INCOMING_FIELD,updated,{persist=false})return updated
+local as=e>0 and x:sub(1,e)or""
+local aa=e+#part+1
+local suffix=aa<=#x and x:sub(aa)or""
+local ab=as..part..suffix
+d:set_field(i,ab,{persist=false})return ab
 end
-function zcl.handle_ir_transmit_command(device,preset,zb_rx)
-if zcl.send_raw_cluster_command==nil then
+function B.handle_ir_transmit_command(d,f,K)
+if B.send_raw_cluster_command==nil then
 return false
 end
-local command_id=zb_rx and zb_rx.body and zb_rx.body.zcl_header and zb_rx.body.zcl_header.cmd and zb_rx.body.zcl_header.cmd.value or nil
-local body=zb_rx and zb_rx.body and zb_rx.body.zcl_body and zb_rx.body.zcl_body.body_bytes or nil
-if type(command_id)~="number"or type(body)~="string"then
+local w=K and K.body and K.body.zcl_header and K.body.zcl_header.cmd and K.body.zcl_header.cmd.value or nil
+local v=K and K.body and K.body.zcl_body and K.body.zcl_body.body_bytes or nil
+if type(w)~="number"or type(v)~="string"then
 return false
 end
-if command_id==0x00 then
-local seq=decode_le16(body,1)local length=decode_le32(body,3)local unk1=decode_le32(body,7)or 0
-local cluster_id=decode_le16(body,11)or IR_CONTROL_CLUSTER
-local unk2=string.byte(body,13)or 0
-local cmd=string.byte(body,14)or 0
-local unk3=decode_le16(body,15)or 0
-if seq==nil or length==nil then
+if w==0 then
+local o=s(v,1)local O=D(v,3)local aA=D(v,7)or 0
+local am=s(v,11)or p
+local aB=string.byte(v,13)or 0
+local aD=string.byte(v,14)or 0
+local aC=s(v,15)or 0
+if o==nil or O==nil then
 return false
 end
-device:set_field(IR_INCOMING_FIELD,"",{persist=false})device:set_field(IR_INCOMING_LENGTH_FIELD,length,{persist=false})zcl.send_raw_cluster_command(
-device,IR_TRANSMIT_CLUSTER,0x01,string.char(0x00)..
-encode_le16(seq)..
-encode_le32(length)..
-encode_le32(unk1)..
-encode_le16(cluster_id)..
-string.char(unk2)..
-string.char(cmd)..
-encode_le16(unk3),get_endpoint(preset))request_ir_chunk(device,preset,seq,0)return true
+d:set_field(i,"",{persist=false})d:set_field(m,O,{persist=false})B.send_raw_cluster_command(
+d,g,1,string.char(0)..
+encode_le16(o)..
+encode_le32(O)..
+encode_le32(aA)..
+encode_le16(am)..
+string.char(aB)..
+string.char(aD)..
+encode_le16(aC),k(f))P(d,f,o,0)return true
 end
-if command_id==0x02 then
-local seq=decode_le16(body,1)local position=decode_le32(body,3)local maxlen=string.byte(body,7)or IR_MAX_CHUNK
-if seq==nil or position==nil then
+if w==2 then
+local o=s(v,1)local e=D(v,3)local aj=string.byte(v,7)or Z
+if o==nil or e==nil then
 return false
 end
-return send_outgoing_chunk(device,preset,seq,position,maxlen)
+return Y(d,f,o,e,aj)
 end
-if command_id==0x03 then
-local seq=decode_le16(body,2)local position=decode_le32(body,4)local part_length=string.byte(body,8)if seq==nil or position==nil or part_length==nil then
+if w==3 then
+local o=s(v,2)local e=D(v,4)local T=string.byte(v,8)if o==nil or e==nil or T==nil then
 return false
 end
-local part=body:sub(9,8+part_length)local crc=string.byte(body,9+part_length)or 0
-if compute_crc(part)~=crc then
-log.warn(string.format("IR chunk CRC mismatch seq=%s position=%s",tostring(seq),tostring(position)))
+local part=v:sub(9,8+T)local ai=string.byte(v,9+T)or 0
+if ac(part)~=ai then
+aw.warn(string.format("IR chunk CRC mismatch seq=%s position=%s",tostring(o),tostring(e)))
 end
-local total_length=device:get_field(IR_INCOMING_LENGTH_FIELD)if type(total_length)~="number"then
-total_length=position+#part
+local h=d:get_field(m)if type(h)~="number"then
+h=e+#part
 end
-local updated=append_incoming_part(device,position,part,total_length)if position+#part<total_length then
-request_ir_chunk(device,preset,seq,position+#part)else
-zcl.send_raw_cluster_command(
-device,IR_TRANSMIT_CLUSTER,0x04,string.char(0x00)..encode_le16(seq)..encode_le16(0),get_endpoint(preset))device:set_field(IR_INCOMING_FIELD,updated:sub(1,total_length),{persist=false})
+local ab=V(d,e,part,h)if e+#part<h then
+P(d,f,o,e+#part)else
+B.send_raw_cluster_command(
+d,g,4,string.char(0)..encode_le16(o)..encode_le16(0),k(f))d:set_field(i,ab:sub(1,h),{persist=false})
 end
 return true
 end
-if command_id==0x04 then
-local seq=decode_le16(body,2)if seq==nil then
+if w==4 then
+local o=s(v,2)if o==nil then
 return false
 end
-local sent=zcl.send_raw_cluster_command(
-device,IR_TRANSMIT_CLUSTER,0x05,encode_le16(seq)..encode_le16(0),get_endpoint(preset))if sent then
-get_outgoing_messages(device)[seq]=nil
+local at=B.send_raw_cluster_command(
+d,g,5,encode_le16(o)..encode_le16(0),k(f))if at then
+q(d)[o]=nil
 end
-return sent
+return at
 end
-if command_id==0x05 then
-local learned=device:get_field(IR_INCOMING_FIELD)or""
-local encoded=base64_encode(learned)device:set_field(IR_LAST_LEARNED_FIELD,encoded,{persist=false})device:set_field(IR_INCOMING_FIELD,nil,{persist=false})device:set_field(IR_INCOMING_LENGTH_FIELD,nil,{persist=false})emit_learned_code(device,encoded)zcl.stop_ir_learning(device,preset)return true
+if w==5 then
+local ar=d:get_field(i)or""
+local j=ah(ar)d:set_field(z,j,{persist=false})d:set_field(i,nil,{persist=false})d:set_field(m,nil,{persist=false})J(d,j)B.stop_ir_learning(d,f)return true
 end
 return false
 end
 end
-return load_ir_session
+return ae

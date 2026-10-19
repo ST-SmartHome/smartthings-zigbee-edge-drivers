@@ -212,6 +212,22 @@ register_device_definition(cover_battery, {
   device_helpers.create_fingerprint("Third Reality, Inc", "3RSB02015Z"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tci"},
+  {2, "rpt-tci"},
+  {3, "rpt-tci"},
+  {4, "rpt-tuv", {["zr010200081"] = "Position", ["zr010200082"] = "PositionTwo"}},
+  {5, "rpt-txq"},
+  {6, "rpt-txq"},
+  {7, "rpt-txq"},
+  {8, "rpt-txq"},
+  {9, "rpt-tci"},
+  {10, "rpt-txq"},
+  {11, "rpt-txq"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.covers",
   registrations = device_definitions,

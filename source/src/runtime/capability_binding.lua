@@ -17,18 +17,7 @@ local function device_name(device)
   return device.label or device.id or "device"
 end
 
-local function is_callable(value)
-  if type(value) == "function" then
-    return true
-  end
-
-  if type(value) ~= "table" then
-    return false
-  end
-
-  local metatable = getmetatable(value)
-  return type(metatable) == "table" and type(metatable.__call) == "function"
-end
+local is_callable = capability_support.is_callable
 
 local function supports_component_capability(device, capability_id, component_id)
   return capability_support.supports(device, capability_id, component_id or MAIN_COMPONENT)

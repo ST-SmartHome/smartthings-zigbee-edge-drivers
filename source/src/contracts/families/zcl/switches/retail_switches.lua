@@ -1,16 +1,17 @@
 local zcl = require "protocol.zcl"
 local emit = require "capabilities.events.all"
 local device_helpers = require "contracts.helpers.family"
+local fp = device_helpers.create_fingerprint
 local zcl_device_helpers = require "contracts.helpers.zcl"
 local data_types = require "st.zigbee.data_types"
 local capabilities = require "st.capabilities"
 local device_management = require "st.zigbee.device_management"
 local cluster_base = require "st.zigbee.cluster_base"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 local function register_aliases(definition, aliases)
-  register_device_definition(definition, aliases)
+  register(definition, aliases)
 end
 
 local function create_model_fingerprints(manufacturer, models)
@@ -118,10 +119,11 @@ local function candeo_power_on_behavior(endpoint, component)
     component = component,
     emit = emit.candeoSm30PowerBehavior(),
     from_device = function(value)
-      return ({ [0] = "off", [1] = "on", [2] = "previous" })[value]
+      value = type(value) == "table" and value.value or value
+      return ({ [0] = "off", [1] = "on", [255] = "previous" })[value]
     end,
     to_device = function(value)
-      return ({ off = 0, on = 1, previous = 2 })[value]
+      return ({ off = 0, on = 1, previous = 255 })[value]
     end,
     data_type = data_types.Enum8,
     write_type = data_types.Enum8,
@@ -282,96 +284,132 @@ local sonoff_zbmini_r2 = {
   },
 }
 
+local zunzunbee_sswz8t = {
+  profile = "buttons-zunzunbee-sswz8t",
+  button_actions = { "pushed", "held" },
+  zcl_clusters = {
+    zcl.cluster_attribute(zcl.CLUSTER_IAS_ZONE, zcl.ATTR_ZONE_STATUS, {
+      name = "zunzunbee_button_action",
+      endpoint = 1,
+      read_only = true,
+      read_on_refresh = false,
+      data_type = data_types.Bitmap16,
+      command_id = 0x00,
+      command_extractor = function(zb_rx)
+        local body = zb_rx.body.zcl_body
+        local status = body.zone_status or body.zonestatus
+        return type(status) == "table" and status.value or status
+      end,
+      from_device = function(value)
+        value = type(value) == "table" and value.value or value
+        local button = ({ [2] = 1, [4] = 2, [8] = 3, [16] = 4,
+          [32] = 5, [64] = 6, [128] = 7, [256] = 8 })[bit32.band(value, 0x01FE)]
+        if button == nil then return nil end
+        return { component = "button" .. button, action = value % 2 == 1 and "held" or "pushed" }
+      end,
+      handler = function(device, decoded)
+        device:emit_component_event(
+          { id = decoded.component },
+          capabilities.button.button(decoded.action, { state_change = true })
+        )
+        zcl.schedule_battery_refresh_after_button(device)
+      end,
+    }),
+    zcl.battery({ endpoint = 1, minimum_interval = 3600, maximum_interval = 65000, reportable_change = 10 }),
+    zcl.temperature({ endpoint = 1, minimum_interval = 10, maximum_interval = 3600, reportable_change = 100 }),
+  },
+}
+
 register_aliases(plug_1, {
-  device_helpers.create_fingerprint("Third Reality", "3RSP0186Z"),
-  device_helpers.create_fingerprint("Third Reality", "3RSPJ0187Z"),
-  device_helpers.create_fingerprint("Third Reality", "3RSPE02065Z"),
-  device_helpers.create_fingerprint("Third Reality", "3RSPU01080Z"),
+  fp("Third Reality", "3RSP0186Z"),
+  fp("Third Reality", "3RSPJ0187Z"),
+  fp("Third Reality", "3RSPE02065Z"),
+  fp("Third Reality", "3RSPU01080Z"),
 })
 
 register_aliases(plug_2, {
-  device_helpers.create_fingerprint("Third Reality", "3RWP01073Z"),
+  fp("Third Reality", "3RWP01073Z"),
 })
 
 register_aliases(battery_switch, {
-  device_helpers.create_fingerprint("Third Reality, Inc", "3RSS009Z"),
-  device_helpers.create_fingerprint("Third Reality, Inc", "3RSS008Z"),
+  fp("Third Reality, Inc", "3RSS009Z"),
+  fp("Third Reality, Inc", "3RSS008Z"),
 })
 
 register_aliases(switch_1, {
-  device_helpers.create_fingerprint("Third Reality, Inc", "3RSS007Z"),
+  fp("Third Reality, Inc", "3RSS007Z"),
 })
 
 register_aliases(sonoff_zbmini_r2, {
-  device_helpers.create_fingerprint("SONOFF", "MINI-ZBD"),
-  device_helpers.create_fingerprint("SONOFF", "ZBMINIR2"),
+  fp("SONOFF", "MINI-ZBD"),
+  fp("SONOFF", "ZBMINIR2"),
 })
 
 register_aliases(dual_metered_switch_ep3, {
-  device_helpers.create_fingerprint("Candeo", "C-ZB-SM30-2G"),
+  fp("Candeo", "C-ZB-SM30-2G"),
 })
 
 register_aliases(switch_1, {
-  device_helpers.create_fingerprint("Candeo", "C205"),
-  device_helpers.create_fingerprint("IKEA", "E2006"),
+  fp("Candeo", "C205"),
+  fp("IKEA", "E2006"),
 })
 
 register_aliases(switch_1, {
-  device_helpers.create_fingerprint("HEIMAN", "HS2SW1A-EF-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "HS2SW1A-EFR-3.0"),
+  fp("HEIMAN", "HS2SW1A-EF-3.0"),
+  fp("HEIMAN", "HS2SW1A-EFR-3.0"),
 })
 
 register_aliases(switch_1, {
-  device_helpers.create_fingerprint("KlikAanKlikUit", "Built-in Switch"),
-  device_helpers.create_fingerprint("Oz Smart Things", "WSP403"),
-  device_helpers.create_fingerprint("Sibling", "Powerswitch-ZK(W)"),
-  device_helpers.create_fingerprint("Sunricher", "SR-ZG9101SAC-HP-SWITCH-B"),
-  device_helpers.create_fingerprint("BTicino", "3584C"),
-  device_helpers.create_fingerprint("BTicino", "3577C"),
-  device_helpers.create_fingerprint("BTicino", "FC80AC"),
-  device_helpers.create_fingerprint("BTicino", "FC80CC"),
-  device_helpers.create_fingerprint("BTicino", "FC80RC"),
-  device_helpers.create_fingerprint("BTicino", "LN4570CWI"),
-  device_helpers.create_fingerprint("Elko", "EKO07250"),
-  device_helpers.create_fingerprint("Elko", "EKO07251"),
-  device_helpers.create_fingerprint("Elko", "EKO07252"),
-  device_helpers.create_fingerprint("Elko", "EKO07253"),
-  device_helpers.create_fingerprint("Elko", "EKO20004"),
-  device_helpers.create_fingerprint("Elko", "EKO30198"),
-  device_helpers.create_fingerprint("Elko", "EKO30199"),
-  device_helpers.create_fingerprint("Gira", "2430-100"),
-  device_helpers.create_fingerprint("Gira", "2435-10"),
-  device_helpers.create_fingerprint("Jung", "ZLLHS4"),
-  device_helpers.create_fingerprint("Legrand", "199142"),
-  device_helpers.create_fingerprint("Sunricher", "SR-ZG9100A-S"),
+  fp("KlikAanKlikUit", "Built-in Switch"),
+  fp("Oz Smart Things", "WSP403"),
+  fp("Sibling", "Powerswitch-ZK(W)"),
+  fp("Sunricher", "SR-ZG9101SAC-HP-SWITCH-B"),
+  fp("BTicino", "3584C"),
+  fp("BTicino", "3577C"),
+  fp("BTicino", "FC80AC"),
+  fp("BTicino", "FC80CC"),
+  fp("BTicino", "FC80RC"),
+  fp("BTicino", "LN4570CWI"),
+  fp("Elko", "EKO07250"),
+  fp("Elko", "EKO07251"),
+  fp("Elko", "EKO07252"),
+  fp("Elko", "EKO07253"),
+  fp("Elko", "EKO20004"),
+  fp("Elko", "EKO30198"),
+  fp("Elko", "EKO30199"),
+  fp("Gira", "2430-100"),
+  fp("Gira", "2435-10"),
+  fp("Jung", "ZLLHS4"),
+  fp("Legrand", "199142"),
+  fp("Sunricher", "SR-ZG9100A-S"),
 })
 
 register_aliases(switch_1, {
-  device_helpers.create_fingerprint("Schneider Electric", "1GANG/SWITCH/1"),
-  device_helpers.create_fingerprint("Schneider Electric", "CH10AX/SWITCH/1"),
-  device_helpers.create_fingerprint("Schneider Electric", "CH2AX/SWITCH/1"),
-  device_helpers.create_fingerprint("Schneider Electric", "NHPB/SWITCH/1"),
-  device_helpers.create_fingerprint("Schneider Electric", "PUCK/SWITCH/1"),
-  device_helpers.create_fingerprint("Schneider Electric", "U201SRY2KWZB"),
+  fp("Schneider Electric", "1GANG/SWITCH/1"),
+  fp("Schneider Electric", "CH10AX/SWITCH/1"),
+  fp("Schneider Electric", "CH2AX/SWITCH/1"),
+  fp("Schneider Electric", "NHPB/SWITCH/1"),
+  fp("Schneider Electric", "PUCK/SWITCH/1"),
+  fp("Schneider Electric", "U201SRY2KWZB"),
 })
 
 register_aliases(switch_1, {
-  device_helpers.create_fingerprint("TERNCY", "TERNCY-LS01"),
+  fp("TERNCY", "TERNCY-LS01"),
 })
 
 register_aliases(switch_1_ep10, {
-  device_helpers.create_fingerprint("Schneider Electric", "A3N31SR800ZB_xx_C1"),
-  device_helpers.create_fingerprint("Schneider Electric", "E8331SRY800ZB"),
+  fp("Schneider Electric", "A3N31SR800ZB_xx_C1"),
+  fp("Schneider Electric", "E8331SRY800ZB"),
 })
 
 register_aliases(switch_2_ep10, {
-  device_helpers.create_fingerprint("Schneider Electric", "A3N32SR800ZB_xx_C1"),
-  device_helpers.create_fingerprint("Schneider Electric", "E8332SRY800ZB"),
+  fp("Schneider Electric", "A3N32SR800ZB_xx_C1"),
+  fp("Schneider Electric", "E8332SRY800ZB"),
 })
 
 register_aliases(switch_3_ep10, {
-  device_helpers.create_fingerprint("Schneider Electric", "A3N33SR800ZB_xx_C1"),
-  device_helpers.create_fingerprint("Schneider Electric", "E8333SRY800ZB"),
+  fp("Schneider Electric", "A3N33SR800ZB_xx_C1"),
+  fp("Schneider Electric", "E8333SRY800ZB"),
 })
 
 register_aliases(switch_1, create_model_fingerprints("Sunricher", {
@@ -382,56 +420,86 @@ register_aliases(switch_1, create_model_fingerprints("Sunricher", {
 }))
 
 register_aliases(switch_2, {
-  device_helpers.create_fingerprint("Candeo", "C-ZB-SM205-2G"),
+  fp("Candeo", "C-ZB-SM205-2G"),
 })
 
 register_aliases(switch_2, {
-  device_helpers.create_fingerprint("HEIMAN", "HS2SW2A-EF-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "HS2SW2A-EFR-3.0"),
+  fp("HEIMAN", "HS2SW2A-EF-3.0"),
+  fp("HEIMAN", "HS2SW2A-EFR-3.0"),
 })
 
 register_aliases(switch_2, {
-  device_helpers.create_fingerprint("LED-Trading", "UP-SA-9127D"),
-  device_helpers.create_fingerprint("Sunricher", "ON/OFF(2CH)"),
-  device_helpers.create_fingerprint("Sunricher", "SR-ZG9101SAC-HP-SWITCH-2CH"),
+  fp("LED-Trading", "UP-SA-9127D"),
+  fp("Sunricher", "ON/OFF(2CH)"),
+  fp("Sunricher", "SR-ZG9101SAC-HP-SWITCH-2CH"),
 })
 
 register_aliases(heiman_switch_3, {
-  device_helpers.create_fingerprint("HEIMAN", "HS2SW3A-EF-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "HS2SW3A-EFR-3.0"),
+  fp("HEIMAN", "HS2SW3A-EF-3.0"),
+  fp("HEIMAN", "HS2SW3A-EFR-3.0"),
 })
 
 register_aliases(switch_4, {
-  device_helpers.create_fingerprint("Nova Digital", "TPZ-4"),
-  device_helpers.create_fingerprint("Tuya", "DS-111"),
-  device_helpers.create_fingerprint("MHCOZY", "TYWB 4ch-RF"),
-  device_helpers.create_fingerprint("AVATTO", "TS0004_1"),
-  device_helpers.create_fingerprint("AVATTO", "ZBTS60-04"),
-  device_helpers.create_fingerprint("RSH", "SB04-Zigbee"),
-  device_helpers.create_fingerprint("AVATTO", "ZWSM16-4"),
-  device_helpers.create_fingerprint("Moes", "ZM4LT4"),
-  device_helpers.create_fingerprint("iHseno", "_TZ3000_knoj8lpk"),
-  device_helpers.create_fingerprint("AVATTO", "ZWOT12"),
-  device_helpers.create_fingerprint("Coibeu", "ZB414"),
-  device_helpers.create_fingerprint("Nova Digital", "SA-4"),
-  device_helpers.create_fingerprint("Mercator Ikuü", "SSW04"),
-  device_helpers.create_fingerprint("OXT", "SWTZ27"),
-  device_helpers.create_fingerprint("TUYATEC", "GDKES-04TZXD"),
-  device_helpers.create_fingerprint("MakeGood", "MG-ZG04W/B/G"),
-  device_helpers.create_fingerprint("TERNCY", "TERNCY-WS01-S4"),
-  device_helpers.create_fingerprint("_TZ3210_qjvi92wz", "TS0014"),
-  device_helpers.create_fingerprint("_TZ3210_w3hl6rao", "TS0014"),
-  device_helpers.create_fingerprint("_TZ3210_z4hgsevd", "TS0014"),
-  device_helpers.create_fingerprint("Vizo", "VZ-221S"),
-  device_helpers.create_fingerprint("Vizo", "VZ-222S"),
-  device_helpers.create_fingerprint("Vizo", "VZ-223S"),
-  device_helpers.create_fingerprint("LELLKI", "WP33-EU"),
-  device_helpers.create_fingerprint("zunzunbee", "SSWZ8T"),
+  fp("Nova Digital", "TPZ-4"),
+  fp("Tuya", "DS-111"),
+  fp("MHCOZY", "TYWB 4ch-RF"),
+  fp("AVATTO", "TS0004_1"),
+  fp("AVATTO", "ZBTS60-04"),
+  fp("RSH", "SB04-Zigbee"),
+  fp("AVATTO", "ZWSM16-4"),
+  fp("Moes", "ZM4LT4"),
+  fp("iHseno", "_TZ3000_knoj8lpk"),
+  fp("AVATTO", "ZWOT12"),
+  fp("Coibeu", "ZB414"),
+  fp("Nova Digital", "SA-4"),
+  fp("Mercator Ikuü", "SSW04"),
+  fp("OXT", "SWTZ27"),
+  fp("TUYATEC", "GDKES-04TZXD"),
+  fp("MakeGood", "MG-ZG04W/B/G"),
+  fp("TERNCY", "TERNCY-WS01-S4"),
+  fp("_TZ3210_qjvi92wz", "TS0014"),
+  fp("_TZ3210_w3hl6rao", "TS0014"),
+  fp("_TZ3210_z4hgsevd", "TS0014"),
+  fp("Vizo", "VZ-221S"),
+  fp("Vizo", "VZ-222S"),
+  fp("Vizo", "VZ-223S"),
+  fp("LELLKI", "WP33-EU"),
 })
 
 register_aliases(switch_5_ep5, {
-  device_helpers.create_fingerprint("Sunricher", "SR-ZG9023A-EU"),
+  fp("Sunricher", "SR-ZG9023A-EU"),
 })
+
+register_aliases(zunzunbee_sswz8t, {
+  fp("zunzunbee", "SSWZ8T"),
+})
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-zvs"},
+  {2, "rpt-zef", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {3, "rpt-zej"},
+  {4, "rpt-sit"},
+  {5, "rpt-mcf"},
+  {6, "rpt-cba", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {7, "rpt-sit"},
+  {8, "rpt-sit"},
+  {9, "rpt-sit"},
+  {10, "rpt-sit"},
+  {11, "rpt-sit"},
+  {12, "rpt-sit"},
+  {13, "rpt-lpm", {["zr0006000010"] = "Switch", ["zr0006000011"] = "SwitchTwo"}},
+  {14, "rpt-lek", {["zr0006000010"] = "Switch", ["zr0006000011"] = "SwitchTwo", ["zr0006000012"] = "SwitchThree"}},
+  {15, "rpt-sit"},
+  {16, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {17, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {18, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {19, "rpt-hns", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {20, "rpt-tmr", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {21, "rpt-swt", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive"}},
+  {22, "rpt-sfh"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.switches.retail_switches",

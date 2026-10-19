@@ -1,1 +1,0 @@
-{name: sensors-heiman-hs2fd-presence-core,components:[{id: main,capabilities:[{id: motionSensor,version: 1}],categories:[{name: MotionSensor}]}]}

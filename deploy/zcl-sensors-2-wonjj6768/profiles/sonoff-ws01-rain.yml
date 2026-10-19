@@ -1,1 +1,1 @@
-{name: sonoff-ws01-rain,components:[{id: main,capabilities:[{id: precipitationSensor,version: 1}],categories:[{name: RainSensor}]}]}
+{name: sonoff-ws01-rain,components:[{id: main,capabilities:[{id: precipitationSensor,version: 1},{id: signalStrength,version: 1}],categories:[{name: RainSensor}]}]}

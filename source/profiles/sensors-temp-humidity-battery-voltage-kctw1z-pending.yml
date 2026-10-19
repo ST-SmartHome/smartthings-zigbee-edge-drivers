@@ -16,6 +16,7 @@ components:
     version: 1
   - id: concertmirror08464.kctwDisplayUnit
     version: 1
+  - {id: signalStrength, version: 1}
   categories:
   - name: TempHumiditySensor
 preferences:
@@ -26,59 +27,49 @@ preferences:
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: temperatureMeasurement
-        version: 1
-        group: main
-        values:
-          - label: "{{temperature.value}}{{temperature.unit}}"
-        composite: true
-      - component: main
-        capability: relativeHumidityMeasurement
-        version: 1
-        group: main
-        values:
-          - label: " {{humidity.value}}{{humidity.unit}}"
-        composite: true
+    - component: main
+      capability: temperatureMeasurement
+      group: main
+      values:
+      - label: '{{temperature.value}}{{temperature.unit}}'
+      composite: true
+    - component: main
+      capability: relativeHumidityMeasurement
+      group: main
+      values:
+      - label: ' {{humidity.value}}{{humidity.unit}}'
+      composite: true
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: concertmirror08464.kctwDisplayUnit
-      version: 1
-    - component: main
-      capability: temperatureMeasurement
-      version: 1
-    - component: main
-      capability: relativeHumidityMeasurement
-      version: 1
-    - component: main
-      capability: battery
-      version: 1
-    - component: main
-      capability: voltageMeasurement
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: concertmirror08464.kctwDisplayUnit
+  - component: main
+    capability: temperatureMeasurement
+  - component: main
+    capability: relativeHumidityMeasurement
+  - component: main
+    capability: battery
+  - component: main
+    capability: voltageMeasurement
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: concertmirror08464.kctwDisplayUnit
-        version: 1
-      - component: main
-        capability: temperatureMeasurement
-        version: 1
-      - component: main
-        capability: relativeHumidityMeasurement
-        version: 1
-      - component: main
-        capability: battery
-        version: 1
-      - component: main
-        capability: voltageMeasurement
-        version: 1
+    - component: main
+      capability: concertmirror08464.kctwDisplayUnit
+    - component: main
+      capability: temperatureMeasurement
+    - component: main
+      capability: relativeHumidityMeasurement
+    - component: main
+      capability: battery
+    - component: main
+      capability: voltageMeasurement
+    - component: main
+      capability: signalStrength
     actions:
-      - component: main
-        capability: concertmirror08464.kctwDisplayUnit
-        version: 1
+    - component: main
+      capability: concertmirror08464.kctwDisplayUnit

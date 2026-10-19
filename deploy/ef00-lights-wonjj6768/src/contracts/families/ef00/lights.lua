@@ -1,340 +1,341 @@
-local function load_fans()local tuya=require"protocol.tuya"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local converter=tuya.converter
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local function percent(value)
-local n=tonumber(value)
+local aR=require"protocol.zcl"
+local function aJ()local c=require"protocol.tuya"
+local d=require"capabilities.events.all"
+local a=require"contracts.helpers.family"
+local f=c.converter
+local C,b=a.definition_registry()
+local function ao(e)
+local n=tonumber(e)
 if n==nil then return nil end
 if n<0 then return 0 end
 if n>100 then return 100 end
 return math.floor(n+0.5)
 end
-local three_speed_fan_mode=converter.from_to(
-function(value)
-if value==0 then return"low"end
-if value==1 then return"medium"end
-if value==2 then return"high"end
+local ah=f.from_to(
+function(e)
+if e==0 then return"low"end
+if e==1 then return"medium"end
+if e==2 then return"high"end
 return nil
 end,
-function(value)
-if value=="low"then return 0 end
-if value=="medium"then return 1 end
-if value=="high"or value=="on"then return 2 end
+function(e)
+if e=="low"then return 0 end
+if e=="medium"then return 1 end
+if e=="high"or e=="on"then return 2 end
 return nil
 end
-)local five_speed_fan_mode=converter.from_to(
-function(value)
-if value<=1 then return"low"end
-if value==2 then return"medium"end
+)local aH=f.from_to(
+function(e)
+if e<=1 then return"low"end
+if e==2 then return"medium"end
 return"high"
 end,
-function(value)
-if value=="low"then return 0 end
-if value=="medium"then return 2 end
-if value=="high"or value=="on"then return 4 end
+function(e)
+if e=="low"then return 0 end
+if e=="medium"then return 2 end
+if e=="high"or e=="on"then return 4 end
 return nil
 end
-)local zero_based_five_speed=converter.from_to(
-function(value)
-local n=tonumber(value)or 0
+)local af=f.from_to(
+function(e)
+local n=tonumber(e)or 0
 if n<=0 then return"low"end
 if n==1 then return"low"end
 if n==2 then return"medium"end
 return"high"
 end,
-function(value)
-if value=="low"then return 1 end
-if value=="medium"then return 2 end
-if value=="high"or value=="on"then return 4 end
+function(e)
+if e=="low"then return 1 end
+if e=="medium"then return 2 end
+if e=="high"or e=="on"then return 4 end
 return nil
 end
-)local stepped_level=converter.from_to(
-function(value)
-if value<=300 then return 20 end
-if value<=410 then return 40 end
-if value<=520 then return 60 end
-if value<=650 then return 80 end
+)local aw=f.from_to(
+function(e)
+if e<=300 then return 20 end
+if e<=410 then return 40 end
+if e<=520 then return 60 end
+if e<=650 then return 80 end
 return 100
 end,
-function(value)
-local level=percent(value)
-if level==nil then return nil end
-if level<=20 then return 300 end
-if level<=40 then return 410 end
-if level<=60 then return 520 end
-if level<=80 then return 650 end
+function(e)
+local P=ao(e)
+if P==nil then return nil end
+if P<=20 then return 300 end
+if P<=40 then return 410 end
+if P<=60 then return 520 end
+if P<=80 then return 650 end
 return 1000
 end
-)local coarse_light_level=converter.from_to(
-function(value)
-if value<=300 then return 10 end
-if value<=410 then return 30 end
-if value<=520 then return 50 end
-if value<=650 then return 70 end
+)local ak=f.from_to(
+function(e)
+if e<=300 then return 10 end
+if e<=410 then return 30 end
+if e<=520 then return 50 end
+if e<=650 then return 70 end
 return 100
 end,
-function(value)
-local level=percent(value)
-if level==nil then return nil end
-if level<=10 then return 300 end
-if level<=30 then return 410 end
-if level<=50 then return 520 end
-if level<=70 then return 650 end
+function(e)
+local P=ao(e)
+if P==nil then return nil end
+if P<=10 then return 300 end
+if P<=30 then return 410 end
+if P<=50 then return 520 end
+if P<=70 then return 650 end
 return 1000
 end
-)local percentage_level=converter.from_to(percent,percent)local fan_and_light_switch={
-profile="fans-fan-light-switch",tuya.dp_on_off(1,{name="switch",component="main",emit=emit.switch()}),tuya.dp_fan_mode(101,{component="main",emit=emit.fan_mode(),converter=three_speed_fan_mode}),tuya.dp_power_on_behavior(11,{emit=emit.fanLightHmqzPowerOnBehavior()}),tuya.dp_on_off(5,{name="switch",component="light",emit=emit.switch()}),}local fan_switch_r32_speed=converter.from_to(
-function(value)
-local n=tonumber(value)
+)local Z=f.from_to(ao,ao)local N={
+profile="fans-fan-light-switch",c.dp_on_off(1,{name="switch",component="main",emit=d.switch()}),c.dp_fan_mode(101,{component="main",emit=d.fan_mode(),converter=ah}),c.dp_power_on_behavior(11,{emit=d.fanLightHmqzPowerOnBehavior()}),c.dp_on_off(5,{name="switch",component="light",emit=d.switch()}),}local O=f.from_to(
+function(e)
+local n=tonumber(e)
 if n==nil then return nil end
 return n+1
 end,
-function(value)
-local n=tonumber(value)
+function(e)
+local n=tonumber(e)
 if n==nil then return nil end
 if n<1 then n=1 end
 if n>5 then n=5 end
 return n-1
 end
-)local fan_switch_5_speed={
-profile="fans-switch-fan-speed-r32ctezx",tuya.dp_on_off(1,{name="switch",component="main",emit=emit.switch()}),tuya.dp_countdown(2,{name="countdown",emit=emit.fanSwitchR32Countdown()}),tuya.dp_enum(3,{
-name="fan_speed",emit=emit.fanSwitchR32FanSpeed(),converter=fan_switch_r32_speed,}),tuya.dp_power_on_behavior(11,{emit=emit.fanSwitchR32PowerOnBehavior()}),}register_device_definition(fan_switch_5_speed,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_r32ctezx","_TZE204_r32ctezx","_TZE28C1000000_z5jz7wpo",}))register_device_definition(fan_and_light_switch,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_hmqzfqml","_TZE200_qanl25yu",}))register_device_definition(fan_and_light_switch,{
-device_helpers.create_fingerprint("Liwokit","Fan+Light-01"),device_helpers.create_fingerprint("Lerlink","T2-Z67/T2-W67"),})local fan_5_levels_and_light_switch={
-profile="fans-fan-speed-light-switch-lawxy9e2",tuya.dp_on_off(1,{name="switch",component="main",emit=emit.switch()}),tuya.dp_enum(3,{
-name="fan_speed",emit=emit.fanLightLawxFanSpeed(),converter=fan_switch_r32_speed,}),tuya.dp_power_on_behavior(11,{emit=emit.fanLightHmqzPowerOnBehavior()}),tuya.dp_on_off(5,{name="switch",component="light",emit=emit.switch()}),}register_device_definition(fan_5_levels_and_light_switch,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_lawxy9e2","_TZE204_lawxy9e2",}))local fan_dimmer_and_light_switch={
-profile="fans-fan-level-light-switch",tuya.dp_on_off(1,{name="switch",component="main",emit=emit.switch()}),tuya.dp_numeric(4,{name="brightness",component="main",emit=emit.level(),converter=percentage_level}),tuya.dp_on_off(5,{name="switch",component="light",emit=emit.switch()}),tuya.dp_power_on_behavior(11,{emit=emit.fanDimmerBqlPowerOnBehavior()}),tuya.dp_indicator_mode(12,{
-name="indicator_mode",emit=emit.fanDimmerBqlIndicator(),converter=converter.lookup_from_to({
-off=0,off_on=1,on=2,}),}),tuya.dp_on_off(13,{
-name="backlight",emit=emit.fanDimmerBqlBacklight(),converter=converter.lookup_from_to({off=false,on=true}),}),tuya.dp_child_lock(104,{
-name="child_lock",emit=emit.fanDimmerBqlChildLock(),converter=converter.lookup_from_to({off=false,on=true}),}),tuya.dp_numeric(105,{
-name="minimum_speed",emit=emit.fanDimmerBqlMinimumSpeed(),converter=percentage_level,}),}register_device_definition(fan_dimmer_and_light_switch,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_bql5khqx","_TZE204_2jnoy8dj",}))register_device_definition(fan_dimmer_and_light_switch,{
-device_helpers.create_fingerprint("Coswall","X99-G-kbFan-1g-ZG-LN-11"),device_helpers.create_fingerprint("Zemismart","ZN2S-RS1E-FL / ZN2S-US1U-FL"),})local fan_5_levels_and_light_5_levels={
-profile="fans-fan-level-light-dimmer",tuya.dp_on_off(1,{name="switch",component="main",emit=emit.switch()}),tuya.dp_numeric(6,{name="brightness",component="main",emit=emit.level(),converter=stepped_level}),tuya.dp_on_off(104,{name="switch",component="light",emit=emit.switch()}),tuya.dp_numeric(105,{name="brightness",component="light",emit=emit.level(),converter=coarse_light_level}),}register_device_definition(fan_5_levels_and_light_5_levels,device_helpers.create_fingerprints("TS0601",{
-"_TZE284_ikul00sx",}))local ceiling_countdown_hours=converter.from_to(
-function(value)
-local seconds=tonumber(value)
-if seconds==nil then return nil end
-return math.floor(seconds/3600*100+0.5)/100
+)local am={
+profile="fans-switch-fan-speed-r32ctezx",c.dp_on_off(1,{name="switch",component="main",emit=d.switch()}),c.dp_countdown(2,{name="countdown",emit=d.fanSwitchR32Countdown()}),c.dp_enum(3,{
+name="fan_speed",emit=d.fanSwitchR32FanSpeed(),converter=O,}),c.dp_power_on_behavior(11,{emit=d.fanSwitchR32PowerOnBehavior()}),}b(am,a.create_fingerprints("TS0601",{
+"_TZE200_r32ctezx","_TZE204_r32ctezx","_TZE28C1000000_z5jz7wpo",}))b(N,a.create_fingerprints("TS0601",{
+"_TZE200_hmqzfqml","_TZE200_qanl25yu",}))b(N,{
+a.create_fingerprint("Liwokit","Fan+Light-01"),a.create_fingerprint("Lerlink","T2-Z67/T2-W67"),})local R={
+profile="fans-fan-speed-light-switch-lawxy9e2",c.dp_on_off(1,{name="switch",component="main",emit=d.switch()}),c.dp_enum(3,{
+name="fan_speed",emit=d.fanLightLawxFanSpeed(),converter=O,}),c.dp_power_on_behavior(11,{emit=d.fanLightHmqzPowerOnBehavior()}),c.dp_on_off(5,{name="switch",component="light",emit=d.switch()}),}b(R,a.create_fingerprints("TS0601",{
+"_TZE200_lawxy9e2","_TZE204_lawxy9e2",}))local x={
+profile="fans-fan-level-light-switch",c.dp_on_off(1,{name="switch",component="main",emit=d.switch()}),c.dp_numeric(4,{name="brightness",component="main",emit=d.level(),converter=Z}),c.dp_on_off(5,{name="switch",component="light",emit=d.switch()}),c.dp_power_on_behavior(11,{emit=d.fanDimmerBqlPowerOnBehavior()}),c.dp_indicator_mode(12,{
+name="indicator_mode",emit=d.fanDimmerBqlIndicator(),converter=f.lookup_from_to({
+off=0,off_on=1,on=2,}),}),c.dp_on_off(13,{
+name="backlight",emit=d.fanDimmerBqlBacklight(),converter=f.lookup_from_to({off=false,on=true}),}),c.dp_child_lock(104,{
+name="child_lock",emit=d.fanDimmerBqlChildLock(),converter=f.lookup_from_to({off=false,on=true}),}),c.dp_numeric(105,{
+name="minimum_speed",emit=d.fanDimmerBqlMinimumSpeed(),converter=Z,}),}b(x,a.create_fingerprints("TS0601",{
+"_TZE204_bql5khqx","_TZE204_2jnoy8dj",}))b(x,{
+a.create_fingerprint("Coswall","X99-G-kbFan-1g-ZG-LN-11"),a.create_fingerprint("Zemismart","ZN2S-RS1E-FL / ZN2S-US1U-FL"),})local J={
+profile="fans-fan-level-light-dimmer",c.dp_on_off(1,{name="switch",component="main",emit=d.switch()}),c.dp_numeric(6,{name="brightness",component="main",emit=d.level(),converter=aw}),c.dp_on_off(104,{name="switch",component="light",emit=d.switch()}),c.dp_numeric(105,{name="brightness",component="light",emit=d.level(),converter=ak}),}b(J,a.create_fingerprints("TS0601",{
+"_TZE284_ikul00sx",}))local aa=f.from_to(
+function(e)
+local ae=tonumber(e)
+if ae==nil then return nil end
+return math.floor(ae/3600*100+0.5)/100
 end,
-function(value)
-local hours=tonumber(value)
-if hours==nil then return nil end
-local seconds=math.floor(hours*3600+0.5)
-if seconds>43200 then return 43200 end
-return seconds
+function(e)
+local aM=tonumber(e)
+if aM==nil then return nil end
+local ae=math.floor(aM*3600+0.5)
+if ae>43200 then return 43200 end
+return ae
 end
-)local fan_ceiling_module={
-profile="fans-switch-fan-mode-ceiling-z5jz7wpo",tuya.dp_on_off(1,{name="switch",component="main",emit=emit.switch()}),tuya.dp_countdown(2,{
-name="countdown_hours",emit=emit.fanCeilingZ5jzCountdownHours(),converter=ceiling_countdown_hours,}),tuya.dp_fan_mode(3,{component="main",emit=emit.fan_mode(),converter=zero_based_five_speed}),tuya.dp_power_on_behavior(11,{emit=emit.fanCeilingZ5jzPowerOnBehavior()}),tuya.dp_enum(12,{
-name="light_mode",emit=emit.fanCeilingZ5jzLightMode(),converter=converter.lookup_from_to({none=0,relay=1,pos=2}),}),}register_device_definition(fan_ceiling_module,device_helpers.create_fingerprints("TS0601",{
+)local al={
+profile="fans-switch-fan-mode-ceiling-z5jz7wpo",c.dp_on_off(1,{name="switch",component="main",emit=d.switch()}),c.dp_countdown(2,{
+name="countdown_hours",emit=d.fanCeilingZ5jzCountdownHours(),converter=aa,}),c.dp_fan_mode(3,{component="main",emit=d.fan_mode(),converter=af}),c.dp_power_on_behavior(11,{emit=d.fanCeilingZ5jzPowerOnBehavior()}),c.dp_enum(12,{
+name="light_mode",emit=d.fanCeilingZ5jzLightMode(),converter=f.lookup_from_to({none=0,relay=1,pos=2}),}),}b(al,a.create_fingerprints("TS0601",{
 "_TZE284_z5jz7wpo",}))
-return device_definitions end
-local function load_lights()
-local capabilities=require"st.capabilities"
-local tuya=require"protocol.tuya"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local ef00_helpers=require"contracts.helpers.ef00"
-local zcl=require"protocol.zcl"
-local device_management=require"st.zigbee.device_management"
-local device_definitions,register_device_definition=device_helpers.definition_registry()local converter=tuya.converter
-local OA1ODMGA_HUE_FIELD="oa1odmga_color_hue"
-local OA1ODMGA_SATURATION_FIELD="oa1odmga_color_saturation"
-local OA1ODMGA_BRIGHTNESS_FIELD="oa1odmga_color_brightness"
-local OA1ODMGA_COLOR_TEMPERATURE_RANGE={minimum=2000,maximum=6536}
-local function clamp(value,minimum,maximum)
-if value<minimum then return minimum end
-if value>maximum then return maximum end
-return value
+return C end
+local function aB()
+local ax=require"st.capabilities"
+local c=require"protocol.tuya"
+local d=require"capabilities.events.all"
+local a=require"contracts.helpers.family"
+local aP=require"contracts.helpers.ef00"
+local aq=require"st.zigbee.device_management"
+local C,b=a.definition_registry()local f=c.converter
+local B="oa1odmga_color_hue"
+local r="oa1odmga_color_saturation"
+local q="oa1odmga_color_brightness"
+local t={minimum=2000,maximum=6536}
+local function ab(e,aF,aE)
+if e<aF then return aF end
+if e>aE then return aE end
+return e
 end
-local function round(value)
-return math.floor(value+0.5)
+local function ap(e)
+return math.floor(e+0.5)
 end
-local function oa1odmga_color_part(value,offset)
-if type(value)~="string"or #value<12 then
+local function T(e,aK)
+if type(e)~="string"or #e<12 then
 return nil
 end
-return tonumber(value:sub(offset,offset+3),16)
+return tonumber(e:sub(aK,aK+3),16)
 end
-local function oa1odmga_hue_from_device(value,device)
-local degrees=oa1odmga_color_part(value,1)
-if degrees==nil then return nil end
-local hue=clamp(degrees/3.6,0,100)device:set_field(OA1ODMGA_HUE_FIELD,hue,{persist=false})return hue
+local function Y(e,g)
+local aC=T(e,1)
+if aC==nil then return nil end
+local ai=ab(aC/3.6,0,100)g:set_field(B,ai,{persist=false})return ai
 end
-local function oa1odmga_saturation_from_device(value,device)
-local raw=oa1odmga_color_part(value,5)
-if raw==nil then return nil end
-local saturation=clamp(raw/10,0,100)device:set_field(OA1ODMGA_SATURATION_FIELD,saturation,{persist=false})return saturation
+local function L(e,g)
+local aT=T(e,5)
+if aT==nil then return nil end
+local k=ab(aT/10,0,100)g:set_field(r,k,{persist=false})return k
 end
-local function oa1odmga_brightness_pair()
-return converter.from_to(
-function(value,device)
-local brightness=clamp((tonumber(value)or 0)*100/254,0,100)device:set_field(OA1ODMGA_BRIGHTNESS_FIELD,brightness,{persist=false})return brightness
+local function X()
+return f.from_to(
+function(e,g)
+local y=ab((tonumber(e)or 0)*100/254,0,100)g:set_field(q,y,{persist=false})return y
 end,
-function(value,device)
-local brightness=clamp(tonumber(value)or 0,0,100)device:set_field(OA1ODMGA_BRIGHTNESS_FIELD,brightness,{persist=false})return round(brightness*254/100)
+function(e,g)
+local y=ab(tonumber(e)or 0,0,100)g:set_field(q,y,{persist=false})return ap(y*254/100)
 end
 )
 end
-local function oa1odmga_color_temperature_pair()
-return converter.from_to(
-function(value)
-local mired=tonumber(value)
-if mired==nil or mired<=0 then return nil end
-return round(1000000/mired)
+local function K()
+return f.from_to(
+function(e)
+local aG=tonumber(e)
+if aG==nil or aG<=0 then return nil end
+return ap(1000000/aG)
 end,
-function(value)
-local kelvin=tonumber(value)
-if kelvin==nil or kelvin<=0 then return nil end
-return clamp(round(1000000/kelvin),153,500)
+function(e)
+local ay=tonumber(e)
+if ay==nil or ay<=0 then return nil end
+return ab(ap(1000000/ay),153,500)
 end
 )
 end
-local function oa1odmga_latest(device,field,capability_id,attribute_name,fallback)
-local value=device:get_field(field)
-if value==nil and type(device.get_latest_state)=="function"then
-value=device:get_latest_state("main",capability_id,attribute_name)
+local function Q(g,aS,av,au,aL)
+local e=g:get_field(aS)
+if e==nil and type(g.get_latest_state)=="function"then
+e=g:get_latest_state("main",av,au)
 end
-return tonumber(value)or fallback
+return tonumber(e)or aL
 end
-local function oa1odmga_color_payload(device,hue,saturation)
-hue=clamp(tonumber(hue)or 0,0,100)saturation=clamp(tonumber(saturation)or 0,0,100)local brightness=clamp(oa1odmga_latest(
-device,OA1ODMGA_BRIGHTNESS_FIELD,"switchLevel","level",100
-),0,100)device:set_field(OA1ODMGA_HUE_FIELD,hue,{persist=false})device:set_field(OA1ODMGA_SATURATION_FIELD,saturation,{persist=false})return string.format("%04x%04x%04x",round(hue*3.6),round(saturation*10),round(brightness*10))
+local function ad(g,ai,k)
+ai=ab(tonumber(ai)or 0,0,100)k=ab(tonumber(k)or 0,0,100)local y=ab(Q(
+g,q,"switchLevel","level",100
+),0,100)g:set_field(B,ai,{persist=false})g:set_field(r,k,{persist=false})return string.format("%04x%04x%04x",ap(ai*3.6),ap(k*10),ap(y*10))
 end
-local function oa1odmga_color_write(device,value)
-if type(value)~="table"then return nil end
-local hue=value.hue
-local saturation=value.saturation
-if hue==nil or saturation==nil then return nil end
+local function z(g,e)
+if type(e)~="table"then return nil end
+local ai=e.hue
+local k=e.saturation
+if ai==nil or k==nil then return nil end
 return{
-{dp=2,datatype=tuya.DP_TYPE_ENUM,value=1},{dp=5,datatype=tuya.DP_TYPE_STRING,value=oa1odmga_color_payload(device,hue,saturation)},}
+{dp=2,datatype=c.DP_TYPE_ENUM,value=1},{dp=5,datatype=c.DP_TYPE_STRING,value=ad(g,ai,k)},}
 end
-local function oa1odmga_hue_write(device,value)
-local saturation=oa1odmga_latest(
-device,OA1ODMGA_SATURATION_FIELD,"colorControl","saturation",100)return oa1odmga_color_write(device,{hue=value,saturation=saturation})
+local function an(g,e)
+local k=Q(
+g,r,"colorControl","saturation",100)return z(g,{hue=e,saturation=k})
 end
-local function oa1odmga_saturation_write(device,value)
-local hue=oa1odmga_latest(device,OA1ODMGA_HUE_FIELD,"colorControl","hue",0)return oa1odmga_color_write(device,{hue=hue,saturation=value})
+local function V(g,e)
+local ai=Q(g,B,"colorControl","hue",0)return z(g,{hue=ai,saturation=e})
 end
-local oa1odmga_color_temperature_converter=oa1odmga_color_temperature_pair()
-local function oa1odmga_color_temperature_write(_,value)
-local encoded=oa1odmga_color_temperature_converter.to(value)
-if encoded==nil then return nil end
+local p=K()
+local function H(_,e)
+local aD=p.to(e)
+if aD==nil then return nil end
 return{
-{dp=2,datatype=tuya.DP_TYPE_ENUM,value=0},{dp=4,datatype=tuya.DP_TYPE_VALUE,value=encoded},}
+{dp=2,datatype=c.DP_TYPE_ENUM,value=0},{dp=4,datatype=c.DP_TYPE_VALUE,value=aD},}
 end
-local oa1odmga_switch=tuya.dp_on_off(1,{name="switch",emit=emit.switch()})local oa1odmga_brightness=tuya.dp_numeric(3,{
-name="brightness",emit=emit.level(),converter=oa1odmga_brightness_pair(),})local oa1odmga_color_temperature=tuya.dp_numeric(4,{
-name="oa1odmga_color_temperature_report",read_only=true,emit=emit.color_temperature(),converter=converter.from_only(oa1odmga_color_temperature_converter.from),})local oa1odmga_hue=tuya.dp_string(5,{
-name="oa1odmga_color_hue_report",read_only=true,emit=emit.color_hue(),converter=converter.from_only(oa1odmga_hue_from_device),})local oa1odmga_saturation=tuya.dp_string(5,{
-name="oa1odmga_color_saturation_report",read_only=true,emit=emit.color_saturation(),converter=converter.from_only(oa1odmga_saturation_from_device),})local light_model_oa1odmga={
-profile="lights-color-temperature-color",color_temperature_range=OA1ODMGA_COLOR_TEMPERATURE_RANGE,named_mapping={
+local ac=c.dp_on_off(1,{name="switch",emit=d.switch()})local S=c.dp_numeric(3,{
+name="brightness",emit=d.level(),converter=X(),})local U=c.dp_numeric(4,{
+name="oa1odmga_color_temperature_report",read_only=true,emit=d.color_temperature(),converter=f.from_only(p.from),})local az=c.dp_string(5,{
+name="oa1odmga_color_hue_report",read_only=true,emit=d.color_hue(),converter=f.from_only(Y),})local aj=c.dp_string(5,{
+name="oa1odmga_color_saturation_report",read_only=true,emit=d.color_saturation(),converter=f.from_only(L),})local ag={
+profile="lights-color-temperature-color",color_temperature_range=t,named_mapping={
 named_mappings={
-switch=oa1odmga_switch,brightness=oa1odmga_brightness,color_temperature=oa1odmga_color_temperature_write,color=oa1odmga_color_write,color_hue=oa1odmga_hue_write,color_saturation=oa1odmga_saturation_write,},},datapoints={
-oa1odmga_switch,tuya.dp_enum(2,{name="oa1odmga_work_mode",read_only=true}),oa1odmga_brightness,oa1odmga_color_temperature,oa1odmga_hue,oa1odmga_saturation,},
-runtime_start=function(device)
-device:emit_component_event(
-{id="main"},capabilities.colorTemperature.colorTemperatureRange({
-value=OA1ODMGA_COLOR_TEMPERATURE_RANGE,unit="K",}))return true
+switch=ac,brightness=S,color_temperature=H,color=z,color_hue=an,color_saturation=V,},},datapoints={
+ac,c.dp_enum(2,{name="oa1odmga_work_mode",read_only=true}),S,U,az,aj,},
+runtime_start=function(g)
+g:emit_component_event(
+{id="main"},ax.colorTemperature.colorTemperatureRange({
+value=t,unit="K",}))return true
 end,
-}register_device_definition(light_model_oa1odmga,device_helpers.create_fingerprints("TS0601",{
-"_TZE284_oa1odmga",}))local zdms16_brightness=converter.scale_pair(0,1000,0,100)local zdms16_switch_type=converter.lookup_from_to({
-toggle=0,state=1,momentary=2,})local ts0601_setting_brightness=converter.from_to(
-function(value)return math.floor(value*254/1000+0.5)end,
-function(value)return math.floor(value*1000/254+0.5)end
+}b(ag,a.create_fingerprints("TS0601",{
+"_TZE284_oa1odmga",}))local h=f.scale_pair(0,1000,0,100)local D=f.lookup_from_to({
+toggle=0,state=1,momentary=2,})local l=f.from_to(
+function(e)return math.floor(e*254/1000+0.5)end,
+function(e)return math.floor(e*1000/254+0.5)end
 )
-local function add_ts0601_knob_reports(definition)
-definition.magic_packet=true
-definition.mcu_version_request_on_configure=true
-definition.query_on_configure=false
-definition.query_on_announce=false
-definition.initial_custom_state_query=false
-definition.refresh_state_query=false
-definition.time_start="off"
-definition.parent_refresh=function()end
-definition.zcl_clusters={
-zcl.switch({name="knob_switch",read_only=true,read_on_configure=false,maximum_interval=0}),zcl.level({name="knob_level",read_only=true,read_on_configure=false,maximum_interval=0}),}
-definition.configure=function(driver,device)
-for _,cluster in ipairs({0x0006,0x0008})do
-device:send(device_management.build_bind_request(device,cluster,driver.environment_info.hub_zigbee_eui,1))
+local function m(o)
+o.magic_packet=true
+o.mcu_version_request_on_configure=true
+o.query_on_configure=false
+o.query_on_announce=false
+o.initial_custom_state_query=false
+o.refresh_state_query=false
+o.time_start="off"
+o.parent_refresh=function()end
+o.zcl_clusters={
+aR.switch({name="knob_switch",read_only=true,read_on_configure=false,maximum_interval=0}),aR.level({name="knob_level",read_only=true,read_on_configure=false,maximum_interval=0}),}
+o.configure=function(aO,g)
+for _,aN in ipairs({6,8})do
+g:send(aq.build_bind_request(g,aN,aO.environment_info.hub_zigbee_eui,1))
 end
 end
 end
-local dimmer_model_ts0601_la2c2uo9={
-profile="lights-dimmer-options-ts0601-la2c2uo9",minimum_brightness_capability="la2DimmerMinBrightness",tuya.dp_on_off(1,{name="switch",emit=emit.switch(),skip=tuya.skip.state_on_and_brightness_present()}),tuya.dp_brightness(2,{name="brightness",emit=emit.level()}),tuya.dp_min_brightness(3,{name="la2_dimmer_min_brightness",value_max=1000,emit=emit.la2DimmerMinBrightness()}),tuya.dp_light_type(4,{datatype=tuya.DP_TYPE_VALUE,name="la2_dimmer_light_type",emit=emit.la2DimmerLightType()}),tuya.dp_countdown(6,{name="la2_dimmer_countdown",emit=emit.la2DimmerCountdown()}),tuya.dp_power_on_behavior(14,{name="la2_dimmer_power_on_behavior",datatype=tuya.DP_TYPE_VALUE,emit=emit.la2DimmerPowerOnBehavior()}),tuya.dp_backlight_mode(21,{name="la2_dimmer_backlight_mode",emit=emit.la2DimmerBacklightMode()}),}add_ts0601_knob_reports(dimmer_model_ts0601_la2c2uo9)register_device_definition(dimmer_model_ts0601_la2c2uo9,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_la2c2uo9",}))local dimmer_model_ts0601_dfxkcots={
-profile="lights-dimmer-options-ts0601-dfxkcots",minimum_brightness_capability="dfxDimmerMinBrightness",tuya.dp_on_off(1,{name="switch",emit=emit.switch(),skip=tuya.skip.state_on_and_brightness_present()}),tuya.dp_brightness(2,{name="brightness",emit=emit.level()}),tuya.dp_min_brightness(3,{name="dfx_dimmer_min_brightness",value_max=1000,emit=emit.dfxDimmerMinBrightness()}),tuya.dp_light_type(4,{datatype=tuya.DP_TYPE_VALUE,name="dfx_dimmer_light_type",emit=emit.dfxDimmerLightType()}),tuya.dp_countdown(6,{name="dfx_dimmer_countdown",emit=emit.dfxDimmerCountdown()}),tuya.dp_power_on_behavior(14,{name="dfx_dimmer_power_on_behavior",datatype=tuya.DP_TYPE_VALUE,emit=emit.dfxDimmerPowerOnBehavior()}),}add_ts0601_knob_reports(dimmer_model_ts0601_dfxkcots)register_device_definition(dimmer_model_ts0601_dfxkcots,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_dfxkcots",}))local dimmer_model_ts0601_dimmer_1_gang_1={
-profile="lights-dimmer-options-ts0601",minimum_brightness_capability="tsd1MinimumBrightness",tuya.dp_on_off(1,{name="switch",emit=emit.switch(),skip=tuya.skip.state_on_and_brightness_present()}),tuya.dp_brightness(2,{name="brightness",emit=emit.level()}),tuya.dp_min_brightness(3,{name="tsd1_min_brightness",converter=ts0601_setting_brightness,emit=emit.tsd1MinimumBrightness()}),tuya.dp_light_type(4,{datatype=tuya.DP_TYPE_VALUE,name="tsd1_light_type",emit=emit.tsd1LightType()}),tuya.dp_max_brightness(5,{name="tsd1_max_brightness",converter=ts0601_setting_brightness,emit=emit.tsd1MaximumBrightness()}),tuya.dp_countdown(6,{name="tsd1_countdown",emit=emit.tsd1Countdown()}),tuya.dp_power_on_behavior(14,{name="tsd1_power_on_behavior",datatype=tuya.DP_TYPE_VALUE,emit=emit.tsd1PowerOnBehavior()}),tuya.dp_backlight_mode(21,{name="tsd1_backlight_mode",emit=emit.tsd1BacklightMode()}),}add_ts0601_knob_reports(dimmer_model_ts0601_dimmer_1_gang_1)register_device_definition(dimmer_model_ts0601_dimmer_1_gang_1,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_ip2akl4w","_TZE200_1agwnems","_TZE200_579lguh2","_TZE200_vucankjx","_TZE204_hlx9tnzb","_TZE204_n9ctkb6j","_TZE204_9qhuzgo0","_TZE200_9cxuhakf","_TZE200_a0syesf5","_TZE200_3p5ydos3","_TZE200_swaamsoy","_TZE200_ojzhk75b","_TZE200_w4cryh2i","_TZE204_68utemio","_TZE200_9i9dt8is","_TZE200_ctq0k47x","_TZE200_ebwgzdqq","_TZE204_vevc4c6g","_TZE200_0nauxa0p","_TZE284_m1cvyneb","_TZE284_68utemio","_TZE28C1000000_68utemio","_TZE284_xc7dve2g",}))register_device_definition(dimmer_model_ts0601_dimmer_1_gang_1,{
-device_helpers.create_fingerprint("Lerlink","X706U"),device_helpers.create_fingerprint("Moes","ZS-EUD_1gang"),device_helpers.create_fingerprint("Larkkey","ZSTY-SM-1DMZG-EU"),device_helpers.create_fingerprint("Earda","EDM-1ZAA-EU"),device_helpers.create_fingerprint("Earda","EDM-1ZAB-EU"),device_helpers.create_fingerprint("Earda","EDM-1ZBA-EU"),device_helpers.create_fingerprint("Mercator Ikuü","SSWD01"),device_helpers.create_fingerprint("Moes","ZS-USD"),device_helpers.create_fingerprint("Lonsonho","EDM-1ZBB-EU"),device_helpers.create_fingerprint("Moes","EDM-1ZBB-EU"),device_helpers.create_fingerprint("Moes","ZS-SR-EUD-1"),device_helpers.create_fingerprint("Moes","MS-105Z"),device_helpers.create_fingerprint("Mercator Ikuü","SSWM-DIMZ"),device_helpers.create_fingerprint("Zemismart","ZN2S-US1-SD"),device_helpers.create_fingerprint("Mercator Ikuü","SSWRM-ZB"),})local dimmer_ion={
-profile="lights-dimmer-ion",minimum_brightness_capability="ionDimmerMin",tuya.dp_on_off(1,{name="switch",emit=emit.switch(),skip=tuya.skip.state_on_and_brightness_present()}),tuya.dp_brightness(2,{name="brightness",emit=emit.level()}),tuya.dp_min_brightness(3,{name="ion_min_brightness",converter=ts0601_setting_brightness,emit=emit.ionDimmerMin()}),tuya.dp_max_brightness(5,{name="ion_max_brightness",converter=ts0601_setting_brightness,emit=emit.ionDimmerMax()}),tuya.dp_countdown(6,{name="ion_countdown",emit=emit.ionDimmerCountdown()}),tuya.dp_power_on_behavior(14,{datatype=tuya.DP_TYPE_VALUE,name="ion_power_on",emit=emit.ionDimmerPowerOn()}),}add_ts0601_knob_reports(dimmer_ion)register_device_definition(dimmer_ion,{
-device_helpers.create_fingerprint("_TZE200_4mh6tyyo","TS0601"),device_helpers.create_fingerprint("_TZE200_ykgar0ow","TS0601"),device_helpers.create_fingerprint("_TZE200_0hb4rdnp","TS0601"),device_helpers.create_fingerprint("_TZE200_gne0e6mk","TS0601"),device_helpers.create_fingerprint("_TZE200_itp8dt7f","TS0601"),device_helpers.create_fingerprint("ION Industries","ID200W-ZIGB"),device_helpers.create_fingerprint("ION Industries","90.500.090"),device_helpers.create_fingerprint("ION Industries","90.500.040"),})local avatto_zdms16_1={
-profile="lights-dimmer-zdms16-1",tuya.dp_on_off(1,{name="switch",emit=emit.switch()}),tuya.dp_numeric(2,{name="brightness",emit=emit.level(),converter=zdms16_brightness}),tuya.dp_numeric(3,{name="zdms161_minimum_brightness",emit=emit.zdmsOneMinimumBrightness(),converter=zdms16_brightness}),tuya.dp_enum(4,{name="zdms161_switch_type",emit=emit.zdmsOneSwitchType(),converter=zdms16_switch_type}),tuya.dp_numeric(5,{name="zdms161_maximum_brightness",emit=emit.zdmsOneMaximumBrightness(),converter=zdms16_brightness}),tuya.dp_countdown(6,{name="zdms161_countdown",emit=emit.zdmsOneCountdown()}),tuya.dp_power_on_behavior(14,{name="zdms161_power_on_behavior",emit=emit.zdmsOnePowerOnBehavior()}),}register_device_definition(avatto_zdms16_1,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_2cyb66xl","_TZE204_5cuocqty","_TZE204_huu3td85","_TZE204_nqqylykc","_TZE204_tgdnh7pw","_TZE284_huu3td85","_TZE284_nqqylykc",}))local avatto_zdms16_2={
-profile="lights-dimmer-2-zdms16-2",tuya.dp_on_off(1,{name="switch",component="main",emit=emit.switch()}),tuya.dp_numeric(2,{name="brightness",component="main",emit=emit.level(),converter=zdms16_brightness}),tuya.dp_numeric(3,{name="zdms162_minimum_brightness",component="main",emit=emit.zdmsTwoMinimumBrightness(),converter=zdms16_brightness}),tuya.dp_enum(4,{name="zdms162_switch_type",component="main",emit=emit.zdmsTwoSwitchType(),converter=zdms16_switch_type}),tuya.dp_numeric(5,{name="zdms162_maximum_brightness",component="main",emit=emit.zdmsTwoMaximumBrightness(),converter=zdms16_brightness}),tuya.dp_countdown(6,{name="zdms162_countdown",component="main",emit=emit.zdmsTwoCountdown()}),tuya.dp_on_off(7,{name="switch",component="switch2",emit=emit.switch()}),tuya.dp_numeric(8,{name="brightness",component="switch2",emit=emit.level(),converter=zdms16_brightness}),tuya.dp_numeric(9,{name="zdms162_minimum_brightness",component="switch2",emit=emit.zdmsTwoMinimumBrightness(),converter=zdms16_brightness}),tuya.dp_enum(10,{name="zdms162_switch_type",component="switch2",emit=emit.zdmsTwoSwitchType(),converter=zdms16_switch_type}),tuya.dp_numeric(11,{name="zdms162_maximum_brightness",component="switch2",emit=emit.zdmsTwoMaximumBrightness(),converter=zdms16_brightness}),tuya.dp_countdown(12,{name="zdms162_countdown",component="switch2",emit=emit.zdmsTwoCountdown()}),tuya.dp_power_on_behavior(14,{name="zdms162_power_on_behavior",emit=emit.zdmsTwoPowerOnBehavior()}),}register_device_definition(avatto_zdms16_2,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_fjms2pi9","_TZE204_jtbgusdc","_TZE204_o9gyszw2","_TZE284_fjms2pi9","_TZE284_jtbgusdc","_TZE28C1000000_jtbgusdc",}))local dimmer_model_ts0601_dimmer_1_gang_2={
-profile="lights-dimmer-whpb9yts",tuya.dp_on_off(1,{name="switch",emit=emit.switch()}),tuya.dp_brightness(3,{name="brightness",emit=emit.level()}),tuya.dp_light_type(4,{name="light_type",emit=emit.whpb9ytsLightType()}),tuya.dp_max_brightness(5,{
-name="max_brightness",value_max=1000,emit=emit.whpb9ytsMaxBrightness(),}),tuya.dp_countdown(6,{name="countdown",emit=emit.whpb9ytsCountdown()}),tuya.dp_power_on_behavior(14,{emit=emit.whpb9ytsPowerOnBehavior()}),tuya.dp_backlight_mode(21,{name="backlight_mode",emit=emit.whpb9ytsBacklightMode()}),}register_device_definition(dimmer_model_ts0601_dimmer_1_gang_2,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_whpb9yts",}))local dimmer_model_ts0601_dimmer_1_gang_3={
-profile="lights-dimmer-qzaing2g",tuya.dp_backlight_mode_off_on(16,{
-name="backlight_mode",emit=emit.qzaing2gBacklightMode(),}),tuya.dp_current(21,{emit=emit.current()}),tuya.dp_power(22,{emit=emit.power()}),tuya.dp_voltage(23,{emit=emit.voltage()}),tuya.dp_child_lock(101,{name="child_lock",emit=emit.qzaing2gChildLock()}),tuya.dp_on_off(141,{name="switch",emit=emit.switch()}),tuya.dp_brightness(142,{name="brightness",emit=emit.level()}),}register_device_definition(dimmer_model_ts0601_dimmer_1_gang_3,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_qzaing2g",}))local dimmer_model_ts0601_dimmer_2_gang={
-profile="lights-dimmer-2",tuya.dp_on_off(1,{name="switch",component="main",emit=emit.switch()}),tuya.dp_brightness(2,{name="brightness",component="main",emit=emit.level()}),tuya.dp_min_brightness(3,{
-name="min_brightness",component="main",value_max=1000,emit=emit.dimmer2gMinBrightnessCh1(),}),tuya.dp_light_type(4,{
-name="light_type",component="main",emit=emit.dimmer2gLightTypeCh1(),}),tuya.dp_max_brightness(5,{
-name="max_brightness",component="main",value_max=1000,emit=emit.dimmer2gMaxBrightnessCh1(),}),tuya.dp_countdown(6,{
-name="countdown",component="main",emit=emit.dimmer2gCountdownCh1(),}),tuya.dp_on_off(7,{name="switch",component="switch2",emit=emit.switch()}),tuya.dp_brightness(8,{name="brightness",component="switch2",emit=emit.level()}),tuya.dp_min_brightness(9,{
-name="min_brightness",component="switch2",value_max=1000,emit=emit.dimmer2gMinBrightnessCh2(),}),tuya.dp_light_type(10,{
-name="light_type",component="switch2",emit=emit.dimmer2gLightTypeCh2(),}),tuya.dp_max_brightness(11,{
-name="max_brightness",component="switch2",value_max=1000,emit=emit.dimmer2gMaxBrightnessCh2(),}),tuya.dp_countdown(12,{
-name="countdown",component="switch2",emit=emit.dimmer2gCountdownCh2(),}),tuya.dp_power_on_behavior(14,{emit=emit.dimmer2gPowerOnBehavior()}),}register_device_definition(dimmer_model_ts0601_dimmer_2_gang,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_bxoo2swd","_TZE204_bxoo2swd","_TZE200_tsxpl0d0","_TZE200_fjjbhx9d","_TZE200_e3oitdyu","_TZE200_gwkapsoq","_TZE204_zenj4lxv",}))register_device_definition(dimmer_model_ts0601_dimmer_2_gang,device_helpers.create_fingerprints("TS110E",{
-"_TZE200_ubgdwsnr",}))register_device_definition(dimmer_model_ts0601_dimmer_2_gang,{
-device_helpers.create_fingerprint("Moes","ZM-105B-M"),device_helpers.create_fingerprint("KnockautX","FMD2C018"),device_helpers.create_fingerprint("Moes","ZS-EUD_2gang"),device_helpers.create_fingerprint("Moes","MS-105B"),device_helpers.create_fingerprint("Moes","ZS-SR-EUD-2"),})local dimmer_model_ts0601_dimmer_3_gang={
-profile="lights-dimmer-3",tuya.dp_on_off(1,{name="switch",component="main",emit=emit.switch()}),tuya.dp_brightness(2,{name="brightness",component="main",emit=emit.level()}),tuya.dp_min_brightness(3,{
-name="min_brightness",component="main",value_max=1000,emit=emit.dimmer3gMinBrightnessCh1(),}),tuya.dp_light_type(4,{
-name="light_type",component="main",emit=emit.dimmer3gLightTypeCh1(),}),tuya.dp_max_brightness(5,{
-name="max_brightness",component="main",value_max=1000,emit=emit.dimmer3gMaxBrightnessCh1(),}),tuya.dp_countdown(6,{
-name="countdown",component="main",emit=emit.dimmer3gCountdownCh1(),}),tuya.dp_on_off(7,{name="switch",component="switch2",emit=emit.switch()}),tuya.dp_brightness(8,{name="brightness",component="switch2",emit=emit.level()}),tuya.dp_min_brightness(9,{
-name="min_brightness",component="switch2",value_max=1000,emit=emit.dimmer3gMinBrightnessCh2(),}),tuya.dp_light_type(10,{
-name="light_type",component="switch2",emit=emit.dimmer3gLightTypeCh2(),}),tuya.dp_max_brightness(11,{
-name="max_brightness",component="switch2",value_max=1000,emit=emit.dimmer3gMaxBrightnessCh2(),}),tuya.dp_countdown(12,{
-name="countdown",component="switch2",emit=emit.dimmer3gCountdownCh2(),}),tuya.dp_power_on_behavior(14,{emit=emit.dimmer3gPowerOnBehavior()}),tuya.dp_on_off(15,{name="switch",component="switch3",emit=emit.switch()}),tuya.dp_brightness(16,{name="brightness",component="switch3",emit=emit.level()}),tuya.dp_min_brightness(17,{
-name="min_brightness",component="switch3",value_max=1000,emit=emit.dimmer3gMinBrightnessCh3(),}),tuya.dp_light_type(18,{
-name="light_type",component="switch3",emit=emit.dimmer3gLightTypeCh3(),}),tuya.dp_max_brightness(19,{
-name="max_brightness",component="switch3",value_max=1000,emit=emit.dimmer3gMaxBrightnessCh3(),}),tuya.dp_countdown(20,{
-name="countdown",component="switch3",emit=emit.dimmer3gCountdownCh3(),}),tuya.dp_backlight_mode(21,{
-name="backlight_mode",emit=emit.dimmer3gBacklightMode(),}),tuya.dp_enum(101,{
-name="backlight_color",emit=emit.dimmer3gBacklightColor(),converter=converter.lookup_from_to({
-red=0,blue=1,green=2,white=3,yellow=4,magenta=5,cyan=6,warm_white=7,}),}),tuya.dp_numeric(103,{
-name="backlight_brightness",emit=emit.dimmer3gBacklightBrightness(),}),}register_device_definition(dimmer_model_ts0601_dimmer_3_gang,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_vm1gyrso","_TZE204_1v1dxkck","_TZE204_znvwzxkq","_TZE284_znvwzxkq","_TZE200_vizxbhco",}))register_device_definition(dimmer_model_ts0601_dimmer_3_gang,{
-device_helpers.create_fingerprint("Moes","ZS-EUD_3gang"),device_helpers.create_fingerprint("Moes","ZS-SR-EUD-3"),device_helpers.create_fingerprint("Zemismart","ZN2S-RS3E-DH"),})local dimmer_model_ts0601_dimmer_1_gang_switch_type={
-profile="lights-dimmer-dcnsggvz",tuya.dp_on_off(1,{name="switch",emit=emit.switch()}),tuya.dp_brightness(2,{name="brightness",emit=emit.level()}),tuya.dp_min_brightness(3,{
-name="min_brightness",value_max=1000,emit=emit.dcnsggvzMinBrightness(),}),tuya.dp_light_type(4,{name="light_type",emit=emit.dcnsggvzLightType()}),tuya.dp_max_brightness(5,{
-name="max_brightness",value_max=1000,emit=emit.dcnsggvzMaxBrightness(),}),tuya.dp_countdown(6,{name="countdown",emit=emit.dcnsggvzCountdown()}),tuya.dp_power_on_behavior(14,{emit=emit.dcnsggvzPowerOnBehavior()}),tuya.dp_switch_type(57,{emit=emit.dcnsggvzSwitchType()}),}register_device_definition(dimmer_model_ts0601_dimmer_1_gang_switch_type,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_dcnsggvz","_TZE200_dcnsggv","_TZE200_dcnsggvz",}))local dimmer_model_ts0601_dimmer_knob={
-profile="lights-dimmer-knob-p0gzbqct",tuya.dp_on_off(1,{name="switch",emit=emit.switch()}),tuya.dp_brightness(2,{name="brightness",emit=emit.level()}),tuya.dp_min_brightness(3,{
-name="min_brightness",value_max=1000,emit=emit.p0gzbqctMinBrightness(),}),tuya.dp_light_type(4,{name="light_type",emit=emit.p0gzbqctLightType()}),tuya.dp_indicator_mode_none_relay_pos(21,{
-name="indicator_mode",emit=emit.p0gzbqctIndicatorMode(),}),}register_device_definition(dimmer_model_ts0601_dimmer_knob,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_p0gzbqct",}))local dimmer_model_ts0601_knob_dimmer_switch={
-profile="lights-color-temperature",tuya.dp_on_off(102,{name="switch",emit=emit.switch()}),tuya.dp_brightness(103,{name="brightness",emit=emit.level(),scale=1000}),tuya.dp_color_temperature(107,{name="color_temperature",emit=emit.color_temperature(),scale=1000}),tuya.dp_enum(105,{name="adjustment_mode"}),tuya.dp_power_on_behavior(106,{}),tuya.dp_enum(111,{name="action_1"}),tuya.dp_enum(112,{name="action_2"}),tuya.dp_on_off(121,{name="state_l1"}),tuya.dp_on_off(122,{name="state_l2"}),tuya.dp_switch_mode(131,{name="switch_mode_l1"}),tuya.dp_switch_mode(132,{name="switch_mode_l2"}),tuya.dp_enum(141,{name="mode"}),}register_device_definition(dimmer_model_ts0601_knob_dimmer_switch,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_tgeqdjgk","_TZE284_tgeqdjgk",}))local light_model_ts0601_light={
-profile="lights-dimmer-ts0601-light",tuya.dp_on_off(1,{name="switch",emit=emit.switch()}),tuya.dp_power_on_behavior(2,{emit=emit.ts0601LightPowerOnBehavior()}),tuya.dp_brightness(3,{name="brightness",emit=emit.level()}),}register_device_definition(light_model_ts0601_light,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_86nbew0j","_TZE200_io0zdqh1","_TZE200_drs6j6m5","_TZE204_drs6j6m5","_TZE200_ywe90lt0","_TZE200_qyss8gjy",}))return device_definitions
+local w={
+profile="lights-dimmer-options-ts0601-la2c2uo9",minimum_brightness_capability="la2DimmerMinBrightness",c.dp_on_off(1,{name="switch",emit=d.switch(),skip=c.skip.state_on_and_brightness_present()}),c.dp_brightness(2,{name="brightness",emit=d.level()}),c.dp_min_brightness(3,{name="la2_dimmer_min_brightness",value_max=1000,emit=d.la2DimmerMinBrightness()}),c.dp_light_type(4,{datatype=c.DP_TYPE_VALUE,name="la2_dimmer_light_type",emit=d.la2DimmerLightType()}),c.dp_countdown(6,{name="la2_dimmer_countdown",emit=d.la2DimmerCountdown()}),c.dp_power_on_behavior(14,{name="la2_dimmer_power_on_behavior",datatype=c.DP_TYPE_VALUE,emit=d.la2DimmerPowerOnBehavior()}),c.dp_backlight_mode(21,{name="la2_dimmer_backlight_mode",emit=d.la2DimmerBacklightMode()}),}m(w)b(w,a.create_fingerprints("TS0601",{
+"_TZE200_la2c2uo9",}))local v={
+profile="lights-dimmer-options-ts0601-dfxkcots",minimum_brightness_capability="dfxDimmerMinBrightness",c.dp_on_off(1,{name="switch",emit=d.switch(),skip=c.skip.state_on_and_brightness_present()}),c.dp_brightness(2,{name="brightness",emit=d.level()}),c.dp_min_brightness(3,{name="dfx_dimmer_min_brightness",value_max=1000,emit=d.dfxDimmerMinBrightness()}),c.dp_light_type(4,{datatype=c.DP_TYPE_VALUE,name="dfx_dimmer_light_type",emit=d.dfxDimmerLightType()}),c.dp_countdown(6,{name="dfx_dimmer_countdown",emit=d.dfxDimmerCountdown()}),c.dp_power_on_behavior(14,{name="dfx_dimmer_power_on_behavior",datatype=c.DP_TYPE_VALUE,emit=d.dfxDimmerPowerOnBehavior()}),}m(v)b(v,a.create_fingerprints("TS0601",{
+"_TZE200_dfxkcots",}))local i={
+profile="lights-dimmer-options-ts0601",minimum_brightness_capability="tsd1MinimumBrightness",c.dp_on_off(1,{name="switch",emit=d.switch(),skip=c.skip.state_on_and_brightness_present()}),c.dp_brightness(2,{name="brightness",emit=d.level()}),c.dp_min_brightness(3,{name="tsd1_min_brightness",converter=l,emit=d.tsd1MinimumBrightness()}),c.dp_light_type(4,{datatype=c.DP_TYPE_VALUE,name="tsd1_light_type",emit=d.tsd1LightType()}),c.dp_max_brightness(5,{name="tsd1_max_brightness",converter=l,emit=d.tsd1MaximumBrightness()}),c.dp_countdown(6,{name="tsd1_countdown",emit=d.tsd1Countdown()}),c.dp_power_on_behavior(14,{name="tsd1_power_on_behavior",datatype=c.DP_TYPE_VALUE,emit=d.tsd1PowerOnBehavior()}),c.dp_backlight_mode(21,{name="tsd1_backlight_mode",emit=d.tsd1BacklightMode()}),}m(i)b(i,a.create_fingerprints("TS0601",{
+"_TZE200_ip2akl4w","_TZE200_1agwnems","_TZE200_579lguh2","_TZE200_vucankjx","_TZE204_hlx9tnzb","_TZE204_n9ctkb6j","_TZE204_9qhuzgo0","_TZE200_9cxuhakf","_TZE200_a0syesf5","_TZE200_3p5ydos3","_TZE200_swaamsoy","_TZE200_ojzhk75b","_TZE200_w4cryh2i","_TZE204_68utemio","_TZE200_9i9dt8is","_TZE200_ctq0k47x","_TZE200_ebwgzdqq","_TZE204_vevc4c6g","_TZE200_0nauxa0p","_TZE284_m1cvyneb","_TZE284_68utemio","_TZE28C1000000_68utemio","_TZE284_xc7dve2g",}))b(i,{
+a.create_fingerprint("Lerlink","X706U"),a.create_fingerprint("Moes","ZS-EUD_1gang"),a.create_fingerprint("Larkkey","ZSTY-SM-1DMZG-EU"),a.create_fingerprint("Earda","EDM-1ZAA-EU"),a.create_fingerprint("Earda","EDM-1ZAB-EU"),a.create_fingerprint("Earda","EDM-1ZBA-EU"),a.create_fingerprint("Mercator Ikuü","SSWD01"),a.create_fingerprint("Moes","ZS-USD"),a.create_fingerprint("Lonsonho","EDM-1ZBB-EU"),a.create_fingerprint("Moes","EDM-1ZBB-EU"),a.create_fingerprint("Moes","ZS-SR-EUD-1"),a.create_fingerprint("Moes","MS-105Z"),a.create_fingerprint("Mercator Ikuü","SSWM-DIMZ"),a.create_fingerprint("Zemismart","ZN2S-US1-SD"),a.create_fingerprint("Mercator Ikuü","SSWRM-ZB"),})local at={
+profile="lights-dimmer-ion",minimum_brightness_capability="ionDimmerMin",c.dp_on_off(1,{name="switch",emit=d.switch(),skip=c.skip.state_on_and_brightness_present()}),c.dp_brightness(2,{name="brightness",emit=d.level()}),c.dp_min_brightness(3,{name="ion_min_brightness",converter=l,emit=d.ionDimmerMin()}),c.dp_max_brightness(5,{name="ion_max_brightness",converter=l,emit=d.ionDimmerMax()}),c.dp_countdown(6,{name="ion_countdown",emit=d.ionDimmerCountdown()}),c.dp_power_on_behavior(14,{datatype=c.DP_TYPE_VALUE,name="ion_power_on",emit=d.ionDimmerPowerOn()}),}m(at)b(at,{
+a.create_fingerprint("_TZE200_4mh6tyyo","TS0601"),a.create_fingerprint("_TZE200_ykgar0ow","TS0601"),a.create_fingerprint("_TZE200_0hb4rdnp","TS0601"),a.create_fingerprint("_TZE200_gne0e6mk","TS0601"),a.create_fingerprint("_TZE200_itp8dt7f","TS0601"),a.create_fingerprint("ION Industries","ID200W-ZIGB"),a.create_fingerprint("ION Industries","90.500.090"),a.create_fingerprint("ION Industries","90.500.040"),})local ar={
+profile="lights-dimmer-zdms16-1",c.dp_on_off(1,{name="switch",emit=d.switch()}),c.dp_numeric(2,{name="brightness",emit=d.level(),converter=h}),c.dp_numeric(3,{name="zdms161_minimum_brightness",emit=d.zdmsOneMinimumBrightness(),converter=h}),c.dp_enum(4,{name="zdms161_switch_type",emit=d.zdmsOneSwitchType(),converter=D}),c.dp_numeric(5,{name="zdms161_maximum_brightness",emit=d.zdmsOneMaximumBrightness(),converter=h}),c.dp_countdown(6,{name="zdms161_countdown",emit=d.zdmsOneCountdown()}),c.dp_power_on_behavior(14,{name="zdms161_power_on_behavior",emit=d.zdmsOnePowerOnBehavior()}),}b(ar,a.create_fingerprints("TS0601",{
+"_TZE204_2cyb66xl","_TZE204_5cuocqty","_TZE204_huu3td85","_TZE204_nqqylykc","_TZE204_tgdnh7pw","_TZE284_huu3td85","_TZE284_nqqylykc",}))local as={
+profile="lights-dimmer-2-zdms16-2",c.dp_on_off(1,{name="switch",component="main",emit=d.switch()}),c.dp_numeric(2,{name="brightness",component="main",emit=d.level(),converter=h}),c.dp_numeric(3,{name="zdms162_minimum_brightness",component="main",emit=d.zdmsTwoMinimumBrightness(),converter=h}),c.dp_enum(4,{name="zdms162_switch_type",component="main",emit=d.zdmsTwoSwitchType(),converter=D}),c.dp_numeric(5,{name="zdms162_maximum_brightness",component="main",emit=d.zdmsTwoMaximumBrightness(),converter=h}),c.dp_countdown(6,{name="zdms162_countdown",component="main",emit=d.zdmsTwoCountdown()}),c.dp_on_off(7,{name="switch",component="switch2",emit=d.switch()}),c.dp_numeric(8,{name="brightness",component="switch2",emit=d.level(),converter=h}),c.dp_numeric(9,{name="zdms162_minimum_brightness",component="switch2",emit=d.zdmsTwoMinimumBrightness(),converter=h}),c.dp_enum(10,{name="zdms162_switch_type",component="switch2",emit=d.zdmsTwoSwitchType(),converter=D}),c.dp_numeric(11,{name="zdms162_maximum_brightness",component="switch2",emit=d.zdmsTwoMaximumBrightness(),converter=h}),c.dp_countdown(12,{name="zdms162_countdown",component="switch2",emit=d.zdmsTwoCountdown()}),c.dp_power_on_behavior(14,{name="zdms162_power_on_behavior",emit=d.zdmsTwoPowerOnBehavior()}),}b(as,a.create_fingerprints("TS0601",{
+"_TZE204_fjms2pi9","_TZE204_jtbgusdc","_TZE204_o9gyszw2","_TZE284_fjms2pi9","_TZE284_jtbgusdc","_TZE28C1000000_jtbgusdc",}))local E={
+profile="lights-dimmer-whpb9yts",c.dp_on_off(1,{name="switch",emit=d.switch()}),c.dp_brightness(3,{name="brightness",emit=d.level()}),c.dp_light_type(4,{name="light_type",emit=d.whpb9ytsLightType()}),c.dp_max_brightness(5,{
+name="max_brightness",value_max=1000,emit=d.whpb9ytsMaxBrightness(),}),c.dp_countdown(6,{name="countdown",emit=d.whpb9ytsCountdown()}),c.dp_power_on_behavior(14,{emit=d.whpb9ytsPowerOnBehavior()}),c.dp_backlight_mode(21,{name="backlight_mode",emit=d.whpb9ytsBacklightMode()}),}b(E,a.create_fingerprints("TS0601",{
+"_TZE200_whpb9yts",}))local F={
+profile="lights-dimmer-qzaing2g",c.dp_backlight_mode_off_on(16,{
+name="backlight_mode",emit=d.qzaing2gBacklightMode(),}),c.dp_current(21,{emit=d.current()}),c.dp_power(22,{emit=d.power()}),c.dp_voltage(23,{emit=d.voltage()}),c.dp_child_lock(101,{name="child_lock",emit=d.qzaing2gChildLock()}),c.dp_on_off(141,{name="switch",emit=d.switch()}),c.dp_brightness(142,{name="brightness",emit=d.level()}),}b(F,a.create_fingerprints("TS0601",{
+"_TZE200_qzaing2g",}))local j={
+profile="lights-dimmer-2",c.dp_on_off(1,{name="switch",component="main",emit=d.switch()}),c.dp_brightness(2,{name="brightness",component="main",emit=d.level()}),c.dp_min_brightness(3,{
+name="min_brightness",component="main",value_max=1000,emit=d.dimmer2gMinBrightnessCh1(),}),c.dp_light_type(4,{
+name="light_type",component="main",emit=d.dimmer2gLightTypeCh1(),}),c.dp_max_brightness(5,{
+name="max_brightness",component="main",value_max=1000,emit=d.dimmer2gMaxBrightnessCh1(),}),c.dp_countdown(6,{
+name="countdown",component="main",emit=d.dimmer2gCountdownCh1(),}),c.dp_on_off(7,{name="switch",component="switch2",emit=d.switch()}),c.dp_brightness(8,{name="brightness",component="switch2",emit=d.level()}),c.dp_min_brightness(9,{
+name="min_brightness",component="switch2",value_max=1000,emit=d.dimmer2gMinBrightnessCh2(),}),c.dp_light_type(10,{
+name="light_type",component="switch2",emit=d.dimmer2gLightTypeCh2(),}),c.dp_max_brightness(11,{
+name="max_brightness",component="switch2",value_max=1000,emit=d.dimmer2gMaxBrightnessCh2(),}),c.dp_countdown(12,{
+name="countdown",component="switch2",emit=d.dimmer2gCountdownCh2(),}),c.dp_power_on_behavior(14,{emit=d.dimmer2gPowerOnBehavior()}),}b(j,a.create_fingerprints("TS0601",{
+"_TZE200_bxoo2swd","_TZE204_bxoo2swd","_TZE200_tsxpl0d0","_TZE200_fjjbhx9d","_TZE200_e3oitdyu","_TZE200_gwkapsoq","_TZE204_zenj4lxv",}))b(j,a.create_fingerprints("TS110E",{
+"_TZE200_ubgdwsnr",}))b(j,{
+a.create_fingerprint("Moes","ZM-105B-M"),a.create_fingerprint("KnockautX","FMD2C018"),a.create_fingerprint("Moes","ZS-EUD_2gang"),a.create_fingerprint("Moes","MS-105B"),a.create_fingerprint("Moes","ZS-SR-EUD-2"),})local s={
+profile="lights-dimmer-3",c.dp_on_off(1,{name="switch",component="main",emit=d.switch()}),c.dp_brightness(2,{name="brightness",component="main",emit=d.level()}),c.dp_min_brightness(3,{
+name="min_brightness",component="main",value_max=1000,emit=d.dimmer3gMinBrightnessCh1(),}),c.dp_light_type(4,{
+name="light_type",component="main",emit=d.dimmer3gLightTypeCh1(),}),c.dp_max_brightness(5,{
+name="max_brightness",component="main",value_max=1000,emit=d.dimmer3gMaxBrightnessCh1(),}),c.dp_countdown(6,{
+name="countdown",component="main",emit=d.dimmer3gCountdownCh1(),}),c.dp_on_off(7,{name="switch",component="switch2",emit=d.switch()}),c.dp_brightness(8,{name="brightness",component="switch2",emit=d.level()}),c.dp_min_brightness(9,{
+name="min_brightness",component="switch2",value_max=1000,emit=d.dimmer3gMinBrightnessCh2(),}),c.dp_light_type(10,{
+name="light_type",component="switch2",emit=d.dimmer3gLightTypeCh2(),}),c.dp_max_brightness(11,{
+name="max_brightness",component="switch2",value_max=1000,emit=d.dimmer3gMaxBrightnessCh2(),}),c.dp_countdown(12,{
+name="countdown",component="switch2",emit=d.dimmer3gCountdownCh2(),}),c.dp_power_on_behavior(14,{emit=d.dimmer3gPowerOnBehavior()}),c.dp_on_off(15,{name="switch",component="switch3",emit=d.switch()}),c.dp_brightness(16,{name="brightness",component="switch3",emit=d.level()}),c.dp_min_brightness(17,{
+name="min_brightness",component="switch3",value_max=1000,emit=d.dimmer3gMinBrightnessCh3(),}),c.dp_light_type(18,{
+name="light_type",component="switch3",emit=d.dimmer3gLightTypeCh3(),}),c.dp_max_brightness(19,{
+name="max_brightness",component="switch3",value_max=1000,emit=d.dimmer3gMaxBrightnessCh3(),}),c.dp_countdown(20,{
+name="countdown",component="switch3",emit=d.dimmer3gCountdownCh3(),}),c.dp_backlight_mode(21,{
+name="backlight_mode",emit=d.dimmer3gBacklightMode(),}),c.dp_enum(101,{
+name="backlight_color",emit=d.dimmer3gBacklightColor(),converter=f.lookup_from_to({
+red=0,blue=1,green=2,white=3,yellow=4,magenta=5,cyan=6,warm_white=7,}),}),c.dp_numeric(103,{
+name="backlight_brightness",emit=d.dimmer3gBacklightBrightness(),}),}b(s,a.create_fingerprints("TS0601",{
+"_TZE200_vm1gyrso","_TZE204_1v1dxkck","_TZE204_znvwzxkq","_TZE284_znvwzxkq","_TZE200_vizxbhco",}))b(s,{
+a.create_fingerprint("Moes","ZS-EUD_3gang"),a.create_fingerprint("Moes","ZS-SR-EUD-3"),a.create_fingerprint("Zemismart","ZN2S-RS3E-DH"),})local u={
+profile="lights-dimmer-dcnsggvz",c.dp_on_off(1,{name="switch",emit=d.switch()}),c.dp_brightness(2,{name="brightness",emit=d.level()}),c.dp_min_brightness(3,{
+name="min_brightness",value_max=1000,emit=d.dcnsggvzMinBrightness(),}),c.dp_light_type(4,{name="light_type",emit=d.dcnsggvzLightType()}),c.dp_max_brightness(5,{
+name="max_brightness",value_max=1000,emit=d.dcnsggvzMaxBrightness(),}),c.dp_countdown(6,{name="countdown",emit=d.dcnsggvzCountdown()}),c.dp_power_on_behavior(14,{emit=d.dcnsggvzPowerOnBehavior()}),c.dp_switch_type(57,{emit=d.dcnsggvzSwitchType()}),}b(u,a.create_fingerprints("TS0601",{
+"_TZE204_dcnsggvz","_TZE200_dcnsggv","_TZE200_dcnsggvz",}))local I={
+profile="lights-dimmer-knob-p0gzbqct",c.dp_on_off(1,{name="switch",emit=d.switch()}),c.dp_brightness(2,{name="brightness",emit=d.level()}),c.dp_min_brightness(3,{
+name="min_brightness",value_max=1000,emit=d.p0gzbqctMinBrightness(),}),c.dp_light_type(4,{name="light_type",emit=d.p0gzbqctLightType()}),c.dp_indicator_mode_none_relay_pos(21,{
+name="indicator_mode",emit=d.p0gzbqctIndicatorMode(),}),}b(I,a.create_fingerprints("TS0601",{
+"_TZE200_p0gzbqct",}))local A={
+profile="lights-color-temperature",c.dp_on_off(102,{name="switch",emit=d.switch()}),c.dp_brightness(103,{name="brightness",emit=d.level(),scale=1000}),c.dp_color_temperature(107,{name="color_temperature",emit=d.color_temperature(),scale=1000}),c.dp_enum(105,{name="adjustment_mode"}),c.dp_power_on_behavior(106,{}),c.dp_enum(111,{name="action_1"}),c.dp_enum(112,{name="action_2"}),c.dp_on_off(121,{name="state_l1"}),c.dp_on_off(122,{name="state_l2"}),c.dp_switch_mode(131,{name="switch_mode_l1"}),c.dp_switch_mode(132,{name="switch_mode_l2"}),c.dp_enum(141,{name="mode"}),}b(A,a.create_fingerprints("TS0601",{
+"_TZE200_tgeqdjgk","_TZE284_tgeqdjgk",}))local W={
+profile="lights-dimmer-ts0601-light",c.dp_on_off(1,{name="switch",emit=d.switch()}),c.dp_power_on_behavior(2,{emit=d.ts0601LightPowerOnBehavior()}),c.dp_brightness(3,{name="brightness",emit=d.level()}),}b(W,a.create_fingerprints("TS0601",{
+"_TZE200_86nbew0j","_TZE200_io0zdqh1","_TZE200_drs6j6m5","_TZE204_drs6j6m5","_TZE200_ywe90lt0","_TZE200_qyss8gjy",}))return C
 end
-local registrations={}
-local function append_registrations(source)
-for _,registration in ipairs(source)do
-registrations[#registrations+1]=registration
+local G={}
+local function M(aQ)
+for _,aA in ipairs(aQ)do
+G[#G+1]=aA
 end
 end
-append_registrations(load_fans())append_registrations(load_lights())return{
-id="ef00.lights",registrations=registrations,}
+M(aJ())M(aB())aR.attach_reporting_capabilities(G,{
+{10,"rpt-tta"},{11,"rpt-tga"},{12,"rpt-txv"},{13,"rpt-txv"},{14,"rpt-tpf"},})return{
+id="ef00.lights",registrations=G,}

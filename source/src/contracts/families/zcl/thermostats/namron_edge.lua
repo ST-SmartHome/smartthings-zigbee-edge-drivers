@@ -412,6 +412,12 @@ register_device_definition(namron_edge, {
   device_helpers.create_fingerprint("Namron AS", "4512783"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-zps"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.thermostats.namron_edge",
   registrations = device_definitions,

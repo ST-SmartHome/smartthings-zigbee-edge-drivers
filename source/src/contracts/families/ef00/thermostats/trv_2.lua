@@ -42,6 +42,7 @@ local thermostat_variant2 = {
   -- Z2M TS0601_thermostat_2 (tuya.ts:9136).  DP3 is unknown in Z2M and DP101..
   -- DP107 are packed schedule frames, so both stay unexposed.
   tuya.dp_system_mode(1, {
+    datatype = tuya.DP_TYPE_BOOL,
     converter = converter.lookup_from_to({
       heat = true,
       off = false,

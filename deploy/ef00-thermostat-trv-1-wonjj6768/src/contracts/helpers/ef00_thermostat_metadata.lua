@@ -1,28 +1,28 @@
-local capabilities=require"st.capabilities"
-local metadata={}
-function metadata.attach(definition,modes,minimum,maximum,step)
-definition.thermostat_supported_modes=modes
-definition.heating_setpoint_range={
-minimum=minimum,maximum=maximum,step=step,unit="C",}
-definition.runtime_start=function(device)
-device:emit_component_event(
-{id="main"},capabilities.thermostatMode.supportedThermostatModes(
-definition.thermostat_supported_modes,{visibility={displayed=false}}))device:emit_component_event(
-{id="main"},capabilities.thermostatHeatingSetpoint.heatingSetpointRange({
+local b=require"st.capabilities"
+local c={}
+function c.attach(a,h,f,e,g)
+a.thermostat_supported_modes=h
+a.heating_setpoint_range={
+minimum=f,maximum=e,step=g,unit="C",}
+a.runtime_start=function(d)
+d:emit_component_event(
+{id="main"},b.thermostatMode.supportedThermostatModes(
+a.thermostat_supported_modes,{visibility={displayed=false}}))d:emit_component_event(
+{id="main"},b.thermostatHeatingSetpoint.heatingSetpointRange({
 value={
-minimum=definition.heating_setpoint_range.minimum,maximum=definition.heating_setpoint_range.maximum,step=definition.heating_setpoint_range.step,},unit=definition.heating_setpoint_range.unit,}))
+minimum=a.heating_setpoint_range.minimum,maximum=a.heating_setpoint_range.maximum,step=a.heating_setpoint_range.step,},unit=a.heating_setpoint_range.unit,}))
 end
-return definition
+return a
 end
-function metadata.attach_setpoint_only(definition,minimum,maximum,step)
-definition.heating_setpoint_range={
-minimum=minimum,maximum=maximum,step=step,unit="C",}
-definition.runtime_start=function(device)
-device:emit_component_event(
-{id="main"},capabilities.thermostatHeatingSetpoint.heatingSetpointRange({
+function c.attach_setpoint_only(a,f,e,g)
+a.heating_setpoint_range={
+minimum=f,maximum=e,step=g,unit="C",}
+a.runtime_start=function(d)
+d:emit_component_event(
+{id="main"},b.thermostatHeatingSetpoint.heatingSetpointRange({
 value={
-minimum=definition.heating_setpoint_range.minimum,maximum=definition.heating_setpoint_range.maximum,step=definition.heating_setpoint_range.step,},unit=definition.heating_setpoint_range.unit,}))
+minimum=a.heating_setpoint_range.minimum,maximum=a.heating_setpoint_range.maximum,step=a.heating_setpoint_range.step,},unit=a.heating_setpoint_range.unit,}))
 end
-return definition
+return a
 end
-return metadata
+return c

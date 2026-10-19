@@ -23,4 +23,5 @@ components:
       - {id: concertmirror08464.hs208zVibrationDelay, version: 1}
       - {id: concertmirror08464.hs208zMotionDetectionMode, version: 1}
       - {id: concertmirror08464.hs208zDetectionSensitivity, version: 1}
+      - {id: signalStrength, version: 1}
     categories: [{name: PresenceSensor}]

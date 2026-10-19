@@ -1,171 +1,180 @@
-local function load_mapping_preset(zcl)
-local emit=require"capabilities.events.all"
-local data_types=require"st.zigbee.data_types"
-local zigbee_constants=require"st.zigbee.constants"
-local safe_xy_to_hsv=require"st.utils.safe_xy_to_hsv"
-local function merge_options(target,source)
-if type(target)~="table"then
-target={}
+local function s(B)
+local p=require"capabilities.events.all"
+local K=require"st.zigbee.data_types"
+local G=require"st.zigbee.constants"
+local I=require"st.utils.safe_xy_to_hsv"
+local function r(g,F)
+if type(g)~="table"then
+g={}
 end
-if type(source)~="table"then
-return target
+if type(F)~="table"then
+return g
 end
-for key,value in pairs(source)do
-target[key]=value
+for D,b in pairs(F)do
+g[D]=b
 end
-return target
+return g
 end
-local function apply_defaults(target,defaults)
-if type(target)~="table"or type(defaults)~="table"then
-return target
+local function n(g,e)
+if type(g)~="table"or type(e)~="table"then
+return g
 end
-for key,value in pairs(defaults)do
-if target[key]==nil then
-target[key]=value
+for D,b in pairs(e)do
+if g[D]==nil then
+g[D]=b
 end
 end
-return target
+return g
 end
-local function normalize_preset_options(name_or_options,options)
-local resolved={}if type(name_or_options)=="string"then
-resolved.name=name_or_options
+local function m(f,l)
+local h={}if type(f)=="string"then
+h.name=f
 else
-merge_options(resolved,name_or_options)
+r(h,f)
 end
-merge_options(resolved,options)return resolved
+r(h,l)return h
 end
-local function build_lookup_pair(map,default_from,default_to,aliases)
-local reverse={}for key,value in pairs(map)do
-reverse[value]=key
+local function v(L,t,A,C)
+local o={}for D,b in pairs(L)do
+o[b]=D
 end
-if type(aliases)=="table"then
-for alias,target in pairs(aliases)do
-if reverse[target]~=nil then
-reverse[alias]=reverse[target]
+if type(C)=="table"then
+for J,g in pairs(C)do
+if o[g]~=nil then
+o[J]=o[g]
 end
 end
 end
 return{
-from=function(value)
-local mapped=map[value]if mapped~=nil then
-return mapped
+from=function(b)
+local u=L[b]if u~=nil then
+return u
 end
-if default_from~=nil then
-return default_from
+if t~=nil then
+return t
 end
-return value
+return b
 end,
-to=function(value)
-local mapped=reverse[value]if mapped~=nil then
-return mapped
+to=function(b)
+local u=o[b]if u~=nil then
+return u
 end
-if default_to~=nil then
-return default_to
+if A~=nil then
+return A
 end
-return value
+return b
 end,
 }
 end
-local function thermostat_mode_pair()
-return build_lookup_pair({
+local function q()
+return v({
 [0]="off",[1]="auto",[3]="cool",[4]="heat",[5]="emergency heat",})
 end
-local function thermostat_running_state_pair()
+local function k()
 return{
-from=function(value)
-local numeric=value
-if type(value)=="table"then
-if type(value.is_heat_on_set)=="function"and(value:is_heat_on_set()or(type(value.is_heat_second_stage_on_set)=="function"and value:is_heat_second_stage_on_set()))then
+from=function(b)
+local i=b
+if type(b)=="table"then
+if type(b.is_heat_on_set)=="function"and(b:is_heat_on_set()or(type(b.is_heat_second_stage_on_set)=="function"and b:is_heat_second_stage_on_set()))then
 return"heating"
 end
-if type(value.is_cool_on_set)=="function"and(value:is_cool_on_set()or(type(value.is_cool_second_stage_on_set)=="function"and value:is_cool_second_stage_on_set()))then
+if type(b.is_cool_on_set)=="function"and(b:is_cool_on_set()or(type(b.is_cool_second_stage_on_set)=="function"and b:is_cool_second_stage_on_set()))then
 return"cooling"
 end
-if type(value.is_fan_on_set)=="function"and(
-value:is_fan_on_set()or
-(type(value.is_fan_second_stage_on_set)=="function"and value:is_fan_second_stage_on_set())or
-(type(value.is_fan_third_stage_on_set)=="function"and value:is_fan_third_stage_on_set())
+if type(b.is_fan_on_set)=="function"and(
+b:is_fan_on_set()or
+(type(b.is_fan_second_stage_on_set)=="function"and b:is_fan_second_stage_on_set())or
+(type(b.is_fan_third_stage_on_set)=="function"and b:is_fan_third_stage_on_set())
 )then
 return"fan only"
 end
-numeric=value.value
+i=b.value
 end
-if type(numeric)~="number"then
-return numeric
+if type(i)~="number"then
+return i
 end
-if bit32.band(numeric,0x0001)~=0 or bit32.band(numeric,0x0008)~=0 then
+if bit32.band(i,1)~=0 or bit32.band(i,8)~=0 then
 return"heating"
 end
-if bit32.band(numeric,0x0002)~=0 or bit32.band(numeric,0x0010)~=0 then
+if bit32.band(i,2)~=0 or bit32.band(i,16)~=0 then
 return"cooling"
 end
-if bit32.band(numeric,0x0004)~=0 or bit32.band(numeric,0x0020)~=0 or bit32.band(numeric,0x0040)~=0 then
+if bit32.band(i,4)~=0 or bit32.band(i,32)~=0 or bit32.band(i,64)~=0 then
 return"fan only"
 end
 return"idle"
 end,
 }
 end
-local function reporting_defaults(minimum_interval,maximum_interval,reportable_change)
+local function a(z,y,w)
 return{
-minimum_interval=minimum_interval,maximum_interval=maximum_interval,reportable_change=reportable_change,read_on_configure=true,}
+minimum_interval=z,maximum_interval=y,reportable_change=w,read_on_configure=true,}
 end
-local function merge_defaults(...)
-local merged={}for _,defaults in ipairs({...})do
-apply_defaults(merged,defaults)
+local function c(...)
+local E={}for _,e in ipairs({...})do
+n(E,e)
 end
-return merged
+return E
 end
-local function define_preset(name,factory,defaults_builder)
-zcl[name]=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)apply_defaults(resolved,defaults_builder(resolved))return factory(resolved)
+local function d(M,H,x)
+B[M]=function(f,l)
+local h=m(f,l)local j=h.configure_reporting
+local e=x(h)h.configure_reporting=nil
+if j==false then
+e.minimum_interval=nil
+e.maximum_interval=nil
+e.reportable_change=nil
+e.physical_reportable_change=nil
+e.reporting_defaults=nil
+end
+n(h,e)return H(h)
 end
 end
-define_preset("humidity",zcl.relative_humidity,function()
-return merge_defaults(
+d("humidity",B.relative_humidity,function()
+return c(
 {
-emit=emit.humidity(),scale=100,},reporting_defaults(30,300,100))
+emit=p.humidity(),scale=100,},a(30,300,100))
 end)
-define_preset("battery",zcl.power_configuration_battery,function()
-return merge_defaults(
+d("battery",B.power_configuration_battery,function()
+return c(
 {
-emit=emit.battery(),scale=2,},reporting_defaults(300,21600,2))
+emit=p.battery(),scale=2,},a(300,21600,2))
 end)
-define_preset("switch",zcl.on_off,function(options)
-local configure_reporting=options.configure_reporting
-options.configure_reporting=nil
-if configure_reporting==false then
+d("switch",B.on_off,function(l)
+local j=l.configure_reporting
+l.configure_reporting=nil
+if j==false then
 return{
-emit=emit.switch(),}
+emit=p.switch(),}
 end
-return merge_defaults(
+return c(
 {
-emit=emit.switch(),},reporting_defaults(0,300,nil))
+emit=p.switch(),},a(0,300,nil))
 end)
-define_preset("local_temperature",zcl.thermostat_local_temperature,function()
-return merge_defaults(
+d("local_temperature",B.thermostat_local_temperature,function()
+return c(
 {
-emit=emit.temperature("C"),scale=100,},reporting_defaults(30,300,50))
+emit=p.temperature("C"),scale=100,},a(30,300,50))
 end)
-define_preset("heating_setpoint",zcl.thermostat_heating_setpoint,function()
-return merge_defaults(
+d("heating_setpoint",B.thermostat_heating_setpoint,function()
+return c(
 {
-name="current_heating_setpoint",emit=emit.heating_setpoint("C"),scale=100,},reporting_defaults(30,300,50))
+name="current_heating_setpoint",emit=p.heating_setpoint("C"),scale=100,},a(30,300,50))
 end)
-define_preset("system_mode",zcl.thermostat_system_mode,function()
-return merge_defaults(
+d("system_mode",B.thermostat_system_mode,function()
+return c(
 {
-emit=emit.thermostat_mode(),converter=thermostat_mode_pair(),},reporting_defaults(1,300,nil))
+emit=p.thermostat_mode(),converter=q(),},a(1,300,nil))
 end)
-define_preset("cooling_setpoint",zcl.thermostat_cooling_setpoint,function()
-return merge_defaults(
+d("cooling_setpoint",B.thermostat_cooling_setpoint,function()
+return c(
 {
-name="current_cooling_setpoint",emit=emit.cooling_setpoint("C"),scale=100,},reporting_defaults(30,300,50))
+name="current_cooling_setpoint",emit=p.cooling_setpoint("C"),scale=100,},a(30,300,50))
 end)
-define_preset("thermostat_operating_state",zcl.thermostat_running_state,function()
-return merge_defaults(
+d("thermostat_operating_state",B.thermostat_running_state,function()
+return c(
 {
-name="thermostat_operating_state",emit=emit.thermostat_operating_state(),converter=thermostat_running_state_pair(),},reporting_defaults(1,300,nil))
+name="thermostat_operating_state",emit=p.thermostat_operating_state(),converter=k(),},a(1,300,nil))
 end)
 end
-return load_mapping_preset
+return s

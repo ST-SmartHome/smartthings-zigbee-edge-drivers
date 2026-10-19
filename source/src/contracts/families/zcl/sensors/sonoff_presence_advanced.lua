@@ -9,7 +9,7 @@ local emit = require "capabilities.events.all"
 local device_helpers = require "contracts.helpers.family"
 local data_types = require "st.zigbee.data_types"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 local CLUSTER_OCCUPANCY = 0x0406
 local CLUSTER_EWELINK = 0xFC11
@@ -71,7 +71,6 @@ local snzb_03pr2 = {
       maximum_interval = 65000,
       reportable_change = 10,
       read_only = true,
-      read_on_configure = true,
     }),
     zcl.cluster_attribute(CLUSTER_OCCUPANCY, ATTR_PIR_OCCUPIED_TO_UNOCCUPIED_DELAY, {
       name = "sonoff_snzb03pr2_detection_duration",
@@ -92,6 +91,7 @@ local snzb_03pr2 = {
       data_type = data_types.Uint16,
       read_only = true,
       read_on_configure = false,
+      read_on_refresh = false,
     }),
     zcl.cluster_attribute(CLUSTER_EWELINK, ATTR_ILLUMINATION_COMPENSATION_OFFSET, {
       name = "sonoff_snzb03pr2_illumination_offset",
@@ -107,9 +107,15 @@ local snzb_03pr2 = {
   },
 }
 
-register_device_definition(snzb_03pr2, {
+register(snzb_03pr2, {
   device_helpers.create_fingerprint("SONOFF", "SNZB-03PR2"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-skz"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.sonoff_presence_advanced",

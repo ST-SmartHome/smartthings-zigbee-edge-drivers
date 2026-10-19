@@ -1,0 +1,18 @@
+name: rpt-cbo
+components:
+- id: main
+  capabilities:
+  - id: battery
+    version: 1
+  - id: concertmirror08464.remoteAction
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMin
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMax
+    version: 1
+  - id: concertmirror08464.zclBatteryReportChange20
+    version: 1
+  categories:
+  - name: RemoteController

@@ -1,15 +1,15 @@
-local lights=require"contracts.families.zcl.lights.lights"
-local dimmers=require"contracts.families.zcl.lights.dimmers"
-local miboxer=require"contracts.families.zcl.lights.miboxer"
-local fans=require"contracts.families.zcl.lights.fans"
-local retail=require"contracts.families.zcl.lights.retail"
-local ikea=require"contracts.families.zcl.lights.ikea"
-local schneider=require"contracts.families.zcl.lights.schneider"
-local catalogs={
-lights,dimmers,miboxer,fans,retail,ikea,schneider,}local registrations={}for _,catalog in ipairs(catalogs)do
-for _,registration in ipairs(catalog.registrations)do
-registrations[#registrations+1]=registration
+local h=require"contracts.families.zcl.lights.lights"
+local f=require"contracts.families.zcl.lights.dimmers"
+local g=require"contracts.families.zcl.lights.miboxer"
+local j=require"contracts.families.zcl.lights.fans"
+local i=require"contracts.families.zcl.lights.retail"
+local k=require"contracts.families.zcl.lights.ikea"
+local c=require"contracts.families.zcl.lights.schneider"
+local d={
+h,f,g,j,i,k,c,}local a={}for _,e in ipairs(d)do
+for _,b in ipairs(e.registrations)do
+a[#a+1]=b
 end
 end
 return{
-id="zcl.lights",registrations=registrations,}
+id="zcl.lights",registrations=a,}

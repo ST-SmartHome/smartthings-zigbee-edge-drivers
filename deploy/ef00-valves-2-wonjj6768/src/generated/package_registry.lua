@@ -1,23 +1,23 @@
-local function registrations(catalog,expected_id,module_name)
-assert(type(catalog)=="table","Canonical catalog must return a table: "..module_name)for key in next,catalog do
-assert(key=="id"or key=="registrations","Canonical catalog has extra key: "..module_name ..":"..tostring(key))
+local function b(c,e,module_name)
+assert(type(c)=="table","Canonical catalog must return a table: "..module_name)for j in next,c do
+assert(j=="id"or j=="registrations","Canonical catalog has extra key: "..module_name ..":"..tostring(j))
 end
-assert(catalog.id==expected_id,"Canonical catalog id mismatch: "..module_name)assert(type(catalog.registrations)=="table","Canonical catalog registrations missing: "..module_name)return catalog.registrations
+assert(c.id==e,"Canonical catalog id mismatch: "..module_name)assert(type(c.registrations)=="table","Canonical catalog registrations missing: "..module_name)return c.registrations
 end
-local entries={}local catalog_1=require"contracts.families.ef00.valves.z2m_absorption"
-for _,entry in ipairs(registrations(catalog_1,"ef00.valves.z2m_absorption","contracts.families.ef00.valves.z2m_absorption"))do
-entries[#entries+1]=entry
+local a={}local f=require"contracts.families.ef00.valves.z2m_absorption"
+for _,d in ipairs(b(f,"ef00.valves.z2m_absorption","contracts.families.ef00.valves.z2m_absorption"))do
+a[#a+1]=d
 end
-local catalog_2=require"contracts.families.ef00.valves.neo_nas_wv03b2"
-for _,entry in ipairs(registrations(catalog_2,"neo.nas_wv03b2","contracts.families.ef00.valves.neo_nas_wv03b2"))do
-entries[#entries+1]=entry
+local g=require"contracts.families.ef00.valves.neo_nas_wv03b2"
+for _,d in ipairs(b(g,"neo.nas_wv03b2","contracts.families.ef00.valves.neo_nas_wv03b2"))do
+a[#a+1]=d
 end
-local catalog_3=require"contracts.families.ef00.valves.qoto_qt05m"
-for _,entry in ipairs(registrations(catalog_3,"qoto.qt_05m","contracts.families.ef00.valves.qoto_qt05m"))do
-entries[#entries+1]=entry
+local h=require"contracts.families.ef00.valves.qoto_qt05m"
+for _,d in ipairs(b(h,"qoto.qt_05m","contracts.families.ef00.valves.qoto_qt05m"))do
+a[#a+1]=d
 end
-local catalog_4=require"contracts.families.ef00.valves.wave19"
-for _,entry in ipairs(registrations(catalog_4,"ef00.valves.wave19","contracts.families.ef00.valves.wave19"))do
-entries[#entries+1]=entry
+local i=require"contracts.families.ef00.valves.wave19"
+for _,d in ipairs(b(i,"ef00.valves.wave19","contracts.families.ef00.valves.wave19"))do
+a[#a+1]=d
 end
-return entries
+return a

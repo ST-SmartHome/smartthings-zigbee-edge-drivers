@@ -101,6 +101,13 @@ register_device_definition(heiman_color_dimmer, {
   device_helpers.create_fingerprint("HEIMAN", "ColorDimmerSw-EM-3.0"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {2, "rpt-cwf"},
+  {3, "rpt-cbo"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.controls.dimming",
   registrations = device_definitions,

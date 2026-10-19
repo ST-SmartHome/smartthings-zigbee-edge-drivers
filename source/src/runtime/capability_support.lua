@@ -1,5 +1,18 @@
--- Protocol-neutral capability availability checks.
+-- Protocol-neutral capability availability and callable checks.
 local capability_support = {}
+
+function capability_support.is_callable(value)
+  if type(value) == "function" then
+    return true
+  end
+
+  if type(value) ~= "table" then
+    return false
+  end
+
+  local metatable = getmetatable(value)
+  return type(metatable) == "table" and type(metatable.__call) == "function"
+end
 
 local function profile_components(device)
   if type(device) ~= "table" then

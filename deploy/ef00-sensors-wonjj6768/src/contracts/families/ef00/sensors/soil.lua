@@ -1,119 +1,119 @@
-local tuya=require"protocol.tuya"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local ef00_helpers=require"contracts.helpers.ef00"
-local converter=tuya.converter
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local function register_sensor_definition(definitions_or_table,fingerprint_list)
-if type(definitions_or_table)=="table"then
-local entry={}for key,value in pairs(definitions_or_table)do
-entry[key]=value
+local a=require"protocol.tuya"
+local b=require"capabilities.events.all"
+local e=require"contracts.helpers.family"
+local f=require"contracts.helpers.ef00"
+local d=a.converter
+local r,i=e.definition_registry()
+local function c(h,m)
+if type(h)=="table"then
+local x={}for A,s in pairs(h)do
+x[A]=s
 end
-if entry.query_on_configure==nil then
-entry.query_on_configure=true
+if x.query_on_configure==nil then
+x.query_on_configure=true
 end
-register_device_definition(entry,fingerprint_list)return
+i(x,m)return
 end
-register_device_definition({
-datapoints=definitions_or_table,query_on_configure=true,},fingerprint_list)
+i({
+datapoints=h,query_on_configure=true,},m)
 end
-local soil_t10_h1={
-tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_soil_moisture(3,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_numeric(9,{
-name="temperature_unit",emit=emit.tuyaSoilScaledTemperatureUnit(),converter=converter.lookup_from_to({celsius=0,fahrenheit=1}),}),tuya.dp_enum(14,{
-name="battery_state",emit=emit.tuyaSoilScaledBatteryState(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="low",[1]="medium",[2]="high",})),}),tuya.dp_battery(15,{emit=emit.battery(),read_only=true}),}local soil_t10_h1_brightness={
-tuya.dp_enum(2,{
-name="brightness_level",emit=emit.tuyaSoilScaledBrightnessLevel(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="lower",[1]="low",[2]="normal",[3]="high",[4]="higher",})),}),tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_soil_moisture(3,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_numeric(9,{
-name="temperature_unit",emit=emit.tuyaSoilScaledTemperatureUnit(),converter=converter.lookup_from_to({celsius=0,fahrenheit=1}),}),tuya.dp_enum(14,{
-name="battery_state",emit=emit.tuyaSoilScaledBatteryState(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="low",[1]="medium",[2]="high",})),}),tuya.dp_battery(15,{emit=emit.battery(),read_only=true}),}register_sensor_definition({
-profile="sensors-soil-temp-moisture-battery-state-unit-soil-scaled",datapoints=soil_t10_h1,query_on_configure=false,},ef00_helpers.ts0601_fingerprints({
-"_TZE284_aao3yzhs","_TZE284_nhgdf6qr","_TZE2841000000_nhgdf6qr","_TZE284_ap9owrsa","_TZE284_33bwcga2","_TZE284_wckqztdq","_TZE284_tgrzpqf4","_TZE2841000000_tgrzpqf4",}))register_sensor_definition({
-profile="sensors-soil-temp-moisture-battery-state-unit-brightness-soil-scaled",datapoints=soil_t10_h1_brightness,query_on_configure=false,},ef00_helpers.ts0601_fingerprints({
-"_TZE284_3urschql",}))local soil_t100_h1={
-tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=1,read_only=true}),tuya.dp_soil_moisture(3,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_numeric(9,{
-name="temperature_unit",emit=emit.tuyaSoilRawTemperatureUnit(),converter=converter.lookup_from_to({celsius=0,fahrenheit=1}),}),tuya.dp_enum(14,{
-name="battery_state",emit=emit.tuyaSoilRawBatteryState(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="low",[1]="medium",[2]="high",})),}),tuya.dp_battery(15,{emit=emit.battery(),read_only=true}),}register_sensor_definition({
-profile="sensors-soil-temp-moisture-battery-state-unit-soil-raw",datapoints=soil_t100_h1,query_on_configure=false,},{
-device_helpers.create_fingerprint("_TZE200_myd45weu","TS0601"),device_helpers.create_fingerprint("_TZE204_myd45weu","TS0601"),device_helpers.create_fingerprint("_TZE200_ga1maeof","TS0601"),device_helpers.create_fingerprint("_TZE200_9cqcpkgb","TS0601"),device_helpers.create_fingerprint("_TZE284_myd45weu","TS0601"),device_helpers.create_fingerprint("_TZE200_2se8efxh","TS0601"),device_helpers.create_fingerprint("_TZE284_oitavov2","TS0601"),device_helpers.create_fingerprint("_TZE284_2nhqasjh","TS0601"),device_helpers.create_fingerprint("_TZE284_2se8efxh","TS0601"),})local soil_t10_h1_ec={
-tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_soil_moisture(3,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_numeric(1,{
-name="electrical_conductivity",emit=emit.soil_ec(),read_only=true,}),tuya.dp_enum(4,{
-name="fertility",emit=emit.neoSth02Fertility(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="normal",[1]="lower",[2]="low",[3]="middle",[4]="high",[5]="higher",})),}),tuya.dp_enum(14,{
-name="battery_state",emit=emit.neoSth02BatteryState(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="low",[1]="medium",[2]="high",})),}),tuya.dp_battery(15,{emit=emit.battery(),read_only=true}),tuya.dp_temperature_alarm(101,{
-emit=emit.neoSth02TemperatureAlarm(),read_only=true,}),tuya.dp_humidity_alarm(102,{
-emit=emit.neoSth02HumidityAlarm(),read_only=true,}),tuya.dp_max_temperature_alarm(103,{
-scale=10,emit=emit.neoSth02MaximumTemperature(),}),tuya.dp_min_temperature_alarm(104,{
-scale=10,emit=emit.neoSth02MinimumTemperature(),}),tuya.dp_max_humidity_alarm(105,{emit=emit.neoSth02MaximumHumidity()}),tuya.dp_min_humidity_alarm(106,{emit=emit.neoSth02MinimumHumidity()}),tuya.dp_numeric(107,{
-name="temperature_sensitivity",converter=converter.divide_by_pair(10),emit=emit.tempSensitivitySoilC03To1(),}),tuya.dp_numeric(108,{
-name="humidity_sensitivity",emit=emit.humiditySensitivitySoilOneFive(),}),tuya.dp_numeric(109,{
-name="schedule_periodic",emit=emit.neoSth02ReportPeriod(),}),tuya.dp_numeric(110,{
-name="temperature_f",converter=converter.divide_by_pair(10),emit=emit.neoSth02TemperatureF(),read_only=true,}),}register_sensor_definition({
-profile="sensors-soil-neo-sth02b2",datapoints=soil_t10_h1_ec,},ef00_helpers.ts0601_fingerprints({
-"_TZE284_rqcuwlsa","_TZE284_awepdiwi",}))local soil_t10_h1_alarm={
-tuya.dp_soil_moisture(3,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_enum(14,{
-name="battery_state",emit=emit.soil2BatteryState(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="low",[1]="medium",[2]="high",})),}),tuya.dp_battery(15,{emit=emit.battery(),read_only=true}),tuya.dp_temperature_alarm(101,{
-emit=emit.soil2TemperatureAlarm(),read_only=true,}),tuya.dp_humidity_alarm(102,{
-emit=emit.soil2HumidityAlarm(),read_only=true,}),tuya.dp_max_temperature_alarm(103,{
-scale=10,emit=emit.soil2MaximumTemperature(),}),tuya.dp_min_temperature_alarm(104,{
-scale=10,emit=emit.soil2MinimumTemperature(),}),tuya.dp_max_humidity_alarm(105,{emit=emit.soil2MaximumHumidity()}),tuya.dp_min_humidity_alarm(106,{emit=emit.soil2MinimumHumidity()}),tuya.dp_numeric(107,{
-name="temperature_sensitivity",converter=converter.divide_by_pair(10),emit=emit.tempSensitivitySoilC03To1(),}),tuya.dp_numeric(108,{name="humidity_sensitivity",emit=emit.humiditySensitivitySoilOneFive()}),tuya.dp_numeric(109,{
-name="schedule_periodic",emit=emit.soil2ReportPeriod(),}),tuya.dp_numeric(110,{
-name="temperature_f",converter=converter.divide_by_pair(10),emit=emit.soil2TemperatureF(),read_only=true,}),}register_sensor_definition({
-profile="sensors-soil-ts0601-soil2",datapoints=soil_t10_h1_alarm,},ef00_helpers.ts0601_fingerprints({
-"_TZE284_g2e6cpnw","_TZE284_sgabhwa6",}))local soil_t10_h1_illum={
-tuya.dp_enum(2,{
-name="illuminance_level",emit=emit.sgs02zIlluminanceLevel(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="low-",[1]="low",[2]="nor",[3]="high",[4]="high+",})),}),tuya.dp_soil_moisture(3,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_enum(9,{
-name="temperature_unit",emit=emit.sgs02zTemperatureUnit(),converter=converter.lookup_from_to({celsius=0,fahrenheit=1}),}),tuya.dp_battery(15,{emit=emit.battery(),read_only=true}),}register_sensor_definition({
-profile="sensors-soil-temp-moisture-battery-unit-illuminance-sgs02z",datapoints=soil_t10_h1_illum,query_on_configure=false,},ef00_helpers.ts0601_fingerprints({
-"_TZE284_nt4pquef","_TZE2841000000_nt4pquef",}))local soil_t10_h1_air_illum={
-tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_humidity(101,{emit=emit.humidity(),scale=1,read_only=true}),tuya.dp_soil_moisture(3,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_illuminance(102,{emit=emit.illuminance(),read_only=true}),tuya.dp_enum(14,{
-name="battery_state",emit=emit.zs301BatteryState(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="low",[1]="middle",[2]="high",})),}),tuya.dp_numeric(103,{name="humidity_calibration",emit=emit.humidityCalibrationZs301z()}),tuya.dp_report_interval(104,{emit=emit.zs301ReportInterval()}),}register_sensor_definition({
-profile="sensors-soil-temp-humidity-moisture-battery-air-illum",datapoints=soil_t10_h1_air_illum,},ef00_helpers.ts0601_fingerprints({
-"_TZE284_o9ofysmo","_TZE284_xc3vwx5a",}))local soil_t10_h1_air_warning={
-tuya.dp_temperature(103,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_humidity(109,{emit=emit.humidity(),scale=1,read_only=true}),tuya.dp_soil_moisture(107,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_battery(108,{emit=emit.battery(),read_only=true}),tuya.dp_water_warning(1,{
-emit=emit.zg303WaterWarning(),read_only=true,}),tuya.dp_soil_calibration(102,{emit=emit.zg303SoilCalibration()}),tuya.dp_temperature_calibration(104,{emit=emit.tempCalibrationSoilWarnC2()}),tuya.dp_humidity_calibration(105,{emit=emit.humidityCalibrationSoilWarning30()}),tuya.dp_numeric(106,{
-name="temperature_unit",emit=emit.zg303TemperatureUnit(),converter=converter.lookup_from_to({celsius=0,fahrenheit=1}),}),tuya.dp_soil_warning(110,{emit=emit.zg303SoilWarning()}),tuya.dp_temperature_sampling(111,{emit=emit.zg303TemperatureSampling()}),tuya.dp_soil_sampling(112,{emit=emit.zg303SoilSampling()}),}register_sensor_definition({
-profile="sensors-soil-temp-humidity-moisture-battery-warning",datapoints=soil_t10_h1_air_warning,query_on_configure=false,},{
-device_helpers.create_fingerprint("_TZE200_wqashyqo","TS0601"),})local soil_t10_h1_air_warning_legacy={
-tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_humidity(109,{emit=emit.humidity(),scale=1,read_only=true}),tuya.dp_soil_moisture(3,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_battery(15,{emit=emit.battery(),read_only=true}),tuya.dp_numeric(9,{
-name="temperature_unit",converter=converter.lookup_from_to({celsius=0,fahrenheit=1}),}),tuya.dp_soil_calibration(102,{}),tuya.dp_temperature_calibration(104,{emit=emit.tempCalibrationSoilWarnC2()}),tuya.dp_humidity_calibration(105,{emit=emit.humidityCalibrationSoilWarning30()}),tuya.dp_numeric(106,{
-name="water_shortage",converter=converter.lookup_from_to({on=1,off=0}),emit=emit.waterShortageSoilWarningLegacy(),}),tuya.dp_numeric(110,{name="soil_warning",emit=emit.soilWarningThresholdLegacy()}),tuya.dp_numeric(111,{name="humidity_sampling"}),tuya.dp_soil_sampling(112,{}),}register_sensor_definition({
-profile="sensors-soil-temp-humidity-moisture-battery-warning-legacy",datapoints=soil_t10_h1_air_warning_legacy,query_on_configure=false,},{
-device_helpers.create_fingerprint("HOBEIAN","ZG-303Z"),})local soil_t10_h1_air_dry={
-tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_humidity(109,{emit=emit.humidity(),scale=1,read_only=true}),tuya.dp_soil_moisture(3,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_battery(15,{emit=emit.battery(),read_only=true}),tuya.dp_enum(106,{
-name="dry",converter=converter.from_only(converter.lookup_value({[0]="normal",[1]="dry"})),emit=emit.cs201zDryState(),read_only=true,}),tuya.dp_numeric(9,{
-name="temperature_unit",emit=emit.cs201zTemperatureUnit(),converter=converter.lookup_from_to({celsius=0,fahrenheit=1}),}),tuya.dp_temperature_calibration(104,{emit=emit.tempCalibrationSoilWarnC2()}),tuya.dp_humidity_calibration(105,{emit=emit.humidityCalibrationSoilWarning30()}),tuya.dp_soil_calibration(102,{emit=emit.cs201zSoilCalibration()}),tuya.dp_temperature_sampling(111,{emit=emit.cs201zTemperatureSampling()}),tuya.dp_soil_sampling(112,{emit=emit.cs201zSoilSampling()}),tuya.dp_soil_warning(110,{emit=emit.soilWarningThresholdLegacy()}),}local soil_t10_h1_dry={
-tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_soil_moisture(3,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_battery(15,{emit=emit.battery(),read_only=true}),tuya.dp_numeric(9,{
-name="temperature_unit",emit=emit.ay302zTemperatureUnit(),converter=converter.lookup_from_to({celsius=0,fahrenheit=1}),}),tuya.dp_temperature_calibration(104,{emit=emit.tempCalibrationSoilWarnC2()}),tuya.dp_soil_calibration(102,{emit=emit.ay302zSoilCalibration()}),tuya.dp_soil_warning(110,{emit=emit.soilWarningThresholdLegacy()}),tuya.dp_temperature_sampling(111,{emit=emit.ay302zTemperatureSampling()}),tuya.dp_soil_sampling(112,{emit=emit.ay302zSoilSampling()}),tuya.dp_enum(106,{
-name="dry",converter=converter.from_only(converter.lookup_value({[0]="normal",[1]="dry"})),emit=emit.ay302zDryState(),read_only=true,}),}register_sensor_definition({
-profile="sensors-soil-temp-humidity-moisture-battery-dry",datapoints=soil_t10_h1_air_dry,query_on_configure=false,},{
-device_helpers.create_fingerprint("_TZE200_npj9bug3","TS0601"),device_helpers.create_fingerprint("_TZE200_wrmhp6b3","TS0601"),{manufacturer="AOYAN  ",model="AY-303Z"},})register_sensor_definition({
-profile="sensors-soil-temp-moisture-battery-dry",datapoints=soil_t10_h1_dry,query_on_configure=false,},{
-{manufacturer="AOYAN  ",model="AY-302Z"},})local soil_t10_h1_air_illum_warning={
-tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_humidity(101,{emit=emit.humidity(),scale=1,read_only=true}),tuya.dp_soil_moisture(3,{emit=emit.zs300zSoilMoisture(),read_only=true}),tuya.dp_illuminance(102,{emit=emit.illuminance(),read_only=true,
-converter=converter.from_only(function(value)return value*10 end)}),
-tuya.dp_enum(14,{
-name="battery_state",emit=emit.zs300zBatteryState(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="low",[1]="middle",[2]="high",})),}),tuya.dp_soil_sampling(103,{emit=emit.zs300zSoilSampling()}),tuya.dp_soil_calibration(104,{emit=emit.zs300zSoilCalibration()}),tuya.dp_humidity_calibration(105,{emit=emit.zs300zHumidityCalibration(),signed=true}),tuya.dp_illuminance_calibration(106,{emit=emit.illuminanceCalibrationZs300z()}),tuya.dp_temperature_calibration(107,{emit=emit.zs300zTempCalibration(),signed=true}),tuya.dp_binary(110,{name="soil_moisture_warning",read_only=true,
-converter=converter.from_only(function(value)return(value==true or value==1)and"on"or"off"end),
-emit=emit.zs300zMoistureWarning()}),tuya.dp_numeric(110,{name="soil_moisture_warning_threshold",write_only=true,suppress_optimistic_state=true,emit=emit.zs300zMoistureThreshold()}),tuya.dp_water_warning(111,{emit=emit.zs300zWaterWarning(),read_only=true}),}register_sensor_definition({
-profile="sensors-soil-temp-humidity-moisture-illuminance-battery-warning",placeholder_custom_states=false,datapoints=soil_t10_h1_air_illum_warning,query_on_configure=false,},ef00_helpers.ts0601_fingerprints({
-"_TZE284_k7p2q5d9","_TZE284_65gzcss7","_TZE284_0ints6wl","_TZE2841000000_0ints6wl","_TZE284_yzr43ayq",}))register_sensor_definition({
-profile="sensors-soil-temp-humidity-moisture-illuminance-battery-warning",placeholder_custom_states=false,datapoints=soil_t10_h1_air_illum_warning,query_on_configure=false,},{
-device_helpers.create_fingerprint("Arteco","ZS-304Z"),})local soil_t10_h1_air_illum_fertility={
-tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_humidity(101,{emit=emit.humidity(),scale=1,read_only=true}),tuya.dp_soil_moisture(3,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_illuminance(102,{emit=emit.illuminance(),read_only=true}),tuya.dp_battery(14,{emit=emit.battery(),read_only=true}),tuya.dp_soil_sampling(103,{emit=emit.zsSf00SoilSampling()}),tuya.dp_soil_calibration(104,{emit=emit.zsSf00SoilCalibration()}),tuya.dp_humidity_calibration(105,{emit=emit.humidityCalibrationZs301z()}),tuya.dp_illuminance_calibration(106,{emit=emit.illuminanceCalibrationZsSf00()}),tuya.dp_temperature_calibration(107,{emit=emit.temperatureCalibrationZsSf00()}),tuya.dp_soil_warning(110,{emit=emit.soilWarningThresholdLegacy()}),tuya.dp_water_warning(111,{emit=emit.zsSf00WaterWarning(),read_only=true}),tuya.dp_soil_fertility(112,{emit=emit.zsSf00SoilFertility(),read_only=true}),tuya.dp_numeric(114,{name="soil_fertility_warning_setting",emit=emit.soilFertilityWarningZsSf()}),tuya.dp_soil_fertility_warning(115,{emit=emit.zsSf00FertilityWarning(),read_only=true}),}register_sensor_definition({
-profile="sensors-soil-temp-humidity-moisture-illuminance-ec-battery-fertility-zssf00",datapoints=soil_t10_h1_air_illum_fertility,query_on_configure=false,},{
-device_helpers.create_fingerprint("A89G12C","Arteco"),})local soil_t10_h1_air_illum_fertility_cal={
-tuya.dp_temperature(5,{emit=emit.temperature("C"),scale=10,read_only=true}),tuya.dp_humidity(101,{emit=emit.humidity(),scale=1,read_only=true}),tuya.dp_soil_moisture(3,{emit=emit.soil_moisture(),read_only=true}),tuya.dp_illuminance(102,{emit=emit.illuminance(),read_only=true}),tuya.dp_battery(15,{emit=emit.battery(),read_only=true}),tuya.dp_numeric(103,{name="report_period",emit=emit.zs300tfReportPeriod()}),tuya.dp_soil_calibration(104,{emit=emit.zs300tfSoilCalibration()}),tuya.dp_humidity_calibration(105,{emit=emit.humidityCalibrationZs301z()}),tuya.dp_illuminance_calibration(106,{emit=emit.illuminanceCalibrationZsSf00()}),tuya.dp_temperature_calibration(107,{emit=emit.temperatureCalibrationZsSf00()}),tuya.dp_soil_warning(110,{emit=emit.soilWarningThresholdLegacy()}),tuya.dp_water_warning(111,{emit=emit.zs300tfWaterWarning(),read_only=true}),tuya.dp_soil_fertility(112,{emit=emit.zs300tfSoilFertility(),read_only=true}),tuya.dp_soil_fertility_calibration(113,{emit=emit.zs300tfFertilityCalibration()}),tuya.dp_numeric(114,{name="soil_fertility_set_v0",emit=emit.zs300tfFertilityLowThreshold()}),tuya.dp_numeric(115,{name="soil_fertility_set_v1",emit=emit.zs300tfFertilityHighThreshold()}),tuya.dp_soil_fertility_warning(116,{
-emit=emit.zs300tfFertilityWarning(),read_only=true,converter=converter.from_only(converter.lookup_value({
-[0]="none",[1]="low",[2]="high",})),}),}register_sensor_definition({
-profile="sensors-soil-temp-humidity-moisture-illuminance-ec-battery-fertility-cal",datapoints=soil_t10_h1_air_illum_fertility_cal,query_on_configure=false,},ef00_helpers.ts0601_fingerprints({
+local z={
+a.dp_temperature(5,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_soil_moisture(3,{emit=b.soil_moisture(),read_only=true}),a.dp_numeric(9,{
+name="temperature_unit",emit=b.tuyaSoilScaledTemperatureUnit(),converter=d.lookup_from_to({celsius=0,fahrenheit=1}),}),a.dp_enum(14,{
+name="battery_state",emit=b.tuyaSoilScaledBatteryState(),read_only=true,converter=d.from_only(d.lookup_value({
+[0]="low",[1]="medium",[2]="high",})),}),a.dp_battery(15,{emit=b.battery(),read_only=true}),}local o={
+a.dp_enum(2,{
+name="brightness_level",emit=b.tuyaSoilScaledBrightnessLevel(),read_only=true,converter=d.from_only(d.lookup_value({
+[0]="lower",[1]="low",[2]="normal",[3]="high",[4]="higher",})),}),a.dp_temperature(5,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_soil_moisture(3,{emit=b.soil_moisture(),read_only=true}),a.dp_numeric(9,{
+name="temperature_unit",emit=b.tuyaSoilScaledTemperatureUnit(),converter=d.lookup_from_to({celsius=0,fahrenheit=1}),}),a.dp_enum(14,{
+name="battery_state",emit=b.tuyaSoilScaledBatteryState(),read_only=true,converter=d.from_only(d.lookup_value({
+[0]="low",[1]="medium",[2]="high",})),}),a.dp_battery(15,{emit=b.battery(),read_only=true}),}c({
+profile="sensors-soil-temp-moisture-battery-state-unit-soil-scaled",datapoints=z,query_on_configure=false,},f.ts0601_fingerprints({
+"_TZE284_aao3yzhs","_TZE284_nhgdf6qr","_TZE2841000000_nhgdf6qr","_TZE284_ap9owrsa","_TZE284_33bwcga2","_TZE284_wckqztdq","_TZE284_tgrzpqf4","_TZE2841000000_tgrzpqf4",}))c({
+profile="sensors-soil-temp-moisture-battery-state-unit-brightness-soil-scaled",datapoints=o,query_on_configure=false,},f.ts0601_fingerprints({
+"_TZE284_3urschql",}))local y={
+a.dp_temperature(5,{emit=b.temperature("C"),scale=1,read_only=true}),a.dp_soil_moisture(3,{emit=b.soil_moisture(),read_only=true}),a.dp_numeric(9,{
+name="temperature_unit",emit=b.tuyaSoilRawTemperatureUnit(),converter=d.lookup_from_to({celsius=0,fahrenheit=1}),}),a.dp_enum(14,{
+name="battery_state",emit=b.tuyaSoilRawBatteryState(),read_only=true,converter=d.from_only(d.lookup_value({
+[0]="low",[1]="medium",[2]="high",})),}),a.dp_battery(15,{emit=b.battery(),read_only=true}),}c({
+profile="sensors-soil-temp-moisture-battery-state-unit-soil-raw",datapoints=y,query_on_configure=false,},{
+e.create_fingerprint("_TZE200_myd45weu","TS0601"),e.create_fingerprint("_TZE204_myd45weu","TS0601"),e.create_fingerprint("_TZE200_ga1maeof","TS0601"),e.create_fingerprint("_TZE200_9cqcpkgb","TS0601"),e.create_fingerprint("_TZE284_myd45weu","TS0601"),e.create_fingerprint("_TZE200_2se8efxh","TS0601"),e.create_fingerprint("_TZE284_oitavov2","TS0601"),e.create_fingerprint("_TZE284_2nhqasjh","TS0601"),e.create_fingerprint("_TZE284_2se8efxh","TS0601"),})local w={
+a.dp_temperature(5,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_soil_moisture(3,{emit=b.soil_moisture(),read_only=true}),a.dp_numeric(1,{
+name="electrical_conductivity",emit=b.soil_ec(),read_only=true,}),a.dp_enum(4,{
+name="fertility",emit=b.neoSth02Fertility(),read_only=true,converter=d.from_only(d.lookup_value({
+[0]="normal",[1]="lower",[2]="low",[3]="middle",[4]="high",[5]="higher",})),}),a.dp_enum(14,{
+name="battery_state",emit=b.neoSth02BatteryState(),read_only=true,converter=d.from_only(d.lookup_value({
+[0]="low",[1]="medium",[2]="high",})),}),a.dp_battery(15,{emit=b.battery(),read_only=true}),a.dp_temperature_alarm(101,{
+emit=b.neoSth02TemperatureAlarm(),read_only=true,}),a.dp_humidity_alarm(102,{
+emit=b.neoSth02HumidityAlarm(),read_only=true,}),a.dp_max_temperature_alarm(103,{
+scale=10,emit=b.neoSth02MaximumTemperature(),}),a.dp_min_temperature_alarm(104,{
+scale=10,emit=b.neoSth02MinimumTemperature(),}),a.dp_max_humidity_alarm(105,{emit=b.neoSth02MaximumHumidity()}),a.dp_min_humidity_alarm(106,{emit=b.neoSth02MinimumHumidity()}),a.dp_numeric(107,{
+name="temperature_sensitivity",converter=d.divide_by_pair(10),emit=b.tempSensitivitySoilC03To1(),}),a.dp_numeric(108,{
+name="humidity_sensitivity",emit=b.humiditySensitivitySoilOneFive(),}),a.dp_numeric(109,{
+name="schedule_periodic",emit=b.neoSth02ReportPeriod(),}),a.dp_numeric(110,{
+name="temperature_f",converter=d.divide_by_pair(10),emit=b.neoSth02TemperatureF(),read_only=true,}),}c({
+profile="sensors-soil-neo-sth02b2",datapoints=w,},f.ts0601_fingerprints({
+"_TZE284_rqcuwlsa","_TZE284_awepdiwi",}))local t={
+a.dp_soil_moisture(3,{emit=b.soil_moisture(),read_only=true}),a.dp_temperature(5,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_enum(14,{
+name="battery_state",emit=b.soil2BatteryState(),read_only=true,converter=d.from_only(d.lookup_value({
+[0]="low",[1]="medium",[2]="high",})),}),a.dp_battery(15,{emit=b.battery(),read_only=true}),a.dp_temperature_alarm(101,{
+emit=b.soil2TemperatureAlarm(),read_only=true,}),a.dp_humidity_alarm(102,{
+emit=b.soil2HumidityAlarm(),read_only=true,}),a.dp_max_temperature_alarm(103,{
+scale=10,emit=b.soil2MaximumTemperature(),}),a.dp_min_temperature_alarm(104,{
+scale=10,emit=b.soil2MinimumTemperature(),}),a.dp_max_humidity_alarm(105,{emit=b.soil2MaximumHumidity()}),a.dp_min_humidity_alarm(106,{emit=b.soil2MinimumHumidity()}),a.dp_numeric(107,{
+name="temperature_sensitivity",converter=d.divide_by_pair(10),emit=b.tempSensitivitySoilC03To1(),}),a.dp_numeric(108,{name="humidity_sensitivity",emit=b.humiditySensitivitySoilOneFive()}),a.dp_numeric(109,{
+name="schedule_periodic",emit=b.soil2ReportPeriod(),}),a.dp_numeric(110,{
+name="temperature_f",converter=d.divide_by_pair(10),emit=b.soil2TemperatureF(),read_only=true,}),}c({
+profile="sensors-soil-ts0601-soil2",datapoints=t,},f.ts0601_fingerprints({
+"_TZE284_g2e6cpnw","_TZE284_sgabhwa6",}))local u={
+a.dp_enum(2,{
+name="illuminance_level",emit=b.sgs02zIlluminanceLevel(),read_only=true,converter=d.from_only(d.lookup_value({
+[0]="low-",[1]="low",[2]="nor",[3]="high",[4]="high+",})),}),a.dp_soil_moisture(3,{emit=b.soil_moisture(),read_only=true}),a.dp_temperature(5,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_enum(9,{
+name="temperature_unit",emit=b.sgs02zTemperatureUnit(),converter=d.lookup_from_to({celsius=0,fahrenheit=1}),}),a.dp_battery(15,{emit=b.battery(),read_only=true}),}c({
+profile="sensors-soil-temp-moisture-battery-unit-illuminance-sgs02z",datapoints=u,query_on_configure=false,},f.ts0601_fingerprints({
+"_TZE284_nt4pquef","_TZE2841000000_nt4pquef",}))local p={
+a.dp_temperature(5,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_humidity(101,{emit=b.humidity(),scale=1,read_only=true}),a.dp_soil_moisture(3,{emit=b.soil_moisture(),read_only=true}),a.dp_illuminance(102,{emit=b.illuminance(),read_only=true}),a.dp_enum(14,{
+name="battery_state",emit=b.zs301BatteryState(),read_only=true,converter=d.from_only(d.lookup_value({
+[0]="low",[1]="middle",[2]="high",})),}),a.dp_numeric(103,{name="humidity_calibration",emit=b.humidityCalibrationZs301z()}),a.dp_report_interval(104,{emit=b.zs301ReportInterval()}),}c({
+profile="sensors-soil-temp-humidity-moisture-battery-air-illum",datapoints=p,},f.ts0601_fingerprints({
+"_TZE284_o9ofysmo","_TZE284_xc3vwx5a",}))local n={
+a.dp_temperature(103,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_humidity(109,{emit=b.humidity(),scale=1,read_only=true}),a.dp_soil_moisture(107,{emit=b.soil_moisture(),read_only=true}),a.dp_battery(108,{emit=b.battery(),read_only=true}),a.dp_water_warning(1,{
+emit=b.zg303WaterWarning(),read_only=true,}),a.dp_soil_calibration(102,{emit=b.zg303SoilCalibration()}),a.dp_temperature_calibration(104,{emit=b.tempCalibrationSoilWarnC2()}),a.dp_humidity_calibration(105,{emit=b.humidityCalibrationSoilWarning30()}),a.dp_numeric(106,{
+name="temperature_unit",emit=b.zg303TemperatureUnit(),converter=d.lookup_from_to({celsius=0,fahrenheit=1}),}),a.dp_soil_warning(110,{emit=b.zg303SoilWarning()}),a.dp_temperature_sampling(111,{emit=b.zg303TemperatureSampling()}),a.dp_soil_sampling(112,{emit=b.zg303SoilSampling()}),}c({
+profile="sensors-soil-temp-humidity-moisture-battery-warning",datapoints=n,query_on_configure=false,},{
+e.create_fingerprint("_TZE200_wqashyqo","TS0601"),})local l={
+a.dp_temperature(5,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_humidity(109,{emit=b.humidity(),scale=1,read_only=true}),a.dp_soil_moisture(3,{emit=b.soil_moisture(),read_only=true}),a.dp_battery(15,{emit=b.battery(),read_only=true}),a.dp_numeric(9,{
+name="temperature_unit",converter=d.lookup_from_to({celsius=0,fahrenheit=1}),}),a.dp_soil_calibration(102,{}),a.dp_temperature_calibration(104,{emit=b.tempCalibrationSoilWarnC2()}),a.dp_humidity_calibration(105,{emit=b.humidityCalibrationSoilWarning30()}),a.dp_numeric(106,{
+name="water_shortage",converter=d.lookup_from_to({on=1,off=0}),emit=b.waterShortageSoilWarningLegacy(),}),a.dp_numeric(110,{name="soil_warning",emit=b.soilWarningThresholdLegacy()}),a.dp_numeric(111,{name="humidity_sampling"}),a.dp_soil_sampling(112,{}),}c({
+profile="sensors-soil-temp-humidity-moisture-battery-warning-legacy",datapoints=l,query_on_configure=false,},{
+e.create_fingerprint("HOBEIAN","ZG-303Z"),})local q={
+a.dp_temperature(5,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_humidity(109,{emit=b.humidity(),scale=1,read_only=true}),a.dp_soil_moisture(3,{emit=b.soil_moisture(),read_only=true}),a.dp_battery(15,{emit=b.battery(),read_only=true}),a.dp_enum(106,{
+name="dry",converter=d.from_only(d.lookup_value({[0]="normal",[1]="dry"})),emit=b.cs201zDryState(),read_only=true,}),a.dp_numeric(9,{
+name="temperature_unit",emit=b.cs201zTemperatureUnit(),converter=d.lookup_from_to({celsius=0,fahrenheit=1}),}),a.dp_temperature_calibration(104,{emit=b.tempCalibrationSoilWarnC2()}),a.dp_humidity_calibration(105,{emit=b.humidityCalibrationSoilWarning30()}),a.dp_soil_calibration(102,{emit=b.cs201zSoilCalibration()}),a.dp_temperature_sampling(111,{emit=b.cs201zTemperatureSampling()}),a.dp_soil_sampling(112,{emit=b.cs201zSoilSampling()}),a.dp_soil_warning(110,{emit=b.soilWarningThresholdLegacy()}),}local v={
+a.dp_temperature(5,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_soil_moisture(3,{emit=b.soil_moisture(),read_only=true}),a.dp_battery(15,{emit=b.battery(),read_only=true}),a.dp_numeric(9,{
+name="temperature_unit",emit=b.ay302zTemperatureUnit(),converter=d.lookup_from_to({celsius=0,fahrenheit=1}),}),a.dp_temperature_calibration(104,{emit=b.tempCalibrationSoilWarnC2()}),a.dp_soil_calibration(102,{emit=b.ay302zSoilCalibration()}),a.dp_soil_warning(110,{emit=b.soilWarningThresholdLegacy()}),a.dp_temperature_sampling(111,{emit=b.ay302zTemperatureSampling()}),a.dp_soil_sampling(112,{emit=b.ay302zSoilSampling()}),a.dp_enum(106,{
+name="dry",converter=d.from_only(d.lookup_value({[0]="normal",[1]="dry"})),emit=b.ay302zDryState(),read_only=true,}),}c({
+profile="sensors-soil-temp-humidity-moisture-battery-dry",datapoints=q,query_on_configure=false,},{
+e.create_fingerprint("_TZE200_npj9bug3","TS0601"),e.create_fingerprint("_TZE200_wrmhp6b3","TS0601"),{manufacturer="AOYAN  ",model="AY-303Z"},})c({
+profile="sensors-soil-temp-moisture-battery-dry",datapoints=v,query_on_configure=false,},{
+{manufacturer="AOYAN  ",model="AY-302Z"},})local g={
+a.dp_temperature(5,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_humidity(101,{emit=b.humidity(),scale=1,read_only=true}),a.dp_soil_moisture(3,{emit=b.zs300zSoilMoisture(),read_only=true}),a.dp_illuminance(102,{emit=b.illuminance(),read_only=true,
+converter=d.from_only(function(s)return s*10 end)}),
+a.dp_enum(14,{
+name="battery_state",emit=b.zs300zBatteryState(),read_only=true,converter=d.from_only(d.lookup_value({
+[0]="low",[1]="middle",[2]="high",})),}),a.dp_soil_sampling(103,{emit=b.zs300zSoilSampling()}),a.dp_soil_calibration(104,{emit=b.zs300zSoilCalibration()}),a.dp_humidity_calibration(105,{emit=b.zs300zHumidityCalibration(),signed=true}),a.dp_illuminance_calibration(106,{emit=b.illuminanceCalibrationZs300z()}),a.dp_temperature_calibration(107,{emit=b.zs300zTempCalibration(),signed=true}),a.dp_binary(110,{name="soil_moisture_warning",read_only=true,
+converter=d.from_only(function(s)return(s==true or s==1)and"on"or"off"end),
+emit=b.zs300zMoistureWarning()}),a.dp_numeric(110,{name="soil_moisture_warning_threshold",write_only=true,suppress_optimistic_state=true,emit=b.zs300zMoistureThreshold()}),a.dp_water_warning(111,{emit=b.zs300zWaterWarning(),read_only=true}),}c({
+profile="sensors-soil-temp-humidity-moisture-illuminance-battery-warning",placeholder_custom_states=false,datapoints=g,query_on_configure=false,},f.ts0601_fingerprints({
+"_TZE284_k7p2q5d9","_TZE284_65gzcss7","_TZE284_0ints6wl","_TZE2841000000_0ints6wl","_TZE284_yzr43ayq",}))c({
+profile="sensors-soil-temp-humidity-moisture-illuminance-battery-warning",placeholder_custom_states=false,datapoints=g,query_on_configure=false,},{
+e.create_fingerprint("Arteco","ZS-304Z"),})local k={
+a.dp_temperature(5,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_humidity(101,{emit=b.humidity(),scale=1,read_only=true}),a.dp_soil_moisture(3,{emit=b.soil_moisture(),read_only=true}),a.dp_illuminance(102,{emit=b.illuminance(),read_only=true}),a.dp_battery(14,{emit=b.battery(),read_only=true}),a.dp_soil_sampling(103,{emit=b.zsSf00SoilSampling()}),a.dp_soil_calibration(104,{emit=b.zsSf00SoilCalibration()}),a.dp_humidity_calibration(105,{emit=b.humidityCalibrationZs301z()}),a.dp_illuminance_calibration(106,{emit=b.illuminanceCalibrationZsSf00()}),a.dp_temperature_calibration(107,{emit=b.temperatureCalibrationZsSf00()}),a.dp_soil_warning(110,{emit=b.soilWarningThresholdLegacy()}),a.dp_water_warning(111,{emit=b.zsSf00WaterWarning(),read_only=true}),a.dp_soil_fertility(112,{emit=b.zsSf00SoilFertility(),read_only=true}),a.dp_numeric(114,{name="soil_fertility_warning_setting",emit=b.soilFertilityWarningZsSf()}),a.dp_soil_fertility_warning(115,{emit=b.zsSf00FertilityWarning(),read_only=true}),}c({
+profile="sensors-soil-temp-humidity-moisture-illuminance-ec-battery-fertility-zssf00",datapoints=k,query_on_configure=false,},{
+e.create_fingerprint("A89G12C","Arteco"),})local j={
+a.dp_temperature(5,{emit=b.temperature("C"),scale=10,read_only=true}),a.dp_humidity(101,{emit=b.humidity(),scale=1,read_only=true}),a.dp_soil_moisture(3,{emit=b.soil_moisture(),read_only=true}),a.dp_illuminance(102,{emit=b.illuminance(),read_only=true}),a.dp_battery(15,{emit=b.battery(),read_only=true}),a.dp_numeric(103,{name="report_period",emit=b.zs300tfReportPeriod()}),a.dp_soil_calibration(104,{emit=b.zs300tfSoilCalibration()}),a.dp_humidity_calibration(105,{emit=b.humidityCalibrationZs301z()}),a.dp_illuminance_calibration(106,{emit=b.illuminanceCalibrationZsSf00()}),a.dp_temperature_calibration(107,{emit=b.temperatureCalibrationZsSf00()}),a.dp_soil_warning(110,{emit=b.soilWarningThresholdLegacy()}),a.dp_water_warning(111,{emit=b.zs300tfWaterWarning(),read_only=true}),a.dp_soil_fertility(112,{emit=b.zs300tfSoilFertility(),read_only=true}),a.dp_soil_fertility_calibration(113,{emit=b.zs300tfFertilityCalibration()}),a.dp_numeric(114,{name="soil_fertility_set_v0",emit=b.zs300tfFertilityLowThreshold()}),a.dp_numeric(115,{name="soil_fertility_set_v1",emit=b.zs300tfFertilityHighThreshold()}),a.dp_soil_fertility_warning(116,{
+emit=b.zs300tfFertilityWarning(),read_only=true,converter=d.from_only(d.lookup_value({
+[0]="none",[1]="low",[2]="high",})),}),}c({
+profile="sensors-soil-temp-humidity-moisture-illuminance-ec-battery-fertility-cal",datapoints=j,query_on_configure=false,},f.ts0601_fingerprints({
 "_TZE284_hdml1aav","_TZE2841000000_hdml1aav",}))return{
-id="ef00.sensors.soil",registrations=device_definitions,}
+id="ef00.sensors.soil",registrations=r,}

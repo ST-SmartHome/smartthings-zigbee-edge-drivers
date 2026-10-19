@@ -586,6 +586,7 @@ local gms02 = {
         configure_reporting = false,
         read_on_configure = false,
         from_device = function(value)
+          if type(value) == "table" then value = value.value end
           return type(value) == "number" and value % 2 == 1 or value == true
         end,
       })
@@ -691,6 +692,12 @@ register_device_definition(zl01, {
 register_device_definition(gms02, {
   device_helpers.create_fingerprint("easyiot", "ZB-24GMS02"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {5, "rpt-zcr"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.easyiot.absorption",

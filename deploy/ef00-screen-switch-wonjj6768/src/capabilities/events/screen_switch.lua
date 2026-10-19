@@ -1,17 +1,17 @@
-local emit=require"capabilities.events.all"
-local screen_switch_events={}local zms206_four={
-time_zone=emit.zms206us4TimeZone,backlight_mode=emit.zmsFourBacklightSetting,backlight_brightness=emit.zmsFourBacklightBrightness,child_lock=emit.zmsFourChildLock,radar_config=emit.zmsFourRadarConfig,switch_color_on=emit.zmsFourSwitchColorOn,switch_color_off=emit.zmsFourSwitchColorOff,indicator_status=emit.zmsFourIndicatorStatus,delay_off_color=emit.zmsFourDelayOffColor,switch_name=emit.zms206us4SwitchName,relay_status=emit.zmsFourRelayStatus,countdown=emit.zmsFourCountdown,}
-local function zms206(factories,gang_count,single_gang)
-local events={
-time_zone=factories.time_zone(),switch_main=emit.switch(),indicator_status=factories.indicator_status(),backlight_mode=factories.backlight_mode(),delay_off_color=factories.delay_off_color(),child_lock=factories.child_lock(),backlight_brightness=factories.backlight_brightness(),switch_color_on=factories.switch_color_on(),switch_color_off=factories.switch_color_off(),radar_config=factories.radar_config(),}if single_gang then
-events.countdown_main=factories.countdown()events.relay_status_main=factories.relay_status()events.switch_name_main=factories.switch_name()return events
+local b=require"capabilities.events.all"
+local d={}local f={
+time_zone=b.zms206us4TimeZone,backlight_mode=b.zmsFourBacklightSetting,backlight_brightness=b.zmsFourBacklightBrightness,child_lock=b.zmsFourChildLock,radar_config=b.zmsFourRadarConfig,switch_color_on=b.zmsFourSwitchColorOn,switch_color_off=b.zmsFourSwitchColorOff,indicator_status=b.zmsFourIndicatorStatus,delay_off_color=b.zmsFourDelayOffColor,switch_name=b.zms206us4SwitchName,relay_status=b.zmsFourRelayStatus,countdown=b.zmsFourCountdown,}
+local function h(a,g,e)
+local c={
+time_zone=a.time_zone(),switch_main=b.switch(),indicator_status=a.indicator_status(),backlight_mode=a.backlight_mode(),delay_off_color=a.delay_off_color(),child_lock=a.child_lock(),backlight_brightness=a.backlight_brightness(),switch_color_on=a.switch_color_on(),switch_color_off=a.switch_color_off(),radar_config=a.radar_config(),}if e then
+c.countdown_main=a.countdown()c.relay_status_main=a.relay_status()c.switch_name_main=a.switch_name()return c
 end
-for gang=1,gang_count do
-events["switch_"..gang]=emit.switch()events["countdown_"..gang]=factories.countdown()events["relay_status_"..gang]=factories.relay_status()events["switch_name_"..gang]=factories.switch_name()
+for gang=1,g do
+c["switch_"..gang]=b.switch()c["countdown_"..gang]=a.countdown()c["relay_status_"..gang]=a.relay_status()c["switch_name_"..gang]=a.switch_name()
 end
-return events
+return c
 end
-function screen_switch_events.zms206us4()
-return zms206(zms206_four,4,false)
+function d.zms206us4()
+return h(f,4,false)
 end
-return screen_switch_events
+return d

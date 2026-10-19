@@ -1,72 +1,81 @@
-local function load_mapping_preset(zcl)
-local emit=require"capabilities.events.all"
-local data_types=require"st.zigbee.data_types"
-local zigbee_constants=require"st.zigbee.constants"
-local safe_xy_to_hsv=require"st.utils.safe_xy_to_hsv"
-local function merge_options(target,source)
-if type(target)~="table"then
-target={}
+local function l(v)
+local r=require"capabilities.events.all"
+local A=require"st.zigbee.data_types"
+local w=require"st.zigbee.constants"
+local z=require"st.utils.safe_xy_to_hsv"
+local function j(e,u)
+if type(e)~="table"then
+e={}
 end
-if type(source)~="table"then
-return target
+if type(u)~="table"then
+return e
 end
-for key,value in pairs(source)do
-target[key]=value
+for x,s in pairs(u)do
+e[x]=s
 end
-return target
+return e
 end
-local function apply_defaults(target,defaults)
-if type(target)~="table"or type(defaults)~="table"then
-return target
+local function i(e,a)
+if type(e)~="table"or type(a)~="table"then
+return e
 end
-for key,value in pairs(defaults)do
-if target[key]==nil then
-target[key]=value
+for x,s in pairs(a)do
+if e[x]==nil then
+e[x]=s
 end
 end
-return target
+return e
 end
-local function normalize_preset_options(name_or_options,options)
-local resolved={}if type(name_or_options)=="string"then
-resolved.name=name_or_options
+local function h(b,q)
+local c={}if type(b)=="string"then
+c.name=b
 else
-merge_options(resolved,name_or_options)
+j(c,b)
 end
-merge_options(resolved,options)return resolved
+j(c,q)return c
 end
-local function reporting_defaults(minimum_interval,maximum_interval,reportable_change)
+local function d(p,o,m)
 return{
-minimum_interval=minimum_interval,maximum_interval=maximum_interval,reportable_change=reportable_change,read_on_configure=true,}
+minimum_interval=p,maximum_interval=o,reportable_change=m,read_on_configure=true,}
 end
-local function merge_defaults(...)
-local merged={}for _,defaults in ipairs({...})do
-apply_defaults(merged,defaults)
+local function g(...)
+local t={}for _,a in ipairs({...})do
+i(t,a)
 end
-return merged
+return t
 end
-local function define_preset(name,factory,defaults_builder)
-zcl[name]=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)apply_defaults(resolved,defaults_builder(resolved))return factory(resolved)
+local function f(B,y,n)
+v[B]=function(b,q)
+local c=h(b,q)local k=c.configure_reporting
+local a=n(c)c.configure_reporting=nil
+if k==false then
+a.minimum_interval=nil
+a.maximum_interval=nil
+a.reportable_change=nil
+a.physical_reportable_change=nil
+a.reporting_defaults=nil
+end
+i(c,a)return y(c)
 end
 end
-define_preset("power",zcl.electrical_measurement_power,function()
-return merge_defaults(
+f("power",v.electrical_measurement_power,function()
+return g(
 {
-emit=emit.power(),metering_kind="power",poll_interval=300,},reporting_defaults(5,300,1))
+emit=r.power(),metering_kind="power",poll_interval=300,},d(5,300,1))
 end)
-define_preset("current",zcl.electrical_measurement_current,function()
-return merge_defaults(
+f("current",v.electrical_measurement_current,function()
+return g(
 {
-emit=emit.current(),scale=1000,metering_kind="current",poll_interval=300,},reporting_defaults(5,300,1))
+emit=r.current(),scale=1000,metering_kind="current",poll_interval=300,},d(5,300,1))
 end)
-define_preset("voltage",zcl.electrical_measurement_voltage,function()
-return merge_defaults(
+f("voltage",v.electrical_measurement_voltage,function()
+return g(
 {
-emit=emit.voltage(),metering_kind="voltage",poll_interval=300,},reporting_defaults(5,300,1))
+emit=r.voltage(),metering_kind="voltage",poll_interval=300,},d(5,300,1))
 end)
-define_preset("energy",zcl.simple_metering,function()
+f("energy",v.simple_metering,function()
 return{
-emit=emit.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900,}
+emit=r.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900,}
 end)
 end
-return load_mapping_preset
+return l

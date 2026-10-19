@@ -8,29 +8,30 @@ components:
     version: 1
   - id: refresh
     version: 1
+  - {id: signalStrength, version: 1}
   categories:
   - name: AirQualityDetector
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: carbonDioxideMeasurement
-        version: 1
-        group: main
-        values:
-          - label: "{{carbonDioxide.value}}{{carbonDioxide.unit}}"
+    - component: main
+      capability: carbonDioxideMeasurement
+      group: main
+      values:
+      - label: '{{carbonDioxide.value}}{{carbonDioxide.unit}}'
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: carbonDioxideMeasurement
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: carbonDioxideMeasurement
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: carbonDioxideMeasurement
-        version: 1
+    - component: main
+      capability: carbonDioxideMeasurement
+    - component: main
+      capability: signalStrength
     actions: []

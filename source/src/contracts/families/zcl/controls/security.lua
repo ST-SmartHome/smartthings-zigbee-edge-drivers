@@ -162,6 +162,16 @@ register_device_definition(heiman_partial_action_remote, {
   device_helpers.create_fingerprint("HEIMAN", "RC-N"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tnq"},
+  {2, "rpt-tfs"},
+  {3, "rpt-toee"},
+  {4, "rpt-toee"},
+  {5, "rpt-rqo"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.controls.security",
   registrations = device_definitions,

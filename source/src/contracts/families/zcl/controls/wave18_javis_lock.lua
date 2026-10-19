@@ -14,6 +14,7 @@ local TIMER_FIELD = "__wave18_javis_lock_timer"
 local ACTION_USER_FIELD = "__wave18_javis_action_user"
 local ACTION_SOURCE_FIELD = "__wave18_javis_action_source"
 local ACTION_SOURCE_NAME_FIELD = "__wave18_javis_action_source_name"
+local REPORT_CACHE_FIELD = "__javis_recent_reports"
 
 local SOURCE_NAMES = {
   [0] = "pairing",
@@ -31,9 +32,27 @@ end
 
 local javis_state_emitter = assert(emit.javisSlkState, "missing Wave18 JAVIS state emitter")()
 
-local function javis_report_from_device(value, device)
+local function javis_report_from_device(value, device, context)
   if type(value) ~= "string" then
     return nil
+  end
+  local header = context and context.zb_rx and context.zb_rx.body.zcl_header
+  local sequence = header and header.seqno and header.seqno.value
+  if header and header.cmd.value == 0x0A and sequence ~= nil then
+    local reports = device:get_field(REPORT_CACHE_FIELD) or {}
+    local key = tostring(context.endpoint) .. ":" .. tostring(context.mfg_code)
+    local signature = string.char(sequence) .. value
+    local recent, now = {}, os.time()
+    for _, previous in ipairs(reports[key] or {}) do
+      if now >= previous.at and now - previous.at < 10 then
+        if previous.signature == signature then return nil end
+        recent[#recent + 1] = previous
+      end
+    end
+    table.insert(recent, 1, {signature = signature, at = now})
+    recent[6] = nil
+    reports[key] = recent
+    device:set_field(REPORT_CACHE_FIELD, reports)
   end
   -- Z2M converts the UTF-8 string to bytes and reads zero-based offsets 3/5.
   -- Lua strings already contain the UTF-8 bytes, hence one-based offsets 4/6.

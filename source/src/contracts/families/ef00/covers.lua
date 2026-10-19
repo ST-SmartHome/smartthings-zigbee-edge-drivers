@@ -1797,6 +1797,12 @@ register_device_definition(rinn_wser40, {
   device_helpers.create_fingerprint("_TZE200_pk0sfzvr", "TS0601"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {48, "rpt-trw"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "ef00.covers",
   registrations = device_definitions,

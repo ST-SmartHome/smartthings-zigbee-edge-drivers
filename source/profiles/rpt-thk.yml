@@ -1,0 +1,42 @@
+name: rpt-thk
+components:
+- id: main
+  capabilities:
+  - id: powerMeter
+    version: 1
+  - id: currentMeasurement
+    version: 1
+  - id: voltageMeasurement
+    version: 1
+  - id: energyMeter
+    version: 1
+  - id: concertmirror08464.qaQaszpReactivePowerThreshold
+    version: 1
+  - id: concertmirror08464.qaQaszpMaxEffectivePower
+    version: 1
+  - id: concertmirror08464.qaQaszpStatusReport
+    version: 1
+  - id: concertmirror08464.qaQaszpSwitchStatus
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclVoltageReportMin
+    version: 1
+  - id: concertmirror08464.zclVoltageReportMax
+    version: 1
+  - id: concertmirror08464.zclVoltageReportChange21
+    version: 1
+  - id: concertmirror08464.zclCurrentReportMin
+    version: 1
+  - id: concertmirror08464.zclCurrentReportMax
+    version: 1
+  - id: concertmirror08464.zclCurrentReportChange21
+    version: 1
+  - id: concertmirror08464.zclPowerReportMin
+    version: 1
+  - id: concertmirror08464.zclPowerReportMax
+    version: 1
+  - id: concertmirror08464.zclPowerReportChange29
+    version: 1
+  categories:
+  - name: CurbPowerMeter

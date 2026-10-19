@@ -1,671 +1,648 @@
-local function load_cluster_command_handler(zcl)
-local capabilities=require"st.capabilities"
-local custom_capabilities=require"runtime.capability_metadata"
-local custom_capability_binding=require"runtime.capability_binding"
-local battery_refresh=require"runtime.battery_refresh"
-local command_dispatch=require"protocol.zcl.runtime.handlers.command_dispatch"
-local generated_clusters=require"st.zigbee.generated.zcl_clusters"
-local Status=require"st.zigbee.generated.types.ZclStatus"
-local data_types=require"st.zigbee.data_types"
-local messages=require"st.zigbee.messages"
-local zcl_messages=require"st.zigbee.zcl"
-local FrameCtrl=require"st.zigbee.zcl.frame_ctrl"
-local default_response=require"st.zigbee.zcl.global_commands.default_response"
-local zigbee_constants=require"st.zigbee.constants"
-local log=require"log"
-local IASACE=generated_clusters.IASACE
-local remote_action_metadata=custom_capabilities.by_emit_name.remote_action
-local security_remote_action_metadata=custom_capabilities.by_emit_name.security_remote_action
-zcl.schedule_battery_refresh_after_button=battery_refresh.schedule_after_button
-local LAST_REMOTE_ACTION_FIELD="__zcl_last_remote_action"
-local CLUSTER_SCENES=0x0005
-local ARM_MODE_ACTIONS={
-[0]="disarm",[1]="arm_day_zones",[2]="arm_night_zones",[3]="arm_all_zones",[4]="exit_delay",}local explicit_handlers={}local mapped_commands={}local send_default_response
-local function extract_source_endpoint(zb_rx)
-if type(zb_rx)~="table"then
+local function ap(u)
+local z=require"st.capabilities"
+local B=require"runtime.capability_metadata"
+local F=require"runtime.capability_binding"
+local ak=require"runtime.battery_refresh"
+local aZ=require"protocol.zcl.runtime.handlers.command_dispatch"
+local W=require"st.zigbee.generated.zcl_clusters"
+local bG=require"st.zigbee.generated.types.ZclStatus"
+local bu=require"st.zigbee.data_types"
+local bj=require"st.zigbee.messages"
+local aV=require"st.zigbee.zcl"
+local bw=require"st.zigbee.zcl.frame_ctrl"
+local aA=require"st.zigbee.zcl.global_commands.default_response"
+local ae=require"st.zigbee.constants"
+local bK=require"log"
+local bx=W.IASACE
+local aI=B.by_emit_name.remote_action
+local ah=B.by_emit_name.security_remote_action
+u.schedule_battery_refresh_after_button=ak.schedule_after_button
+local V="__zcl_last_remote_action"
+local aJ=5
+local aY={
+[0]="disarm",[1]="arm_day_zones",[2]="arm_night_zones",[3]="arm_all_zones",[4]="exit_delay",}local P={}local T={}local k
+local function l(a)
+if type(a)~="table"then
 return nil
 end
-local endpoint=zb_rx.address_header and
-zb_rx.address_header.src_endpoint and
-zb_rx.address_header.src_endpoint.value or nil
-return zcl.normalize_endpoint(endpoint)
+local bB=a.address_header and
+a.address_header.src_endpoint and
+a.address_header.src_endpoint.value or nil
+return u.normalize_endpoint(bB)
 end
-local function extract_destination_address(zb_rx)
-if type(zb_rx)~="table"then
+local function E(a)
+if type(a)~="table"then
 return nil
 end
-local destination=zb_rx.address_header and zb_rx.address_header.dest_addr or nil
-return destination and destination.value or nil
+local y=a.address_header and a.address_header.dest_addr or nil
+return y and y.value or nil
 end
-local function extract_mfg_code(zb_rx)
-if type(zb_rx)~="table"then
+local function bb(a)
+if type(a)~="table"then
 return nil
 end
-local zcl_header=zb_rx.body and zb_rx.body.zcl_header or nil
-local frame_ctrl=zcl_header and zcl_header.frame_ctrl or nil
-if frame_ctrl==nil or type(frame_ctrl.is_mfg_specific_set)~="function"or not frame_ctrl:is_mfg_specific_set()then
+local t=a.body and a.body.zcl_header or nil
+local q=t and t.frame_ctrl or nil
+if q==nil or type(q.is_mfg_specific_set)~="function"or not q:is_mfg_specific_set()then
 return nil
 end
-local mfg_code=zcl_header.mfg_code and zcl_header.mfg_code.value or nil
-return type(mfg_code)=="number"and mfg_code or nil
+local aq=t.mfg_code and t.mfg_code.value or nil
+return type(aq)=="number"and aq or nil
 end
-local function is_single_button_remote(device)
-local model=type(device)=="table"and type(device.get_model)=="function"and device:get_model()or nil
-return model=="TS0041"or model=="TS0041A"
+local function aD(d)
+local bF=type(d)=="table"and type(d.get_model)=="function"and d:get_model()or nil
+return bF=="TS0041"or bF=="TS0041A"
 end
-local function extract_seqno(zb_rx)
-return zb_rx and zb_rx.body and zb_rx.body.zcl_header and zb_rx.body.zcl_header.seqno and zb_rx.body.zcl_header.seqno.value or nil
+local function au(a)
+return a and a.body and a.body.zcl_header and a.body.zcl_header.seqno and a.body.zcl_header.seqno.value or nil
 end
-local function extract_command_id(zb_rx)
-return zb_rx and zb_rx.body and zb_rx.body.zcl_header and zb_rx.body.zcl_header.cmd and zb_rx.body.zcl_header.cmd.value or nil
+local function D(a)
+return a and a.body and a.body.zcl_header and a.body.zcl_header.cmd and a.body.zcl_header.cmd.value or nil
 end
-local function extract_body_bytes(zb_rx)
-return zb_rx and zb_rx.body and zb_rx.body.zcl_body and zb_rx.body.zcl_body.body_bytes or nil
+local function by(a)
+return a and a.body and a.body.zcl_body and a.body.zcl_body.body_bytes or nil
 end
-local function supports_component_capability(device,capability_id,component_id)
-return type(device)=="table"and
-type(device.supports_capability_by_id)=="function"and
-device:supports_capability_by_id(capability_id,component_id or"main")
+local function O(d,bh,e)
+return type(d)=="table"and
+type(d.supports_capability_by_id)=="function"and
+d:supports_capability_by_id(bh,e or"main")
 end
-local function resolve_endpoint_component(device,src_endpoint,fallback_component)
-local component_id=fallback_component or"main"
-if src_endpoint~=nil and type(device)=="table"and type(device.get_component_id_for_endpoint)=="function"then
-local resolved=device:get_component_id_for_endpoint(src_endpoint)if type(resolved)=="string"and resolved~=""then
-component_id=resolved
+local function s(d,f,aT)
+local e=aT or"main"
+if f~=nil and type(d)=="table"and type(d.get_component_id_for_endpoint)=="function"then
+local ad=d:get_component_id_for_endpoint(f)if type(ad)=="string"and ad~=""then
+e=ad
 end
 end
-return component_id
+return e
 end
-local function resolve_scene_component(device,preset,scene_index,src_endpoint)
-local scene_component_map=type(preset)=="table"and preset.scene_component_map or nil
-local component_id=type(scene_component_map)=="table"and(scene_component_map[scene_index]or scene_component_map[src_endpoint])or nil
-if type(component_id)~="string"or component_id==""then
-component_id=resolve_endpoint_component(device,src_endpoint,scene_index==1 and"main"or("button"..tostring(scene_index)))
+local function aE(d,c,scene_index,f)
+local R=type(c)=="table"and c.scene_component_map or nil
+local e=type(R)=="table"and(R[scene_index]or R[f])or nil
+if type(e)~="string"or e==""then
+e=s(d,f,scene_index==1 and"main"or("button"..tostring(scene_index)))
 end
-return component_id
+return e
 end
-local function emit_button_event(device,component_id,action_name)
-local capability_builder=capabilities.button and capabilities.button.button and capabilities.button.button[action_name]or nil
-if capability_builder==nil then
+local function A(d,e,bm)
+local as=z.button and z.button.button and z.button.button[bm]or nil
+if as==nil then
 return false
 end
-local target_component=component_id or"main"
-if not supports_component_capability(device,capabilities.button.ID,target_component)then
-target_component="main"
+local o=e or"main"
+if not O(d,z.button.ID,o)then
+o="main"
 end
-if not supports_component_capability(device,capabilities.button.ID,target_component)then
+if not O(d,z.button.ID,o)then
 return false
 end
-device:emit_component_event({id=target_component},capability_builder({state_change=true}))battery_refresh.schedule_after_button(device)return true
+d:emit_component_event({id=o},as({state_change=true}))ak.schedule_after_button(d)return true
 end
-local function should_emit_remote_action(device,component_id,action,seqno)
-if type(action)~="string"or action==""then
+local function U(d,e,h,ar)
+if type(h)~="string"or h==""then
 return false
 end
-local dedupe_key=table.concat({
-tostring(component_id or"main"),tostring(action),tostring(seqno or"nil"),},"|")local last_key=type(device)=="table"and device:get_field(LAST_REMOTE_ACTION_FIELD)or nil
-if last_key==dedupe_key then
+local bd=table.concat({
+tostring(e or"main"),tostring(h),tostring(ar or"nil"),},"|")local bC=type(d)=="table"and d:get_field(V)or nil
+if bC==bd then
 return false
 end
-device:set_field(LAST_REMOTE_ACTION_FIELD,dedupe_key,{persist=false})return true
+d:set_field(V,bd,{persist=false})return true
 end
-local function emit_remote_action(device,preset,component_id,action,seqno)
-if not should_emit_remote_action(device,component_id,action,seqno)then
+local function C(d,c,e,h,ar)
+if not U(d,e,h,ar)then
 return false,false
 end
-local metadata=remote_action_metadata
-if type(preset)=="table"and type(preset.remote_action_emit_name)=="string"then
-metadata=custom_capabilities.by_emit_name[preset.remote_action_emit_name]or metadata
+local K=aI
+if type(c)=="table"and type(c.remote_action_emit_name)=="string"then
+K=B.by_emit_name[c.remote_action_emit_name]or K
 end
-return custom_capability_binding.emit_state(device,component_id,metadata,action,{state_change=true}),true
+return F.emit_state(d,e,K,h,{state_change=true}),true
 end
-local function emit_security_remote_action(device,preset,action,seqno)
-if not should_emit_remote_action(device,"main",action,seqno)then
+local function at(d,c,h,ar)
+if not U(d,"main",h,ar)then
 return false
 end
-local metadata=security_remote_action_metadata
-if type(preset)=="table"and type(preset.security_remote_action_emit_name)=="string"then
-metadata=custom_capabilities.by_emit_name[preset.security_remote_action_emit_name]or metadata
+local K=ah
+if type(c)=="table"and type(c.security_remote_action_emit_name)=="string"then
+K=B.by_emit_name[c.security_remote_action_emit_name]or K
 end
-return custom_capability_binding.emit_state(device,"main",metadata,action)
+return F.emit_state(d,"main",K,h)
 end
-local function extract_member_value(value)
-if type(value)=="table"and value.value~=nil then
-return value.value
+local function aM(aO)
+if type(aO)=="table"and aO.value~=nil then
+return aO.value
 end
-return value
+return aO
 end
-local function extract_body_member(zb_rx,...)
-local zcl_body=zb_rx and zb_rx.body and zb_rx.body.zcl_body or nil
-if type(zcl_body)~="table"then
+local function i(a,...)
+local L=a and a.body and a.body.zcl_body or nil
+if type(L)~="table"then
 return nil
 end
-for _,key in ipairs({...})do
-local candidate=zcl_body[key]local numeric=extract_member_value(candidate)if numeric~=nil then
-return numeric
+for _,bJ in ipairs({...})do
+local ag=L[bJ]local bp=aM(ag)if bp~=nil then
+return bp
 end
 end
 return nil
 end
-local function emit_standard_action_metadata(device,preset,component_id,zb_rx,cluster_id,command_id)
-local emit_names=type(preset)=="table"and preset.standard_action_metadata_emit_names or nil
-if type(emit_names)~="table"then
+local function am(d,c,e,a,g,b)
+local be=type(c)=="table"and c.standard_action_metadata_emit_names or nil
+if type(be)~="table"then
 return false
 end
-local emitted=false
-local function emit_value(property,value)
-local emit_name=emit_names[property]local metadata=type(emit_name)=="string"and custom_capabilities.by_emit_name[emit_name]or nil
-if metadata~=nil and type(value)=="number"then
-emitted=custom_capability_binding.emit_state(device,component_id,metadata,value,{state_change=true})or emitted
+local aW=false
+local function Z(bD,aO)
+local bg=be[bD]local K=type(bg)=="string"and B.by_emit_name[bg]or nil
+if K~=nil and type(aO)=="number"then
+aW=F.emit_state(d,e,K,aO,{state_change=true})or aW
 end
 end
-local destination=extract_destination_address(zb_rx)if type(destination)=="number"and destination>=0x0001 and destination<=0xFFF7 then
-emit_value("action_group",destination)
+local y=E(a)if type(y)=="number"and y>=1 and y<=65527 then
+Z("action_group",y)
 end
-if cluster_id~=zcl.CLUSTER_LEVEL_CONTROL then
-return emitted
+if g~=u.CLUSTER_LEVEL_CONTROL then
+return aW
 end
-if command_id==0x00 or command_id==0x04 then
-emit_value("action_level",extract_body_member(zb_rx,"level"))local transition_time=extract_body_member(zb_rx,"transition_time","transtime")if type(transition_time)=="number"then
-emit_value("action_transition_time",transition_time/10)
+if b==0 or b==4 then
+Z("action_level",i(a,"level"))local J=i(a,"transition_time","transtime")if type(J)=="number"then
+Z("action_transition_time",J/10)
 end
-elseif command_id==0x01 or command_id==0x05 then
-emit_value("action_rate",extract_body_member(zb_rx,"rate"))elseif command_id==0x02 or command_id==0x06 then
-local step=extract_body_member(zb_rx,"step_size","stepsize")emit_value("action_step_size",step)local transition_time=extract_body_member(zb_rx,"transition_time","transtime")if type(transition_time)=="number"then
-emit_value("action_transition_time",transition_time/10)
+elseif b==1 or b==5 then
+Z("action_rate",i(a,"rate"))elseif b==2 or b==6 then
+local bI=i(a,"step_size","stepsize")Z("action_step_size",bI)local J=i(a,"transition_time","transtime")if type(J)=="number"then
+Z("action_transition_time",J/10)
 end
 end
-return emitted
+return aW
 end
-local function handle_advanced_remote_action(device,preset,zb_rx,action,component_id)
-if type(preset)~="table"or preset.advanced_remote~=true or type(action)~="string"then
+local function M(d,c,a,h,e)
+if type(c)~="table"or c.advanced_remote~=true or type(h)~="string"then
 return false
 end
-local target_component=component_id or"main"
-local button_event=type(preset.standard_action_button_events)=="table"and
-preset.standard_action_button_events[action]or nil
-local action_emitted,action_accepted=emit_remote_action(device,preset,target_component,action,extract_seqno(zb_rx))if action_accepted and type(button_event)=="string"then
-emit_button_event(device,target_component,button_event)
+local o=e or"main"
+local m=type(c.standard_action_button_events)=="table"and
+c.standard_action_button_events[h]or nil
+local ao,ai=C(d,c,o,h,au(a))if ai and type(m)=="string"then
+A(d,o,m)
 end
-if action_emitted then
-if type(preset.remote_action_handler)=="function"then
-preset.remote_action_handler(device,target_component,action,zb_rx)
+if ao then
+if type(c.remote_action_handler)=="function"then
+c.remote_action_handler(d,o,h,a)
 end
-local cluster_id=zb_rx and zb_rx.address_header and zb_rx.address_header.cluster and zb_rx.address_header.cluster.value or nil
-emit_standard_action_metadata(device,preset,target_component,zb_rx,cluster_id,extract_command_id(zb_rx))
+local g=a and a.address_header and a.address_header.cluster and a.address_header.cluster.value or nil
+am(d,c,o,a,g,D(a))
 end
-send_default_response(device,zb_rx,extract_command_id(zb_rx)or 0)return true
+k(d,a,D(a)or 0)return true
 end
-local function handle_security_remote_action(device,preset,zb_rx,action)
-if type(preset)~="table"or preset.security_remote~=true or type(action)~="string"then
+local function N(d,c,a,h)
+if type(c)~="table"or c.security_remote~=true or type(h)~="string"then
 return false
 end
-emit_button_event(device,"main","pushed")emit_security_remote_action(device,preset,action,extract_seqno(zb_rx))send_default_response(device,zb_rx,extract_command_id(zb_rx)or 0)return true
+A(d,"main","pushed")at(d,c,h,au(a))k(d,a,D(a)or 0)return true
 end
-local function handle_ias_ace_arm(device,preset,zb_rx)
-if type(preset)~="table"or preset.security_remote~=true then
+local function aU(d,c,a)
+if type(c)~="table"or c.security_remote~=true then
 return false
 end
-local arm_mode=extract_body_member(zb_rx,"armmode","arm_mode")local action_map=type(preset.arm_mode_action_map)=="table"and preset.arm_mode_action_map or ARM_MODE_ACTIONS
-local action=action_map[arm_mode]if type(action)~="string"then
+local bA=i(a,"armmode","arm_mode")local bs=type(c.arm_mode_action_map)=="table"and c.arm_mode_action_map or aY
+local h=bs[bA]if type(h)~="string"then
 return false
 end
-return handle_security_remote_action(device,preset,zb_rx,action)
+return N(d,c,a,h)
 end
-local function handle_ias_zone_action(device,preset,zb_rx)
-if type(preset)~="table"or preset.advanced_remote~=true or type(preset.ias_zone_action_map)~="table"then
+local function aH(d,c,a)
+if type(c)~="table"or c.advanced_remote~=true or type(c.ias_zone_action_map)~="table"then
 return false
 end
-local zone_status=extract_body_member(zb_rx,"zonestatus","zone_status")local action=preset.ias_zone_action_map[zone_status]if type(action)~="string"then
+local bo=i(a,"zonestatus","zone_status")local h=c.ias_zone_action_map[bo]if type(h)~="string"then
 return false
 end
-return handle_advanced_remote_action(device,preset,zb_rx,action,"main")
+return M(d,c,a,h,"main")
 end
-local function handle_ias_ace_emergency(device,preset,zb_rx)
-if type(preset)~="table"or preset.security_remote~=true then
+local function aB(d,c,a)
+if type(c)~="table"or c.security_remote~=true then
 return false
 end
-return handle_security_remote_action(device,preset,zb_rx,"emergency")
+return N(d,c,a,"emergency")
 end
-local function resolve_advanced_remote_component(device,preset,zb_rx)
-local src_endpoint=extract_source_endpoint(zb_rx)local destination_address=extract_destination_address(zb_rx)local group_component_map=type(preset)=="table"and preset.group_component_map or nil
-local group_component=type(group_component_map)=="table"and group_component_map[destination_address]or nil
-if type(group_component)=="string"and group_component~=""then
-return group_component
+local function aa(d,c,a)
+local f=l(a)local aR=E(a)local an=type(c)=="table"and c.group_component_map or nil
+local al=type(an)=="table"and an[aR]or nil
+if type(al)=="string"and al~=""then
+return al
 end
-if type(preset)=="table"and preset.knob_remote==true then
+if type(c)=="table"and c.knob_remote==true then
 return"main"
 end
-return resolve_endpoint_component(device,src_endpoint,"main")
+return s(d,f,"main")
 end
-local function handle_advanced_remote_standard_command(device,preset,zb_rx)
-if type(preset)~="table"or preset.advanced_remote~=true then
+local function j(d,c,a)
+if type(c)~="table"or c.advanced_remote~=true then
 return false
 end
-local cluster_id=zb_rx and zb_rx.address_header and zb_rx.address_header.cluster and zb_rx.address_header.cluster.value or nil
-local command_id=extract_command_id(zb_rx)if type(cluster_id)~="number"or type(command_id)~="number"then
+local g=a and a.address_header and a.address_header.cluster and a.address_header.cluster.value or nil
+local b=D(a)if type(g)~="number"or type(b)~="number"then
 return false
 end
-local action=nil
-local resolved_component=nil
+local h=nil
+local X=nil
 local resolver_handled=false
-if type(preset.standard_command_action_resolver)=="function"then
-action,resolved_component,resolver_handled=preset.standard_command_action_resolver(
-zb_rx,cluster_id,command_id,extract_source_endpoint(zb_rx))if resolver_handled==true and type(action)~="string"then
+if type(c.standard_command_action_resolver)=="function"then
+h,X,resolver_handled=c.standard_command_action_resolver(
+a,g,b,l(a))if resolver_handled==true and type(h)~="string"then
 return false
 end
 end
-if resolver_handled~=true and cluster_id==zcl.CLUSTER_ON_OFF then
-action=({
-[0x00]="off",[0x01]="on",[0x02]="toggle",})[command_id]elseif resolver_handled~=true and cluster_id==zcl.CLUSTER_LEVEL_CONTROL then
-if command_id==0x00 or command_id==0x04 then
-action="brightness_move_to_level"
-elseif command_id==0x01 or command_id==0x05 then
-local move_mode=extract_body_member(zb_rx,"move_mode","movemode","mode")if move_mode==0 or move_mode=="up"then
-action="brightness_move_up"
-elseif move_mode==1 or move_mode=="down"then
-action="brightness_move_down"
+if resolver_handled~=true and g==u.CLUSTER_ON_OFF then
+h=({
+[0]="off",[1]="on",[2]="toggle",})[b]elseif resolver_handled~=true and g==u.CLUSTER_LEVEL_CONTROL then
+if b==0 or b==4 then
+h="brightness_move_to_level"
+elseif b==1 or b==5 then
+local n=i(a,"move_mode","movemode","mode")if n==0 or n=="up"then
+h="brightness_move_up"
+elseif n==1 or n=="down"then
+h="brightness_move_down"
 end
-elseif command_id==0x02 or command_id==0x06 then
-local step_mode=extract_body_member(zb_rx,"step_mode","stepmode","mode")if step_mode==0 or step_mode=="up"then
-action="brightness_step_up"
-elseif step_mode==1 or step_mode=="down"then
-action="brightness_step_down"
+elseif b==2 or b==6 then
+local I=i(a,"step_mode","stepmode","mode")if I==0 or I=="up"then
+h="brightness_step_up"
+elseif I==1 or I=="down"then
+h="brightness_step_down"
 end
-elseif command_id==0x03 or command_id==0x07 then
-action="brightness_stop"
+elseif b==3 or b==7 then
+h="brightness_stop"
 end
-elseif resolver_handled~=true and cluster_id==zcl.CLUSTER_COLOR_CONTROL then
-if command_id==0x06 then
-action="move_to_hue_and_saturation"
-elseif command_id==0x07 then
-action="color_move"
-elseif command_id==0x01 then
-local move_mode=extract_body_member(zb_rx,"move_mode","movemode","mode")if move_mode==0 or move_mode=="stop"then
-action="hue_stop"
-elseif move_mode==1 or move_mode=="up"then
-action="hue_move"
-elseif move_mode==3 or move_mode=="down"then
-action="hue_down"
+elseif resolver_handled~=true and g==u.CLUSTER_COLOR_CONTROL then
+if b==6 then
+h="move_to_hue_and_saturation"
+elseif b==7 then
+h="color_move"
+elseif b==1 then
+local n=i(a,"move_mode","movemode","mode")if n==0 or n=="stop"then
+h="hue_stop"
+elseif n==1 or n=="up"then
+h="hue_move"
+elseif n==3 or n=="down"then
+h="hue_down"
 end
-elseif command_id==0x47 then
-action="hue_stop"
-elseif command_id==0x0A then
-action="color_temperature_move"
-elseif command_id==0x4B then
-local move_mode=extract_body_member(zb_rx,"move_mode","movemode","mode")if move_mode==0 or move_mode=="stop"then
-action="color_temperature_stop"
-elseif move_mode==3 or move_mode=="down"then
-action="color_temperature_move_down"
-elseif move_mode==1 or move_mode=="up"then
-action="color_temperature_move_up"
+elseif b==71 then
+h="hue_stop"
+elseif b==10 then
+h="color_temperature_move"
+elseif b==75 then
+local n=i(a,"move_mode","movemode","mode")if n==0 or n=="stop"then
+h="color_temperature_stop"
+elseif n==3 or n=="down"then
+h="color_temperature_move_down"
+elseif n==1 or n=="up"then
+h="color_temperature_move_up"
 end
-elseif command_id==0x4C then
-local step_mode=extract_body_member(zb_rx,"step_mode","stepmode","mode")if step_mode==3 or step_mode=="down"then
-action="color_temperature_step_down"
-elseif step_mode==1 or step_mode=="up"then
-action="color_temperature_step_up"
-end
-end
-elseif resolver_handled~=true and cluster_id==CLUSTER_SCENES then
-local scene_id=extract_body_member(zb_rx,"sceneid","scene_id")if command_id==0x00 then
-action=scene_id~=nil and("add_"..tostring(scene_id))or"add"
-elseif command_id==0x02 then
-action=scene_id~=nil and("remove_"..tostring(scene_id))or"remove"
-elseif command_id==0x03 then
-action="remove_all"
-elseif command_id==0x04 then
-action=scene_id~=nil and("store_"..tostring(scene_id))or"store"
-elseif command_id==0x05 then
-action=scene_id~=nil and("recall_"..tostring(scene_id))or"recall"
+elseif b==76 then
+local I=i(a,"step_mode","stepmode","mode")if I==3 or I=="down"then
+h="color_temperature_step_down"
+elseif I==1 or I=="up"then
+h="color_temperature_step_up"
 end
 end
-if type(action)~="string"then
+elseif resolver_handled~=true and g==aJ then
+local Y=i(a,"sceneid","scene_id")if b==0 then
+h=Y~=nil and("add_"..tostring(Y))or"add"
+elseif b==2 then
+h=Y~=nil and("remove_"..tostring(Y))or"remove"
+elseif b==3 then
+h="remove_all"
+elseif b==4 then
+h=Y~=nil and("store_"..tostring(Y))or"store"
+elseif b==5 then
+h=Y~=nil and("recall_"..tostring(Y))or"recall"
+end
+end
+if type(h)~="string"then
 return false
 end
-local component_id=type(resolved_component)=="string"and resolved_component or
-resolve_advanced_remote_component(device,preset,zb_rx)local src_endpoint=extract_source_endpoint(zb_rx)if preset.standard_action_endpoint_suffix==true and src_endpoint~=nil then
-action=action.."_"..tostring(src_endpoint)
+local e=type(X)=="string"and X or
+aa(d,c,a)local f=l(a)if c.standard_action_endpoint_suffix==true and f~=nil then
+h=h.."_"..tostring(f)
 end
-return handle_advanced_remote_action(device,preset,zb_rx,action,component_id)
+return M(d,c,a,h,e)
 end
-local function add_command_registration(registry,cluster_id,command_id)
-if cluster_id==nil or command_id==nil then
+local function az(aN,g,b)
+if g==nil or b==nil then
 return false
 end
-registry[cluster_id]=registry[cluster_id]or{}if registry[cluster_id][command_id]then
+aN[g]=aN[g]or{}if aN[g][b]then
 return false
 end
-registry[cluster_id][command_id]=true
+aN[g][b]=true
 return true
 end
-function send_default_response(device,zb_rx,command_id)
-if type(device)~="table"or type(zb_rx)~="table"then
+function k(d,a,b)
+if type(d)~="table"or type(a)~="table"then
 return false
 end
-local zcl_header=zb_rx.body and zb_rx.body.zcl_header or nil
-local frame_ctrl=zcl_header and zcl_header.frame_ctrl or nil
-if frame_ctrl~=nil and type(frame_ctrl.is_disable_default_response_set)=="function"and frame_ctrl:is_disable_default_response_set()then
+local t=a.body and a.body.zcl_header or nil
+local q=t and t.frame_ctrl or nil
+if q~=nil and type(q.is_disable_default_response_set)=="function"and q:is_disable_default_response_set()then
 return false
 end
-local destination=extract_destination_address(zb_rx)if destination~=nil and destination>=0xFFF8 then
+local y=E(a)if y~=nil and y>=65528 then
 return false
 end
-local cluster_id=zb_rx.address_header and zb_rx.address_header.cluster and zb_rx.address_header.cluster.value or nil
-local src_addr=zb_rx.address_header and zb_rx.address_header.src_addr and zb_rx.address_header.src_addr.value or nil
-local src_endpoint=zb_rx.address_header and zb_rx.address_header.src_endpoint and zb_rx.address_header.src_endpoint.value or nil
-local dst_endpoint=zb_rx.address_header and zb_rx.address_header.dest_endpoint and zb_rx.address_header.dest_endpoint.value or zigbee_constants.HUB.ENDPOINT
-if cluster_id==nil or src_addr==nil or src_endpoint==nil then
+local g=a.address_header and a.address_header.cluster and a.address_header.cluster.value or nil
+local bl=a.address_header and a.address_header.src_addr and a.address_header.src_addr.value or nil
+local f=a.address_header and a.address_header.src_endpoint and a.address_header.src_endpoint.value or nil
+local bi=a.address_header and a.address_header.dest_endpoint and a.address_header.dest_endpoint.value or ae.HUB.ENDPOINT
+if g==nil or bl==nil or f==nil then
 return false
 end
-local response_frame_ctrl=FrameCtrl(0x10)
-if frame_ctrl~=nil and type(frame_ctrl.get_direction)=="function"and frame_ctrl:get_direction()==0 then
-response_frame_ctrl:set_direction()
+local Q=bw(16)
+if q~=nil and type(q.get_direction)=="function"and q:get_direction()==0 then
+Q:set_direction()
 end
-if frame_ctrl~=nil and type(frame_ctrl.is_mfg_specific_set)=="function"and frame_ctrl:is_mfg_specific_set()then
-response_frame_ctrl:set_mfg_specific()
+if q~=nil and type(q.is_mfg_specific_set)=="function"and q:is_mfg_specific_set()then
+Q:set_mfg_specific()
 end
-local header={
-cmd=data_types.ZCLCommandId(default_response.DEFAULT_RESPONSE_ID),frame_ctrl=response_frame_ctrl,seqno=zcl_header and zcl_header.seqno or nil,}if zcl_header and zcl_header.mfg_code~=nil then
-header.mfg_code=zcl_header.mfg_code
+local bz={
+cmd=bu.ZCLCommandId(aA.DEFAULT_RESPONSE_ID),frame_ctrl=Q,seqno=t and t.seqno or nil,}if t and t.mfg_code~=nil then
+bz.mfg_code=t.mfg_code
 end
-local body=default_response.DefaultResponse(command_id,Status.SUCCESS)device:send(messages.ZigbeeMessageTx({
-address_header=messages.AddressHeader(
-zigbee_constants.HUB.ADDR,dst_endpoint,src_addr,src_endpoint,zigbee_constants.HA_PROFILE_ID,cluster_id),body=zcl_messages.ZclMessageBody({
-zcl_header=zcl_messages.ZclHeader(header),zcl_body=body,}),}))return true
+local bH=aA.DefaultResponse(b,bG.SUCCESS)d:send(bj.ZigbeeMessageTx({
+address_header=bj.AddressHeader(
+ae.HUB.ADDR,bi,bl,f,ae.HA_PROFILE_ID,g),body=aV.ZclMessageBody({
+zcl_header=aV.ZclHeader(bz),zcl_body=bH,}),}))return true
 end
-zcl.send_default_response=send_default_response
-local function normalize_extracted_value(extracted)
-if type(extracted)=="table"and(
-extracted.raw_value~=nil or
-extracted.typed_value~=nil or
-extracted.attribute_id~=nil
+u.send_default_response=k
+local function ax(p)
+if type(p)=="table"and(
+p.raw_value~=nil or
+p.typed_value~=nil or
+p.attribute_id~=nil
 )then
-return extracted
+return p
 end
-local raw_value=type(extracted)=="table"and extracted.value or extracted
+local w=type(p)=="table"and p.value or p
 return{
-raw_value=raw_value,typed_value=extracted,}
+raw_value=w,typed_value=p,}
 end
-local function apply_command_mapping(device,zcl_clusters,cluster_id,command_id,zb_rx)
-local src_endpoint=extract_source_endpoint(zb_rx)local mfg_code=extract_mfg_code(zb_rx)local pending={}local applied=false
-for _,mapping in ipairs(zcl_clusters)do
-if mapping.cluster_id==cluster_id and mapping.attribute_id==nil then
-for _,candidate in ipairs(zcl.collect_matching_entries(mapping,device,{
-zb_rx=zb_rx,endpoint=src_endpoint,src_endpoint=src_endpoint,command_id=command_id,mfg_code=mfg_code,}))do
-local meta=zcl.mapping_meta(candidate)if meta.command_id==command_id and meta.command_extractor~=nil then
-meta.command_extractor(zb_rx,device,candidate)applied=true
-end
-end
-end
-end
-local index=zcl.build_mapping_index(zcl_clusters)if index==nil then
-return applied
-end
-local cluster_index=index.by_cluster_attribute[cluster_id]if cluster_index==nil then
-return applied
-end
-local visited={}for _,candidate in pairs(cluster_index)do
-for _,mapping in ipairs(zcl.collect_matching_entries(candidate,device,{
-zb_rx=zb_rx,endpoint=src_endpoint,src_endpoint=src_endpoint,command_id=command_id,mfg_code=mfg_code,}))do
-if not visited[mapping]then
-visited[mapping]=true
-local meta=zcl.mapping_meta(mapping)if meta~=nil and meta.command_id==command_id and meta.command_extractor~=nil then
-local extracted=normalize_extracted_value(meta.command_extractor(zb_rx,device,mapping))local target_attribute_id=extracted.attribute_id or mapping.attribute_id
-if target_attribute_id~=nil and pending[target_attribute_id]==nil then
-pending[target_attribute_id]=extracted
+local function af(d,r,g,b,a)
+local f=l(a)local aq=bb(a)local bf={}local aK=false
+for _,H in ipairs(r)do
+if H.cluster_id==g and H.attribute_id==nil then
+for _,ag in ipairs(u.collect_matching_entries(H,d,{
+zb_rx=a,endpoint=f,src_endpoint=f,command_id=b,mfg_code=aq,}))do
+local ac=u.mapping_meta(ag)if ac.command_id==b and ac.command_extractor~=nil then
+ac.command_extractor(a,d,ag)aK=true
 end
 end
 end
 end
+local bE=u.build_mapping_index(r)if bE==nil then
+return aK
 end
-for attribute_id,extracted in pairs(pending)do
-if zcl.apply_attribute(device,zcl_clusters,cluster_id,attribute_id,extracted.raw_value,{
-zb_rx=zb_rx,endpoint=src_endpoint,src_endpoint=src_endpoint,command_id=command_id,mfg_code=mfg_code,typed_value=extracted.typed_value,})then
-applied=true
+local aQ=bE.by_cluster_attribute[g]if aQ==nil then
+return aK
 end
-end
-return applied
-end
-function zcl.register_cluster_command_handler(cluster_id,command_id,handler)
-if cluster_id==nil or command_id==nil or type(handler)~="function"then
-log.warn(string.format(
-"skip invalid zcl cluster command handler registration cluster=%s command=%s handler=%s",tostring(cluster_id),tostring(command_id),type(handler)))return nil
-end
-explicit_handlers[cluster_id]=explicit_handlers[cluster_id]or{}explicit_handlers[cluster_id][command_id]=handler
-return handler
-end
-function zcl.register_cluster_commands_from_mappings(zcl_clusters)
-if type(zcl_clusters)~="table"then
-return zcl_clusters
-end
-for _,mapping in ipairs(zcl_clusters)do
-if type(mapping)=="table"then
-local meta=zcl.mapping_meta(mapping)if meta~=nil and meta.cluster_id~=nil and meta.command_id~=nil and meta.command_extractor~=nil then
-add_command_registration(mapped_commands,meta.cluster_id,meta.command_id)
+local br={}for _,ag in pairs(aQ)do
+for _,H in ipairs(u.collect_matching_entries(ag,d,{
+zb_rx=a,endpoint=f,src_endpoint=f,command_id=b,mfg_code=aq,}))do
+if not br[H]then
+br[H]=true
+local ac=u.mapping_meta(H)if ac~=nil and ac.command_id==b and ac.command_extractor~=nil then
+local p=ax(ac.command_extractor(a,d,H))local S=p.attribute_id or H.attribute_id
+if S~=nil and bf[S]==nil then
+bf[S]=p
 end
 end
 end
-return zcl_clusters
 end
-function zcl.build_zigbee_cluster_handlers(get_preset)
-local cluster_handlers={}for cluster_id,command_map in pairs(mapped_commands)do
-cluster_handlers[cluster_id]=cluster_handlers[cluster_id]or{}for command_id,_ in pairs(command_map)do
-cluster_handlers[cluster_id][command_id]=function(_,device,zb_rx)
-local preset=get_preset(device)if preset==nil or preset.zcl_clusters==nil then
+end
+for aj,p in pairs(bf)do
+if u.apply_attribute(d,r,g,aj,p.raw_value,{
+zb_rx=a,endpoint=f,src_endpoint=f,command_id=b,mfg_code=aq,typed_value=p.typed_value,})then
+aK=true
+end
+end
+return aK
+end
+function u.register_cluster_command_handler(g,b,ay)
+if g==nil or b==nil or type(ay)~="function"then
+bK.warn(string.format(
+"skip invalid zcl cluster command handler registration cluster=%s command=%s handler=%s",tostring(g),tostring(b),type(ay)))return nil
+end
+P[g]=P[g]or{}P[g][b]=ay
+return ay
+end
+function u.register_cluster_commands_from_mappings(r)
+if type(r)~="table"then
+return r
+end
+for _,H in ipairs(r)do
+if type(H)=="table"then
+local ac=u.mapping_meta(H)if ac~=nil and ac.cluster_id~=nil and ac.command_id~=nil and ac.command_extractor~=nil then
+az(T,ac.cluster_id,ac.command_id)
+end
+end
+end
+return r
+end
+function u.build_zigbee_cluster_handlers(av)
+local v={}for g,bn in pairs(T)do
+v[g]=v[g]or{}for b,_ in pairs(bn)do
+v[g][b]=function(_,d,a)
+local c=av(d)if c==nil or c.zcl_clusters==nil then
 return
 end
-return apply_command_mapping(device,preset.zcl_clusters,cluster_id,command_id,zb_rx)
+return af(d,c.zcl_clusters,g,b,a)
 end
 end
 end
-for cluster_id,command_handlers in pairs(explicit_handlers)do
-cluster_handlers[cluster_id]=cluster_handlers[cluster_id]or{}for command_id,handler in pairs(command_handlers)do
-cluster_handlers[cluster_id][command_id]=function(_,device,zb_rx)
-local preset=get_preset(device)if preset==nil or preset.zcl_clusters==nil then
+for g,ba in pairs(P)do
+v[g]=v[g]or{}for b,ay in pairs(ba)do
+v[g][b]=function(_,d,a)
+local c=av(d)if c==nil or c.zcl_clusters==nil then
 return
 end
-local mapped_handler=nil
-if mapped_commands[cluster_id]~=nil and mapped_commands[cluster_id][command_id]then
-mapped_handler=function()
-return apply_command_mapping(device,preset.zcl_clusters,cluster_id,command_id,zb_rx)
+local aL=nil
+if T[g]~=nil and T[g][b]then
+aL=function()
+return af(d,c.zcl_clusters,g,b,a)
 end
 end
-return command_dispatch.dispatch(function()
-return handler(device,preset,zb_rx)
-end,mapped_handler)
+return aZ.dispatch(function()
+return ay(d,c,a)
+end,aL)
 end
 end
 end
-return cluster_handlers
+return v
 end
-function zcl.build_zigbee_global_handlers(get_preset)
-return{
-[0x0000]={
-[0x02]=function(_,device,zb_rx)
-local preset=get_preset(device)if type(preset)~="table"or preset.accept_basic_write_attributes~=true then
+function u.build_zigbee_global_handlers(av)
+return require("zcl_common.reporting").global_handlers(u,{
+[0]={
+[2]=function(_,d,a)
+local c=av(d)if type(c)~="table"or c.accept_basic_write_attributes~=true then
 return
 end
-local records=zb_rx and zb_rx.body and zb_rx.body.zcl_body and zb_rx.body.zcl_body.attr_records or nil
-if type(records)~="table"then
+local bq=a and a.body and a.body.zcl_body and a.body.zcl_body.attr_records or nil
+if type(bq)~="table"then
 return
 end
-local src_endpoint=extract_source_endpoint(zb_rx)for _,record in ipairs(records)do
-local attribute_id=record.attr_id and record.attr_id.value or nil
-local data=record.data
-local raw_value=type(data)=="table"and data.value or data
-if type(attribute_id)=="number"then
-zcl.apply_attribute(device,preset.zcl_clusters,0x0000,attribute_id,raw_value,{
-zb_rx=zb_rx,endpoint=src_endpoint,src_endpoint=src_endpoint,typed_value=data,})
+local f=l(a)for _,bk in ipairs(bq)do
+local aj=bk.attr_id and bk.attr_id.value or nil
+local bt=bk.data
+local w=type(bt)=="table"and bt.value or bt
+if type(aj)=="number"then
+u.apply_attribute(d,c.zcl_clusters,0,aj,w,{
+zb_rx=a,endpoint=f,src_endpoint=f,typed_value=bt,})
 end
 end
 end,
-},[zcl.CLUSTER_ON_OFF]={
-[default_response.DEFAULT_RESPONSE_ID]=function(_,device,zb_rx)
-local preset=get_preset(device)if preset==nil or preset.zcl_clusters==nil or not zcl.has_cluster(preset.zcl_clusters,zcl.CLUSTER_ON_OFF)then
-return
+},})
 end
-local zcl_body=zb_rx and zb_rx.body and zb_rx.body.zcl_body or nil
-local status=zcl_body and zcl_body.status and zcl_body.status.value or nil
-if status~=Status.SUCCESS then
-return
-end
-end,
-},}
-end
-zcl.register_cluster_command_handler(zcl.CLUSTER_IAS_ZONE,0x01,function(device,preset,zb_rx)
-local zcl_clusters=preset and preset.zcl_clusters or nil
-if not zcl.has_cluster(zcl_clusters,zcl.CLUSTER_IAS_ZONE)then
+u.register_cluster_command_handler(u.CLUSTER_IAS_ZONE,1,function(d,c,a)
+local r=c and c.zcl_clusters or nil
+if not u.has_cluster(r,u.CLUSTER_IAS_ZONE)then
 return false
 end
-local src_endpoint=extract_source_endpoint(zb_rx)if src_endpoint==nil then
+local f=l(a)if f==nil then
 return false
 end
-local zone_enroll_response=generated_clusters.IASZone.server.commands.ZoneEnrollResponse(
-device,generated_clusters.IASZone.types.EnrollResponseCode(0x00),0x00)device:send(zone_enroll_response:to_endpoint(src_endpoint))return true
+local aP=W.IASZone.server.commands.ZoneEnrollResponse(
+d,W.IASZone.types.EnrollResponseCode(0),0)d:send(aP:to_endpoint(f))return true
 end)
-local function handle_tuya_on_off_action(device,preset,zb_rx)
-local zcl_body=zb_rx and zb_rx.body and zb_rx.body.zcl_body or nil
-local raw_value=nil
-local src_endpoint=extract_source_endpoint(zb_rx)local seqno=extract_seqno(zb_rx)local command_id=extract_command_id(zb_rx)or 0xFD
-if type(zcl_body)=="table"then
-if zcl_body.value~=nil then
-raw_value=zcl_body.value.value or zcl_body.value
-elseif type(zcl_body.body_bytes)=="string"and #zcl_body.body_bytes>=1 then
-raw_value=string.byte(zcl_body.body_bytes,1)
+local function aw(d,c,a)
+local L=a and a.body and a.body.zcl_body or nil
+local w=nil
+local f=l(a)local ar=au(a)local b=D(a)or 253
+if type(L)=="table"then
+if L.value~=nil then
+w=L.value.value or L.value
+elseif type(L.body_bytes)=="string"and #L.body_bytes>=1 then
+w=string.byte(L.body_bytes,1)
 end
 end
-if type(preset)=="table"and preset.scene_switch==true then
-local scene_key=type(preset.scene_action_map)=="table"and(preset.scene_action_map[src_endpoint]or preset.scene_action_map[raw_value])or src_endpoint or raw_value
-if scene_key~=nil then
-local action_name_map=type(preset.scene_action_name_map)=="table"and preset.scene_action_name_map or nil
-local action=type(action_name_map)=="table"and action_name_map[scene_key]or nil
-if type(action)~="string"or action==""then
-action="scene_"..tostring(scene_key)
+if type(c)=="table"and c.scene_switch==true then
+local aG=type(c.scene_action_map)=="table"and(c.scene_action_map[f]or c.scene_action_map[w])or f or w
+if aG~=nil then
+local aF=type(c.scene_action_name_map)=="table"and c.scene_action_name_map or nil
+local h=type(aF)=="table"and aF[aG]or nil
+if type(h)~="string"or h==""then
+h="scene_"..tostring(aG)
 end
-local component_id=resolve_scene_component(device,preset,scene_key,src_endpoint)emit_button_event(device,component_id,"pushed")emit_remote_action(device,preset,component_id,action,seqno)
+local e=aE(d,c,aG,f)A(d,e,"pushed")C(d,c,e,h,ar)
 end
-send_default_response(device,zb_rx,command_id)return true
+k(d,a,b)return true
 end
-if type(preset)=="table"and preset.advanced_remote==true then
-local mapped_action=type(preset.tuya_action_map)=="table"and preset.tuya_action_map[raw_value]or nil
-if type(mapped_action)~="string"and type(preset.tuya_action_name)=="string"then
-mapped_action=preset.tuya_action_name
+if type(c)=="table"and c.advanced_remote==true then
+local ab=type(c.tuya_action_map)=="table"and c.tuya_action_map[w]or nil
+if type(ab)~="string"and type(c.tuya_action_name)=="string"then
+ab=c.tuya_action_name
 end
-if type(mapped_action)=="string"then
-local mapped_component=type(preset.tuya_action_components)=="table"and preset.tuya_action_components[raw_value]or nil
-local component_id=type(mapped_component)=="string"and mapped_component or resolve_endpoint_component(device,src_endpoint,"main")local button_event=type(preset.tuya_action_button_events)=="table"and preset.tuya_action_button_events[raw_value]or nil
-if type(button_event)=="string"then
-emit_button_event(device,component_id,button_event)
+if type(ab)=="string"then
+local aC=type(c.tuya_action_components)=="table"and c.tuya_action_components[w]or nil
+local e=type(aC)=="string"and aC or s(d,f,"main")local m=type(c.tuya_action_button_events)=="table"and c.tuya_action_button_events[w]or nil
+if type(m)=="string"then
+A(d,e,m)
 end
-emit_remote_action(device,preset,component_id,mapped_action,seqno)send_default_response(device,zb_rx,command_id)return true
+C(d,c,e,ab,ar)k(d,a,b)return true
 end
-local base_action_map=command_id==0xFC and{
+local bc=b==252 and{
 [0]="rotate_right",[1]="rotate_left",}or{
-[0]="single",[1]="double",[2]="hold",}local base_action=base_action_map[raw_value]if base_action~=nil then
-local component_id=resolve_endpoint_component(device,src_endpoint,"main")if preset.knob_remote==true then
-local action_emitted,action_accepted=emit_remote_action(device,preset,"main",base_action,seqno)if action_emitted then
-if type(preset.remote_action_handler)=="function"then
-preset.remote_action_handler(device,"main",base_action,zb_rx)
+[0]="single",[1]="double",[2]="hold",}local base_action=bc[w]if base_action~=nil then
+local e=s(d,f,"main")if c.knob_remote==true then
+local ao,ai=C(d,c,"main",base_action,ar)if ao then
+if type(c.remote_action_handler)=="function"then
+c.remote_action_handler(d,"main",base_action,a)
 end
 end
-if action_accepted and(base_action=="single"or base_action=="double"or base_action=="hold")then
-local button_event=({
-single="pushed",double="double",hold="held",})[base_action]if button_event~=nil then
-emit_button_event(device,component_id,button_event)
+if ai and(base_action=="single"or base_action=="double"or base_action=="hold")then
+local m=({
+single="pushed",double="double",hold="held",})[base_action]if m~=nil then
+A(d,e,m)
 end
 end
 else
-local button_index=type(preset.button_count)=="number"and src_endpoint or src_endpoint
-local action=base_action
-if preset.unprefixed_remote_actions~=true then
-action=button_index~=nil and(tostring(button_index).."_"..base_action)or base_action
+local aS=type(c.button_count)=="number"and f or f
+local h=base_action
+if c.unprefixed_remote_actions~=true then
+h=aS~=nil and(tostring(aS).."_"..base_action)or base_action
 end
-local button_event=({
-single="pushed",double="double",hold="held",})[base_action]if button_event~=nil then
-emit_button_event(device,component_id,button_event)
+local m=({
+single="pushed",double="double",hold="held",})[base_action]if m~=nil then
+A(d,e,m)
 end
-emit_remote_action(device,preset,component_id,action,seqno)
+C(d,c,e,h,ar)
 end
 end
-send_default_response(device,zb_rx,command_id)return true
+k(d,a,b)return true
 end
-local button_event=({
-[0]=capabilities.button.button.pushed({state_change=true}),[1]=capabilities.button.button.double({state_change=true}),[2]=capabilities.button.button.held({state_change=true}),})[raw_value]if button_event==nil then
+local m=({
+[0]=z.button.button.pushed({state_change=true}),[1]=z.button.button.double({state_change=true}),[2]=z.button.button.held({state_change=true}),})[w]if m==nil then
 return false
 end
-local component_id="main"
-if not is_single_button_remote(device)and src_endpoint~=nil and type(device.get_component_id_for_endpoint)=="function"then
-local resolved=device:get_component_id_for_endpoint(src_endpoint)if type(resolved)=="string"and resolved~=""then
-component_id=resolved
+local e="main"
+if not aD(d)and f~=nil and type(d.get_component_id_for_endpoint)=="function"then
+local ad=d:get_component_id_for_endpoint(f)if type(ad)=="string"and ad~=""then
+e=ad
 end
 end
-if type(device.supports_capability_by_id)=="function"and not device:supports_capability_by_id(capabilities.button.ID,component_id)then
-component_id="main"
+if type(d.supports_capability_by_id)=="function"and not d:supports_capability_by_id(z.button.ID,e)then
+e="main"
 end
-device:emit_component_event({id=component_id},button_event)battery_refresh.schedule_after_button(device)send_default_response(device,zb_rx,command_id)return true
+d:emit_component_event({id=e},m)ak.schedule_after_button(d)k(d,a,b)return true
 end
-zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF,0xFD,function(device,preset,zb_rx)
-return handle_tuya_on_off_action(device,preset,zb_rx)
-end)
-zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF,0xFC,function(device,preset,zb_rx)
-return handle_tuya_on_off_action(device,preset,zb_rx)
-end)
-zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF,0x00,function(device,preset,zb_rx)
-return handle_advanced_remote_standard_command(device,preset,zb_rx)
-end)
-zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF,0x01,function(device,preset,zb_rx)
-return handle_advanced_remote_standard_command(device,preset,zb_rx)
-end)
-zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF,0x02,function(device,preset,zb_rx)
-return handle_advanced_remote_standard_command(device,preset,zb_rx)
-end)
-zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF,0x03,function(device,preset,zb_rx)
-return handle_advanced_remote_standard_command(device,preset,zb_rx)
-end)
-zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF,0x40,function(device,preset,zb_rx)
-return handle_advanced_remote_standard_command(device,preset,zb_rx)
-end)
-for _,command_id in ipairs({0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07})do
-zcl.register_cluster_command_handler(zcl.CLUSTER_LEVEL_CONTROL,command_id,function(device,preset,zb_rx)
-return handle_advanced_remote_standard_command(device,preset,zb_rx)
+for _,b in ipairs({253,252})do
+u.register_cluster_command_handler(u.CLUSTER_ON_OFF,b,function(d,c,a)
+return aw(d,c,a)
 end)
 end
-for _,command_id in ipairs({0x00,0x01,0x02})do
-zcl.register_cluster_command_handler(zcl.CLUSTER_WINDOW_COVERING,command_id,function(device,preset,zb_rx)
-return handle_advanced_remote_standard_command(device,preset,zb_rx)
+for _,b in ipairs({0,1,2,3,64})do
+u.register_cluster_command_handler(u.CLUSTER_ON_OFF,b,function(d,c,a)
+return j(d,c,a)
 end)
 end
-for _,command_id in ipairs({
-0x00,0x01,0x02,0x03,0x05,0x06,0x07,0x0A,0x43,0x44,0x47,0x4B,0x4C,})do
-zcl.register_cluster_command_handler(zcl.CLUSTER_COLOR_CONTROL,command_id,function(device,preset,zb_rx)
-return handle_advanced_remote_standard_command(device,preset,zb_rx)
+for _,b in ipairs({0,1,2,3,4,5,6,7})do
+u.register_cluster_command_handler(u.CLUSTER_LEVEL_CONTROL,b,function(d,c,a)
+return j(d,c,a)
 end)
 end
-for _,command_id in ipairs({0x00,0x02,0x03,0x04,0x05})do
-zcl.register_cluster_command_handler(CLUSTER_SCENES,command_id,function(device,preset,zb_rx)
-return handle_advanced_remote_standard_command(device,preset,zb_rx)
+for _,b in ipairs({0,1,2})do
+u.register_cluster_command_handler(u.CLUSTER_WINDOW_COVERING,b,function(d,c,a)
+return j(d,c,a)
 end)
 end
-zcl.register_cluster_command_handler(IASACE.ID,0x00,function(device,preset,zb_rx)
-return handle_ias_ace_arm(device,preset,zb_rx)
+for _,b in ipairs({
+0,1,2,3,5,6,7,10,67,68,71,75,76,})do
+u.register_cluster_command_handler(u.CLUSTER_COLOR_CONTROL,b,function(d,c,a)
+return j(d,c,a)
 end)
-zcl.register_cluster_command_handler(IASACE.ID,0x02,function(device,preset,zb_rx)
-return handle_ias_ace_emergency(device,preset,zb_rx)
+end
+for _,b in ipairs({0,2,3,4,5})do
+u.register_cluster_command_handler(aJ,b,function(d,c,a)
+return j(d,c,a)
 end)
-zcl.register_cluster_command_handler(IASACE.ID,0x04,function(device,preset,zb_rx)
-return handle_ias_ace_emergency(device,preset,zb_rx)
+end
+u.register_cluster_command_handler(bx.ID,0,function(d,c,a)
+return aU(d,c,a)
 end)
-zcl.register_cluster_command_handler(zcl.CLUSTER_IAS_ZONE,0x00,function(device,preset,zb_rx)
-return handle_ias_zone_action(device,preset,zb_rx)
+for _,b in ipairs({2,4})do
+u.register_cluster_command_handler(bx.ID,b,function(d,c,a)
+return aB(d,c,a)
 end)
-for _,command_id in ipairs({0x00,0x02,0x03,0x04,0x05})do
-zcl.register_cluster_command_handler(0xED00,command_id,function(device,preset,zb_rx)
-if type(preset)~="table"or preset.ir_controller~=true or zcl.handle_ir_transmit_command==nil then
+end
+u.register_cluster_command_handler(u.CLUSTER_IAS_ZONE,0,function(d,c,a)
+return aH(d,c,a)
+end)
+for _,b in ipairs({0,2,3,4,5})do
+u.register_cluster_command_handler(60672,b,function(d,c,a)
+if type(c)~="table"or c.ir_controller~=true or u.handle_ir_transmit_command==nil then
 return false
 end
-return zcl.handle_ir_transmit_command(device,preset,zb_rx)
+return u.handle_ir_transmit_command(d,c,a)
 end)
 end
 end
-return load_cluster_command_handler
+return ap

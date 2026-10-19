@@ -1,0 +1,28 @@
+name: rpt-wcq
+components:
+- id: main
+  capabilities:
+  - id: motionSensor
+    version: 1
+  - id: temperatureMeasurement
+    version: 1
+  - id: illuminanceMeasurement
+    version: 1
+  - id: refresh
+    version: 1
+  - id: signalStrength
+    version: 1
+  - id: concertmirror08464.zclTempReportMin
+    version: 1
+  - id: concertmirror08464.zclTempReportMax
+    version: 1
+  - id: concertmirror08464.zclTempReportChange29
+    version: 1
+  - id: concertmirror08464.zclLightReportMin
+    version: 1
+  - id: concertmirror08464.zclLightReportMax
+    version: 1
+  - id: concertmirror08464.zclLightReportChange21
+    version: 1
+  categories:
+  - name: MotionSensor

@@ -101,6 +101,14 @@ register_device_definition(motion, {
   device_helpers.create_fingerprint("Shelly", "BLU Motion ZB"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-bbx"},
+  {2, "rpt-bicq"},
+  {3, "rpt-blp"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.sensors.shelly_environment",
   registrations = device_definitions,

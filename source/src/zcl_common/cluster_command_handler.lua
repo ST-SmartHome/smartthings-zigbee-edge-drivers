@@ -695,7 +695,7 @@ local function load_cluster_command_handler(zcl)
   end
 
   function zcl.build_zigbee_global_handlers(get_preset)
-    return {
+    return require("zcl_common.reporting").global_handlers(zcl, {
       [0x0000] = {
         [0x02] = function(_, device, zb_rx)
           local preset = get_preset(device)
@@ -724,21 +724,7 @@ local function load_cluster_command_handler(zcl)
           end
         end,
       },
-      [zcl.CLUSTER_ON_OFF] = {
-        [default_response.DEFAULT_RESPONSE_ID] = function(_, device, zb_rx)
-          local preset = get_preset(device)
-          if preset == nil or preset.zcl_clusters == nil or not zcl.has_cluster(preset.zcl_clusters, zcl.CLUSTER_ON_OFF) then
-            return
-          end
-
-          local zcl_body = zb_rx and zb_rx.body and zb_rx.body.zcl_body or nil
-          local status = zcl_body and zcl_body.status and zcl_body.status.value or nil
-          if status ~= Status.SUCCESS then
-            return
-          end
-        end,
-      },
-    }
+    })
   end
 
   zcl.register_cluster_command_handler(zcl.CLUSTER_IAS_ZONE, 0x01, function(device, preset, zb_rx)
@@ -890,33 +876,17 @@ local function load_cluster_command_handler(zcl)
     return true
   end
 
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0xFD, function(device, preset, zb_rx)
-    return handle_tuya_on_off_action(device, preset, zb_rx)
-  end)
+  for _, command_id in ipairs({ 0xFD, 0xFC }) do
+    zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, command_id, function(device, preset, zb_rx)
+      return handle_tuya_on_off_action(device, preset, zb_rx)
+    end)
+  end
 
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0xFC, function(device, preset, zb_rx)
-    return handle_tuya_on_off_action(device, preset, zb_rx)
-  end)
-
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0x00, function(device, preset, zb_rx)
-    return handle_advanced_remote_standard_command(device, preset, zb_rx)
-  end)
-
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0x01, function(device, preset, zb_rx)
-    return handle_advanced_remote_standard_command(device, preset, zb_rx)
-  end)
-
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0x02, function(device, preset, zb_rx)
-    return handle_advanced_remote_standard_command(device, preset, zb_rx)
-  end)
-
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0x03, function(device, preset, zb_rx)
-    return handle_advanced_remote_standard_command(device, preset, zb_rx)
-  end)
-
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0x40, function(device, preset, zb_rx)
-    return handle_advanced_remote_standard_command(device, preset, zb_rx)
-  end)
+  for _, command_id in ipairs({ 0x00, 0x01, 0x02, 0x03, 0x40 }) do
+    zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, command_id, function(device, preset, zb_rx)
+      return handle_advanced_remote_standard_command(device, preset, zb_rx)
+    end)
+  end
 
   for _, command_id in ipairs({ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 }) do
     zcl.register_cluster_command_handler(zcl.CLUSTER_LEVEL_CONTROL, command_id, function(device, preset, zb_rx)
@@ -949,13 +919,11 @@ local function load_cluster_command_handler(zcl)
     return handle_ias_ace_arm(device, preset, zb_rx)
   end)
 
-  zcl.register_cluster_command_handler(IASACE.ID, 0x02, function(device, preset, zb_rx)
-    return handle_ias_ace_emergency(device, preset, zb_rx)
-  end)
-
-  zcl.register_cluster_command_handler(IASACE.ID, 0x04, function(device, preset, zb_rx)
-    return handle_ias_ace_emergency(device, preset, zb_rx)
-  end)
+  for _, command_id in ipairs({ 0x02, 0x04 }) do
+    zcl.register_cluster_command_handler(IASACE.ID, command_id, function(device, preset, zb_rx)
+      return handle_ias_ace_emergency(device, preset, zb_rx)
+    end)
+  end
 
   zcl.register_cluster_command_handler(zcl.CLUSTER_IAS_ZONE, 0x00, function(device, preset, zb_rx)
     return handle_ias_zone_action(device, preset, zb_rx)

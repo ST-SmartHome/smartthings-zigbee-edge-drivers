@@ -1,203 +1,203 @@
-local function load_datapoint_factory(tuya,shared)
-local type_check=shared.type_check
-local copy_keys=shared.copy_keys
-local merge_options=shared.merge_options
-local converter=tuya.converter
-local passthrough_mapping_keys={
-"name","key","preference","field","fields","emit","handler","endpoint","component","persist","read_only","write_only","command_id","transaction","signed","batch_key","match_transaction","response_dp","response_dps","match_response","skip","value","optimistic_value","suppress_optimistic_state","converter","from_device","to_device",}local send_policy_keys={
+local function z(p,L)
+local e=L.type_check
+local P=L.copy_keys
+local w=L.merge_options
+local E=p.converter
+local y={
+"name","key","preference","field","fields","emit","handler","endpoint","component","persist","read_only","write_only","command_id","transaction","signed","batch_key","match_transaction","response_dp","response_dps","match_response","skip","value","optimistic_value","suppress_optimistic_state","converter","from_device","to_device",}local K={
 "command_id","transaction","batch_key","match_transaction","response_dp","response_dps","match_response",}
-local function is_converter_pair(value)
-return type_check(value)=="table"and(type_check(value.from)=="function"or type_check(value.to)=="function")
+local function x(O)
+return e(O)=="table"and(e(O.from)=="function"or e(O.to)=="function")
 end
-local function normalize_factory_args(name_or_options,converter_or_options,options)
-local resolved_name=nil
-local resolved_converter=nil
-local resolved_options={}if type_check(name_or_options)=="string"then
-resolved_name=name_or_options
+local function A(c,a,f)
+local r=nil
+local k=nil
+local b={}if e(c)=="string"then
+r=c
 else
-merge_options(resolved_options,name_or_options)
+w(b,c)
 end
-if type_check(converter_or_options)=="function"then
-resolved_options.from_device=converter_or_options
-elseif is_converter_pair(converter_or_options)then
-resolved_converter=converter_or_options
+if e(a)=="function"then
+b.from_device=a
+elseif x(a)then
+k=a
 else
-merge_options(resolved_options,converter_or_options)
+w(b,a)
 end
-merge_options(resolved_options,options)if is_converter_pair(resolved_options.converter)then
-resolved_converter=resolved_options.converter
+w(b,f)if x(b.converter)then
+k=b.converter
 end
-return resolved_name,resolved_converter,resolved_options
+return r,k,b
 end
-local function build_factory_mapping(dp,default_datatype,name_or_options,converter_or_options,options)
-local resolved_name,resolved_converter,resolved_options=
-normalize_factory_args(name_or_options,converter_or_options,options)local mapping={
-dp=dp,datatype=resolved_options.datatype or default_datatype,}copy_keys(mapping,resolved_options,passthrough_mapping_keys)if type_check(resolved_options.send_policy)=="table"then
-for _,key in ipairs(send_policy_keys)do
-if mapping[key]==nil and resolved_options.send_policy[key]~=nil then
-mapping[key]=resolved_options.send_policy[key]
+local function h(s,J,c,a,f)
+local r,k,b=
+A(c,a,f)local d={
+dp=s,datatype=b.datatype or J,}P(d,b,y)if e(b.send_policy)=="table"then
+for _,U in ipairs(K)do
+if d[U]==nil and b.send_policy[U]~=nil then
+d[U]=b.send_policy[U]
 end
 end
 end
-if mapping.name==nil and resolved_name~=nil then
-mapping.name=resolved_name
+if d.name==nil and r~=nil then
+d.name=r
 end
-local default_field_name=mapping.name or mapping.key
-if mapping.field==nil and mapping.fields==nil and default_field_name~=nil then
-mapping.field=default_field_name
+local u=d.name or d.key
+if d.field==nil and d.fields==nil and u~=nil then
+d.field=u
 end
-if resolved_converter~=nil and mapping.converter==nil and mapping.from_device==nil and mapping.to_device==nil then
-mapping.converter=resolved_converter
+if k~=nil and d.converter==nil and d.from_device==nil and d.to_device==nil then
+d.converter=k
 end
-return mapping,resolved_options
+return d,b
 end
-local function normalize_context_endpoint(context)
-if type_check(context)~="table"then
+local function q(l)
+if e(l)~="table"then
 return nil
 end
-local endpoint=context.endpoint or context.src_endpoint
-if endpoint==nil and type_check(context.dp_info)=="table"then
-endpoint=context.dp_info.endpoint
+local m=l.endpoint or l.src_endpoint
+if m==nil and e(l.dp_info)=="table"then
+m=l.dp_info.endpoint
 end
-if type_check(endpoint)~="number"or endpoint%1~=0 or endpoint<1 then
+if e(m)~="number"or m%1~=0 or m<1 then
 return nil
 end
-return endpoint
+return m
 end
-local function normalize_context_dp(context)
-if type_check(context)~="table"then
+local function B(l)
+if e(l)~="table"then
 return nil
 end
-local dp=context.dp
-if dp==nil and type_check(context.mapping)=="table"then
-dp=context.mapping.dp
+local s=l.dp
+if s==nil and e(l.mapping)=="table"then
+s=l.mapping.dp
 end
-if type_check(dp)~="number"or dp%1~=0 or dp<0 then
+if e(s)~="number"or s%1~=0 or s<0 then
 return nil
 end
-return dp
+return s
 end
-function tuya.dp_binary(dp,name_or_options,converter_or_options,options)
-local mapping,resolved_options=build_factory_mapping(dp,tuya.DP_TYPE_BOOL,name_or_options,converter_or_options,options)if mapping.converter==nil and mapping.from_device==nil and mapping.to_device==nil then
-local true_value=resolved_options.true_value
-local false_value=resolved_options.false_value
-if true_value~=nil or false_value~=nil then
-mapping.converter=converter.bool_pair(true_value==nil and true or true_value,false_value==nil and false or false_value)
-end
-end
-return mapping
-end
-function tuya.dp_raw(dp,name_or_options,converter_or_options,options)
-local mapping=build_factory_mapping(dp,tuya.DP_TYPE_RAW,name_or_options,converter_or_options,options)return mapping
-end
-function tuya.dp_numeric(dp,name_or_options,converter_or_options,options)
-local mapping=build_factory_mapping(dp,tuya.DP_TYPE_VALUE,name_or_options,converter_or_options,options)return mapping
-end
-function tuya.dp_string(dp,name_or_options,converter_or_options,options)
-local mapping=build_factory_mapping(dp,tuya.DP_TYPE_STRING,name_or_options,converter_or_options,options)return mapping
-end
-function tuya.dp_enum(dp,name_or_options,converter_or_options,options)
-local mapping,resolved_options=build_factory_mapping(dp,tuya.DP_TYPE_ENUM,name_or_options,converter_or_options,options)if mapping.converter==nil and mapping.from_device==nil and mapping.to_device==nil and resolved_options.lookup~=nil then
-mapping.converter=converter.lookup_from_to(resolved_options.lookup)
-end
-return mapping
-end
-function tuya.dp_bitmap(dp,name_or_options,converter_or_options,options)
-local mapping=build_factory_mapping(dp,tuya.DP_TYPE_BITMAP,name_or_options,converter_or_options,options)return mapping
-end
-function tuya.dp_light(dp,name_or_options,converter_or_options,options)
-local mapping,resolved_options=build_factory_mapping(dp,tuya.DP_TYPE_VALUE,name_or_options,converter_or_options,options)if mapping.converter==nil and mapping.from_device==nil and mapping.to_device==nil then
-local raw_min=resolved_options.raw_min or 0
-local raw_max=resolved_options.raw_max or 1000
-local value_min=resolved_options.value_min or 0
-local value_max=resolved_options.value_max or 100
-mapping.converter=converter.scale_pair(raw_min,raw_max,value_min,value_max)
-end
-return mapping
-end
-function tuya.build_component_by_endpoint(endpoint_map,default_component)
-return function(device,context)
-local endpoint=normalize_context_endpoint(context)if endpoint==nil or type_check(endpoint_map)~="table"then
-return default_component
-end
-local component_id=endpoint_map[endpoint]if type_check(component_id)=="string"and component_id~=""then
-return component_id
-end
-return default_component
+function p.dp_binary(s,c,a,f)
+local d,b=h(s,p.DP_TYPE_BOOL,c,a,f)if d.converter==nil and d.from_device==nil and d.to_device==nil then
+local C=b.true_value
+local false_value=b.false_value
+if C~=nil or false_value~=nil then
+d.converter=E.bool_pair(C==nil and true or C,false_value==nil and false or false_value)
 end
 end
-function tuya.build_component_by_dp(dp_map,default_component)
-return function(device,context)
-local dp=normalize_context_dp(context)if dp==nil or type_check(dp_map)~="table"then
-return default_component
+return d
 end
-local component_id=dp_map[dp]if type_check(component_id)=="string"and component_id~=""then
-return component_id
+function p.dp_raw(s,c,a,f)
+local d=h(s,p.DP_TYPE_RAW,c,a,f)return d
 end
-return default_component
+function p.dp_numeric(s,c,a,f)
+local d=h(s,p.DP_TYPE_VALUE,c,a,f)return d
 end
+function p.dp_string(s,c,a,f)
+local d=h(s,p.DP_TYPE_STRING,c,a,f)return d
 end
-function tuya.build_component_suffix(component_prefix,options)
-options=options or{}local prefix=component_prefix
-if type_check(prefix)~="string"or prefix==""then
-prefix="switch"
+function p.dp_enum(s,c,a,f)
+local d,b=h(s,p.DP_TYPE_ENUM,c,a,f)if d.converter==nil and d.from_device==nil and d.to_device==nil and b.lookup~=nil then
+d.converter=E.lookup_from_to(b.lookup)
 end
-local main_endpoint=options.main_endpoint
-if type_check(main_endpoint)~="number"or main_endpoint%1~=0 or main_endpoint<1 then
-main_endpoint=1
+return d
 end
-local main_component=options.main_component
-if type_check(main_component)~="string"or main_component==""then
-main_component="main"
+function p.dp_bitmap(s,c,a,f)
+local d=h(s,p.DP_TYPE_BITMAP,c,a,f)return d
 end
-local index_offset=options.index_offset
-if type_check(index_offset)~="number"or index_offset%1~=0 then
-index_offset=0
+function p.dp_light(s,c,a,f)
+local d,b=h(s,p.DP_TYPE_VALUE,c,a,f)if d.converter==nil and d.from_device==nil and d.to_device==nil then
+local W=b.raw_min or 0
+local V=b.raw_max or 1000
+local T=b.value_min or 0
+local S=b.value_max or 100
+d.converter=E.scale_pair(W,V,T,S)
 end
-local default_component=options.default_component
-return function(device,context)
-local endpoint=normalize_context_endpoint(context)if endpoint==nil then
-return default_component
+return d
 end
-if endpoint==main_endpoint then
-return main_component
+function p.build_component_by_endpoint(F,g)
+return function(Q,l)
+local m=q(l)if m==nil or e(F)~="table"then
+return g
 end
-local suffix=endpoint-main_endpoint+index_offset
-if suffix<1 then
-return default_component
+local n=F[m]if e(n)=="string"and n~=""then
+return n
 end
-return prefix..tostring(suffix)
+return g
 end
 end
-function tuya.build_component_suffix_by_dp(dp_list,options)
-options=options or{}local prefix=options.component_prefix
-if type_check(prefix)~="string"or prefix==""then
-prefix="switch"
+function p.build_component_by_dp(R,g)
+return function(Q,l)
+local s=B(l)if s==nil or e(R)~="table"then
+return g
 end
-local main_component=options.main_component
-if type_check(main_component)~="string"or main_component==""then
-main_component="main"
+local n=R[s]if e(n)=="string"and n~=""then
+return n
 end
-local default_component=options.default_component
-local index_offset=options.index_offset
-if type_check(index_offset)~="number"or index_offset%1~=0 then
-index_offset=0
+return g
 end
-local first_is_main=options.first_is_main~=false
-local component_map={}if type_check(dp_list)=="table"then
-for index,dp in ipairs(dp_list)do
-if type_check(dp)=="number"and dp%1==0 and dp>=0 then
-if index==1 and first_is_main then
-component_map[dp]=main_component
+end
+function p.build_component_suffix(I,f)
+f=f or{}local t=I
+if e(t)~="string"or t==""then
+t="switch"
+end
+local o=f.main_endpoint
+if e(o)~="number"or o%1~=0 or o<1 then
+o=1
+end
+local i=f.main_component
+if e(i)~="string"or i==""then
+i="main"
+end
+local j=f.index_offset
+if e(j)~="number"or j%1~=0 then
+j=0
+end
+local g=f.default_component
+return function(Q,l)
+local m=q(l)if m==nil then
+return g
+end
+if m==o then
+return i
+end
+local G=m-o+j
+if G<1 then
+return g
+end
+return t..tostring(G)
+end
+end
+function p.build_component_suffix_by_dp(M,f)
+f=f or{}local t=f.component_prefix
+if e(t)~="string"or t==""then
+t="switch"
+end
+local i=f.main_component
+if e(i)~="string"or i==""then
+i="main"
+end
+local g=f.default_component
+local j=f.index_offset
+if e(j)~="number"or j%1~=0 then
+j=0
+end
+local D=f.first_is_main~=false
+local v={}if e(M)=="table"then
+for N,s in ipairs(M)do
+if e(s)=="number"and s%1==0 and s>=0 then
+if N==1 and D then
+v[s]=i
 else
-local suffix=first_is_main and(index-1+index_offset)or(index+index_offset)if suffix>=1 then
-component_map[dp]=prefix..tostring(suffix)
+local G=D and(N-1+j)or(N+j)if G>=1 then
+v[s]=t..tostring(G)
 end
 end
 end
 end
 end
-return tuya.build_component_by_dp(component_map,default_component)
+return p.build_component_by_dp(v,g)
 end
 end
-return load_datapoint_factory
+return z

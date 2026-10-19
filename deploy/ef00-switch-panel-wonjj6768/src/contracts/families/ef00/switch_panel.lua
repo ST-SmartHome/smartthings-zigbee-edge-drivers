@@ -1,262 +1,262 @@
-local tuya=require"protocol.tuya"
-local device_helpers=require"contracts.helpers.family"
-local emit=require"capabilities.events.all"
-local common=require"contracts.helpers.ef00_switches"
-local capabilities=require"st.capabilities"
-local converter=tuya.converter
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local function add_panel_scenes(definition,datapoints)
-definition.button_actions={"pushed"}for index,dp in ipairs(datapoints)do
-definition.datapoints[#definition.datapoints+1]=tuya.dp_enum(dp,{
+local a=require"protocol.tuya"
+local e=require"contracts.helpers.family"
+local b=require"capabilities.events.all"
+local aq=require"contracts.helpers.ef00_switches"
+local W=require"st.capabilities"
+local f=a.converter
+local X,c=e.definition_registry()
+local function w(V,ai)
+V.button_actions={"pushed"}for index,dp in ipairs(ai)do
+V.datapoints[#V.datapoints+1]=a.dp_enum(dp,{
 name="panel_scene_"..index,component=index==1 and"main"or"button"..index,
 read_only=true,from_device=function()return"pushed"end,
-emit=function(_,value)return capabilities.button.button(value,{state_change=true})end,
+emit=function(_,i)return W.button.button(i,{state_change=true})end,
 })
 end
 end
-local function panel_presence(value)
-if value==0 or value==false then return false end
-if value==1 or value==true then return true end
+local function U(i)
+if i==0 or i==false then return false end
+if i==1 or i==true then return true end
 end
-local backlight_color_converter=converter.lookup_from_to({
-red=0,blue=1,green=2,white=3,yellow=4,magenta=5,cyan=6,})local backlight_color_warm_converter=converter.lookup_from_to({
-red=0,blue=1,green=2,white=3,yellow=4,magenta=5,cyan=6,warmWhite=7,warmYellow=8,})local panel_indicator_converter=converter.lookup_from_to({
-off=0,onOffStatus=1,switchPosition=2,})local panel_off_on_converter=common.panel_off_on_converter
-local lcd_panel_mode_converter=converter.lookup_from_to({
-switch=0,scene=1,smartLight=2,})local pn16_switch_type_converter=converter.lookup_from_to({
-momentary=0,toggle=1,state=2,})local pn16_switch_mode_converter=converter.lookup_from_to({switch=0,curtain=1})local f3pro_cover_state_converter=converter.lookup_from_to({open=0,stop=1,close=2})local eyzee_restart_converter=converter.lookup_from_to({off=0,on=1,previous=2})local eyzee_indicator_converter=converter.lookup_from_to({off=0,on_off_status=1,switch_position=2})local eyzee_global_restart_converter=converter.lookup_from_to({off=false,on=true})local switch_eyzee_5gang={
-profile="switches-eyzee-5gang-countdown",package_group="switch-panel",tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_on_off(3,{name="switch",component="switch3"}),tuya.dp_on_off(4,{name="switch",component="switch4"}),tuya.dp_on_off(5,{name="switch",component="switch5"}),tuya.dp_countdown(7,{name="timer_1",read_only=true}),tuya.dp_countdown(8,{name="timer_2",read_only=true}),tuya.dp_countdown(9,{name="timer_3",read_only=true}),tuya.dp_countdown(10,{name="timer_4",read_only=true}),tuya.dp_countdown(11,{name="timer_5",read_only=true}),tuya.dp_binary(14,{
-name="eyzee_global_restart",emit=emit.eyzee5gGlobalRestart(),converter=eyzee_global_restart_converter,}),tuya.dp_enum(15,{
-name="eyzee_indicator_mode",emit=emit.eyzee5gIndicatorMode(),converter=eyzee_indicator_converter,}),tuya.dp_enum(29,{name="eyzee_switch1_restart",emit=emit.eyzee5gSwitch1Restart(),converter=eyzee_restart_converter}),tuya.dp_enum(30,{name="eyzee_switch2_restart",emit=emit.eyzee5gSwitch2Restart(),converter=eyzee_restart_converter}),tuya.dp_enum(31,{name="eyzee_switch3_restart",emit=emit.eyzee5gSwitch3Restart(),converter=eyzee_restart_converter}),tuya.dp_enum(32,{name="eyzee_switch4_restart",emit=emit.eyzee5gSwitch4Restart(),converter=eyzee_restart_converter}),tuya.dp_enum(33,{name="eyzee_switch5_restart",emit=emit.eyzee5gSwitch5Restart(),converter=eyzee_restart_converter}),query_on_configure=false,time_start="off",}register_device_definition(switch_eyzee_5gang,device_helpers.create_fingerprints("TS0601",{
-"_TZE284_0kihjsys",}))local switch_4gang_colored_backlight={
+local v=f.lookup_from_to({
+red=0,blue=1,green=2,white=3,yellow=4,magenta=5,cyan=6,})local h=f.lookup_from_to({
+red=0,blue=1,green=2,white=3,yellow=4,magenta=5,cyan=6,warmWhite=7,warmYellow=8,})local r=f.lookup_from_to({
+off=0,onOffStatus=1,switchPosition=2,})local d=aq.panel_off_on_converter
+local n=f.lookup_from_to({
+switch=0,scene=1,smartLight=2,})local u=f.lookup_from_to({
+momentary=0,toggle=1,state=2,})local p=f.lookup_from_to({switch=0,curtain=1})local m=f.lookup_from_to({open=0,stop=1,close=2})local k=f.lookup_from_to({off=0,on=1,previous=2})local K=f.lookup_from_to({off=0,on_off_status=1,switch_position=2})local y=f.lookup_from_to({off=false,on=true})local Z={
+profile="switches-eyzee-5gang-countdown",package_group="switch-panel",a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_on_off(3,{name="switch",component="switch3"}),a.dp_on_off(4,{name="switch",component="switch4"}),a.dp_on_off(5,{name="switch",component="switch5"}),a.dp_countdown(7,{name="timer_1",read_only=true}),a.dp_countdown(8,{name="timer_2",read_only=true}),a.dp_countdown(9,{name="timer_3",read_only=true}),a.dp_countdown(10,{name="timer_4",read_only=true}),a.dp_countdown(11,{name="timer_5",read_only=true}),a.dp_binary(14,{
+name="eyzee_global_restart",emit=b.eyzee5gGlobalRestart(),converter=y,}),a.dp_enum(15,{
+name="eyzee_indicator_mode",emit=b.eyzee5gIndicatorMode(),converter=K,}),a.dp_enum(29,{name="eyzee_switch1_restart",emit=b.eyzee5gSwitch1Restart(),converter=k}),a.dp_enum(30,{name="eyzee_switch2_restart",emit=b.eyzee5gSwitch2Restart(),converter=k}),a.dp_enum(31,{name="eyzee_switch3_restart",emit=b.eyzee5gSwitch3Restart(),converter=k}),a.dp_enum(32,{name="eyzee_switch4_restart",emit=b.eyzee5gSwitch4Restart(),converter=k}),a.dp_enum(33,{name="eyzee_switch5_restart",emit=b.eyzee5gSwitch5Restart(),converter=k}),query_on_configure=false,time_start="off",}c(Z,e.create_fingerprints("TS0601",{
+"_TZE284_0kihjsys",}))local C={
 profile="switches-switch-4-colored-backlight",package_group="switch-panel",datapoints={
-tuya.dp_on_off(13,{name="switch",component="main"}),tuya.dp_on_off(1,{name="switch",component="switch2"}),tuya.dp_on_off(2,{name="switch",component="switch3"}),tuya.dp_on_off(3,{name="switch",component="switch4"}),tuya.dp_on_off(4,{name="switch",component="switch5"}),tuya.dp_countdown(7,{name="countdown_l1",emit=emit.cb4gCountdown1()}),tuya.dp_countdown(8,{name="countdown_l2",emit=emit.cb4gCountdown2()}),tuya.dp_countdown(9,{name="countdown_l3",emit=emit.cb4gCountdown3()}),tuya.dp_countdown(10,{name="countdown_l4",emit=emit.cb4gCountdown4()}),tuya.dp_power_on_behavior(14,{emit=emit.cb4gPowerOnBehavior()}),tuya.dp_enum(15,{
-name="indicator_mode",emit=emit.cb4gIndicatorMode(),converter=panel_indicator_converter,}),tuya.dp_binary(16,{
-name="backlight_switch",emit=emit.cb4gBacklightSwitch(),converter=panel_off_on_converter,}),tuya.dp_child_lock(101,{
-name="child_lock",emit=emit.cb4gChildLock(),converter=panel_off_on_converter,}),tuya.dp_numeric(102,{name="backlight",emit=emit.cb4gBacklight()}),tuya.dp_enum(103,{
-name="on_color",emit=emit.cb4gOnColor(),converter=backlight_color_warm_converter,}),tuya.dp_enum(104,{
-name="off_color",emit=emit.cb4gOffColor(),converter=backlight_color_warm_converter,}),},query_on_configure=false,time_start="off",}register_device_definition(switch_4gang_colored_backlight,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_7ytnacie","_TZE204_hewlydpz",}))local switch_3gang_colored_backlight={
+a.dp_on_off(13,{name="switch",component="main"}),a.dp_on_off(1,{name="switch",component="switch2"}),a.dp_on_off(2,{name="switch",component="switch3"}),a.dp_on_off(3,{name="switch",component="switch4"}),a.dp_on_off(4,{name="switch",component="switch5"}),a.dp_countdown(7,{name="countdown_l1",emit=b.cb4gCountdown1()}),a.dp_countdown(8,{name="countdown_l2",emit=b.cb4gCountdown2()}),a.dp_countdown(9,{name="countdown_l3",emit=b.cb4gCountdown3()}),a.dp_countdown(10,{name="countdown_l4",emit=b.cb4gCountdown4()}),a.dp_power_on_behavior(14,{emit=b.cb4gPowerOnBehavior()}),a.dp_enum(15,{
+name="indicator_mode",emit=b.cb4gIndicatorMode(),converter=r,}),a.dp_binary(16,{
+name="backlight_switch",emit=b.cb4gBacklightSwitch(),converter=d,}),a.dp_child_lock(101,{
+name="child_lock",emit=b.cb4gChildLock(),converter=d,}),a.dp_numeric(102,{name="backlight",emit=b.cb4gBacklight()}),a.dp_enum(103,{
+name="on_color",emit=b.cb4gOnColor(),converter=h,}),a.dp_enum(104,{
+name="off_color",emit=b.cb4gOffColor(),converter=h,}),},query_on_configure=false,time_start="off",}c(C,e.create_fingerprints("TS0601",{
+"_TZE204_7ytnacie","_TZE204_hewlydpz",}))local B={
 profile="switches-switch-3-colored-backlight",package_group="switch-panel",datapoints={
-tuya.dp_on_off(13,{name="switch",component="main"}),tuya.dp_on_off(1,{name="switch",component="switch2"}),tuya.dp_on_off(2,{name="switch",component="switch3"}),tuya.dp_on_off(3,{name="switch",component="switch4"}),tuya.dp_countdown(7,{name="countdown_l1",emit=emit.cb3gCountdown1()}),tuya.dp_countdown(8,{name="countdown_l2",emit=emit.cb3gCountdown2()}),tuya.dp_countdown(9,{name="countdown_l3",emit=emit.cb3gCountdown3()}),tuya.dp_power_on_behavior(14,{emit=emit.cb3gPowerOnBehavior()}),tuya.dp_enum(15,{
-name="indicator_mode",emit=emit.cb3gIndicatorMode(),converter=panel_indicator_converter,}),tuya.dp_binary(16,{
-name="backlight_switch",emit=emit.cb3gBacklightSwitch(),converter=panel_off_on_converter,}),tuya.dp_child_lock(101,{
-name="child_lock",emit=emit.cb3gChildLock(),converter=panel_off_on_converter,}),tuya.dp_numeric(102,{name="backlight",emit=emit.cb3gBacklight()}),tuya.dp_enum(103,{
-name="on_color",emit=emit.cb3gOnColor(),converter=backlight_color_warm_converter,}),tuya.dp_enum(104,{
-name="off_color",emit=emit.cb3gOffColor(),converter=backlight_color_warm_converter,}),},query_on_configure=false,time_start="off",}register_device_definition(switch_3gang_colored_backlight,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_rkbxtclc",}))local switch_2gang_colored_backlight={
+a.dp_on_off(13,{name="switch",component="main"}),a.dp_on_off(1,{name="switch",component="switch2"}),a.dp_on_off(2,{name="switch",component="switch3"}),a.dp_on_off(3,{name="switch",component="switch4"}),a.dp_countdown(7,{name="countdown_l1",emit=b.cb3gCountdown1()}),a.dp_countdown(8,{name="countdown_l2",emit=b.cb3gCountdown2()}),a.dp_countdown(9,{name="countdown_l3",emit=b.cb3gCountdown3()}),a.dp_power_on_behavior(14,{emit=b.cb3gPowerOnBehavior()}),a.dp_enum(15,{
+name="indicator_mode",emit=b.cb3gIndicatorMode(),converter=r,}),a.dp_binary(16,{
+name="backlight_switch",emit=b.cb3gBacklightSwitch(),converter=d,}),a.dp_child_lock(101,{
+name="child_lock",emit=b.cb3gChildLock(),converter=d,}),a.dp_numeric(102,{name="backlight",emit=b.cb3gBacklight()}),a.dp_enum(103,{
+name="on_color",emit=b.cb3gOnColor(),converter=h,}),a.dp_enum(104,{
+name="off_color",emit=b.cb3gOffColor(),converter=h,}),},query_on_configure=false,time_start="off",}c(B,e.create_fingerprints("TS0601",{
+"_TZE204_rkbxtclc",}))local A={
 profile="switches-switch-2-colored-backlight",package_group="switch-panel",component_to_endpoint_map={main=1,switch2=1,switch3=1},datapoints={
-tuya.dp_on_off(13,{name="switch",component="main"}),tuya.dp_on_off(1,{name="switch",component="switch2"}),tuya.dp_on_off(2,{name="switch",component="switch3"}),tuya.dp_countdown(7,{name="countdown_l1",emit=emit.cb2gCountdown1()}),tuya.dp_countdown(8,{name="countdown_l2",emit=emit.cb2gCountdown2()}),tuya.dp_power_on_behavior(14,{emit=emit.cb2gPowerOnBehavior()}),tuya.dp_enum(15,{
-name="indicator_mode",emit=emit.cb2gIndicatorMode(),converter=panel_indicator_converter,}),tuya.dp_binary(16,{
-name="backlight_switch",emit=emit.cb2gBacklightSwitch(),converter=panel_off_on_converter,}),tuya.dp_child_lock(101,{
-name="child_lock",emit=emit.cb2gChildLock(),converter=panel_off_on_converter,}),tuya.dp_numeric(102,{name="backlight",emit=emit.cb2gBacklight()}),tuya.dp_enum(103,{
-name="on_color",emit=emit.cb2gOnColor(),converter=backlight_color_warm_converter,}),tuya.dp_enum(104,{
-name="off_color",emit=emit.cb2gOffColor(),converter=backlight_color_warm_converter,}),},query_on_configure=false,time_start="off",}register_device_definition(switch_2gang_colored_backlight,device_helpers.create_fingerprints("TS0601",{
-"_TZE284_zpvusbtv","_TZE204_zpvusbtv",}))local switch_1gang_touch_panel={
+a.dp_on_off(13,{name="switch",component="main"}),a.dp_on_off(1,{name="switch",component="switch2"}),a.dp_on_off(2,{name="switch",component="switch3"}),a.dp_countdown(7,{name="countdown_l1",emit=b.cb2gCountdown1()}),a.dp_countdown(8,{name="countdown_l2",emit=b.cb2gCountdown2()}),a.dp_power_on_behavior(14,{emit=b.cb2gPowerOnBehavior()}),a.dp_enum(15,{
+name="indicator_mode",emit=b.cb2gIndicatorMode(),converter=r,}),a.dp_binary(16,{
+name="backlight_switch",emit=b.cb2gBacklightSwitch(),converter=d,}),a.dp_child_lock(101,{
+name="child_lock",emit=b.cb2gChildLock(),converter=d,}),a.dp_numeric(102,{name="backlight",emit=b.cb2gBacklight()}),a.dp_enum(103,{
+name="on_color",emit=b.cb2gOnColor(),converter=h,}),a.dp_enum(104,{
+name="off_color",emit=b.cb2gOffColor(),converter=h,}),},query_on_configure=false,time_start="off",}c(A,e.create_fingerprints("TS0601",{
+"_TZE284_zpvusbtv","_TZE204_zpvusbtv",}))local P={
 profile="switches-switch-1-touch-panel",package_group="switch-panel",datapoints={
-tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_power_on_behavior(14,{emit=emit.tp1gPowerOnBehavior()}),tuya.dp_backlight_mode_off_on(16,{
-emit=emit.tp1gBacklightMode(),converter=converter.lookup_from_to({off=false,on=true}),}),tuya.dp_child_lock(101,{
-name="child_lock",emit=emit.tp1gChildLock(),converter=converter.lookup_from_to({off=false,on=true}),}),},magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,query_on_announce=false,time_start="off",}local switch_2gang_touch_panel={
+a.dp_on_off(1,{name="switch",component="main"}),a.dp_power_on_behavior(14,{emit=b.tp1gPowerOnBehavior()}),a.dp_backlight_mode_off_on(16,{
+emit=b.tp1gBacklightMode(),converter=f.lookup_from_to({off=false,on=true}),}),a.dp_child_lock(101,{
+name="child_lock",emit=b.tp1gChildLock(),converter=f.lookup_from_to({off=false,on=true}),}),},magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,query_on_announce=false,time_start="off",}local Q={
 profile="switches-switch-2-touch-panel",package_group="switch-panel",datapoints={
-tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_power_on_behavior(14,{emit=emit.tp2gPowerOnBehavior()}),tuya.dp_backlight_mode_off_on(16,{
-emit=emit.tp2gBacklightMode(),converter=converter.lookup_from_to({off=false,on=true}),}),tuya.dp_child_lock(101,{
-name="child_lock",emit=emit.tp2gChildLock(),converter=converter.lookup_from_to({off=false,on=true}),}),},query_on_configure=true,}local switch_3gang_touch_panel={
+a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_power_on_behavior(14,{emit=b.tp2gPowerOnBehavior()}),a.dp_backlight_mode_off_on(16,{
+emit=b.tp2gBacklightMode(),converter=f.lookup_from_to({off=false,on=true}),}),a.dp_child_lock(101,{
+name="child_lock",emit=b.tp2gChildLock(),converter=f.lookup_from_to({off=false,on=true}),}),},query_on_configure=true,}local R={
 profile="switches-switch-3-touch-panel",package_group="switch-panel",datapoints={
-tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_on_off(3,{name="switch",component="switch3"}),tuya.dp_power_on_behavior(14,{emit=emit.tp3gPowerOnBehavior()}),tuya.dp_backlight_mode_off_on(16,{
-emit=emit.tp3gBacklightMode(),converter=converter.lookup_from_to({off=false,on=true}),}),tuya.dp_child_lock(101,{
-name="child_lock",emit=emit.tp3gChildLock(),converter=converter.lookup_from_to({off=false,on=true}),}),},query_on_configure=true,}local switch_6gang_touch_panel={
+a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_on_off(3,{name="switch",component="switch3"}),a.dp_power_on_behavior(14,{emit=b.tp3gPowerOnBehavior()}),a.dp_backlight_mode_off_on(16,{
+emit=b.tp3gBacklightMode(),converter=f.lookup_from_to({off=false,on=true}),}),a.dp_child_lock(101,{
+name="child_lock",emit=b.tp3gChildLock(),converter=f.lookup_from_to({off=false,on=true}),}),},query_on_configure=true,}local S={
 profile="switches-switch-6-touch-panel",package_group="switch-panel",datapoints={
-tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_on_off(3,{name="switch",component="switch3"}),tuya.dp_on_off(4,{name="switch",component="switch4"}),tuya.dp_on_off(5,{name="switch",component="switch5"}),tuya.dp_on_off(6,{name="switch",component="switch6"}),tuya.dp_power_on_behavior(14,{emit=emit.tp6gPowerOnBehavior()}),tuya.dp_backlight_mode_off_on(16,{
-emit=emit.tp6gBacklightMode(),converter=converter.lookup_from_to({off=false,on=true}),}),tuya.dp_child_lock(101,{
-name="child_lock",emit=emit.tp6gChildLock(),converter=converter.lookup_from_to({off=false,on=true}),}),},query_on_configure=true,}local switch_1gang_stairwell={
+a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_on_off(3,{name="switch",component="switch3"}),a.dp_on_off(4,{name="switch",component="switch4"}),a.dp_on_off(5,{name="switch",component="switch5"}),a.dp_on_off(6,{name="switch",component="switch6"}),a.dp_power_on_behavior(14,{emit=b.tp6gPowerOnBehavior()}),a.dp_backlight_mode_off_on(16,{
+emit=b.tp6gBacklightMode(),converter=f.lookup_from_to({off=false,on=true}),}),a.dp_child_lock(101,{
+name="child_lock",emit=b.tp6gChildLock(),converter=f.lookup_from_to({off=false,on=true}),}),},query_on_configure=true,}local T={
 profile="switches-switch-1-stairwell",package_group="switch-panel",datapoints={
-tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_child_lock(29,{
-name="child_lock",emit=emit.stairwellChildLock(),converter=converter.lookup_from_to({off=false,on=true}),}),},query_on_configure=true,}local switch_1gang_multifunction={
+a.dp_on_off(1,{name="switch",component="main"}),a.dp_child_lock(29,{
+name="child_lock",emit=b.stairwellChildLock(),converter=f.lookup_from_to({off=false,on=true}),}),},query_on_configure=true,}local J={
 profile="switches-switch-1-multifunction",package_group="switch-panel",datapoints={
-tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_countdown(7,{name="countdown",emit=emit.mf1gCountdown1()}),tuya.dp_power_on_behavior(14,{emit=emit.mf1gPowerOnBehavior()}),tuya.dp_indicator_mode_none_relay_pos(15,{emit=emit.mf1gIndicatorMode()}),tuya.dp_backlight_mode_off_on(16,{
-emit=emit.mf1gBacklightMode(),converter=panel_off_on_converter,}),tuya.dp_inching_switch(19,{
-name="inching_switch",emit=emit.mf1gInchingSwitch(),converter=panel_off_on_converter,}),tuya.dp_child_lock(101,{
-name="child_lock",emit=emit.mf1gChildLock(),converter=panel_off_on_converter,}),tuya.dp_numeric(102,{name="backlight_brightness",emit=emit.mf1gBacklightBrightness()}),tuya.dp_enum(103,{
-name="on_color",emit=emit.mf1gOnColor(),converter=backlight_color_converter,}),tuya.dp_enum(104,{
-name="off_color",emit=emit.mf1gOffColor(),converter=backlight_color_converter,}),},query_on_configure=false,time_start="off",}register_device_definition(switch_1gang_touch_panel,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_gm8h14wy","_TZE28C1000000_yxun3xvr",}))register_device_definition(switch_2gang_touch_panel,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_he9apaui",}))register_device_definition(switch_3gang_touch_panel,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_ccgyhbvd",}))register_device_definition(switch_6gang_touch_panel,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_y8ficeai","_TZE284_hyssaqjk","_TZE284_tokhh9pf",}))register_device_definition(switch_1gang_stairwell,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_fhv95pf1",}))register_device_definition(switch_1gang_multifunction,device_helpers.create_fingerprints("TS0601",{
-"_TZE284_7e6v8u9f","_TZE28C1000000_rzdkn5rx",}))local switch_6gang_dp24_scene_panel={
+a.dp_on_off(1,{name="switch",component="main"}),a.dp_countdown(7,{name="countdown",emit=b.mf1gCountdown1()}),a.dp_power_on_behavior(14,{emit=b.mf1gPowerOnBehavior()}),a.dp_indicator_mode_none_relay_pos(15,{emit=b.mf1gIndicatorMode()}),a.dp_backlight_mode_off_on(16,{
+emit=b.mf1gBacklightMode(),converter=d,}),a.dp_inching_switch(19,{
+name="inching_switch",emit=b.mf1gInchingSwitch(),converter=d,}),a.dp_child_lock(101,{
+name="child_lock",emit=b.mf1gChildLock(),converter=d,}),a.dp_numeric(102,{name="backlight_brightness",emit=b.mf1gBacklightBrightness()}),a.dp_enum(103,{
+name="on_color",emit=b.mf1gOnColor(),converter=v,}),a.dp_enum(104,{
+name="off_color",emit=b.mf1gOffColor(),converter=v,}),},query_on_configure=false,time_start="off",}c(P,e.create_fingerprints("TS0601",{
+"_TZE204_gm8h14wy","_TZE28C1000000_yxun3xvr",}))c(Q,e.create_fingerprints("TS0601",{
+"_TZE204_he9apaui",}))c(R,e.create_fingerprints("TS0601",{
+"_TZE204_ccgyhbvd",}))c(S,e.create_fingerprints("TS0601",{
+"_TZE204_y8ficeai","_TZE284_hyssaqjk","_TZE284_tokhh9pf",}))c(T,e.create_fingerprints("TS0601",{
+"_TZE204_fhv95pf1",}))c(J,e.create_fingerprints("TS0601",{
+"_TZE284_7e6v8u9f","_TZE28C1000000_rzdkn5rx",}))local E={
 profile="switches-switch-6-to6",package_group="switch-panel",datapoints={
-tuya.dp_enum(1,{name="action_l1"}),tuya.dp_enum(2,{name="action_l2"}),tuya.dp_enum(3,{name="action_l3"}),tuya.dp_enum(4,{name="action_l4"}),tuya.dp_enum(5,{name="action_l5"}),tuya.dp_enum(6,{name="action_l6"}),tuya.dp_enum(18,{
-name="mode_l1",emit=emit.to6Mode1(),converter=converter.lookup_from_to({switch=0,scene=1}),}),tuya.dp_enum(19,{
-name="mode_l2",emit=emit.to6Mode2(),converter=converter.lookup_from_to({switch=0,scene=1}),}),tuya.dp_enum(20,{
-name="mode_l3",emit=emit.to6Mode3(),converter=converter.lookup_from_to({switch=0,scene=1}),}),tuya.dp_enum(21,{
-name="mode_l4",emit=emit.to6Mode4(),converter=converter.lookup_from_to({switch=0,scene=1}),}),tuya.dp_enum(22,{
-name="mode_l5",emit=emit.to6Mode5(),converter=converter.lookup_from_to({switch=0,scene=1}),}),tuya.dp_enum(23,{
-name="mode_l6",emit=emit.to6Mode6(),converter=converter.lookup_from_to({switch=0,scene=1}),}),tuya.dp_on_off(24,{name="switch",component="main"}),tuya.dp_on_off(25,{name="switch",component="switch2"}),tuya.dp_on_off(26,{name="switch",component="switch3"}),tuya.dp_on_off(27,{name="switch",component="switch4"}),tuya.dp_on_off(28,{name="switch",component="switch5"}),tuya.dp_on_off(29,{name="switch",component="switch6"}),tuya.dp_countdown(30,{name="countdown_l1",emit=emit.to6Countdown1()}),tuya.dp_countdown(31,{name="countdown_l2",emit=emit.to6Countdown2()}),tuya.dp_countdown(32,{name="countdown_l3",emit=emit.to6Countdown3()}),tuya.dp_countdown(33,{name="countdown_l4",emit=emit.to6Countdown4()}),tuya.dp_countdown(34,{name="countdown_l5",emit=emit.to6Countdown5()}),tuya.dp_countdown(35,{name="countdown_l6",emit=emit.to6Countdown6()}),tuya.dp_backlight_mode_off_on(36,{
-emit=emit.to6BacklightMode(),converter=converter.lookup_from_to({off=false,on=true}),}),tuya.dp_enum(37,{
-name="indicator_status",emit=emit.to6IndicatorStatus(),converter=converter.lookup_from_to({off=0,relay=1,invert=2}),}),tuya.dp_power_on_behavior(38,{emit=emit.to6PowerOnBehavior()}),tuya.dp_binary(103,{
-name="induction",emit=emit.to6Induction(),converter=converter.lookup_from_to({off=false,on=true}),}),tuya.dp_enum(104,{
-name="vibration_gear",emit=emit.to6VibrationGear(),converter=converter.lookup_from_to({off=0,low=1,medium=2,high=3}),}),tuya.dp_countdown(105,{name="inching_l1",emit=emit.to6Inching1()}),tuya.dp_countdown(106,{name="inching_l2",emit=emit.to6Inching2()}),tuya.dp_countdown(107,{name="inching_l3",emit=emit.to6Inching3()}),tuya.dp_countdown(108,{name="inching_l4",emit=emit.to6Inching4()}),tuya.dp_countdown(109,{name="inching_l5",emit=emit.to6Inching5()}),tuya.dp_countdown(110,{name="inching_l6",emit=emit.to6Inching6()}),},query_on_configure=false,time_start="1970",}register_device_definition(switch_6gang_dp24_scene_panel,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_rqhnxkqu",}))local switch_8gang_m9_motion_scene={
+a.dp_enum(1,{name="action_l1"}),a.dp_enum(2,{name="action_l2"}),a.dp_enum(3,{name="action_l3"}),a.dp_enum(4,{name="action_l4"}),a.dp_enum(5,{name="action_l5"}),a.dp_enum(6,{name="action_l6"}),a.dp_enum(18,{
+name="mode_l1",emit=b.to6Mode1(),converter=f.lookup_from_to({switch=0,scene=1}),}),a.dp_enum(19,{
+name="mode_l2",emit=b.to6Mode2(),converter=f.lookup_from_to({switch=0,scene=1}),}),a.dp_enum(20,{
+name="mode_l3",emit=b.to6Mode3(),converter=f.lookup_from_to({switch=0,scene=1}),}),a.dp_enum(21,{
+name="mode_l4",emit=b.to6Mode4(),converter=f.lookup_from_to({switch=0,scene=1}),}),a.dp_enum(22,{
+name="mode_l5",emit=b.to6Mode5(),converter=f.lookup_from_to({switch=0,scene=1}),}),a.dp_enum(23,{
+name="mode_l6",emit=b.to6Mode6(),converter=f.lookup_from_to({switch=0,scene=1}),}),a.dp_on_off(24,{name="switch",component="main"}),a.dp_on_off(25,{name="switch",component="switch2"}),a.dp_on_off(26,{name="switch",component="switch3"}),a.dp_on_off(27,{name="switch",component="switch4"}),a.dp_on_off(28,{name="switch",component="switch5"}),a.dp_on_off(29,{name="switch",component="switch6"}),a.dp_countdown(30,{name="countdown_l1",emit=b.to6Countdown1()}),a.dp_countdown(31,{name="countdown_l2",emit=b.to6Countdown2()}),a.dp_countdown(32,{name="countdown_l3",emit=b.to6Countdown3()}),a.dp_countdown(33,{name="countdown_l4",emit=b.to6Countdown4()}),a.dp_countdown(34,{name="countdown_l5",emit=b.to6Countdown5()}),a.dp_countdown(35,{name="countdown_l6",emit=b.to6Countdown6()}),a.dp_backlight_mode_off_on(36,{
+emit=b.to6BacklightMode(),converter=f.lookup_from_to({off=false,on=true}),}),a.dp_enum(37,{
+name="indicator_status",emit=b.to6IndicatorStatus(),converter=f.lookup_from_to({off=0,relay=1,invert=2}),}),a.dp_power_on_behavior(38,{emit=b.to6PowerOnBehavior()}),a.dp_binary(103,{
+name="induction",emit=b.to6Induction(),converter=f.lookup_from_to({off=false,on=true}),}),a.dp_enum(104,{
+name="vibration_gear",emit=b.to6VibrationGear(),converter=f.lookup_from_to({off=0,low=1,medium=2,high=3}),}),a.dp_countdown(105,{name="inching_l1",emit=b.to6Inching1()}),a.dp_countdown(106,{name="inching_l2",emit=b.to6Inching2()}),a.dp_countdown(107,{name="inching_l3",emit=b.to6Inching3()}),a.dp_countdown(108,{name="inching_l4",emit=b.to6Inching4()}),a.dp_countdown(109,{name="inching_l5",emit=b.to6Inching5()}),a.dp_countdown(110,{name="inching_l6",emit=b.to6Inching6()}),},query_on_configure=false,time_start="1970",}c(E,e.create_fingerprints("TS0601",{
+"_TZE200_rqhnxkqu",}))local g={
 profile="switches-switch-8-m9-sl",package_group="switch-panel",datapoints={
-tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_on_off(3,{name="switch",component="switch3"}),tuya.dp_on_off(4,{name="switch",component="switch4"}),tuya.dp_on_off(5,{name="switch",component="switch5"}),tuya.dp_on_off(6,{name="switch",component="switch6"}),tuya.dp_on_off(112,{name="switch",component="switch7"}),tuya.dp_on_off(113,{name="switch",component="switch8"}),tuya.dp_binary(16,{
-name="backlight_mode",emit=emit.m98gBacklightMode(),converter=panel_off_on_converter,}),tuya.dp_power_on_behavior(29,{
-name="power_on_behavior_l1",emit=emit.m98gPowerOnBehavior1(),}),tuya.dp_power_on_behavior(30,{
-name="power_on_behavior_l2",emit=emit.m98gPowerOnBehavior2(),}),tuya.dp_power_on_behavior(31,{
-name="power_on_behavior_l3",emit=emit.m98gPowerOnBehavior3(),}),tuya.dp_power_on_behavior(32,{
-name="power_on_behavior_l4",emit=emit.m98gPowerOnBehavior4(),}),tuya.dp_power_on_behavior(33,{
-name="power_on_behavior_l5",emit=emit.m98gPowerOnBehavior5(),}),tuya.dp_power_on_behavior(34,{
-name="power_on_behavior_l6",emit=emit.m98gPowerOnBehavior6(),}),tuya.dp_presence(105,{read_only=true,from_device=panel_presence,emit=emit.presence()}),tuya.dp_numeric(106,{name="delay",emit=emit.m98gDelay()}),},query_on_configure=false,time_start="off",}add_panel_scenes(switch_8gang_m9_motion_scene,{101,102,103,104,108,109,110,111})local m9_mode=converter.lookup_from_to({switch=0,scene=1})local m9_light=converter.lookup_from_to({normal=0,on=1,off=2,flash=3})for index,factories in ipairs({
-{emit.m9EightModeOne,emit.m9EightLightOne},{emit.m9EightModeTwo,emit.m9EightLightTwo},{emit.m9EightModeThree,emit.m9EightLightThree},{emit.m9EightModeFour,emit.m9EightLightFour},{emit.m9EightModeFive,emit.m9EightLightFive},{emit.m9EightModeSix,emit.m9EightLightSix},{emit.m9EightModeSeven,emit.m9EightLightSeven},{emit.m9EightModeEight,emit.m9EightLightEight},})do
-local dps=switch_8gang_m9_motion_scene.datapoints
-dps[#dps+1]=tuya.dp_enum(113+index,{name="switch_mode_l"..index,converter=m9_mode,emit=factories[1]()})dps[#dps+1]=tuya.dp_enum(121+index,{name="light_mode_l"..index,converter=m9_light,emit=factories[2]()})
+a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_on_off(3,{name="switch",component="switch3"}),a.dp_on_off(4,{name="switch",component="switch4"}),a.dp_on_off(5,{name="switch",component="switch5"}),a.dp_on_off(6,{name="switch",component="switch6"}),a.dp_on_off(112,{name="switch",component="switch7"}),a.dp_on_off(113,{name="switch",component="switch8"}),a.dp_binary(16,{
+name="backlight_mode",emit=b.m98gBacklightMode(),converter=d,}),a.dp_power_on_behavior(29,{
+name="power_on_behavior_l1",emit=b.m98gPowerOnBehavior1(),}),a.dp_power_on_behavior(30,{
+name="power_on_behavior_l2",emit=b.m98gPowerOnBehavior2(),}),a.dp_power_on_behavior(31,{
+name="power_on_behavior_l3",emit=b.m98gPowerOnBehavior3(),}),a.dp_power_on_behavior(32,{
+name="power_on_behavior_l4",emit=b.m98gPowerOnBehavior4(),}),a.dp_power_on_behavior(33,{
+name="power_on_behavior_l5",emit=b.m98gPowerOnBehavior5(),}),a.dp_power_on_behavior(34,{
+name="power_on_behavior_l6",emit=b.m98gPowerOnBehavior6(),}),a.dp_presence(105,{read_only=true,from_device=U,emit=b.presence()}),a.dp_numeric(106,{name="delay",emit=b.m98gDelay()}),},query_on_configure=false,time_start="off",}w(g,{101,102,103,104,108,109,110,111})local ap=f.lookup_from_to({switch=0,scene=1})local am=f.lookup_from_to({normal=0,on=1,off=2,flash=3})for index,F in ipairs({
+{b.m9EightModeOne,b.m9EightLightOne},{b.m9EightModeTwo,b.m9EightLightTwo},{b.m9EightModeThree,b.m9EightLightThree},{b.m9EightModeFour,b.m9EightLightFour},{b.m9EightModeFive,b.m9EightLightFive},{b.m9EightModeSix,b.m9EightLightSix},{b.m9EightModeSeven,b.m9EightLightSeven},{b.m9EightModeEight,b.m9EightLightEight},})do
+local ac=g.datapoints
+ac[#ac+1]=a.dp_enum(113+index,{name="switch_mode_l"..index,converter=ap,emit=F[1]()})ac[#ac+1]=a.dp_enum(121+index,{name="light_mode_l"..index,converter=am,emit=F[2]()})
 end
-switch_8gang_m9_motion_scene.datapoints[#switch_8gang_m9_motion_scene.datapoints+1]=tuya.dp_power_on_behavior(130,{
-name="power_on_behavior_l7",emit=emit.m9EightPowerSeven(),})switch_8gang_m9_motion_scene.datapoints[#switch_8gang_m9_motion_scene.datapoints+1]=tuya.dp_power_on_behavior(131,{
-name="power_on_behavior_l8",emit=emit.m9EightPowerEight(),})register_device_definition(switch_8gang_m9_motion_scene,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_nvodulvi","_TZE284_nvodulvi",}))local switch_4gang_m9_scene={
+g.datapoints[#g.datapoints+1]=a.dp_power_on_behavior(130,{
+name="power_on_behavior_l7",emit=b.m9EightPowerSeven(),})g.datapoints[#g.datapoints+1]=a.dp_power_on_behavior(131,{
+name="power_on_behavior_l8",emit=b.m9EightPowerEight(),})c(g,e.create_fingerprints("TS0601",{
+"_TZE200_nvodulvi","_TZE284_nvodulvi",}))local x={
 profile="switches-switch-4-m9-sl",package_group="switch-panel",datapoints={
-tuya.dp_on_off(24,{name="switch",component="main"}),tuya.dp_on_off(25,{name="switch",component="switch2"}),tuya.dp_on_off(26,{name="switch",component="switch3"}),tuya.dp_on_off(27,{name="switch",component="switch4"}),tuya.dp_enum(18,{
-name="switch_mode_l1",emit=emit.m9slSwitchMode1(),converter=converter.lookup_from_to({switch=0,scene=1}),}),tuya.dp_enum(19,{
-name="switch_mode_l2",emit=emit.m9slSwitchMode2(),converter=converter.lookup_from_to({switch=0,scene=1}),}),tuya.dp_enum(20,{
-name="switch_mode_l3",emit=emit.m9slSwitchMode3(),converter=converter.lookup_from_to({switch=0,scene=1}),}),tuya.dp_enum(21,{
-name="switch_mode_l4",emit=emit.m9slSwitchMode4(),converter=converter.lookup_from_to({switch=0,scene=1}),}),tuya.dp_binary(36,{
-name="backlight_mode",emit=emit.m9slBacklightMode(),converter=converter.lookup_from_to({off=false,on=true}),}),tuya.dp_power_on_behavior(38,{
-name="power_on_behavior_l0",emit=emit.m9slPowerOnBehavior0(),}),tuya.dp_power_on_behavior(39,{
-name="power_on_behavior_l1",emit=emit.m9slPowerOnBehavior1(),}),tuya.dp_power_on_behavior(40,{
-name="power_on_behavior_l2",emit=emit.m9slPowerOnBehavior2(),}),tuya.dp_power_on_behavior(41,{
-name="power_on_behavior_l3",emit=emit.m9slPowerOnBehavior3(),}),tuya.dp_power_on_behavior(42,{
-name="power_on_behavior_l4",emit=emit.m9slPowerOnBehavior4(),}),tuya.dp_presence(101,{read_only=true,from_device=panel_presence,emit=emit.presence()}),tuya.dp_numeric(102,{name="delay",emit=emit.m9slDelay()}),},query_on_configure=false,time_start="off",}add_panel_scenes(switch_4gang_m9_scene,{1,2,3,4,5,6,7,8,17})register_device_definition(switch_4gang_m9_scene,device_helpers.create_fingerprints("TS0601",{
+a.dp_on_off(24,{name="switch",component="main"}),a.dp_on_off(25,{name="switch",component="switch2"}),a.dp_on_off(26,{name="switch",component="switch3"}),a.dp_on_off(27,{name="switch",component="switch4"}),a.dp_enum(18,{
+name="switch_mode_l1",emit=b.m9slSwitchMode1(),converter=f.lookup_from_to({switch=0,scene=1}),}),a.dp_enum(19,{
+name="switch_mode_l2",emit=b.m9slSwitchMode2(),converter=f.lookup_from_to({switch=0,scene=1}),}),a.dp_enum(20,{
+name="switch_mode_l3",emit=b.m9slSwitchMode3(),converter=f.lookup_from_to({switch=0,scene=1}),}),a.dp_enum(21,{
+name="switch_mode_l4",emit=b.m9slSwitchMode4(),converter=f.lookup_from_to({switch=0,scene=1}),}),a.dp_binary(36,{
+name="backlight_mode",emit=b.m9slBacklightMode(),converter=f.lookup_from_to({off=false,on=true}),}),a.dp_power_on_behavior(38,{
+name="power_on_behavior_l0",emit=b.m9slPowerOnBehavior0(),}),a.dp_power_on_behavior(39,{
+name="power_on_behavior_l1",emit=b.m9slPowerOnBehavior1(),}),a.dp_power_on_behavior(40,{
+name="power_on_behavior_l2",emit=b.m9slPowerOnBehavior2(),}),a.dp_power_on_behavior(41,{
+name="power_on_behavior_l3",emit=b.m9slPowerOnBehavior3(),}),a.dp_power_on_behavior(42,{
+name="power_on_behavior_l4",emit=b.m9slPowerOnBehavior4(),}),a.dp_presence(101,{read_only=true,from_device=U,emit=b.presence()}),a.dp_numeric(102,{name="delay",emit=b.m9slDelay()}),},query_on_configure=false,time_start="off",}w(x,{1,2,3,4,5,6,7,8,17})c(x,e.create_fingerprints("TS0601",{
 "_TZE284_yrwmnya3",}))
-local function f3_trim(value)
-local first,last
-for offset,codepoint in utf8.codes(value)do
-local space=(codepoint>=9 and codepoint<=13)or codepoint==32 or codepoint==160
-or codepoint==0x1680 or(codepoint>=0x2000 and codepoint<=0x200A)or codepoint==0x2028 or codepoint==0x2029 or codepoint==0x202F
-or codepoint==0x205F or codepoint==0x3000 or codepoint==0xFEFF
-if not space then first=first or offset;last=offset+#utf8.char(codepoint)-1 end
+local function ae(i)
+local af,last
+for al,l in utf8.codes(i)do
+local ar=(l>=9 and l<=13)or l==32 or l==160
+or l==5760 or(l>=8192 and l<=8202)or l==8232 or l==8233 or l==8239
+or l==8287 or l==12288 or l==65279
+if not ar then af=af or al;last=al+#utf8.char(l)-1 end
 end
-return first and value:sub(first,last)or""
+return af and i:sub(af,last)or""
 end
-local f3_name_converter={
-to=function(value)
-if type(value)~="string"or not utf8.len(value)then return nil end
-local words={}for _,cp in utf8.codes(f3_trim(value))do
-if cp<=0xFFFF then words[#words+1]=string.format("%04x",cp)else
-cp=cp-0x10000
-words[#words+1]=string.format("%04x%04x",0xD800+(cp>>10),0xDC00+(cp&0x3FF))
+local ab={
+to=function(i)
+if type(i)~="string"or not utf8.len(i)then return nil end
+local ad={}for _,cp in utf8.codes(ae(i))do
+if cp<=65535 then ad[#ad+1]=string.format("%04x",cp)else
+cp=cp-65536
+ad[#ad+1]=string.format("%04x%04x",55296+(cp>>10),56320+(cp&1023))
 end
 end
-local encoded=table.concat(words)
-if #encoded>65535 then return nil end
-return encoded
+local ag=table.concat(ad)
+if #ag>65535 then return nil end
+return ag
 end,
-from=function(value)
-if type(value)~="string"or not utf8.len(value)then return nil end
-value=f3_trim(value)
-if #value%4~=0 or value:find("[^%x]")then return nil end
-local result,index={},1
-while index<=#value do
-local cp=tonumber(value:sub(index,index+3),16)index=index+4
-if cp>=0xD800 and cp<=0xDBFF then
-local low=tonumber(value:sub(index,index+3),16)if low and low>=0xDC00 and low<=0xDFFF then
-cp=0x10000+((cp-0xD800)<<10)+low-0xDC00
+from=function(i)
+if type(i)~="string"or not utf8.len(i)then return nil end
+i=ae(i)
+if #i%4~=0 or i:find("[^%x]")then return nil end
+local z,index={},1
+while index<=#i do
+local cp=tonumber(i:sub(index,index+3),16)index=index+4
+if cp>=55296 and cp<=56319 then
+local an=tonumber(i:sub(index,index+3),16)if an and an>=56320 and an<=57343 then
+cp=65536+((cp-55296)<<10)+an-56320
 index=index+4
-else cp=0xFFFD end
-elseif cp>=0xDC00 and cp<=0xDFFF then cp=0xFFFD end
-result[#result+1]=utf8.char(cp)
+else cp=65533 end
+elseif cp>=56320 and cp<=57343 then cp=65533 end
+z[#z+1]=utf8.char(cp)
 end
-return f3_trim(table.concat(result))
+return ae(table.concat(z))
 end,
-}local switch_4gang_smart_panel={
+}local j={
 profile="switches-switch-4-f3-pro",button_actions={"pushed"},package_group="switch-panel",datapoints={
-tuya.dp_on_off(121,{name="switch",component="main"}),tuya.dp_on_off(122,{name="switch",component="switch2"}),tuya.dp_on_off(123,{name="switch",component="switch3"}),tuya.dp_on_off(124,{name="switch",component="switch4"}),tuya.dp_numeric(102,{name="led_bright_l1",emit=emit.f3proLed1Brightness()}),tuya.dp_numeric(103,{name="led_bright_l2",emit=emit.f3proLed2Brightness()}),tuya.dp_numeric(105,{name="led_bright_l3",emit=emit.f3proLed3Brightness()}),tuya.dp_numeric(107,{name="led_bright_l4",emit=emit.f3proLed4Brightness()}),tuya.dp_numeric(109,{name="led_warm_l1",emit=emit.f3proLed1Warmth()}),tuya.dp_numeric(110,{name="led_warm_l2",emit=emit.f3proLed2Warmth()}),tuya.dp_numeric(111,{name="led_warm_l3",emit=emit.f3proLed3Warmth()}),tuya.dp_numeric(112,{name="led_warm_l4",emit=emit.f3proLed4Warmth()}),tuya.dp_numeric(113,{name="cover_position_l1",emit=emit.f3proCoverPosition1()}),tuya.dp_numeric(114,{name="cover_position_l2",emit=emit.f3proCoverPosition2()}),tuya.dp_numeric(115,{name="cover_position_l3",emit=emit.f3proCoverPosition3()}),tuya.dp_numeric(116,{name="cover_position_l4",emit=emit.f3proCoverPosition4()}),tuya.dp_binary(117,{
-name="led_switch_l1",emit=emit.f3proLedSwitch1(),converter=panel_off_on_converter,}),tuya.dp_binary(118,{
-name="led_switch_l2",emit=emit.f3proLedSwitch2(),converter=panel_off_on_converter,}),tuya.dp_binary(119,{
-name="led_switch_l3",emit=emit.f3proLedSwitch3(),converter=panel_off_on_converter,}),tuya.dp_binary(120,{
-name="led_switch_l4",emit=emit.f3proLedSwitch4(),converter=panel_off_on_converter,}),tuya.dp_enum(133,{
-name="cover_state_l1",emit=emit.f3proCoverState1(),converter=f3pro_cover_state_converter,}),tuya.dp_enum(134,{
-name="cover_state_l2",emit=emit.f3proCoverState2(),converter=f3pro_cover_state_converter,}),tuya.dp_enum(135,{
-name="cover_state_l3",emit=emit.f3proCoverState3(),converter=f3pro_cover_state_converter,}),tuya.dp_enum(136,{
-name="cover_state_l4",emit=emit.f3proCoverState4(),converter=f3pro_cover_state_converter,}),tuya.dp_binary(149,{
-name="backlight_switch",emit=emit.f3proBacklightSwitch(),converter=panel_off_on_converter,}),},query_on_configure=true,force_time_updates=true,time_start="1970",}for button=1,8 do
-switch_4gang_smart_panel.datapoints[#switch_4gang_smart_panel.datapoints+1]=tuya.dp_enum(button,{
+a.dp_on_off(121,{name="switch",component="main"}),a.dp_on_off(122,{name="switch",component="switch2"}),a.dp_on_off(123,{name="switch",component="switch3"}),a.dp_on_off(124,{name="switch",component="switch4"}),a.dp_numeric(102,{name="led_bright_l1",emit=b.f3proLed1Brightness()}),a.dp_numeric(103,{name="led_bright_l2",emit=b.f3proLed2Brightness()}),a.dp_numeric(105,{name="led_bright_l3",emit=b.f3proLed3Brightness()}),a.dp_numeric(107,{name="led_bright_l4",emit=b.f3proLed4Brightness()}),a.dp_numeric(109,{name="led_warm_l1",emit=b.f3proLed1Warmth()}),a.dp_numeric(110,{name="led_warm_l2",emit=b.f3proLed2Warmth()}),a.dp_numeric(111,{name="led_warm_l3",emit=b.f3proLed3Warmth()}),a.dp_numeric(112,{name="led_warm_l4",emit=b.f3proLed4Warmth()}),a.dp_numeric(113,{name="cover_position_l1",emit=b.f3proCoverPosition1()}),a.dp_numeric(114,{name="cover_position_l2",emit=b.f3proCoverPosition2()}),a.dp_numeric(115,{name="cover_position_l3",emit=b.f3proCoverPosition3()}),a.dp_numeric(116,{name="cover_position_l4",emit=b.f3proCoverPosition4()}),a.dp_binary(117,{
+name="led_switch_l1",emit=b.f3proLedSwitch1(),converter=d,}),a.dp_binary(118,{
+name="led_switch_l2",emit=b.f3proLedSwitch2(),converter=d,}),a.dp_binary(119,{
+name="led_switch_l3",emit=b.f3proLedSwitch3(),converter=d,}),a.dp_binary(120,{
+name="led_switch_l4",emit=b.f3proLedSwitch4(),converter=d,}),a.dp_enum(133,{
+name="cover_state_l1",emit=b.f3proCoverState1(),converter=m,}),a.dp_enum(134,{
+name="cover_state_l2",emit=b.f3proCoverState2(),converter=m,}),a.dp_enum(135,{
+name="cover_state_l3",emit=b.f3proCoverState3(),converter=m,}),a.dp_enum(136,{
+name="cover_state_l4",emit=b.f3proCoverState4(),converter=m,}),a.dp_binary(149,{
+name="backlight_switch",emit=b.f3proBacklightSwitch(),converter=d,}),},query_on_configure=true,force_time_updates=true,time_start="1970",}for button=1,8 do
+j.datapoints[#j.datapoints+1]=a.dp_enum(button,{
 name="f3pro_scene_"..button,component=button==1 and"main"or"button"..button,read_only=true,
 from_device=function()return"pushed"end,
-emit=function(_,value)return capabilities.button.button(value,{state_change=true})end,
+emit=function(_,i)return W.button.button(i,{state_change=true})end,
 })
 end
-for _,group in ipairs({
-{125,"led_switch_name",{emit.f3proLedOneName,emit.f3proLedTwoName,emit.f3proLedThreeName,emit.f3proLedFourName}},{129,"cover_name",{emit.f3proCoverOneName,emit.f3proCoverTwoName,emit.f3proCoverThreeName,emit.f3proCoverFourName}},{137,"switch_name",{emit.f3proSwitchOneName,emit.f3proSwitchTwoName,emit.f3proSwitchThreeName,emit.f3proSwitchFourName}},{141,"scene_name",{emit.f3proSceneOneName,emit.f3proSceneTwoName,emit.f3proSceneThreeName,emit.f3proSceneFourName,emit.f3proSceneFiveName,emit.f3proSceneSixName,emit.f3proSceneSevenName,emit.f3proSceneEightName}},})do
-for index,factory in ipairs(group[3])do
-switch_4gang_smart_panel.datapoints[#switch_4gang_smart_panel.datapoints+1]=tuya.dp_string(group[1]+index-1,{
-name=group[2].."_l"..index,converter=f3_name_converter,emit=factory({allow_empty=true}),})
+for _,aj in ipairs({
+{125,"led_switch_name",{b.f3proLedOneName,b.f3proLedTwoName,b.f3proLedThreeName,b.f3proLedFourName}},{129,"cover_name",{b.f3proCoverOneName,b.f3proCoverTwoName,b.f3proCoverThreeName,b.f3proCoverFourName}},{137,"switch_name",{b.f3proSwitchOneName,b.f3proSwitchTwoName,b.f3proSwitchThreeName,b.f3proSwitchFourName}},{141,"scene_name",{b.f3proSceneOneName,b.f3proSceneTwoName,b.f3proSceneThreeName,b.f3proSceneFourName,b.f3proSceneFiveName,b.f3proSceneSixName,b.f3proSceneSevenName,b.f3proSceneEightName}},})do
+for index,ao in ipairs(aj[3])do
+j.datapoints[#j.datapoints+1]=a.dp_string(aj[1]+index-1,{
+name=aj[2].."_l"..index,converter=ab,emit=ao({allow_empty=true}),})
 end
 end
-register_device_definition(switch_4gang_smart_panel,device_helpers.create_fingerprints("TS0601",{
-"_TZE284_7zazvlyn","_TZE284_idn2htgu",}))local switch_4gang_lcd_panel={
+c(j,e.create_fingerprints("TS0601",{
+"_TZE284_7zazvlyn","_TZE284_idn2htgu",}))local s={
 profile="switches-switch-4-lcd-panel",package_group="switch-panel",datapoints={
-tuya.dp_on_off(24,{name="switch",component="main"}),tuya.dp_on_off(25,{name="switch",component="switch2"}),tuya.dp_on_off(26,{name="switch",component="switch3"}),tuya.dp_on_off(27,{name="switch",component="switch4"}),tuya.dp_enum(18,{
-name="mode_l1",emit=emit.lcd4gMode1(),converter=lcd_panel_mode_converter,}),tuya.dp_enum(19,{
-name="mode_l2",emit=emit.lcd4gMode2(),converter=lcd_panel_mode_converter,}),tuya.dp_enum(20,{
-name="mode_l3",emit=emit.lcd4gMode3(),converter=lcd_panel_mode_converter,}),tuya.dp_enum(21,{
-name="mode_l4",emit=emit.lcd4gMode4(),converter=lcd_panel_mode_converter,}),tuya.dp_binary(36,{
-name="backlight_switch",emit=emit.lcd4gBacklightSwitch(),converter=panel_off_on_converter,}),tuya.dp_enum(37,{
-name="indicator_switch",emit=emit.lcd4gIndicatorSwitch(),converter=converter.lookup_from_to({status=0,switchPosition=1,off=2}),}),tuya.dp_binary(101,{
-name="backlight",emit=emit.lcd4gBacklight(),converter=panel_off_on_converter,}),},query_on_configure=false,time_start="1970",}add_panel_scenes(switch_4gang_lcd_panel,{1,2,3,4})local m8_name={
-to=function(value)
-if type(value)~="string"or not utf8.len(value)or #value>16383 then return nil end
-return(value:gsub(".",function(byte)return string.format("%04x",byte:byte())end))
+a.dp_on_off(24,{name="switch",component="main"}),a.dp_on_off(25,{name="switch",component="switch2"}),a.dp_on_off(26,{name="switch",component="switch3"}),a.dp_on_off(27,{name="switch",component="switch4"}),a.dp_enum(18,{
+name="mode_l1",emit=b.lcd4gMode1(),converter=n,}),a.dp_enum(19,{
+name="mode_l2",emit=b.lcd4gMode2(),converter=n,}),a.dp_enum(20,{
+name="mode_l3",emit=b.lcd4gMode3(),converter=n,}),a.dp_enum(21,{
+name="mode_l4",emit=b.lcd4gMode4(),converter=n,}),a.dp_binary(36,{
+name="backlight_switch",emit=b.lcd4gBacklightSwitch(),converter=d,}),a.dp_enum(37,{
+name="indicator_switch",emit=b.lcd4gIndicatorSwitch(),converter=f.lookup_from_to({status=0,switchPosition=1,off=2}),}),a.dp_binary(101,{
+name="backlight",emit=b.lcd4gBacklight(),converter=d,}),},query_on_configure=false,time_start="1970",}w(s,{1,2,3,4})local ah={
+to=function(i)
+if type(i)~="string"or not utf8.len(i)or #i>16383 then return nil end
+return(i:gsub(".",function(as)return string.format("%04x",as:byte())end))
 end,
-from=function(value)
-if type(value)~="string"or #value%4~=0 or value:find("[^%x]")then return nil end
-local result=value:gsub("%x%x%x%x",function(word)return string.char(tonumber(word,16)&255)end)
-if result:sub(1,3)=="\239\187\191"then result=result:sub(4)end
-if utf8.len(result)then return result end
+from=function(i)
+if type(i)~="string"or #i%4~=0 or i:find("[^%x]")then return nil end
+local z=i:gsub("%x%x%x%x",function(au)return string.char(tonumber(au,16)&255)end)
+if z:sub(1,3)=="\239\187\191"then z=z:sub(4)end
+if utf8.len(z)then return z end
 end,
-}for index,factories in ipairs({
-{emit.m8SwitchOneName,emit.m8SceneOneName},{emit.m8SwitchTwoName,emit.m8SceneTwoName},{emit.m8SwitchThreeName,emit.m8SceneThreeName},{emit.m8SwitchFourName,emit.m8SceneFourName},})do
-local dps=switch_4gang_lcd_panel.datapoints
-dps[#dps+1]=tuya.dp_string(102+index,{name="name_l"..index,converter=m8_name,emit=factories[1]({allow_empty=true})})dps[#dps+1]=tuya.dp_string(106+index,{name="scene_name_l"..index,converter=m8_name,emit=factories[2]({allow_empty=true})})
+}for index,F in ipairs({
+{b.m8SwitchOneName,b.m8SceneOneName},{b.m8SwitchTwoName,b.m8SceneTwoName},{b.m8SwitchThreeName,b.m8SceneThreeName},{b.m8SwitchFourName,b.m8SceneFourName},})do
+local ac=s.datapoints
+ac[#ac+1]=a.dp_string(102+index,{name="name_l"..index,converter=ah,emit=F[1]({allow_empty=true})})ac[#ac+1]=a.dp_string(106+index,{name="scene_name_l"..index,converter=ah,emit=F[2]({allow_empty=true})})
 end
-register_device_definition(switch_4gang_lcd_panel,device_helpers.create_fingerprints("TS0601",{
-"_TZE284_atuj3i0w",}))local switch_model_zts_eu_1gang={
-profile="switches-switch-1-zts-eu",package_group="switch-panel",tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_power_on_behavior(14,{emit=emit.zts1gPowerOnBehavior()}),tuya.dp_enum(15,{
-name="indicate_light",emit=emit.zts1gIndicateLight(),converter=converter.lookup_from_to({off=0,switch=1,position=2,freeze=3}),}),}register_device_definition(switch_model_zts_eu_1gang,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_amp6tsvy","_TZE200_tviaymwx",}))local switch_model_zts_eu_2gang={
-profile="switches-switch-2-zts-eu",package_group="switch-panel",tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_power_on_behavior(14,{emit=emit.zts2gPowerOnBehavior()}),tuya.dp_enum(15,{
-name="indicate_light",emit=emit.zts2gIndicateLight(),converter=converter.lookup_from_to({off=0,switch=1,position=2,freeze=3}),}),}register_device_definition(switch_model_zts_eu_2gang,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_g1ib5ldv",}))local switch_model_zts_eu_3gang={
-profile="switches-switch-3-zts-eu",package_group="switch-panel",tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_on_off(3,{name="switch",component="switch3"}),tuya.dp_power_on_behavior(14,{emit=emit.zts3gPowerOnBehavior()}),tuya.dp_enum(15,{
-name="indicate_light",emit=emit.zts3gIndicateLight(),converter=converter.lookup_from_to({off=0,switch=1,position=2,freeze=3}),}),}register_device_definition(switch_model_zts_eu_3gang,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_tz32mtza",}))local switch_model_zts_eu_4gang={
-profile="switches-switch-4-zts-eu",package_group="switch-panel",tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_on_off(3,{name="switch",component="switch3"}),tuya.dp_on_off(4,{name="switch",component="switch4"}),tuya.dp_power_on_behavior(14,{emit=emit.zts4gPowerOnBehavior()}),tuya.dp_enum(15,{
-name="indicate_light",emit=emit.zts4gIndicateLight(),converter=converter.lookup_from_to({off=0,switch=1,position=2,freeze=3}),}),}register_device_definition(switch_model_zts_eu_4gang,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_1ozguk6x",}))local switch_model_zs_tyg3_sm_21z={
-profile="switches-switch-2-tyg3-sm",package_group="switch-panel",tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_countdown(7,{name="countdown_l1",emit=emit.tyg21zChannel1Countdown()}),tuya.dp_countdown(8,{name="countdown_l2",emit=emit.tyg21zChannel2Countdown()}),tuya.dp_on_off(13,{name="switch",component="switch3"}),tuya.dp_power_on_behavior(14,{emit=emit.tyg21zPowerOnBehavior()}),tuya.dp_backlight_mode_off_on(16,{
-emit=emit.tyg21zBacklightMode(),converter=panel_off_on_converter,}),query_on_configure=false,time_start="off",}register_device_definition(switch_model_zs_tyg3_sm_21z,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_wunufsil",}))local switch_model_zs_tyg3_sm_31z={
-profile="switches-switch-3-tyg3-sm",package_group="switch-panel",tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_on_off(3,{name="switch",component="switch3"}),tuya.dp_countdown(7,{name="countdown_l1",emit=emit.tyg31zChannel1Countdown()}),tuya.dp_countdown(8,{name="countdown_l2",emit=emit.tyg31zChannel2Countdown()}),tuya.dp_countdown(9,{name="countdown_l3",emit=emit.tyg31zChannel3Countdown()}),tuya.dp_on_off(13,{name="switch",component="switch4"}),tuya.dp_power_on_behavior(14,{emit=emit.tyg31zPowerOnBehavior()}),tuya.dp_backlight_mode_off_on(16,{
-emit=emit.tyg31zBacklightMode(),converter=panel_off_on_converter,}),query_on_configure=false,time_start="off",}register_device_definition(switch_model_zs_tyg3_sm_31z,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_vhy3iakz",}))local switch_model_zs_tyg3_sm_41z={
-profile="switches-switch-4-tyg3-sm",package_group="switch-panel",tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_on_off(3,{name="switch",component="switch3"}),tuya.dp_on_off(4,{name="switch",component="switch4"}),tuya.dp_countdown(7,{name="countdown_l1",emit=emit.tyg41zChannel1Countdown()}),tuya.dp_countdown(8,{name="countdown_l2",emit=emit.tyg41zChannel2Countdown()}),tuya.dp_countdown(9,{name="countdown_l3",emit=emit.tyg41zChannel3Countdown()}),tuya.dp_countdown(10,{name="countdown_l4",emit=emit.tyg41zChannel4Countdown()}),tuya.dp_on_off(13,{name="switch",component="switch5"}),tuya.dp_power_on_behavior(14,{emit=emit.tyg41zPowerOnBehavior()}),tuya.dp_backlight_mode_off_on(16,{
-emit=emit.tyg41zBacklightMode(),converter=panel_off_on_converter,}),query_on_configure=false,time_start="off",}register_device_definition(switch_model_zs_tyg3_sm_41z,device_helpers.create_fingerprints("TS0601",{
-"TZE204_unsxl4ir","_TZE200_k6jhsr0q","_TZE204_unsxl4ir",}))register_device_definition(switch_model_zs_tyg3_sm_41z,{
-device_helpers.create_fingerprint("Nova Digital","FZB-4"),})local switch_model_zs_tyg3_sm_61z={
-profile="switches-switch-6-tyg3-sm",package_group="switch-panel",tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_on_off(3,{name="switch",component="switch3"}),tuya.dp_on_off(4,{name="switch",component="switch4"}),tuya.dp_on_off(5,{name="switch",component="switch5"}),tuya.dp_on_off(6,{name="switch",component="switch6"}),tuya.dp_countdown(7,{name="countdown_l1",emit=emit.tyg61zChannel1Countdown()}),tuya.dp_countdown(8,{name="countdown_l2",emit=emit.tyg61zChannel2Countdown()}),tuya.dp_countdown(9,{name="countdown_l3",emit=emit.tyg61zChannel3Countdown()}),tuya.dp_countdown(10,{name="countdown_l4",emit=emit.tyg61zChannel4Countdown()}),tuya.dp_countdown(11,{name="countdown_l5",emit=emit.tyg61zChannel5Countdown()}),tuya.dp_countdown(12,{name="countdown_l6",emit=emit.tyg61zChannel6Countdown()}),tuya.dp_on_off(13,{name="switch",component="switch7"}),tuya.dp_power_on_behavior(14,{emit=emit.tyg61zPowerOnBehavior()}),tuya.dp_backlight_mode_off_on(16,{
-emit=emit.tyg61zBacklightMode(),converter=panel_off_on_converter,}),query_on_configure=false,time_start="off",}register_device_definition(switch_model_zs_tyg3_sm_61z,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_0j5jma9b","_TZE200_h2rctifa",}))local switch_model_ts0601_switch_4_gang_2={
-profile="switches-switch-4-backlight-hewlydpz",package_group="switch-panel",tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_on_off(3,{name="switch",component="switch3"}),tuya.dp_on_off(4,{name="switch",component="switch4"}),tuya.dp_backlight_mode_off_on(7,{
-emit=emit.hewlydpzBacklightMode(),converter=panel_off_on_converter,}),}register_device_definition(switch_model_ts0601_switch_4_gang_2,device_helpers.create_fingerprints("TS0601",{
-"_TZE200_hewlydpz",}))register_device_definition(switch_model_ts0601_switch_4_gang_2,{
-device_helpers.create_fingerprint("Homeetec","37022714"),})local switch_16gang_pn16={
-profile="switches-switch-16-pn16",package_group="switch-panel",tuya.dp_on_off(1,{name="switch",component="switch17"}),tuya.dp_on_off(101,{name="switch",component="main"}),tuya.dp_on_off(102,{name="switch",component="switch2"}),tuya.dp_on_off(103,{name="switch",component="switch3"}),tuya.dp_on_off(104,{name="switch",component="switch4"}),tuya.dp_on_off(105,{name="switch",component="switch5"}),tuya.dp_on_off(106,{name="switch",component="switch6"}),tuya.dp_on_off(107,{name="switch",component="switch7"}),tuya.dp_on_off(108,{name="switch",component="switch8"}),tuya.dp_on_off(109,{name="switch",component="switch9"}),tuya.dp_on_off(110,{name="switch",component="switch10"}),tuya.dp_on_off(111,{name="switch",component="switch11"}),tuya.dp_on_off(112,{name="switch",component="switch12"}),tuya.dp_on_off(113,{name="switch",component="switch13"}),tuya.dp_on_off(114,{name="switch",component="switch14"}),tuya.dp_on_off(115,{name="switch",component="switch15"}),tuya.dp_on_off(116,{name="switch",component="switch16"}),tuya.dp_power_on_behavior(117,{emit=emit.pn16PowerOnBehavior()}),tuya.dp_enum(118,{
-name="switch_type_l1_l8",emit=emit.pn16SwitchTypeOneToEight(),converter=pn16_switch_type_converter,}),tuya.dp_enum(119,{
-name="switch_type_l9_l16",emit=emit.pn16SwitchTypeNineToSixteen(),converter=pn16_switch_type_converter,}),tuya.dp_enum(120,{
-name="switch_mode_l11_l12",emit=emit.pn16SwitchModeElevenTwelve(),converter=pn16_switch_mode_converter,}),tuya.dp_enum(121,{
-name="switch_mode_l13_l14",emit=emit.pn16SwitchModeThirteenFourteen(),converter=pn16_switch_mode_converter,}),tuya.dp_enum(122,{
-name="switch_mode_l15_l16",emit=emit.pn16SwitchModeFifteenSixteen(),converter=pn16_switch_mode_converter,}),query_on_configure=false,time_start="off",}register_device_definition(switch_16gang_pn16,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_zqq3cipq","_TZE284_zqq3cipq",}))local switch_model_ts0601_switch_8_2={
-profile="switches-switch-8-adlblwab",package_group="switch-panel",component_to_endpoint_map={main=1,switch2=1,switch3=1,switch4=1,switch5=1,switch6=1,switch7=1,switch8=1},endpoint_to_component_map={[1]="main"},tuya.dp_on_off(1,{name="switch",component="main",endpoint=1}),tuya.dp_on_off(2,{name="switch",component="switch2",endpoint=1}),tuya.dp_on_off(3,{name="switch",component="switch3",endpoint=1}),tuya.dp_on_off(4,{name="switch",component="switch4",endpoint=1}),tuya.dp_on_off(5,{name="switch",component="switch5",endpoint=1}),tuya.dp_on_off(6,{name="switch",component="switch6",endpoint=1}),tuya.dp_on_off(7,{name="switch",component="switch7",endpoint=1}),tuya.dp_on_off(8,{name="switch",component="switch8",endpoint=1}),tuya.dp_countdown(9,{name="countdown_l1",endpoint=1,emit=emit.sw82Channel1Countdown()}),tuya.dp_countdown(10,{name="countdown_l2",endpoint=1,emit=emit.sw82Channel2Countdown()}),tuya.dp_countdown(11,{name="countdown_l3",endpoint=1,emit=emit.sw82Channel3Countdown()}),tuya.dp_countdown(12,{name="countdown_l4",endpoint=1,emit=emit.sw82Channel4Countdown()}),tuya.dp_countdown(13,{name="countdown_l5",endpoint=1,emit=emit.sw82Channel5Countdown()}),tuya.dp_countdown(14,{name="countdown_l6",endpoint=1,emit=emit.sw82Channel6Countdown()}),tuya.dp_countdown(15,{name="countdown_l7",endpoint=1,emit=emit.sw82Channel7Countdown()}),tuya.dp_countdown(16,{name="countdown_l8",endpoint=1,emit=emit.sw82Channel8Countdown()}),tuya.dp_power_on_behavior(27,{endpoint=1,emit=emit.sw82PowerOnBehavior()}),magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,query_on_announce=false,initial_custom_state_query=false,refresh_state_query=false,time_start="off",}register_device_definition(switch_model_ts0601_switch_8_2,device_helpers.create_fingerprints("TS0601",{
+c(s,e.create_fingerprints("TS0601",{
+"_TZE284_atuj3i0w",}))local L={
+profile="switches-switch-1-zts-eu",package_group="switch-panel",a.dp_on_off(1,{name="switch",component="main"}),a.dp_power_on_behavior(14,{emit=b.zts1gPowerOnBehavior()}),a.dp_enum(15,{
+name="indicate_light",emit=b.zts1gIndicateLight(),converter=f.lookup_from_to({off=0,switch=1,position=2,freeze=3}),}),}c(L,e.create_fingerprints("TS0601",{
+"_TZE200_amp6tsvy","_TZE200_tviaymwx",}))local M={
+profile="switches-switch-2-zts-eu",package_group="switch-panel",a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_power_on_behavior(14,{emit=b.zts2gPowerOnBehavior()}),a.dp_enum(15,{
+name="indicate_light",emit=b.zts2gIndicateLight(),converter=f.lookup_from_to({off=0,switch=1,position=2,freeze=3}),}),}c(M,e.create_fingerprints("TS0601",{
+"_TZE200_g1ib5ldv",}))local N={
+profile="switches-switch-3-zts-eu",package_group="switch-panel",a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_on_off(3,{name="switch",component="switch3"}),a.dp_power_on_behavior(14,{emit=b.zts3gPowerOnBehavior()}),a.dp_enum(15,{
+name="indicate_light",emit=b.zts3gIndicateLight(),converter=f.lookup_from_to({off=0,switch=1,position=2,freeze=3}),}),}c(N,e.create_fingerprints("TS0601",{
+"_TZE200_tz32mtza",}))local O={
+profile="switches-switch-4-zts-eu",package_group="switch-panel",a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_on_off(3,{name="switch",component="switch3"}),a.dp_on_off(4,{name="switch",component="switch4"}),a.dp_power_on_behavior(14,{emit=b.zts4gPowerOnBehavior()}),a.dp_enum(15,{
+name="indicate_light",emit=b.zts4gIndicateLight(),converter=f.lookup_from_to({off=0,switch=1,position=2,freeze=3}),}),}c(O,e.create_fingerprints("TS0601",{
+"_TZE200_1ozguk6x",}))local G={
+profile="switches-switch-2-tyg3-sm",package_group="switch-panel",a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_countdown(7,{name="countdown_l1",emit=b.tyg21zChannel1Countdown()}),a.dp_countdown(8,{name="countdown_l2",emit=b.tyg21zChannel2Countdown()}),a.dp_on_off(13,{name="switch",component="switch3"}),a.dp_power_on_behavior(14,{emit=b.tyg21zPowerOnBehavior()}),a.dp_backlight_mode_off_on(16,{
+emit=b.tyg21zBacklightMode(),converter=d,}),query_on_configure=false,time_start="off",}c(G,e.create_fingerprints("TS0601",{
+"_TZE200_wunufsil",}))local H={
+profile="switches-switch-3-tyg3-sm",package_group="switch-panel",a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_on_off(3,{name="switch",component="switch3"}),a.dp_countdown(7,{name="countdown_l1",emit=b.tyg31zChannel1Countdown()}),a.dp_countdown(8,{name="countdown_l2",emit=b.tyg31zChannel2Countdown()}),a.dp_countdown(9,{name="countdown_l3",emit=b.tyg31zChannel3Countdown()}),a.dp_on_off(13,{name="switch",component="switch4"}),a.dp_power_on_behavior(14,{emit=b.tyg31zPowerOnBehavior()}),a.dp_backlight_mode_off_on(16,{
+emit=b.tyg31zBacklightMode(),converter=d,}),query_on_configure=false,time_start="off",}c(H,e.create_fingerprints("TS0601",{
+"_TZE200_vhy3iakz",}))local t={
+profile="switches-switch-4-tyg3-sm",package_group="switch-panel",a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_on_off(3,{name="switch",component="switch3"}),a.dp_on_off(4,{name="switch",component="switch4"}),a.dp_countdown(7,{name="countdown_l1",emit=b.tyg41zChannel1Countdown()}),a.dp_countdown(8,{name="countdown_l2",emit=b.tyg41zChannel2Countdown()}),a.dp_countdown(9,{name="countdown_l3",emit=b.tyg41zChannel3Countdown()}),a.dp_countdown(10,{name="countdown_l4",emit=b.tyg41zChannel4Countdown()}),a.dp_on_off(13,{name="switch",component="switch5"}),a.dp_power_on_behavior(14,{emit=b.tyg41zPowerOnBehavior()}),a.dp_backlight_mode_off_on(16,{
+emit=b.tyg41zBacklightMode(),converter=d,}),query_on_configure=false,time_start="off",}c(t,e.create_fingerprints("TS0601",{
+"TZE204_unsxl4ir","_TZE200_k6jhsr0q","_TZE204_unsxl4ir",}))c(t,{
+e.create_fingerprint("Nova Digital","FZB-4"),})local I={
+profile="switches-switch-6-tyg3-sm",package_group="switch-panel",a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_on_off(3,{name="switch",component="switch3"}),a.dp_on_off(4,{name="switch",component="switch4"}),a.dp_on_off(5,{name="switch",component="switch5"}),a.dp_on_off(6,{name="switch",component="switch6"}),a.dp_countdown(7,{name="countdown_l1",emit=b.tyg61zChannel1Countdown()}),a.dp_countdown(8,{name="countdown_l2",emit=b.tyg61zChannel2Countdown()}),a.dp_countdown(9,{name="countdown_l3",emit=b.tyg61zChannel3Countdown()}),a.dp_countdown(10,{name="countdown_l4",emit=b.tyg61zChannel4Countdown()}),a.dp_countdown(11,{name="countdown_l5",emit=b.tyg61zChannel5Countdown()}),a.dp_countdown(12,{name="countdown_l6",emit=b.tyg61zChannel6Countdown()}),a.dp_on_off(13,{name="switch",component="switch7"}),a.dp_power_on_behavior(14,{emit=b.tyg61zPowerOnBehavior()}),a.dp_backlight_mode_off_on(16,{
+emit=b.tyg61zBacklightMode(),converter=d,}),query_on_configure=false,time_start="off",}c(I,e.create_fingerprints("TS0601",{
+"_TZE200_0j5jma9b","_TZE200_h2rctifa",}))local o={
+profile="switches-switch-4-backlight-hewlydpz",package_group="switch-panel",a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_on_off(3,{name="switch",component="switch3"}),a.dp_on_off(4,{name="switch",component="switch4"}),a.dp_backlight_mode_off_on(7,{
+emit=b.hewlydpzBacklightMode(),converter=d,}),}c(o,e.create_fingerprints("TS0601",{
+"_TZE200_hewlydpz",}))c(o,{
+e.create_fingerprint("Homeetec","37022714"),})local Y={
+profile="switches-switch-16-pn16",package_group="switch-panel",a.dp_on_off(1,{name="switch",component="switch17"}),a.dp_on_off(101,{name="switch",component="main"}),a.dp_on_off(102,{name="switch",component="switch2"}),a.dp_on_off(103,{name="switch",component="switch3"}),a.dp_on_off(104,{name="switch",component="switch4"}),a.dp_on_off(105,{name="switch",component="switch5"}),a.dp_on_off(106,{name="switch",component="switch6"}),a.dp_on_off(107,{name="switch",component="switch7"}),a.dp_on_off(108,{name="switch",component="switch8"}),a.dp_on_off(109,{name="switch",component="switch9"}),a.dp_on_off(110,{name="switch",component="switch10"}),a.dp_on_off(111,{name="switch",component="switch11"}),a.dp_on_off(112,{name="switch",component="switch12"}),a.dp_on_off(113,{name="switch",component="switch13"}),a.dp_on_off(114,{name="switch",component="switch14"}),a.dp_on_off(115,{name="switch",component="switch15"}),a.dp_on_off(116,{name="switch",component="switch16"}),a.dp_power_on_behavior(117,{emit=b.pn16PowerOnBehavior()}),a.dp_enum(118,{
+name="switch_type_l1_l8",emit=b.pn16SwitchTypeOneToEight(),converter=u,}),a.dp_enum(119,{
+name="switch_type_l9_l16",emit=b.pn16SwitchTypeNineToSixteen(),converter=u,}),a.dp_enum(120,{
+name="switch_mode_l11_l12",emit=b.pn16SwitchModeElevenTwelve(),converter=p,}),a.dp_enum(121,{
+name="switch_mode_l13_l14",emit=b.pn16SwitchModeThirteenFourteen(),converter=p,}),a.dp_enum(122,{
+name="switch_mode_l15_l16",emit=b.pn16SwitchModeFifteenSixteen(),converter=p,}),query_on_configure=false,time_start="off",}c(Y,e.create_fingerprints("TS0601",{
+"_TZE204_zqq3cipq","_TZE284_zqq3cipq",}))local D={
+profile="switches-switch-8-adlblwab",package_group="switch-panel",component_to_endpoint_map={main=1,switch2=1,switch3=1,switch4=1,switch5=1,switch6=1,switch7=1,switch8=1},endpoint_to_component_map={[1]="main"},a.dp_on_off(1,{name="switch",component="main",endpoint=1}),a.dp_on_off(2,{name="switch",component="switch2",endpoint=1}),a.dp_on_off(3,{name="switch",component="switch3",endpoint=1}),a.dp_on_off(4,{name="switch",component="switch4",endpoint=1}),a.dp_on_off(5,{name="switch",component="switch5",endpoint=1}),a.dp_on_off(6,{name="switch",component="switch6",endpoint=1}),a.dp_on_off(7,{name="switch",component="switch7",endpoint=1}),a.dp_on_off(8,{name="switch",component="switch8",endpoint=1}),a.dp_countdown(9,{name="countdown_l1",endpoint=1,emit=b.sw82Channel1Countdown()}),a.dp_countdown(10,{name="countdown_l2",endpoint=1,emit=b.sw82Channel2Countdown()}),a.dp_countdown(11,{name="countdown_l3",endpoint=1,emit=b.sw82Channel3Countdown()}),a.dp_countdown(12,{name="countdown_l4",endpoint=1,emit=b.sw82Channel4Countdown()}),a.dp_countdown(13,{name="countdown_l5",endpoint=1,emit=b.sw82Channel5Countdown()}),a.dp_countdown(14,{name="countdown_l6",endpoint=1,emit=b.sw82Channel6Countdown()}),a.dp_countdown(15,{name="countdown_l7",endpoint=1,emit=b.sw82Channel7Countdown()}),a.dp_countdown(16,{name="countdown_l8",endpoint=1,emit=b.sw82Channel8Countdown()}),a.dp_power_on_behavior(27,{endpoint=1,emit=b.sw82PowerOnBehavior()}),magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,query_on_announce=false,initial_custom_state_query=false,refresh_state_query=false,time_start="off",}c(D,e.create_fingerprints("TS0601",{
 "_TZE204_adlblwab","_TZE284_adlblwab",}))return{
-id="ef00.switch.panel",registrations=device_definitions,}
+id="ef00.switch.panel",registrations=X,}

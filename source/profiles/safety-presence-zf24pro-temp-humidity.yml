@@ -26,6 +26,7 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: PresenceSensor
   - id: radarFunction
@@ -73,154 +74,110 @@ components:
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: presenceSensor
-        version: 1
-        group: main
+    - component: main
+      capability: presenceSensor
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: presenceSensor
-      version: 1
-    - component: main
-      capability: illuminanceMeasurement
-      version: 1
-    - component: main
-      capability: temperatureMeasurement
-      version: 1
-    - component: main
-      capability: relativeHumidityMeasurement
-      version: 1
-    - component: main
-      capability: concertmirror08464.zf24ProDistance
-      version: 1
-    - component: main
-      capability: concertmirror08464.zf24ProMoveSensitivity
-      version: 1
-    - component: main
-      capability: concertmirror08464.zf24ProPresenceSensitivity
-      version: 1
-    - component: main
-      capability: concertmirror08464.zf24ProPresenceTimeout
-      version: 1
-    - component: main
-      capability: concertmirror08464.zf24ProDetectionDistanceMax
-      version: 1
-    - component: main
-      capability: concertmirror08464.zf24ProTemperatureCorrection
-      version: 1
-    - component: main
-      capability: concertmirror08464.zf24ProHumidityCorrection
-      version: 1
-    - component: radarFunction
-      capability: switch
-      version: 1
-    - component: livingRoom
-      capability: switch
-      version: 1
-    - component: bedroom
-      capability: switch
-      version: 1
-    - component: bathroom
-      capability: switch
-      version: 1
-    - component: sleep
-      capability: switch
-      version: 1
-    - component: radarSwitch
-      capability: switch
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: presenceSensor
+  - component: main
+    capability: illuminanceMeasurement
+  - component: main
+    capability: temperatureMeasurement
+  - component: main
+    capability: relativeHumidityMeasurement
+  - component: main
+    capability: concertmirror08464.zf24ProDistance
+  - component: main
+    capability: concertmirror08464.zf24ProMoveSensitivity
+  - component: main
+    capability: concertmirror08464.zf24ProPresenceSensitivity
+  - component: main
+    capability: concertmirror08464.zf24ProPresenceTimeout
+  - component: main
+    capability: concertmirror08464.zf24ProDetectionDistanceMax
+  - component: main
+    capability: concertmirror08464.zf24ProTemperatureCorrection
+  - component: main
+    capability: concertmirror08464.zf24ProHumidityCorrection
+  - component: radarFunction
+    capability: switch
+  - component: livingRoom
+    capability: switch
+  - component: bedroom
+    capability: switch
+  - component: bathroom
+    capability: switch
+  - component: sleep
+    capability: switch
+  - component: radarSwitch
+    capability: switch
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: presenceSensor
-        version: 1
-      - component: main
-        capability: illuminanceMeasurement
-        version: 1
-      - component: main
-        capability: temperatureMeasurement
-        version: 1
-      - component: main
-        capability: relativeHumidityMeasurement
-        version: 1
-      - component: main
-        capability: concertmirror08464.zf24ProDistance
-        version: 1
-      - component: main
-        capability: concertmirror08464.zf24ProMoveSensitivity
-        version: 1
-      - component: main
-        capability: concertmirror08464.zf24ProPresenceSensitivity
-        version: 1
-      - component: main
-        capability: concertmirror08464.zf24ProPresenceTimeout
-        version: 1
-      - component: main
-        capability: concertmirror08464.zf24ProDetectionDistanceMax
-        version: 1
-      - component: main
-        capability: concertmirror08464.zf24ProTemperatureCorrection
-        version: 1
-      - component: main
-        capability: concertmirror08464.zf24ProHumidityCorrection
-        version: 1
-      - component: radarFunction
-        capability: switch
-        version: 1
-      - component: livingRoom
-        capability: switch
-        version: 1
-      - component: bedroom
-        capability: switch
-        version: 1
-      - component: bathroom
-        capability: switch
-        version: 1
-      - component: sleep
-        capability: switch
-        version: 1
-      - component: radarSwitch
-        capability: switch
-        version: 1
+    - component: main
+      capability: presenceSensor
+    - component: main
+      capability: illuminanceMeasurement
+    - component: main
+      capability: temperatureMeasurement
+    - component: main
+      capability: relativeHumidityMeasurement
+    - component: main
+      capability: concertmirror08464.zf24ProDistance
+    - component: main
+      capability: concertmirror08464.zf24ProMoveSensitivity
+    - component: main
+      capability: concertmirror08464.zf24ProPresenceSensitivity
+    - component: main
+      capability: concertmirror08464.zf24ProPresenceTimeout
+    - component: main
+      capability: concertmirror08464.zf24ProDetectionDistanceMax
+    - component: main
+      capability: concertmirror08464.zf24ProTemperatureCorrection
+    - component: main
+      capability: concertmirror08464.zf24ProHumidityCorrection
+    - component: radarFunction
+      capability: switch
+    - component: livingRoom
+      capability: switch
+    - component: bedroom
+      capability: switch
+    - component: bathroom
+      capability: switch
+    - component: sleep
+      capability: switch
+    - component: radarSwitch
+      capability: switch
+    - component: main
+      capability: signalStrength
     actions:
-      - component: main
-        capability: concertmirror08464.zf24ProMoveSensitivity
-        version: 1
-      - component: main
-        capability: concertmirror08464.zf24ProPresenceSensitivity
-        version: 1
-      - component: main
-        capability: concertmirror08464.zf24ProPresenceTimeout
-        version: 1
-      - component: main
-        capability: concertmirror08464.zf24ProDetectionDistanceMax
-        version: 1
-      - component: main
-        capability: concertmirror08464.zf24ProTemperatureCorrection
-        version: 1
-      - component: main
-        capability: concertmirror08464.zf24ProHumidityCorrection
-        version: 1
-      - component: radarFunction
-        capability: switch
-        version: 1
-      - component: livingRoom
-        capability: switch
-        version: 1
-      - component: bedroom
-        capability: switch
-        version: 1
-      - component: bathroom
-        capability: switch
-        version: 1
-      - component: sleep
-        capability: switch
-        version: 1
-      - component: radarSwitch
-        capability: switch
-        version: 1
+    - component: main
+      capability: concertmirror08464.zf24ProMoveSensitivity
+    - component: main
+      capability: concertmirror08464.zf24ProPresenceSensitivity
+    - component: main
+      capability: concertmirror08464.zf24ProPresenceTimeout
+    - component: main
+      capability: concertmirror08464.zf24ProDetectionDistanceMax
+    - component: main
+      capability: concertmirror08464.zf24ProTemperatureCorrection
+    - component: main
+      capability: concertmirror08464.zf24ProHumidityCorrection
+    - component: radarFunction
+      capability: switch
+    - component: livingRoom
+      capability: switch
+    - component: bedroom
+      capability: switch
+    - component: bathroom
+      capability: switch
+    - component: sleep
+      capability: switch
+    - component: radarSwitch
+      capability: switch

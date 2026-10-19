@@ -1,90 +1,90 @@
-local tuya=require"protocol.tuya"
-local emit=require"capabilities.events.all"
-local device_helpers=require"contracts.helpers.family"
-local device_definitions,register_device_definition=device_helpers.definition_registry()local converter=tuya.converter
-local MAKEGOOD_ENERGY_FIELD="__makegood_incremental_energy_total"
-local function makegood_incremental_energy_from_device(value,device)
-local raw=tonumber(value)
-if raw==nil then return nil end
-local previous=tonumber(device:get_field(MAKEGOOD_ENERGY_FIELD))
-if previous==nil and type(device.get_latest_state)=="function"then
-previous=tonumber(device:get_latest_state("main","energyMeter","energy"))
+local a=require"protocol.tuya"
+local b=require"capabilities.events.all"
+local e=require"contracts.helpers.family"
+local r,c=e.definition_registry()local h=a.converter
+local j="__makegood_incremental_energy_total"
+local function f(g,k)
+local x=tonumber(g)
+if x==nil then return nil end
+local l=tonumber(k:get_field(j))
+if l==nil and type(k.get_latest_state)=="function"then
+l=tonumber(k:get_latest_state("main","energyMeter","energy"))
 end
-previous=previous or 0
-local increment=raw/1000
-local total=previous
-if increment>0 then
-total=math.floor((previous+increment)*1000+0.5)/1000
+l=l or 0
+local w=x/1000
+local A=l
+if w>0 then
+A=math.floor((l+w)*1000+0.5)/1000
 end
-device:set_field(MAKEGOOD_ENERGY_FIELD,total,{persist=true})return total
+k:set_field(j,A,{persist=true})return A
 end
-local semicom_6switch={
-profile="switches-switch-6",package_group="switch-basic",query_on_configure=false,tuya.dp_on_off(1,{name="switch",component="main"}),tuya.dp_on_off(2,{name="switch",component="switch2"}),tuya.dp_on_off(3,{name="switch",component="switch3"}),tuya.dp_on_off(4,{name="switch",component="switch4"}),tuya.dp_on_off(5,{name="switch",component="switch5"}),tuya.dp_on_off(6,{name="switch",component="switch6"}),}register_device_definition(semicom_6switch,device_helpers.create_fingerprints("TS0601",{
-"_TZE204_8eazvzo6",}))local grxx6qek_temperature_humidity_switch={
+local u={
+profile="switches-switch-6",package_group="switch-basic",query_on_configure=false,a.dp_on_off(1,{name="switch",component="main"}),a.dp_on_off(2,{name="switch",component="switch2"}),a.dp_on_off(3,{name="switch",component="switch3"}),a.dp_on_off(4,{name="switch",component="switch4"}),a.dp_on_off(5,{name="switch",component="switch5"}),a.dp_on_off(6,{name="switch",component="switch6"}),}c(u,e.create_fingerprints("TS0601",{
+"_TZE204_8eazvzo6",}))local i={
 profile="switches-switch-1-temp-humidity",package_group="switch-basic",query_on_configure=false,time_start="1970",datapoints={
-tuya.dp_on_off(2,{name="switch",component="main",suppress_optimistic_state=true}),tuya.dp_temperature(27,{read_only=true,scale=10,emit=emit.temperature("C")}),tuya.dp_humidity(46,{read_only=true,scale=1,emit=emit.humidity()}),},}register_device_definition(grxx6qek_temperature_humidity_switch,device_helpers.create_fingerprints("TS0601",{"_TZE284_grxx6qek"}))local zemismart_zmz609_two_core={
+a.dp_on_off(2,{name="switch",component="main",suppress_optimistic_state=true}),a.dp_temperature(27,{read_only=true,scale=10,emit=b.temperature("C")}),a.dp_humidity(46,{read_only=true,scale=1,emit=b.humidity()}),},}c(i,e.create_fingerprints("TS0601",{"_TZE284_grxx6qek"}))local n={
 profile="switches-zemismart-zmz609-2-core",package_group="switch-basic",transport_classification="EF00_DP",z2m_converter_source="meta.tuyaDatapoints",wire_cluster="manuSpecificTuya",magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,named_datapoints=true,time_start="1970",placeholder_custom_states=false,datapoints={
-tuya.dp_on_off(1,{name="switch",component="main",transaction=1,emit=emit.switch()}),tuya.dp_on_off(2,{name="switch",component="switch2",transaction=1,emit=emit.switch()}),tuya.dp_energy(20,{name="energy",scale=1000,read_only=true,transaction=1,emit=emit.energy()}),tuya.dp_current(21,{name="current",scale=1000,read_only=true,transaction=1,emit=emit.current()}),tuya.dp_power(22,{name="power",scale=10,read_only=true,transaction=1,emit=emit.power()}),tuya.dp_voltage(23,{name="voltage",scale=10,read_only=true,transaction=1,emit=emit.voltage()}),},}register_device_definition(zemismart_zmz609_two_core,{
-device_helpers.create_fingerprint("_TZE284_o409r73p","TS0601"),device_helpers.create_fingerprint("_TZE28C1000000_o409r73p","TS0601"),})local tuya_6gang_switch_two_core={
+a.dp_on_off(1,{name="switch",component="main",transaction=1,emit=b.switch()}),a.dp_on_off(2,{name="switch",component="switch2",transaction=1,emit=b.switch()}),a.dp_energy(20,{name="energy",scale=1000,read_only=true,transaction=1,emit=b.energy()}),a.dp_current(21,{name="current",scale=1000,read_only=true,transaction=1,emit=b.current()}),a.dp_power(22,{name="power",scale=10,read_only=true,transaction=1,emit=b.power()}),a.dp_voltage(23,{name="voltage",scale=10,read_only=true,transaction=1,emit=b.voltage()}),},}c(n,{
+e.create_fingerprint("_TZE284_o409r73p","TS0601"),e.create_fingerprint("_TZE28C1000000_o409r73p","TS0601"),})local m={
 profile="switches-tuya-6gang-switch-2-core",package_group="switch-basic",transport_classification="EF00_DP",z2m_converter_source="meta.tuyaDatapoints",wire_cluster="manuSpecificTuya",magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,named_datapoints=true,time_start="off",placeholder_custom_states=false,datapoints={
-tuya.dp_on_off(1,{name="switch",component="main",transaction=1,emit=emit.switch()}),tuya.dp_on_off(2,{name="switch",component="switch2",transaction=1,emit=emit.switch()}),tuya.dp_on_off(3,{name="switch",component="switch3",transaction=1,emit=emit.switch()}),tuya.dp_on_off(4,{name="switch",component="switch4",transaction=1,emit=emit.switch()}),tuya.dp_on_off(5,{name="switch",component="switch5",transaction=1,emit=emit.switch()}),tuya.dp_on_off(6,{name="switch",component="switch6",transaction=1,emit=emit.switch()}),tuya.dp_energy(20,{name="energy",scale=100,read_only=true,transaction=1,emit=emit.energy()}),tuya.dp_current(21,{name="current",scale=1000,read_only=true,transaction=1,emit=emit.current()}),tuya.dp_power(22,{name="power",scale=10,read_only=true,transaction=1,emit=emit.power()}),tuya.dp_voltage(23,{name="voltage",scale=10,read_only=true,transaction=1,emit=emit.voltage()}),tuya.dp_on_off(136,{name="switch",component="all",transaction=1,emit=emit.switch()}),},}register_device_definition(tuya_6gang_switch_two_core,{
-device_helpers.create_fingerprint("_TZE284_hbxadcl0","TS0601"),})local makegood_mg_gpo02z_core={
+a.dp_on_off(1,{name="switch",component="main",transaction=1,emit=b.switch()}),a.dp_on_off(2,{name="switch",component="switch2",transaction=1,emit=b.switch()}),a.dp_on_off(3,{name="switch",component="switch3",transaction=1,emit=b.switch()}),a.dp_on_off(4,{name="switch",component="switch4",transaction=1,emit=b.switch()}),a.dp_on_off(5,{name="switch",component="switch5",transaction=1,emit=b.switch()}),a.dp_on_off(6,{name="switch",component="switch6",transaction=1,emit=b.switch()}),a.dp_energy(20,{name="energy",scale=100,read_only=true,transaction=1,emit=b.energy()}),a.dp_current(21,{name="current",scale=1000,read_only=true,transaction=1,emit=b.current()}),a.dp_power(22,{name="power",scale=10,read_only=true,transaction=1,emit=b.power()}),a.dp_voltage(23,{name="voltage",scale=10,read_only=true,transaction=1,emit=b.voltage()}),a.dp_on_off(136,{name="switch",component="all",transaction=1,emit=b.switch()}),},}c(m,{
+e.create_fingerprint("_TZE284_hbxadcl0","TS0601"),})local o={
 profile="switches-makegood-mg-gpo02z-core",package_group="switch-basic",transport_classification="EF00_DP",z2m_converter_source="meta.tuyaDatapoints",wire_cluster="manuSpecificTuya",magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,named_datapoints=true,time_start="1970",placeholder_custom_states=false,datapoints={
-tuya.dp_on_off(1,{name="switch",component="main",transaction=1,emit=emit.switch()}),tuya.dp_on_off(2,{name="switch",component="switch2",transaction=1,emit=emit.switch()}),tuya.dp_energy(20,{
-name="energy",read_only=true,transaction=1,converter=converter.from_only(makegood_incremental_energy_from_device),emit=emit.energy(),}),tuya.dp_current(21,{name="current",scale=1000,read_only=true,transaction=1,emit=emit.current()}),tuya.dp_power(22,{name="power",scale=10,read_only=true,transaction=1,emit=emit.power()}),tuya.dp_voltage(23,{name="voltage",scale=10,read_only=true,transaction=1,emit=emit.voltage()}),tuya.dp_on_off(136,{name="switch",component="all",transaction=1,emit=emit.switch()}),},}register_device_definition(makegood_mg_gpo02z_core,{
-device_helpers.create_fingerprint("_TZE200_lq0ffndf","TS0601"),})local makegood_mg_au03_core={
+a.dp_on_off(1,{name="switch",component="main",transaction=1,emit=b.switch()}),a.dp_on_off(2,{name="switch",component="switch2",transaction=1,emit=b.switch()}),a.dp_energy(20,{
+name="energy",read_only=true,transaction=1,converter=h.from_only(f),emit=b.energy(),}),a.dp_current(21,{name="current",scale=1000,read_only=true,transaction=1,emit=b.current()}),a.dp_power(22,{name="power",scale=10,read_only=true,transaction=1,emit=b.power()}),a.dp_voltage(23,{name="voltage",scale=10,read_only=true,transaction=1,emit=b.voltage()}),a.dp_on_off(136,{name="switch",component="all",transaction=1,emit=b.switch()}),},}c(o,{
+e.create_fingerprint("_TZE200_lq0ffndf","TS0601"),})local q={
 profile="switches-makegood-mg-au03-core",package_group="switch-basic",transport_classification="EF00_DP",z2m_converter_source="meta.tuyaDatapoints",wire_cluster="manuSpecificTuya",magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,named_datapoints=true,time_start="1970",placeholder_custom_states=false,datapoints={
-tuya.dp_on_off(1,{name="switch",component="main",transaction=1,emit=emit.switch()}),tuya.dp_on_off(2,{name="switch",component="switch2",transaction=1,emit=emit.switch()}),tuya.dp_on_off(3,{name="switch",component="switch3",transaction=1,emit=emit.switch()}),tuya.dp_energy(20,{
-name="energy",read_only=true,transaction=1,converter=converter.from_only(makegood_incremental_energy_from_device),emit=emit.energy(),}),tuya.dp_current(21,{name="current",scale=1000,read_only=true,transaction=1,emit=emit.current()}),tuya.dp_power(22,{name="power",scale=10,read_only=true,transaction=1,emit=emit.power()}),tuya.dp_voltage(23,{name="voltage",scale=10,read_only=true,transaction=1,emit=emit.voltage()}),tuya.dp_on_off(136,{name="switch",component="all",transaction=1,emit=emit.switch()}),},}register_device_definition(makegood_mg_au03_core,{
-device_helpers.create_fingerprint("_TZE200_4jvmbiph","TS0601"),})local tuya_mg_au03gpozlp_core={
+a.dp_on_off(1,{name="switch",component="main",transaction=1,emit=b.switch()}),a.dp_on_off(2,{name="switch",component="switch2",transaction=1,emit=b.switch()}),a.dp_on_off(3,{name="switch",component="switch3",transaction=1,emit=b.switch()}),a.dp_energy(20,{
+name="energy",read_only=true,transaction=1,converter=h.from_only(f),emit=b.energy(),}),a.dp_current(21,{name="current",scale=1000,read_only=true,transaction=1,emit=b.current()}),a.dp_power(22,{name="power",scale=10,read_only=true,transaction=1,emit=b.power()}),a.dp_voltage(23,{name="voltage",scale=10,read_only=true,transaction=1,emit=b.voltage()}),a.dp_on_off(136,{name="switch",component="all",transaction=1,emit=b.switch()}),},}c(q,{
+e.create_fingerprint("_TZE200_4jvmbiph","TS0601"),})local p={
 profile="switches-tuya-mg-au03gpozlp-core",package_group="switch-basic",transport_classification="EF00_DP",z2m_converter_source="meta.tuyaDatapoints",wire_cluster="manuSpecificTuya",magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=false,named_datapoints=true,time_start="off",placeholder_custom_states=false,datapoints={
-tuya.dp_on_off(1,{name="switch",component="main",transaction=1,emit=emit.switch()}),tuya.dp_on_off(2,{name="switch",component="switch2",transaction=1,emit=emit.switch()}),tuya.dp_energy(20,{name="energy",scale=1000,read_only=true,transaction=1,emit=emit.energy()}),tuya.dp_current(21,{name="current",scale=1000,read_only=true,transaction=1,emit=emit.current()}),tuya.dp_power(22,{name="power",scale=10,read_only=true,transaction=1,emit=emit.power()}),tuya.dp_voltage(23,{name="voltage",scale=10,read_only=true,transaction=1,emit=emit.voltage()}),},}register_device_definition(tuya_mg_au03gpozlp_core,{
-device_helpers.create_fingerprint("_TZE284_lq0ffndf","TS0601"),})local tervix_x10={
+a.dp_on_off(1,{name="switch",component="main",transaction=1,emit=b.switch()}),a.dp_on_off(2,{name="switch",component="switch2",transaction=1,emit=b.switch()}),a.dp_energy(20,{name="energy",scale=1000,read_only=true,transaction=1,emit=b.energy()}),a.dp_current(21,{name="current",scale=1000,read_only=true,transaction=1,emit=b.current()}),a.dp_power(22,{name="power",scale=10,read_only=true,transaction=1,emit=b.power()}),a.dp_voltage(23,{name="voltage",scale=10,read_only=true,transaction=1,emit=b.voltage()}),},}c(p,{
+e.create_fingerprint("_TZE284_lq0ffndf","TS0601"),})local z={
 profile="switches-tervix-x10",package_group="switch-basic",magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=true,query_on_announce=true,announce_delay=0,time_start="off",placeholder_custom_states=false,datapoints={
-tuya.dp_on_off(33,{name="switch",component="main",suppress_optimistic_state=true}),tuya.dp_on_off(101,{name="switch",component="zone1",suppress_optimistic_state=true}),tuya.dp_on_off(102,{name="switch",component="zone2",suppress_optimistic_state=true}),tuya.dp_on_off(103,{name="switch",component="zone3",suppress_optimistic_state=true}),tuya.dp_on_off(104,{name="switch",component="zone4",suppress_optimistic_state=true}),tuya.dp_on_off(105,{name="switch",component="zone5",suppress_optimistic_state=true}),tuya.dp_on_off(106,{name="switch",component="zone6",suppress_optimistic_state=true}),tuya.dp_on_off(107,{name="switch",component="zone7",suppress_optimistic_state=true}),tuya.dp_on_off(108,{name="switch",component="zone8",suppress_optimistic_state=true}),tuya.dp_enum(109,{
-name="tervix_x10_pump",read_only=true,emit=emit.tervixX10Pump(),
-converter=converter.from_only(function(value)return(value==1 or value==true)and"ON"or"OFF"end),
-}),tuya.dp_enum(110,{
-name="tervix_x10_boiler",read_only=true,emit=emit.tervixX10Boiler(),
-converter=converter.from_only(function(value)return(value==1 or value==true)and"ON"or"OFF"end),
-}),tuya.dp_enum(111,{
-name="tervix_x10_system_mode",emit=emit.tervixX10SystemMode(),converter=converter.from_to(
-function(value)return(value==1 or value==true)and"heat"or"cool"end,
-function(value)return value=="heat"and 1 or 0 end
-),}),},}register_device_definition(tervix_x10,{
-device_helpers.create_fingerprint("_TZE284_rfpyqax9","TS0601"),device_helpers.create_fingerprint("_TZE204_rfpyqax9","TS0601"),})local automaton_ch8z={
+a.dp_on_off(33,{name="switch",component="main",suppress_optimistic_state=true}),a.dp_on_off(101,{name="switch",component="zone1",suppress_optimistic_state=true}),a.dp_on_off(102,{name="switch",component="zone2",suppress_optimistic_state=true}),a.dp_on_off(103,{name="switch",component="zone3",suppress_optimistic_state=true}),a.dp_on_off(104,{name="switch",component="zone4",suppress_optimistic_state=true}),a.dp_on_off(105,{name="switch",component="zone5",suppress_optimistic_state=true}),a.dp_on_off(106,{name="switch",component="zone6",suppress_optimistic_state=true}),a.dp_on_off(107,{name="switch",component="zone7",suppress_optimistic_state=true}),a.dp_on_off(108,{name="switch",component="zone8",suppress_optimistic_state=true}),a.dp_enum(109,{
+name="tervix_x10_pump",read_only=true,emit=b.tervixX10Pump(),
+converter=h.from_only(function(g)return(g==1 or g==true)and"ON"or"OFF"end),
+}),a.dp_enum(110,{
+name="tervix_x10_boiler",read_only=true,emit=b.tervixX10Boiler(),
+converter=h.from_only(function(g)return(g==1 or g==true)and"ON"or"OFF"end),
+}),a.dp_enum(111,{
+name="tervix_x10_system_mode",emit=b.tervixX10SystemMode(),converter=h.from_to(
+function(g)return(g==1 or g==true)and"heat"or"cool"end,
+function(g)return g=="heat"and 1 or 0 end
+),}),},}c(z,{
+e.create_fingerprint("_TZE284_rfpyqax9","TS0601"),e.create_fingerprint("_TZE204_rfpyqax9","TS0601"),})local v={
 profile="switches-automaton-ch8z",magic_packet=true,mcu_version_request_on_configure=true,query_on_configure=true,query_on_announce=true,announce_delay=0,time_start="off",datapoints={
-tuya.dp_on_off(1,{name="switch",component="main",emit=emit.switch()}),tuya.dp_on_off(2,{name="switch",component="switch2",emit=emit.switch()}),tuya.dp_on_off(3,{name="switch",component="switch3",emit=emit.switch()}),tuya.dp_on_off(4,{name="switch",component="switch4",emit=emit.switch()}),tuya.dp_on_off(5,{name="switch",component="switch5",emit=emit.switch()}),tuya.dp_on_off(6,{name="switch",component="switch6",emit=emit.switch()}),tuya.dp_on_off(7,{name="switch",component="switch7",emit=emit.switch()}),tuya.dp_on_off(8,{name="switch",component="switch8",emit=emit.switch()}),tuya.dp_numeric(9,{name="ch8z_countdown_one",component="main",emit=emit.ch8zCountdownOne()}),tuya.dp_numeric(10,{name="ch8z_countdown_two",component="switch2",emit=emit.ch8zCountdownTwo()}),tuya.dp_numeric(11,{name="ch8z_countdown_three",component="switch3",emit=emit.ch8zCountdownThree()}),tuya.dp_numeric(12,{name="ch8z_countdown_four",component="switch4",emit=emit.ch8zCountdownFour()}),tuya.dp_numeric(13,{name="ch8z_countdown_five",component="switch5",emit=emit.ch8zCountdownFive()}),tuya.dp_numeric(14,{name="ch8z_countdown_six",component="switch6",emit=emit.ch8zCountdownSix()}),tuya.dp_numeric(15,{name="ch8z_countdown_seven",component="switch7",emit=emit.ch8zCountdownSeven()}),tuya.dp_numeric(16,{name="ch8z_countdown_eight",component="switch8",emit=emit.ch8zCountdownEight()}),tuya.dp_enum(27,{
-name="ch8z_power_behavior",emit=emit.ch8zPowerBehavior(),converter=converter.lookup_from_to({off=0,on=1,previous=2}),}),tuya.dp_binary(29,{
-name="ch8z_child_lock",emit=emit.ch8zChildLock(),converter=converter.lookup_from_to({LOCK=true,UNLOCK=false}),}),},}register_device_definition(automaton_ch8z,{
-device_helpers.create_fingerprint("_TZE284_1oft6qso","TS0601"),})
-local function makegood_single_backlight_mapping(name,emitter,offset,width,maximum)
-return tuya.dp_raw(107,{
-name=name,emit=emitter,suppress_optimistic_state=true,
-from_device=function(value,device)
-if type(value)~="string"or #value~=11 then return nil end
-device:set_field("__makegood_single_backlight",value,{persist=true})local raw=string.unpack(width==1 and">B"or">I2",value,offset)
-if offset==1 then return raw==1 and"multi"or"single"end
-return raw
+a.dp_on_off(1,{name="switch",component="main",emit=b.switch()}),a.dp_on_off(2,{name="switch",component="switch2",emit=b.switch()}),a.dp_on_off(3,{name="switch",component="switch3",emit=b.switch()}),a.dp_on_off(4,{name="switch",component="switch4",emit=b.switch()}),a.dp_on_off(5,{name="switch",component="switch5",emit=b.switch()}),a.dp_on_off(6,{name="switch",component="switch6",emit=b.switch()}),a.dp_on_off(7,{name="switch",component="switch7",emit=b.switch()}),a.dp_on_off(8,{name="switch",component="switch8",emit=b.switch()}),a.dp_numeric(9,{name="ch8z_countdown_one",component="main",emit=b.ch8zCountdownOne()}),a.dp_numeric(10,{name="ch8z_countdown_two",component="switch2",emit=b.ch8zCountdownTwo()}),a.dp_numeric(11,{name="ch8z_countdown_three",component="switch3",emit=b.ch8zCountdownThree()}),a.dp_numeric(12,{name="ch8z_countdown_four",component="switch4",emit=b.ch8zCountdownFour()}),a.dp_numeric(13,{name="ch8z_countdown_five",component="switch5",emit=b.ch8zCountdownFive()}),a.dp_numeric(14,{name="ch8z_countdown_six",component="switch6",emit=b.ch8zCountdownSix()}),a.dp_numeric(15,{name="ch8z_countdown_seven",component="switch7",emit=b.ch8zCountdownSeven()}),a.dp_numeric(16,{name="ch8z_countdown_eight",component="switch8",emit=b.ch8zCountdownEight()}),a.dp_enum(27,{
+name="ch8z_power_behavior",emit=b.ch8zPowerBehavior(),converter=h.lookup_from_to({off=0,on=1,previous=2}),}),a.dp_binary(29,{
+name="ch8z_child_lock",emit=b.ch8zChildLock(),converter=h.lookup_from_to({LOCK=true,UNLOCK=false}),}),},}c(v,{
+e.create_fingerprint("_TZE284_1oft6qso","TS0601"),})
+local function d(F,D,s,B,E)
+return a.dp_raw(107,{
+name=F,emit=D,suppress_optimistic_state=true,
+from_device=function(g,k)
+if type(g)~="string"or #g~=11 then return nil end
+k:set_field("__makegood_single_backlight",g,{persist=true})local x=string.unpack(B==1 and">B"or">I2",g,s)
+if s==1 then return x==1 and"multi"or"single"end
+return x
 end,
-to_device=function(value,device)
-local current=device:get_field("__makegood_single_backlight")or
-string.pack(">BBI2I2BI2I2",0,100,0,1000,10,240,1000)local raw=offset==1 and(value=="multi"and 1 or 0)or
-math.max(0,math.min(maximum,math.floor(tonumber(value)+0.5)))local payload=current:sub(1,offset-1)..
-string.pack(width==1 and">B"or">I2",raw)..current:sub(offset+width)device:set_field("__makegood_single_backlight",payload,{persist=true})return payload
+to_device=function(g,k)
+local current=k:get_field("__makegood_single_backlight")or
+string.pack(">BBI2I2BI2I2",0,100,0,1000,10,240,1000)local x=s==1 and(g=="multi"and 1 or 0)or
+math.max(0,math.min(E,math.floor(tonumber(g)+0.5)))local y=current:sub(1,s-1)..
+string.pack(B==1 and">B"or">I2",x)..current:sub(s+B)k:set_field("__makegood_single_backlight",y,{persist=true})return y
 end,
 })
 end
-local makegood_single={
+local t={
 profile="switches-makegood-single",package_group="switch-basic",magic_packet=true,mcu_version_request_on_configure=true,named_datapoints=true,query_on_configure=false,query_on_refresh=false,time_start="1970",placeholder_custom_states=false,datapoints={
-tuya.dp_on_off(1,{name="switch",emit=emit.switch()}),tuya.dp_numeric(7,{
-name="mg1_countdown",emit=emit.mg1Countdown(),
-from_device=function(value)return value==false and 0 or tonumber(value)end,
-}),tuya.dp_binary(16,{
-name="mg1_backlight",emit=emit.mg1Backlight(),converter=converter.lookup_from_to({ON=true,OFF=false}),}),tuya.dp_energy(20,{
-name="energy",read_only=true,emit=emit.energy(),converter=converter.from_only(makegood_incremental_energy_from_device),}),tuya.dp_current(21,{name="current",scale=1000,read_only=true,emit=emit.current()}),tuya.dp_power(22,{name="power",scale=10,read_only=true,emit=emit.power()}),tuya.dp_voltage(23,{name="voltage",scale=10,read_only=true,emit=emit.voltage()}),tuya.dp_enum(29,{
-name="mg1_power_behavior",emit=emit.mg1PowerBehavior(),converter=converter.lookup_from_to({off=0,on=1,previous=2}),}),tuya.dp_binary(101,{
-name="mg1_child_lock",emit=emit.mg1ChildLock(),converter=converter.lookup_from_to({LOCK=true,UNLOCK=false}),}),makegood_single_backlight_mapping("mg1_color_mode",emit.mg1ColorMode(),1,1,1),makegood_single_backlight_mapping("mg1_on_brightness",emit.mg1OnBrightness(),2,1,100),makegood_single_backlight_mapping("mg1_on_hue",emit.mg1OnHue(),3,2,359),makegood_single_backlight_mapping("mg1_on_saturation",emit.mg1OnSaturation(),5,2,1000),makegood_single_backlight_mapping("mg1_off_brightness",emit.mg1OffBrightness(),7,1,100),makegood_single_backlight_mapping("mg1_off_hue",emit.mg1OffHue(),8,2,359),makegood_single_backlight_mapping("mg1_off_saturation",emit.mg1OffSaturation(),10,2,1000),tuya.dp_binary(136,{
-name="mg1_all_power",emit=emit.mg1AllPower(),converter=converter.lookup_from_to({ON=true,OFF=false}),}),},}register_device_definition(makegood_single,{
-device_helpers.create_fingerprint("_TZE200_xnwxmj8z","TS0601"),})return{
-id="ef00.switch.basic.z2m_absorption",registrations=device_definitions,}
+a.dp_on_off(1,{name="switch",emit=b.switch()}),a.dp_numeric(7,{
+name="mg1_countdown",emit=b.mg1Countdown(),
+from_device=function(g)return g==false and 0 or tonumber(g)end,
+}),a.dp_binary(16,{
+name="mg1_backlight",emit=b.mg1Backlight(),converter=h.lookup_from_to({ON=true,OFF=false}),}),a.dp_energy(20,{
+name="energy",read_only=true,emit=b.energy(),converter=h.from_only(f),}),a.dp_current(21,{name="current",scale=1000,read_only=true,emit=b.current()}),a.dp_power(22,{name="power",scale=10,read_only=true,emit=b.power()}),a.dp_voltage(23,{name="voltage",scale=10,read_only=true,emit=b.voltage()}),a.dp_enum(29,{
+name="mg1_power_behavior",emit=b.mg1PowerBehavior(),converter=h.lookup_from_to({off=0,on=1,previous=2}),}),a.dp_binary(101,{
+name="mg1_child_lock",emit=b.mg1ChildLock(),converter=h.lookup_from_to({LOCK=true,UNLOCK=false}),}),d("mg1_color_mode",b.mg1ColorMode(),1,1,1),d("mg1_on_brightness",b.mg1OnBrightness(),2,1,100),d("mg1_on_hue",b.mg1OnHue(),3,2,359),d("mg1_on_saturation",b.mg1OnSaturation(),5,2,1000),d("mg1_off_brightness",b.mg1OffBrightness(),7,1,100),d("mg1_off_hue",b.mg1OffHue(),8,2,359),d("mg1_off_saturation",b.mg1OffSaturation(),10,2,1000),a.dp_binary(136,{
+name="mg1_all_power",emit=b.mg1AllPower(),converter=h.lookup_from_to({ON=true,OFF=false}),}),},}c(t,{
+e.create_fingerprint("_TZE200_xnwxmj8z","TS0601"),})return{
+id="ef00.switch.basic.z2m_absorption",registrations=r,}

@@ -20,24 +20,6 @@ components:
     version: 1
   - id: refresh
     version: 1
-  - id: concertmirror08464.sppPowerReportMin
-    version: 1
-  - id: concertmirror08464.sppPowerReportMax
-    version: 1
-  - id: concertmirror08464.sppPowerReportChange
-    version: 1
-  - id: concertmirror08464.sppCurrentReportMin
-    version: 1
-  - id: concertmirror08464.sppCurrentReportMax
-    version: 1
-  - id: concertmirror08464.sppCurrentReportChange
-    version: 1
-  - id: concertmirror08464.sppVoltageReportMin
-    version: 1
-  - id: concertmirror08464.sppVoltageReportMax
-    version: 1
-  - id: concertmirror08464.sppVoltageReportChange
-    version: 1
   categories:
   - name: SmartPlug
 - id: switch2
@@ -101,33 +83,6 @@ deviceConfig:
   - component: switch2
     capability: switch
     version: 1
-  - component: main
-    capability: concertmirror08464.sppPowerReportMin
-    version: 1
-  - component: main
-    capability: concertmirror08464.sppPowerReportMax
-    version: 1
-  - component: main
-    capability: concertmirror08464.sppPowerReportChange
-    version: 1
-  - component: main
-    capability: concertmirror08464.sppCurrentReportMin
-    version: 1
-  - component: main
-    capability: concertmirror08464.sppCurrentReportMax
-    version: 1
-  - component: main
-    capability: concertmirror08464.sppCurrentReportChange
-    version: 1
-  - component: main
-    capability: concertmirror08464.sppVoltageReportMin
-    version: 1
-  - component: main
-    capability: concertmirror08464.sppVoltageReportMax
-    version: 1
-  - component: main
-    capability: concertmirror08464.sppVoltageReportChange
-    version: 1
   automation:
     conditions:
     - component: main
@@ -154,33 +109,6 @@ deviceConfig:
     - component: main
       capability: concertmirror08464.powerOutageMemory
       version: 1
-    - component: main
-      capability: concertmirror08464.sppPowerReportMin
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppPowerReportMax
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppPowerReportChange
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppCurrentReportMin
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppCurrentReportMax
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppCurrentReportChange
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppVoltageReportMin
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppVoltageReportMax
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppVoltageReportChange
-      version: 1
     actions:
     - component: main
       capability: switch
@@ -196,31 +124,4 @@ deviceConfig:
       version: 1
     - component: main
       capability: energyMeter
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppPowerReportMin
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppPowerReportMax
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppPowerReportChange
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppCurrentReportMin
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppCurrentReportMax
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppCurrentReportChange
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppVoltageReportMin
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppVoltageReportMax
-      version: 1
-    - component: main
-      capability: concertmirror08464.sppVoltageReportChange
       version: 1

@@ -1,97 +1,106 @@
-local function load_mapping_preset(zcl)
-local emit=require"capabilities.events.all"
-local data_types=require"st.zigbee.data_types"
-local zigbee_constants=require"st.zigbee.constants"
-local safe_xy_to_hsv=require"st.utils.safe_xy_to_hsv"
-local function merge_options(target,source)
-if type(target)~="table"then
-target={}
+local function n(D)
+local x=require"capabilities.events.all"
+local E=require"st.zigbee.data_types"
+local y=require"st.zigbee.constants"
+local C=require"st.utils.safe_xy_to_hsv"
+local function m(f,w)
+if type(f)~="table"then
+f={}
 end
-if type(source)~="table"then
-return target
+if type(w)~="table"then
+return f
 end
-for key,value in pairs(source)do
-target[key]=value
+for A,e in pairs(w)do
+f[A]=e
 end
-return target
+return f
 end
-local function apply_defaults(target,defaults)
-if type(target)~="table"or type(defaults)~="table"then
-return target
+local function j(f,a)
+if type(f)~="table"or type(a)~="table"then
+return f
 end
-for key,value in pairs(defaults)do
-if target[key]==nil then
-target[key]=value
+for A,e in pairs(a)do
+if f[A]==nil then
+f[A]=e
 end
 end
-return target
+return f
 end
-local function normalize_preset_options(name_or_options,options)
-local resolved={}if type(name_or_options)=="string"then
-resolved.name=name_or_options
+local function i(c,g)
+local d={}if type(c)=="string"then
+d.name=c
 else
-merge_options(resolved,name_or_options)
+m(d,c)
 end
-merge_options(resolved,options)return resolved
+m(d,g)return d
 end
-local function clamp(value,min_value,max_value)
-if value<min_value then
-return min_value
+local function z(e,u,t)
+if e<u then
+return u
 end
-if value>max_value then
-return max_value
+if e>t then
+return t
 end
-return value
+return e
 end
-local function level_percent_pair()
+local function o()
 return{
-from=function(value)
-if type(value)~="number"then
-return value
+from=function(e)
+if type(e)~="number"then
+return e
 end
-return math.floor((clamp(value,0,254)*100/254)+0.5)
+return math.floor((z(e,0,254)*100/254)+0.5)
 end,
-to=function(value)
-if type(value)~="number"then
-return value
+to=function(e)
+if type(e)~="number"then
+return e
 end
-return math.floor((clamp(value,0,100)*254/100)+0.5)
+return math.floor((z(e,0,100)*254/100)+0.5)
 end,
 }
 end
-local function reporting_defaults(minimum_interval,maximum_interval,reportable_change)
+local function h(s,r,p)
 return{
-minimum_interval=minimum_interval,maximum_interval=maximum_interval,reportable_change=reportable_change,read_on_configure=true,}
+minimum_interval=s,maximum_interval=r,reportable_change=p,read_on_configure=true,}
 end
-local function merge_defaults(...)
-local merged={}for _,defaults in ipairs({...})do
-apply_defaults(merged,defaults)
+local function k(...)
+local v={}for _,a in ipairs({...})do
+j(v,a)
 end
-return merged
+return v
 end
-local function define_preset(name,factory,defaults_builder)
-zcl[name]=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)apply_defaults(resolved,defaults_builder(resolved))return factory(resolved)
+local function l(F,B,q)
+D[F]=function(c,g)
+local d=i(c,g)local b=d.configure_reporting
+local a=q(d)d.configure_reporting=nil
+if b==false then
+a.minimum_interval=nil
+a.maximum_interval=nil
+a.reportable_change=nil
+a.physical_reportable_change=nil
+a.reporting_defaults=nil
+end
+j(d,a)return B(d)
 end
 end
-define_preset("switch",zcl.on_off,function(options)
-local configure_reporting=options.configure_reporting
-options.configure_reporting=nil
-if configure_reporting==false then
+l("switch",D.on_off,function(g)
+local b=g.configure_reporting
+g.configure_reporting=nil
+if b==false then
 return{
-emit=emit.switch(),}
+emit=x.switch(),}
 end
-return merge_defaults(
+return k(
 {
-emit=emit.switch(),},reporting_defaults(0,300,nil))
+emit=x.switch(),},h(0,300,nil))
 end)
-define_preset("level",zcl.level_control,function(options)
-local configure_reporting=options.configure_reporting
-options.configure_reporting=nil
-local defaults={
-name="brightness",emit=emit.level(),converter=level_percent_pair(),}
-if configure_reporting==false then return defaults end
-return merge_defaults(defaults,reporting_defaults(1,3600,1))
+l("level",D.level_control,function(g)
+local b=g.configure_reporting
+g.configure_reporting=nil
+local a={
+name="brightness",emit=x.level(),converter=o(),}
+if b==false then return a end
+return k(a,h(1,3600,1))
 end)
 end
-return load_mapping_preset
+return n

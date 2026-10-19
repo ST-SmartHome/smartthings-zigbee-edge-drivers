@@ -7,7 +7,8 @@ local device_management = require "st.zigbee.device_management"
 local clusters = require "st.zigbee.zcl.clusters"
 local cluster_base = require "st.zigbee.cluster_base"
 local device_helpers = require "contracts.helpers.family"
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local fp = device_helpers.create_fingerprint
+local device_definitions, register = device_helpers.definition_registry()
 
 local function passive(mapping)
   mapping.minimum_interval=nil
@@ -35,21 +36,21 @@ local adurosmart_81910_core = {
   zcl_clusters={
     passive(zcl.contact({endpoint=1})),
     zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,
-      reportable_change=100,read_on_configure=true}),
+      reportable_change=100}),
     zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,
-      reportable_change=100,read_on_configure=true}),
+      reportable_change=100}),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,
-      reportable_change=2,read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
   },
   configure=function(driver,device)
     device:send(device_management.build_bind_request(
       device,0x0500,driver.environment_info.hub_zigbee_eui,1))
   end,
 }
-register_device_definition(adurosmart_81910_core,{
-  device_helpers.create_fingerprint("AduroSmart ERIA","CSW_81909"),
-  device_helpers.create_fingerprint("ERIA","CSW_81909"),
-  device_helpers.create_fingerprint("AduroSmart Eria","CSW_81909"),
+register(adurosmart_81910_core,{
+  fp("AduroSmart ERIA","CSW_81909"),
+  fp("ERIA","CSW_81909"),
+  fp("AduroSmart Eria","CSW_81909"),
 })
 
 -- Current Z2M 8e3b01c: Trust ZCTS-808.  The second identity is the literal
@@ -72,13 +73,13 @@ local trust_zcts808_core = {
     passive(zcl.tamper({endpoint=1})),
     passive(zcl.battery_low({endpoint=1,name="trust808_battery_low",emit=emit.trust808BatteryLow()})),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,
-      reportable_change=0,read_on_configure=true,from_device=battery_value}),
+      reportable_change=0,from_device=battery_value}),
   },
 }
-register_device_definition(trust_zcts808_core,{
-  device_helpers.create_fingerprint("Trust International B.V.","CSW_ADUROLIGHT"),
-  device_helpers.create_fingerprint("Trust International B.V.\0","CSW_ADUROLIGHT"),
-  device_helpers.create_fingerprint("ADUROLIGHT","CSW_ADUROLIGHT"),
+register(trust_zcts808_core,{
+  fp("Trust International B.V.","CSW_ADUROLIGHT"),
+  fp("Trust International B.V.\0","CSW_ADUROLIGHT"),
+  fp("ADUROLIGHT","CSW_ADUROLIGHT"),
 })
 
 -- Z2M 764f7d10: STH1Z/STH2Z share these measurements; FD22 settings stay separate.
@@ -102,8 +103,8 @@ local rtitek_sthzb_core = {
     zcl.read_attribute(device,1,0x20,1)
   end,
 }
-register_device_definition(rtitek_sthzb_core,{
-  device_helpers.create_fingerprint("Rti-Tek","STHZB"),
+register(rtitek_sthzb_core,{
+  fp("Rti-Tek","STHZB"),
 })
 
 -- The device interview contains four trailing NUL bytes; Z2M also matches the
@@ -120,16 +121,16 @@ local ezviz_cst10c_core = {
       return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
     end})),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,
-      reportable_change=10,read_on_configure=true,from_device=battery_value}),
+      reportable_change=10,from_device=battery_value}),
   },
   parent_refresh=function(device)
     zcl.read_attribute(device,1,0x21,1)
     zcl.read_attribute(device,1,0x20,1)
   end,
 }
-register_device_definition(ezviz_cst10c_core,{
-  device_helpers.create_fingerprint("EZVIZ","CS-T10C-A0-BG"),
-  device_helpers.create_fingerprint("EZVIZ","CS-T10C-A0-BG\000\000\000\000"),
+register(ezviz_cst10c_core,{
+  fp("EZVIZ","CS-T10C-A0-BG"),
+  fp("EZVIZ","CS-T10C-A0-BG\000\000\000\000"),
 })
 
 -- Z2M PR13160; the hardware interview confirms OWON/OCP305 on endpoint 1.
@@ -144,8 +145,8 @@ local owon_ocp305_core = {
       end,emit=emit.presence()}),
   },
 }
-register_device_definition(owon_ocp305_core,{
-  device_helpers.create_fingerprint("OWON","OCP305"),
+register(owon_ocp305_core,{
+  fp("OWON","OCP305"),
 })
 
 -- Z2M PR12910: HE300 reports active (1) and static (2) occupancy on EP1.
@@ -166,8 +167,8 @@ local multir_he300_core = {
       minimum_interval=10,maximum_interval=3600,reportable_change=5,read_on_configure=true}),
   },
 }
-register_device_definition(multir_he300_core,{
-  device_helpers.create_fingerprint("MultIR","HE300_ZB"),
+register(multir_he300_core,{
+  fp("MultIR","HE300_ZB"),
 })
 
 -- ZigbeeTLc firmware, not the stock ZG-303Z: EP1 air RH, EP2 soil moisture.
@@ -175,21 +176,21 @@ local zigbeetlc_zg303z_core = {
   profile="sensors-zigbeetlc-zg303z-core",magic_packet=false,
   zcl_clusters={
     zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,
-      reportable_change=10,read_on_configure=true}),
+      reportable_change=10}),
     zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,
-      reportable_change=100,read_on_configure=true}),
+      reportable_change=100}),
     zcl.cluster_attribute(0x0405,0,{name="zg303z_soil_moisture",endpoint=2,component="main",
       data_type=data_types.Uint16,scale=100,read_only=true,read_on_configure=true,
       minimum_interval=10,maximum_interval=3600,reportable_change=100,
       from_device=function(value,_,context) if context.raw_value~=65535 then return value end end,
       emit=emit.zg303zSoilMoisture()}),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,
-      reportable_change=10,read_on_configure=true,from_device=battery_value}),
+      reportable_change=10,from_device=battery_value}),
     passive(zcl.battery_voltage({endpoint=1,from_device=battery_value})),
   },
 }
-register_device_definition(zigbeetlc_zg303z_core,{
-  device_helpers.create_fingerprint("Sonoff","ZG-303Z-z"),
+register(zigbeetlc_zg303z_core,{
+  fp("Sonoff","ZG-303Z-z"),
 })
 
 -- Z2M 764f7d10 ekaza.ts: IAS alarm_1 is presence; DP104 has no confirmed lux unit.
@@ -204,8 +205,8 @@ local ekaza_ts0225_core = {
     zcl.read_attribute(device,0x0500,0x0002,1)
   end,
 }
-register_device_definition(ekaza_ts0225_core,{
-  device_helpers.create_fingerprint("_TZ3210_eep3fewj","TS0225"),
+register(ekaza_ts0225_core,{
+  fp("_TZ3210_eep3fewj","TS0225"),
 })
 
 local smartthings_tagv4_core = {
@@ -234,8 +235,8 @@ local smartthings_tagv4_core = {
       end}),
   },
 }
-register_device_definition(smartthings_tagv4_core,{
-  device_helpers.create_fingerprint("SmartThings","tagv4"),
+register(smartthings_tagv4_core,{
+  fp("SmartThings","tagv4"),
 })
 
 local function aqara_gas_heartbeat(device,value)
@@ -271,8 +272,8 @@ local aqara_gas_acn02_core = {
     device:send(cluster_base.read_manufacturer_specific_attribute(device,0xFCC0,0x013A,0x115F):to_endpoint(1))
   end,
 }
-register_device_definition(aqara_gas_acn02_core,{
-  device_helpers.create_fingerprint("LUMI","lumi.sensor_gas.acn02"),
+register(aqara_gas_acn02_core,{
+  fp("LUMI","lumi.sensor_gas.acn02"),
 })
 
 local frient_heszb120_core = {
@@ -288,7 +289,7 @@ local frient_heszb120_core = {
     passive(zcl.battery_low({endpoint=35,component="main",emit=function(_,value)
       return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
     end})),
-    zcl.temperature({endpoint=38,component="main",minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.temperature({endpoint=38,component="main",minimum_interval=10,maximum_interval=3600,reportable_change=100}),
     passive(zcl.battery({endpoint=35,component="main",from_device=battery_value})),
     zcl.cluster_attribute(1,0x20,{name="heszb120_voltage",endpoint=35,component="main",data_type=data_types.Uint8,
       read_only=true,read_on_configure=true,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
@@ -304,8 +305,8 @@ local frient_heszb120_core = {
     device:send(clusters.PowerConfiguration.attributes.BatteryVoltage:read(device):to_endpoint(35))
   end,
 }
-register_device_definition(frient_heszb120_core,{
-  device_helpers.create_fingerprint("frient A/S","HESZB-120"),
+register(frient_heszb120_core,{
+  fp("frient A/S","HESZB-120"),
 })
 
 local tuya_ts0210_vibration_core = {
@@ -340,12 +341,12 @@ local tuya_ts0210_vibration_core = {
       end}),
   },
 }
-register_device_definition(tuya_ts0210_vibration_core, {
-  device_helpers.create_fingerprint("_TYZB01_3zv6oleo","TS0210"),
-  device_helpers.create_fingerprint("_TZ3000_bmfw9ykl","TS0210"),
-  device_helpers.create_fingerprint("_TZ3000_fkxmyics","TS0210"),
-  device_helpers.create_fingerprint("_TZ3000_jqge2fjx","TS0210"),
-  device_helpers.create_fingerprint("_TZ3000_lqpt3mvr","TS0210"),
+register(tuya_ts0210_vibration_core, {
+  fp("_TYZB01_3zv6oleo","TS0210"),
+  fp("_TZ3000_bmfw9ykl","TS0210"),
+  fp("_TZ3000_fkxmyics","TS0210"),
+  fp("_TZ3000_jqge2fjx","TS0210"),
+  fp("_TZ3000_lqpt3mvr","TS0210"),
 })
 
 local visonic_gb540_core = {
@@ -365,8 +366,8 @@ local visonic_gb540_core = {
     end})),
   },
 }
-register_device_definition(visonic_gb540_core, {
-  device_helpers.create_fingerprint("Visonic","GB-540"),
+register(visonic_gb540_core, {
+  fp("Visonic","GB-540"),
 })
 
 local lumi_natgas_core = {
@@ -386,8 +387,8 @@ local lumi_natgas_core = {
     end})),
   },
 }
-register_device_definition(lumi_natgas_core, {
-  device_helpers.create_fingerprint("LUMI","lumi.sensor_natgas"),
+register(lumi_natgas_core, {
+  fp("LUMI","lumi.sensor_natgas"),
 })
 
 local tuya_ts0204_gas_core = {
@@ -407,9 +408,9 @@ local tuya_ts0204_gas_core = {
     end})),
   },
 }
-register_device_definition(tuya_ts0204_gas_core, {
-  device_helpers.create_fingerprint("_TYZB01_18pkine6","TS0204"),
-  device_helpers.create_fingerprint("_TYZB01_mfccmeio","TS0204"),
+register(tuya_ts0204_gas_core, {
+  fp("_TYZB01_18pkine6","TS0204"),
+  fp("_TYZB01_mfccmeio","TS0204"),
 })
 
 local feibit_sga01zb_core = {
@@ -426,8 +427,8 @@ local feibit_sga01zb_core = {
     end})),
   },
 }
-register_device_definition(feibit_sga01zb_core, {
-  device_helpers.create_fingerprint("feibit","FNB56-GAS05FB1.4"),
+register(feibit_sga01zb_core, {
+  fp("feibit","FNB56-GAS05FB1.4"),
 })
 
 local trust_co_em_core = {
@@ -445,7 +446,7 @@ local trust_co_em_core = {
     passive(zcl.battery_low({endpoint=1,emit=function(_,value,context)
       if context.command_id==0 then return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal() end
     end})),
-    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=0,from_device=battery_value}),
     passive(zcl.battery_voltage({endpoint=1,from_device=battery_value})),
     zcl.cluster_attribute(1,0x3E,{name="trust_co_battery_alarm",endpoint=1,data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=false,
@@ -454,8 +455,8 @@ local trust_co_em_core = {
       end}),
   },
 }
-register_device_definition(trust_co_em_core, {
-  device_helpers.create_fingerprint("Trust","COSensor-EM"),
+register(trust_co_em_core, {
+  fp("Trust","COSensor-EM"),
 })
 
 local feibit_sca01zb_core = {
@@ -473,7 +474,7 @@ local feibit_sca01zb_core = {
     passive(zcl.battery_low({endpoint=1,emit=function(_,value,context)
       if context.command_id==0 then return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal() end
     end})),
-    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=0,from_device=battery_value}),
     passive(zcl.battery_voltage({endpoint=1,from_device=battery_value})),
     zcl.cluster_attribute(1,0x3E,{name="feibit_co_battery_alarm",endpoint=1,data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=true,minimum_interval=3600,maximum_interval=65000,reportable_change=0,
@@ -482,9 +483,9 @@ local feibit_sca01zb_core = {
       end}),
   },
 }
-register_device_definition(feibit_sca01zb_core, {
-  device_helpers.create_fingerprint("feibit","FNB56-COS06FB1.7"),
-  device_helpers.create_fingerprint("Heiman","1ccaa94c49a84abaa9e38687913947ba"),
+register(feibit_sca01zb_core, {
+  fp("feibit","FNB56-COS06FB1.7"),
+  fp("Heiman","1ccaa94c49a84abaa9e38687913947ba"),
 })
 
 local owon_pir313p_core = {
@@ -500,11 +501,11 @@ local owon_pir313p_core = {
       return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
     end})),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
   },
 }
-register_device_definition(owon_pir313p_core, {
-  device_helpers.create_fingerprint("OWON","PIR313-P"),
+register(owon_pir313p_core, {
+  fp("OWON","PIR313-P"),
 })
 
 local tis_ed6xx_core = {
@@ -524,11 +525,11 @@ local tis_ed6xx_core = {
       return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
     end})),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
   },
 }
-register_device_definition(tis_ed6xx_core, {
-  device_helpers.create_fingerprint("JHL","ED6XX"),
+register(tis_ed6xx_core, {
+  fp("JHL","ED6XX"),
 })
 
 local owon_pir313e_core = {
@@ -551,7 +552,7 @@ local owon_pir313e_core = {
       return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
     end})),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
     zcl.temperature({endpoint=2,component="main",minimum_interval=60,maximum_interval=3600,
       reportable_change=50,read_on_configure=false}),
     zcl.humidity({endpoint=2,component="main",minimum_interval=60,maximum_interval=3600,
@@ -560,8 +561,8 @@ local owon_pir313e_core = {
       reportable_change=100,read_on_configure=false}),
   },
 }
-register_device_definition(owon_pir313e_core, {
-  device_helpers.create_fingerprint("OWON","PIR313-E"),
+register(owon_pir313e_core, {
+  fp("OWON","PIR313-E"),
 })
 
 local owon_pir323pth_core = {
@@ -583,8 +584,8 @@ local owon_pir323pth_core = {
     passive(zcl.humidity({endpoint=2,component="main"})),
   },
 }
-register_device_definition(owon_pir323pth_core, {
-  device_helpers.create_fingerprint("OWON","PIR323-PTH"),
+register(owon_pir323pth_core, {
+  fp("OWON","PIR323-PTH"),
 })
 
 local lds_pfmot001_core = {
@@ -600,11 +601,11 @@ local lds_pfmot001_core = {
       return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
     end})),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
   },
 }
-register_device_definition(lds_pfmot001_core, {
-  device_helpers.create_fingerprint("LDS","PFMOT001"),
+register(lds_pfmot001_core, {
+  fp("LDS","PFMOT001"),
 })
 
 local owon_ths317_core = {
@@ -613,13 +614,13 @@ local owon_ths317_core = {
     zcl.temperature({endpoint=2,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=false}),
     zcl.humidity({endpoint=2,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=false}),
     zcl.battery({endpoint=2,minimum_interval=3600,maximum_interval=65000,reportable_change=0,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
     zcl.battery_voltage({endpoint=2,minimum_interval=3600,maximum_interval=65000,reportable_change=0,
-      read_on_configure=true,from_device=function() return nil end}),
+      from_device=function() return nil end}),
   },
 }
-register_device_definition(owon_ths317_core, {
-  device_helpers.create_fingerprint("OWON","THS317"),
+register(owon_ths317_core, {
+  fp("OWON","THS317"),
 })
 
 local function motion_mapping(notification_only)
@@ -659,16 +660,16 @@ local immax_motion_core = {
   profile="safety-motion-immax-core",magic_packet=false,
   zcl_clusters=immax_motion_clusters(),
 }
-register_device_definition(immax_motion_core, {
-  device_helpers.create_fingerprint("IMMAX","Motion-Sensor-ZB3.0"),
+register(immax_motion_core, {
+  fp("IMMAX","Motion-Sensor-ZB3.0"),
 })
 
 local leedarson_s0000_core = {
   profile="safety-motion-leedarson-s0000-core",magic_packet=false,
   zcl_clusters={motion_mapping(true),passive(zcl.battery({endpoint=1,from_device=battery_value}))},
 }
-register_device_definition(leedarson_s0000_core, {
-  device_helpers.create_fingerprint("Leedarson","ZB-MotionSensor-S0000"),
+register(leedarson_s0000_core, {
+  fp("Leedarson","ZB-MotionSensor-S0000"),
 })
 
 local somfy_motion_core = {
@@ -676,25 +677,25 @@ local somfy_motion_core = {
   zcl_clusters={
     motion_mapping(false),low_mapping(false),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
   },
 }
-register_device_definition(somfy_motion_core, {
-  device_helpers.create_fingerprint("SOMFY","1811681"),
+register(somfy_motion_core, {
+  fp("SOMFY","1811681"),
 })
 
 local orvibo_st30_core = {
   profile="sensors-orvibo-st30-core",magic_packet=false,
   zcl_clusters={
-    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
-    zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
+    zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
   },
 }
-register_device_definition(orvibo_st30_core, {
-  device_helpers.create_fingerprint("ORVIBO","898ca74409a740b28d5841661e72268d"),
-  device_helpers.create_fingerprint("ORVIBO","50938c4c3c0b4049923cd5afbc151bde"),
+register(orvibo_st30_core, {
+  fp("ORVIBO","898ca74409a740b28d5841661e72268d"),
+  fp("ORVIBO","50938c4c3c0b4049923cd5afbc151bde"),
 })
 
 local immax_four_core = {
@@ -704,8 +705,8 @@ local immax_four_core = {
 table.insert(immax_four_core.zcl_clusters,zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=false}))
 table.insert(immax_four_core.zcl_clusters,zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=false}))
 table.insert(immax_four_core.zcl_clusters,zcl.illuminance({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=5,read_on_configure=true}))
-register_device_definition(immax_four_core, {
-  device_helpers.create_fingerprint("IMMAX","4in1-Sensor-ZB3.0"),
+register(immax_four_core, {
+  fp("IMMAX","4in1-Sensor-ZB3.0"),
 })
 
 local function occupancy_mapping()
@@ -732,8 +733,8 @@ local sunricher_dim_pir_core = {
       reportable_change=5,read_on_configure=true}),
   },
 }
-register_device_definition(sunricher_dim_pir_core, {
-  device_helpers.create_fingerprint("Sunricher","HK-DIM-PIR"),
+register(sunricher_dim_pir_core, {
+  fp("Sunricher","HK-DIM-PIR"),
 })
 
 local sunricher_presence_core = {
@@ -744,8 +745,8 @@ local sunricher_presence_core = {
       read_only=true,emit=emit.illuminance(),minimum_interval=10,maximum_interval=3600,reportable_change=5,read_on_configure=true}),
   },
 }
-register_device_definition(sunricher_presence_core, {
-  device_helpers.create_fingerprint("Sunricher","HK-SENSOR-PRE"),
+register(sunricher_presence_core, {
+  fp("Sunricher","HK-SENSOR-PRE"),
 })
 
 local heiman_hs2fd_presence_core = {
@@ -760,8 +761,8 @@ local heiman_hs2fd_presence_core = {
       end,emit=emit.motion()}),
   },
 }
-register_device_definition(heiman_hs2fd_presence_core, {
-  device_helpers.create_fingerprint("HEIMAN","HS2FD-EF1-3.0"),
+register(heiman_hs2fd_presence_core, {
+  fp("HEIMAN","HS2FD-EF1-3.0"),
 })
 
 local heiman_hs8os_core = {
@@ -775,23 +776,23 @@ local heiman_hs8os_core = {
     device:send(device_management.build_bind_request(device,0x0400,driver.environment_info.hub_zigbee_eui,1))
   end,
 }
-register_device_definition(heiman_hs8os_core, {
-  device_helpers.create_fingerprint("HEIMAN","HS8OS-EF1-3.0"),
+register(heiman_hs8os_core, {
+  fp("HEIMAN","HS8OS-EF1-3.0"),
 })
 
 local robb_presence_core = {
   profile="sensors-robb-presence-core",magic_packet=false,
   zcl_clusters={
     occupancy_mapping(),passive(zcl.tamper({endpoint=1})),low_mapping(false),
-    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
-    zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
+    zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
     zcl.illuminance({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=5,read_on_configure=true}),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
   },
 }
-register_device_definition(robb_presence_core, {
-  device_helpers.create_fingerprint("ROBB smarrt","ROB_200-070-0"),
+register(robb_presence_core, {
+  fp("ROBB smarrt","ROB_200-070-0"),
 })
 
 local climax_rs23_core = {
@@ -805,8 +806,8 @@ local climax_rs23_core = {
     device:send(device_management.build_bind_request(device,0x0405,driver.environment_info.hub_zigbee_eui,1))
   end,
 }
-register_device_definition(climax_rs23_core, {
-  device_helpers.create_fingerprint("Climax Technology Co.","RS_00.00.02.06TC"),
+register(climax_rs23_core, {
+  fp("Climax Technology Co.","RS_00.00.02.06TC"),
 })
 
 local climax_smoke_core = {
@@ -824,8 +825,8 @@ local climax_smoke_core = {
       end}),
   },
 }
-register_device_definition(climax_smoke_core, {
-  device_helpers.create_fingerprint("Climax Technology Co.","SD8SC_00.00.03.12TC"),
+register(climax_smoke_core, {
+  fp("Climax Technology Co.","SD8SC_00.00.03.12TC"),
 })
 
 local function imou_motion_mapping()
@@ -846,11 +847,11 @@ local imou_zp1_core = {
   zcl_clusters={
     imou_motion_mapping(),passive(zcl.tamper({endpoint=1})),low_mapping(false),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
   },
 }
-register_device_definition(imou_zp1_core, {
-  device_helpers.create_fingerprint("MultIR","ZP1-EN"),
+register(imou_zp1_core, {
+  fp("MultIR","ZP1-EN"),
 })
 
 local function battery_3v2100(value)
@@ -887,14 +888,14 @@ end
 local iris_1116_core = {
   profile="sensors-iris-1116-core",magic_packet=false,zcl_clusters=iris_contact_clusters(true),
 }
-register_device_definition(iris_1116_core, {
-  device_helpers.create_fingerprint("iMagic by GreatStar","1116-S"),
+register(iris_1116_core, {
+  fp("iMagic by GreatStar","1116-S"),
 })
 local iris_3320_core = {
   profile="sensors-iris-3320-core",magic_packet=false,zcl_clusters=iris_contact_clusters(false),
 }
-register_device_definition(iris_3320_core, {
-  device_helpers.create_fingerprint("iMagic by GreatStar","3320-L"),
+register(iris_3320_core, {
+  fp("iMagic by GreatStar","3320-L"),
 })
 
 local konke_smoke_core = {
@@ -906,9 +907,9 @@ local konke_smoke_core = {
     end})),low_mapping(false),
   },
 }
-register_device_definition(konke_smoke_core, {
-  device_helpers.create_fingerprint("Konke","3AFE010104020028"),
-  device_helpers.create_fingerprint("iHorn","LH05121"),
+register(konke_smoke_core, {
+  fp("Konke","3AFE010104020028"),
+  fp("iHorn","LH05121"),
 })
 
 local lifecontrol_motion_core = {
@@ -918,8 +919,8 @@ local lifecontrol_motion_core = {
     passive(zcl.battery({endpoint=1,scale=1,from_device=battery_value})),
   },
 }
-register_device_definition(lifecontrol_motion_core, {
-  device_helpers.create_fingerprint("Nexturn","Motion_Sensor"),
+register(lifecontrol_motion_core, {
+  fp("Nexturn","Motion_Sensor"),
 })
 
 local gs_motion_core = {
@@ -927,7 +928,7 @@ local gs_motion_core = {
   zcl_clusters={
     motion_mapping(false),passive(zcl.tamper({endpoint=1})),low_mapping(false),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=function(value,_,context)
+      from_device=function(value,_,context)
         local body=context.zb_rx.body.zcl_body
         local voltage=type(body.get_attribute_data)=="function" and body:get_attribute_data(0x20)
         if type(voltage)=="table" then voltage=voltage.value end
@@ -942,23 +943,23 @@ local gs_motion_core = {
       end}),
   },
 }
-register_device_definition(gs_motion_core, {
-  device_helpers.create_fingerprint("GS","SMHM-I1"),
+register(gs_motion_core, {
+  fp("GS","SMHM-I1"),
 })
 
 local slacky_lcd_core = {
   profile="sensors-slacky-lcd-core",magic_packet=false,
   zcl_clusters={
-    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=10,read_on_configure=true}),
-    zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=10,read_on_configure=true}),
+    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=10}),
+    zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=10}),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=21600,reportable_change=0,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
     zcl.battery_voltage({endpoint=1,minimum_interval=3600,maximum_interval=21600,reportable_change=0,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
   },
 }
-register_device_definition(slacky_lcd_core, {
-  device_helpers.create_fingerprint("Slacky-DIY","TS0201-z2C-SlD"),
+register(slacky_lcd_core, {
+  fp("Slacky-DIY","TS0201-z2C-SlD"),
 })
 
 local function datek_occupancy_mapping()
@@ -982,8 +983,8 @@ local datek_motion_core = {
     for _, attribute in ipairs({0x0010,0x0000,0x0011}) do zcl.read_attribute(device,0x0500,attribute,1) end
   end,
 }
-register_device_definition(datek_motion_core, {
-  device_helpers.create_fingerprint("Datek","Motion Sensor"),
+register(datek_motion_core, {
+  fp("Datek","Motion Sensor"),
 })
 
 local schneider_w564100_core = {
@@ -993,13 +994,13 @@ local schneider_w564100_core = {
       if type(value)=="table" then value=value.value end
       return (value & 2)~=0
     end})),
-    zcl.temperature({endpoint=20,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.temperature({endpoint=20,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
     zcl.cluster_attribute(0x0400,0,{name="schneider_w564100_lux",endpoint=20,data_type=data_types.Uint16,
       read_only=true,emit=emit.illuminance(),minimum_interval=10,maximum_interval=3600,reportable_change=5,read_on_configure=true}),
   },
 }
-register_device_definition(schneider_w564100_core, {
-  device_helpers.create_fingerprint("Schneider Electric","W564100"),
+register(schneider_w564100_core, {
+  fp("Schneider Electric","W564100"),
 })
 
 local niko_motion_core = {
@@ -1015,8 +1016,8 @@ local niko_motion_core = {
       end}),
   },
 }
-register_device_definition(niko_motion_core, {
-  device_helpers.create_fingerprint("Niko NV","Connectable motion sensor,Zigbee"),
+register(niko_motion_core, {
+  fp("Niko NV","Connectable motion sensor,Zigbee"),
 })
 
 local multir_sm200_core = {
@@ -1028,11 +1029,11 @@ local multir_sm200_core = {
     end})),
     passive(zcl.tamper({endpoint=1})),low_mapping(false),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
   },
 }
-register_device_definition(multir_sm200_core, {
-  device_helpers.create_fingerprint("MultIR","MIR-SM200"),
+register(multir_sm200_core, {
+  fp("MultIR","MIR-SM200"),
 })
 
 local hzc_s093th_core = {
@@ -1044,8 +1045,8 @@ local hzc_s093th_core = {
     end})),
   },
 }
-register_device_definition(hzc_s093th_core, {
-  device_helpers.create_fingerprint("Shyugj","TempAndHumSensor-ZB3.0"),
+register(hzc_s093th_core, {
+  fp("Shyugj","TempAndHumSensor-ZB3.0"),
 })
 
 local slacky_smoke_core = {
@@ -1057,20 +1058,21 @@ local slacky_smoke_core = {
     end})),
     passive(zcl.tamper({endpoint=1})),low_mapping(false),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=21600,reportable_change=0,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
     zcl.battery_voltage({endpoint=1,minimum_interval=3600,maximum_interval=21600,reportable_change=0,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
   },
 }
-register_device_definition(slacky_smoke_core, {
-  device_helpers.create_fingerprint("Slacky-DIY","Smoke_Sensor_TLSR8258"),
+register(slacky_smoke_core, {
+  fp("Slacky-DIY","Smoke_Sensor_TLSR8258"),
 })
 
 local imou_ztm1_core = {
   profile="sensors-imou-ztm1-core",magic_packet=false,zcl_clusters={},
   configure=function(driver,device)
     device:send(device_management.build_bind_request(device,1,driver.environment_info.hub_zigbee_eui,1))
-    device:send(clusters.PowerConfiguration.attributes.BatteryPercentageRemaining:configure_reporting(device,3600,65000,10):to_endpoint(1))
+    zcl.configure_reporting(device,{cluster=1,attribute=0x21,data_type=data_types.Uint8,
+      minimum_interval=3600,maximum_interval=65000,reportable_change=10},1)
     zcl.read_attribute(device,1,0x21,1)
   end,
 }
@@ -1078,14 +1080,14 @@ local imou_ztm1_core = {
 for _, endpoint in ipairs({1,2}) do
   for _, mapping in ipairs({
     zcl.temperature({endpoint=endpoint,component="main",minimum_interval=10,maximum_interval=3600,
-      reportable_change=100,read_on_configure=true}),
+      reportable_change=100}),
     zcl.humidity({endpoint=endpoint,component="main",minimum_interval=10,maximum_interval=3600,
-      reportable_change=100,read_on_configure=true}),
+      reportable_change=100}),
     passive(zcl.battery({endpoint=endpoint,component="main",from_device=battery_value})),
   }) do imou_ztm1_core.zcl_clusters[#imou_ztm1_core.zcl_clusters+1]=mapping end
 end
-register_device_definition(imou_ztm1_core, {
-  device_helpers.create_fingerprint("MultIR","ZTM1-EN"),
+register(imou_ztm1_core, {
+  fp("MultIR","ZTM1-EN"),
 })
 
 local casaia_probe_core = {
@@ -1106,8 +1108,8 @@ local casaia_probe_core = {
       end}),
   },
 }
-register_device_definition(casaia_probe_core, {
-  device_helpers.create_fingerprint("CASAIA","CTHS317ET"),
+register(casaia_probe_core, {
+  fp("CASAIA","CTHS317ET"),
 })
 
 local pushok_soil_core = {
@@ -1121,9 +1123,9 @@ local pushok_soil_core = {
     passive(zcl.battery_voltage({endpoint=1,from_device=battery_value})),
   },
 }
-register_device_definition(pushok_soil_core, {
-  device_helpers.create_fingerprint("PushOk Hardware","POK002"),
-  device_helpers.create_fingerprint("PushOk Hardware","POK007"),
+register(pushok_soil_core, {
+  fp("PushOk Hardware","POK002"),
+  fp("PushOk Hardware","POK007"),
 })
 
 local pushok_contact_th_core = {
@@ -1140,8 +1142,8 @@ local pushok_contact_th_core = {
     passive(zcl.battery_voltage({endpoint=1,from_device=battery_value})),
   },
 }
-register_device_definition(pushok_contact_th_core, {
-  device_helpers.create_fingerprint("PushOk Hardware","POK010"),
+register(pushok_contact_th_core, {
+  fp("PushOk Hardware","POK010"),
 })
 
 -- THPZ1 is the explicit deCONZ fingerprint; do not infer the Z2M "Presence Z1" alias.
@@ -1162,8 +1164,8 @@ local tapestry_thpz1_core = {
     passive(zcl.humidity({endpoint=1})),
   },
 }
-register_device_definition(tapestry_thpz1_core, {
-  device_helpers.create_fingerprint("Tapestry","THPZ1"),
+register(tapestry_thpz1_core, {
+  fp("Tapestry","THPZ1"),
 })
 
 local function tradfri_battery(device,raw)
@@ -1214,8 +1216,8 @@ local ikea_tradfri_motion_core = {
       end}),
   },
 }
-register_device_definition(ikea_tradfri_motion_core, {
-  device_helpers.create_fingerprint("IKEA of Sweden","TRADFRI motion sensor"),
+register(ikea_tradfri_motion_core, {
+  fp("IKEA of Sweden","TRADFRI motion sensor"),
 })
 
 -- Halo+ core: the smoke and CO zones are distinct endpoints.
@@ -1240,15 +1242,15 @@ local halo_wx_core = {
     end})),
     passive(zcl.carbon_monoxide({endpoint=3,component="main"})),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
     zcl.battery_voltage({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
     zcl.temperature({component="main",minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=false}),
     zcl.humidity({component="main",minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=false}),
   },
 }
-register_device_definition(halo_wx_core, {
-  device_helpers.create_fingerprint("HaloSmartLabs","haloWX"),
+register(halo_wx_core, {
+  fp("HaloSmartLabs","haloWX"),
 })
 
 local nexelec_openr_core = {
@@ -1276,8 +1278,8 @@ local nexelec_openr_core = {
       read_on_configure=false,from_device=battery_value}),
   },
 }
-register_device_definition(nexelec_openr_core, {
-  device_helpers.create_fingerprint("Nexelec","Air Quality Sensor Nexelec"),
+register(nexelec_openr_core, {
+  fp("Nexelec","Air Quality Sensor Nexelec"),
 })
 
 local viessmann_7963223_core = {
@@ -1288,8 +1290,8 @@ local viessmann_7963223_core = {
     passive(zcl.battery({endpoint=1,from_device=battery_value})),
   },
 }
-register_device_definition(viessmann_7963223_core, {
-  device_helpers.create_fingerprint("Viessmann","7963223"),
+register(viessmann_7963223_core, {
+  fp("Viessmann","7963223"),
 })
 
 local titan_tpzrco2ht_core = {
@@ -1319,8 +1321,8 @@ local titan_tpzrco2ht_core = {
     }),
   },
 }
-register_device_definition(titan_tpzrco2ht_core, {
-  device_helpers.create_fingerprint("Titan Products Ltd","TPZRCO2HT-Z3"),
+register(titan_tpzrco2ht_core, {
+  fp("Titan Products Ltd","TPZRCO2HT-Z3"),
 })
 
 local sihas_osm300z_core = {
@@ -1328,7 +1330,8 @@ local sihas_osm300z_core = {
   configure=function(driver,device)
     local endpoint=device:get_endpoint(1)
     device:send(device_management.build_bind_request(device,1,driver.environment_info.hub_zigbee_eui,endpoint))
-    device:send(clusters.PowerConfiguration.attributes.BatteryVoltage:configure_reporting(device,3600,65000,10):to_endpoint(endpoint))
+    zcl.configure_reporting(device,{cluster=1,attribute=0x20,data_type=data_types.Uint8,
+      minimum_interval=3600,maximum_interval=65000,reportable_change=10},endpoint,{auto_endpoint=true})
     zcl.read_attribute(device,1,0x20,endpoint)
     for ep in pairs(device.zigbee_endpoints) do
       if device:supports_server_cluster(0x0406,ep) then zcl.read_attribute(device,0x0406,0,ep) end
@@ -1357,8 +1360,8 @@ local sihas_osm300z_core = {
     end})),
   },
 }
-register_device_definition(sihas_osm300z_core, {
-  device_helpers.create_fingerprint("ShinaSystem","OSM-300Z"),
+register(sihas_osm300z_core, {
+  fp("ShinaSystem","OSM-300Z"),
 })
 
 local sylvania_contact_temperature_core = {
@@ -1381,8 +1384,8 @@ local sylvania_contact_temperature_core = {
     }),
   },
 }
-register_device_definition(sylvania_contact_temperature_core, {
-  device_helpers.create_fingerprint("CentraLite","Contact Sensor-A"),
+register(sylvania_contact_temperature_core, {
+  fp("CentraLite","Contact Sensor-A"),
 })
 
 local thirdreality_3rms26z_core = {
@@ -1390,7 +1393,8 @@ local thirdreality_3rms26z_core = {
   configure=function(driver,device)
     local endpoint=device:get_endpoint(1)
     device:send(device_management.build_bind_request(device,1,driver.environment_info.hub_zigbee_eui,endpoint))
-    device:send(clusters.PowerConfiguration.attributes.BatteryPercentageRemaining:configure_reporting(device,3600,65000,10):to_endpoint(endpoint))
+    zcl.configure_reporting(device,{cluster=1,attribute=0x21,data_type=data_types.Uint8,
+      minimum_interval=3600,maximum_interval=65000,reportable_change=10},endpoint,{auto_endpoint=true})
     zcl.read_attribute(device,1,0x21,endpoint)
     for ep in pairs(device.zigbee_endpoints) do
       for _, spec in ipairs({{0x0500,2},{0x0400,0}}) do
@@ -1411,8 +1415,8 @@ local thirdreality_3rms26z_core = {
     zcl.illuminance({component="main",minimum_interval=10,maximum_interval=3600,reportable_change=5,read_on_configure=false}),
   },
 }
-register_device_definition(thirdreality_3rms26z_core, {
-  device_helpers.create_fingerprint("Third Reality, Inc","3RMS26Z"),
+register(thirdreality_3rms26z_core, {
+  fp("Third Reality, Inc","3RMS26Z"),
 })
 
 local sihas_usm300z_core = {
@@ -1443,8 +1447,8 @@ local sihas_usm300z_core = {
       read_on_configure=false,from_device=function(value) return value end}),
   },
 }
-register_device_definition(sihas_usm300z_core, {
-  device_helpers.create_fingerprint("ShinaSystem","USM-300Z"),
+register(sihas_usm300z_core, {
+  fp("ShinaSystem","USM-300Z"),
 })
 
 local thirdreality_3raq1096z_core = {
@@ -1469,8 +1473,8 @@ local thirdreality_3raq1096z_core = {
     }),
   },
 }
-register_device_definition(thirdreality_3raq1096z_core, {
-  device_helpers.create_fingerprint("Third Reality, Inc","3RAQ1096Z"),
+register(thirdreality_3raq1096z_core, {
+  fp("Third Reality, Inc","3RAQ1096Z"),
 })
 
 local adeo_pirth_v3_core = {
@@ -1478,7 +1482,8 @@ local adeo_pirth_v3_core = {
   configure=function(driver,device)
     local endpoint=device:get_endpoint(1)
     device:send(device_management.build_bind_request(device,1,driver.environment_info.hub_zigbee_eui,endpoint))
-    device:send(clusters.PowerConfiguration.attributes.BatteryPercentageRemaining:configure_reporting(device,3600,65000,10):to_endpoint(endpoint))
+    zcl.configure_reporting(device,{cluster=1,attribute=0x21,data_type=data_types.Uint8,
+      minimum_interval=3600,maximum_interval=65000,reportable_change=10},endpoint,{auto_endpoint=true})
     zcl.read_attribute(device,1,0x21,endpoint)
     for ep in pairs(device.zigbee_endpoints) do
       for _, spec in ipairs({{0x0500,2},{0x0400,0},{0x0402,0},{0x0405,0}}) do
@@ -1504,8 +1509,8 @@ local adeo_pirth_v3_core = {
     zcl.humidity({component="main",minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=false}),
   },
 }
-register_device_definition(adeo_pirth_v3_core, {
-  device_helpers.create_fingerprint("ADEO","ZB-SMART-PIRTH-V3"),
+register(adeo_pirth_v3_core, {
+  fp("ADEO","ZB-SMART-PIRTH-V3"),
 })
 
 local multir_mir_ir100_core = {
@@ -1513,7 +1518,8 @@ local multir_mir_ir100_core = {
   configure=function(driver,device)
     local endpoint=device:get_endpoint(1)
     device:send(device_management.build_bind_request(device,1,driver.environment_info.hub_zigbee_eui,endpoint))
-    device:send(clusters.PowerConfiguration.attributes.BatteryPercentageRemaining:configure_reporting(device,3600,65000,10):to_endpoint(endpoint))
+    zcl.configure_reporting(device,{cluster=1,attribute=0x21,data_type=data_types.Uint8,
+      minimum_interval=3600,maximum_interval=65000,reportable_change=10},endpoint,{auto_endpoint=true})
     zcl.read_attribute(device,1,0x21,endpoint)
     for ep in pairs(device.zigbee_endpoints) do
       for _, spec in ipairs({{0x0500,2},{0x0400,0}}) do
@@ -1537,8 +1543,8 @@ local multir_mir_ir100_core = {
     zcl.illuminance({component="main",minimum_interval=10,maximum_interval=3600,reportable_change=5,read_on_configure=false}),
   },
 }
-register_device_definition(multir_mir_ir100_core, {
-  device_helpers.create_fingerprint("MultIR","MIR-IR100"),
+register(multir_mir_ir100_core, {
+  fp("MultIR","MIR-IR100"),
 })
 
 local leedarson_pirth_v1_core = {
@@ -1579,8 +1585,8 @@ local leedarson_pirth_v1_core = {
     zcl.illuminance({component="main",minimum_interval=10,maximum_interval=3600,reportable_change=5,read_on_configure=false}),
   },
 }
-register_device_definition(leedarson_pirth_v1_core, {
-  device_helpers.create_fingerprint("Leedarson","ZB-SMART-PIRTH-V1"),
+register(leedarson_pirth_v1_core, {
+  fp("Leedarson","ZB-SMART-PIRTH-V1"),
 })
 
 local konke_kkbsj01w_core = {
@@ -1621,36 +1627,36 @@ local konke_kkbsj01w_core = {
     }),
   },
 }
-register_device_definition(konke_kkbsj01w_core, {
-  device_helpers.create_fingerprint("Konke","3AFE07010402100D"),
-  device_helpers.create_fingerprint("Konke","3AFE08010402100D"),
+register(konke_kkbsj01w_core, {
+  fp("Konke","3AFE07010402100D"),
+  fp("Konke","3AFE08010402100D"),
 })
 
 local efekta_eon213z_core = {
   profile="sensors-efekta-eon213z-core",magic_packet=false,
   zcl_clusters={
-    zcl.temperature({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0,read_on_configure=true}),
-    zcl.humidity({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0,read_on_configure=true}),
-    zcl.battery({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0,read_on_configure=true,from_device=battery_value}),
+    zcl.temperature({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0}),
+    zcl.humidity({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0}),
+    zcl.battery({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0,from_device=battery_value}),
     passive(zcl.battery_voltage({endpoint=1,from_device=battery_value})),
   },
 }
-register_device_definition(efekta_eon213z_core, {
-  device_helpers.create_fingerprint("efektalab.com","EFEKTA_eON213z"),
+register(efekta_eon213z_core, {
+  fp("efektalab.com","EFEKTA_eON213z"),
 })
 
 local efekta_thp_core = {
   profile="sensors-efekta-thp-core",magic_packet=false,
   zcl_clusters={
-    zcl.temperature({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0,read_on_configure=true}),
-    zcl.humidity({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0,read_on_configure=true}),
+    zcl.temperature({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0}),
+    zcl.humidity({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0}),
     zcl.pressure({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0,read_on_configure=true}),
-    zcl.battery({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0,from_device=battery_value}),
     passive(zcl.battery_voltage({endpoint=1,from_device=battery_value})),
   },
 }
-register_device_definition(efekta_thp_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_THP"),
+register(efekta_thp_core, {
+  fp("EfektaLab","EFEKTA_THP"),
 })
 
 local efekta_t1_ntc10k_core = {
@@ -1658,7 +1664,7 @@ local efekta_t1_ntc10k_core = {
   parent_refresh=function(device) zcl.read_attribute(device,1,0x21,1) end,
   zcl_clusters={
     zcl.temperature({endpoint=1,minimum_interval=30,maximum_interval=1800,reportable_change=10,read_on_configure=false}),
-    zcl.battery({endpoint=1,minimum_interval=10,maximum_interval=600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,minimum_interval=10,maximum_interval=600,reportable_change=1,from_device=battery_value}),
     zcl.cluster_attribute(1,0x3E,{name="efekta_ntc10k_battery_alarm",endpoint=1,data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=false,emit=function(_,value)
         if type(value)=="table" then value=value.value end
@@ -1667,9 +1673,9 @@ local efekta_t1_ntc10k_core = {
     }),
   },
 }
-register_device_definition(efekta_t1_ntc10k_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_T1_NTC10K"),
-  device_helpers.create_fingerprint("EfektaLab_for_Zigbee-Shop.ru","EFEKTA_T1_NTC10K"),
+register(efekta_t1_ntc10k_core, {
+  fp("EfektaLab","EFEKTA_T1_NTC10K"),
+  fp("EfektaLab_for_Zigbee-Shop.ru","EFEKTA_T1_NTC10K"),
 })
 
 local efekta_t1_pow_ntc10k_core = {
@@ -1680,7 +1686,7 @@ local efekta_t1_pow_ntc10k_core = {
   end,
   zcl_clusters={
     zcl.temperature({endpoint=1,minimum_interval=30,maximum_interval=1800,reportable_change=10,read_on_configure=false}),
-    zcl.battery({endpoint=1,minimum_interval=10,maximum_interval=600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,minimum_interval=10,maximum_interval=600,reportable_change=1,from_device=battery_value}),
     zcl.cluster_attribute(1,0x3E,{name="efekta_pow_ntc10k_battery_alarm",endpoint=1,data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=false,emit=function(_,value)
         if type(value)=="table" then value=value.value end
@@ -1692,9 +1698,9 @@ local efekta_t1_pow_ntc10k_core = {
     }),
   },
 }
-register_device_definition(efekta_t1_pow_ntc10k_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_T1_POW_NTC10K"),
-  device_helpers.create_fingerprint("EfektaLab_for_Zigbee-Shop.ru","EFEKTA_T1_POW_NTC10K"),
+register(efekta_t1_pow_ntc10k_core, {
+  fp("EfektaLab","EFEKTA_T1_POW_NTC10K"),
+  fp("EfektaLab_for_Zigbee-Shop.ru","EFEKTA_T1_POW_NTC10K"),
 })
 
 local efekta_th_duo_standard_core = {
@@ -1708,8 +1714,8 @@ local efekta_th_duo_standard_core = {
     zcl.humidity({endpoint=1,component="main",minimum_interval=30,maximum_interval=1800,reportable_change=10,read_on_configure=false}),
     zcl.temperature({endpoint=2,component="external",minimum_interval=30,maximum_interval=1800,reportable_change=10,read_on_configure=false}),
     zcl.humidity({endpoint=2,component="external",minimum_interval=30,maximum_interval=1800,reportable_change=10,read_on_configure=false}),
-    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
-    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,from_device=battery_value}),
+    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,from_device=battery_value}),
     zcl.cluster_attribute(1,0x3E,{name="efekta_th_duo_standard_battery_alarm",endpoint=1,component="main",data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=false,emit=function(_,value)
         if type(value)=="table" then value=value.value end
@@ -1718,22 +1724,22 @@ local efekta_th_duo_standard_core = {
     }),
   },
 }
-register_device_definition(efekta_th_duo_standard_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_TH_DUO"),
-  device_helpers.create_fingerprint("EfektaLab_for_Zigbee-Shop.ru","EFEKTA_TH_DUO"),
+register(efekta_th_duo_standard_core, {
+  fp("EfektaLab","EFEKTA_TH_DUO"),
+  fp("EfektaLab_for_Zigbee-Shop.ru","EFEKTA_TH_DUO"),
 })
 
 local sonoff_snzb02_efekta_core = {
   profile="sensors-sonoff-snzb02-efekta-core",magic_packet=false,
   zcl_clusters={
-    zcl.temperature({endpoint=1,minimum_interval=30,maximum_interval=1800,reportable_change=10,read_on_configure=true}),
-    zcl.humidity({endpoint=1,minimum_interval=120,maximum_interval=3600,reportable_change=25,read_on_configure=true}),
-    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
+    zcl.temperature({endpoint=1,minimum_interval=30,maximum_interval=1800,reportable_change=10}),
+    zcl.humidity({endpoint=1,minimum_interval=120,maximum_interval=3600,reportable_change=25}),
+    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=21600,reportable_change=1,from_device=battery_value}),
     passive(zcl.battery_voltage({endpoint=1,from_device=battery_value})),
   },
 }
-register_device_definition(sonoff_snzb02_efekta_core, {
-  device_helpers.create_fingerprint("EfektaLab_for_you","SNZB-02_EFEKTA"),
+register(sonoff_snzb02_efekta_core, {
+  fp("EfektaLab_for_you","SNZB-02_EFEKTA"),
 })
 
 local heiman_hs8mis_core = {
@@ -1752,8 +1758,8 @@ local heiman_hs8mis_core = {
     passive(zcl.illuminance({endpoint=1,from_device=function(value) return value end})),
   },
 }
-register_device_definition(heiman_hs8mis_core, {
-  device_helpers.create_fingerprint("HEIMAN","HS8MIS-EF1-3.0"),
+register(heiman_hs8mis_core, {
+  fp("HEIMAN","HS8MIS-EF1-3.0"),
 })
 
 local lifecontrol_mclh08_core = {
@@ -1769,8 +1775,8 @@ local lifecontrol_mclh08_core = {
     passive(zcl.battery({endpoint=1,scale=1,from_device=battery_value})),
   },
 }
-register_device_definition(lifecontrol_mclh08_core, {
-  device_helpers.create_fingerprint("Nexturn","VOC_Sensor"),
+register(lifecontrol_mclh08_core, {
+  fp("Nexturn","VOC_Sensor"),
 })
 
 local feibit_sbm01zb_core = {
@@ -1781,7 +1787,7 @@ local feibit_sbm01zb_core = {
       if context.command_id==0 then return emit.tamper()(device,value) end
     end})),
     low_mapping(true),
-    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=0,from_device=battery_value}),
     passive(zcl.battery_voltage({endpoint=1,from_device=battery_value})),
     zcl.cluster_attribute(1,0x3E,{name="feibit_sbm01_battery_alarm",endpoint=1,data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=true,minimum_interval=3600,maximum_interval=65000,reportable_change=0,
@@ -1792,10 +1798,10 @@ local feibit_sbm01zb_core = {
     }),
   },
 }
-register_device_definition(feibit_sbm01zb_core, {
-  device_helpers.create_fingerprint("Feibit Inc co.","FB56-BOT02HM1.2"),
-  device_helpers.create_fingerprint("Feibit Inc co.","FNB56-BOT06FB2.3"),
-  device_helpers.create_fingerprint("Feibit Inc co.","FNB56-BOT06FB2.8"),
+register(feibit_sbm01zb_core, {
+  fp("Feibit Inc co.","FB56-BOT02HM1.2"),
+  fp("Feibit Inc co.","FNB56-BOT06FB2.3"),
+  fp("Feibit Inc co.","FNB56-BOT06FB2.8"),
 })
 
 local bacchus_presence26_core = {
@@ -1810,8 +1816,8 @@ local bacchus_presence26_core = {
     zcl.illuminance({endpoint=1,minimum_interval=0,maximum_interval=3600,reportable_change=0,read_on_configure=true}),
   },
 }
-register_device_definition(bacchus_presence26_core, {
-  device_helpers.create_fingerprint("Bacchus","Presence_Sensor_v2.6"),
+register(bacchus_presence26_core, {
+  fp("Bacchus","Presence_Sensor_v2.6"),
 })
 
 local bacchus_presence2_core = {
@@ -1819,7 +1825,8 @@ local bacchus_presence2_core = {
   configure=function(driver,device)
     -- The v2 interview lists occupancy as an output cluster. Z2M selects EP1 explicitly.
     device:send(device_management.build_bind_request(device,0x0406,driver.environment_info.hub_zigbee_eui,1))
-    device:send(clusters.OccupancySensing.attributes.Occupancy:configure_reporting(device,0,3600,0):to_endpoint(1))
+    zcl.configure_reporting(device,{cluster=0x0406,attribute=0,data_type=data_types.Bitmap8,
+      minimum_interval=0,maximum_interval=3600},1)
     zcl.read_attribute(device,0x0406,0,1)
   end,
   zcl_clusters={
@@ -1830,8 +1837,8 @@ local bacchus_presence2_core = {
     zcl.illuminance({endpoint=1,minimum_interval=0,maximum_interval=3600,reportable_change=0,read_on_configure=true}),
   },
 }
-register_device_definition(bacchus_presence2_core, {
-  device_helpers.create_fingerprint("Bacchus","Presence_Sensor_v2"),
+register(bacchus_presence2_core, {
+  fp("Bacchus","Presence_Sensor_v2"),
 })
 
 local diyruz_airsense_core = {
@@ -1841,8 +1848,8 @@ local diyruz_airsense_core = {
     for _, spec in ipairs({{0x0402,data_types.Int16},{0x0405,data_types.Uint16},{0x040D,data_types.SinglePrecisionFloat}}) do
       device:send(device_management.build_bind_request(device,spec[1],driver.environment_info.hub_zigbee_eui,1))
       local change=spec[1]==0x040D and data_types.SinglePrecisionFloat(0,-127,0) or 0
-      device:send(cluster_base.configure_reporting(device,data_types.ClusterId(spec[1]),data_types.AttributeId(0),
-        data_types.ZigbeeDataType(spec[2].ID),0,3600,change):to_endpoint(1))
+      zcl.configure_reporting(device,{cluster=spec[1],attribute=0,data_type=spec[2],
+        minimum_interval=0,maximum_interval=3600,reportable_change=change},1)
     end
   end,
   zcl_clusters={
@@ -1856,8 +1863,8 @@ local diyruz_airsense_core = {
     }),
   },
 }
-register_device_definition(diyruz_airsense_core, {
-  device_helpers.create_fingerprint("modkam.ru","DIYRuZ_AirSense"),
+register(diyruz_airsense_core, {
+  fp("modkam.ru","DIYRuZ_AirSense"),
 })
 
 local efekta_eth_pow_core = {
@@ -1878,9 +1885,9 @@ local efekta_eth_pow_core = {
     }),
   },
 }
-register_device_definition(efekta_eth_pow_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_eTH_POW_E_LR"),
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_eTH_POW_R_LR"),
+register(efekta_eth_pow_core, {
+  fp("EfektaLab","EFEKTA_eTH_POW_E_LR"),
+  fp("EfektaLab","EFEKTA_eTH_POW_R_LR"),
 })
 
 local wirenboard_msw4_official_core = {
@@ -1906,8 +1913,8 @@ local wirenboard_msw4_official_core = {
     }),
   },
 }
-register_device_definition(wirenboard_msw4_official_core, {
-  device_helpers.create_fingerprint("Wiren Board","WB-MSW-ZIGBEE v.4"),
+register(wirenboard_msw4_official_core, {
+  fp("Wiren Board","WB-MSW-ZIGBEE v.4"),
 })
 
 local function slacky_co2_mapping()
@@ -1925,20 +1932,20 @@ local slacky_co2_r01_core = {
   profile="sensors-slacky-co2-r01-core",magic_packet=false,
   zcl_clusters={slacky_co2_mapping()},
 }
-register_device_definition(slacky_co2_r01_core, {
-  device_helpers.create_fingerprint("Slacky-DIY","Tuya_CO2Sensor_r01"),
+register(slacky_co2_r01_core, {
+  fp("Slacky-DIY","Tuya_CO2Sensor_r01"),
 })
 
 local slacky_co2_r02_core = {
   profile="sensors-slacky-co2-r02-core",magic_packet=false,
   zcl_clusters={
     slacky_co2_mapping(),
-    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
-    zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
+    zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
   },
 }
-register_device_definition(slacky_co2_r02_core, {
-  device_helpers.create_fingerprint("Slacky-DIY","Tuya_CO2Sensor_r02"),
+register(slacky_co2_r02_core, {
+  fp("Slacky-DIY","Tuya_CO2Sensor_r02"),
 })
 
 local function w100_battery(_,value)
@@ -1953,8 +1960,8 @@ local aqara_w100_core = {
     zcl.read_attribute(device,0x0405,0,1)
   end,
   zcl_clusters={
-    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
-    zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
+    zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
     zcl.cluster_attribute(0xFCC0,102,{name="aqara_w100_battery",endpoint=1,data_type=data_types.Uint8,
       read_only=true,read_on_configure=false,emit=w100_battery,
     }),
@@ -1977,8 +1984,8 @@ local aqara_w100_core = {
     }),
   },
 }
-register_device_definition(aqara_w100_core, {
-  device_helpers.create_fingerprint("Aqara","lumi.sensor_ht.agl001"),
+register(aqara_w100_core, {
+  fp("Aqara","lumi.sensor_ht.agl001"),
 })
 
 local frient_wiszb120_core = {
@@ -2000,13 +2007,13 @@ local frient_wiszb120_core = {
         return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
       end
     end})),
-    zcl.temperature({endpoint=38,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
-    zcl.battery({endpoint=35,minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,from_device=battery_value}),
-    zcl.battery_voltage({endpoint=35,minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,from_device=battery_value}),
+    zcl.temperature({endpoint=38,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
+    zcl.battery({endpoint=35,minimum_interval=3600,maximum_interval=65000,reportable_change=10,from_device=battery_value}),
+    zcl.battery_voltage({endpoint=35,minimum_interval=3600,maximum_interval=65000,reportable_change=10,from_device=battery_value}),
   },
 }
-register_device_definition(frient_wiszb120_core, {
-  device_helpers.create_fingerprint("frient A/S","WISZB-120"),
+register(frient_wiszb120_core, {
+  fp("frient A/S","WISZB-120"),
 })
 
 local function smartthings_multi_core_clusters(reports,battery_curve)
@@ -2039,8 +2046,8 @@ local smartthings_3321s_core = {
   profile="sensors-smartthings-3321s-core",magic_packet=false,
   zcl_clusters=smartthings_multi_core_clusters(true,battery_3v2100),
 }
-register_device_definition(smartthings_3321s_core, {
-  device_helpers.create_fingerprint("CentraLite","3321-S"),
+register(smartthings_3321s_core, {
+  fp("CentraLite","3321-S"),
 })
 
 local smartthings_multiv4_core = {
@@ -2049,8 +2056,8 @@ local smartthings_multiv4_core = {
     return math.floor(math.max(0,math.min(100,235-370000/(value*100+1)))+0.5)
   end),
 }
-register_device_definition(smartthings_multiv4_core, {
-  device_helpers.create_fingerprint("SmartThings","multiv4"),
+register(smartthings_multiv4_core, {
+  fp("SmartThings","multiv4"),
 })
 
 local heiman_hs8mis86_core = {
@@ -2069,22 +2076,22 @@ local heiman_hs8mis86_core = {
     passive(zcl.illuminance({endpoint=1,from_device=function(value) return value end})),
   },
 }
-register_device_definition(heiman_hs8mis86_core, {
-  device_helpers.create_fingerprint("HEIMAN","HS8MIS-86-EF1-3.0"),
+register(heiman_hs8mis86_core, {
+  fp("HEIMAN","HS8MIS-86-EF1-3.0"),
 })
 
 local third_reality_soil_gen2_core = {
   profile="sensors-thirdreality-soil-gen2-core",magic_packet=false,
   zcl_clusters={
-    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
-    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,from_device=battery_value}),
+    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
+    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,from_device=battery_value}),
     zcl.cluster_attribute(0x0408,0,{name="third_reality_soil_gen2",endpoint=1,data_type=data_types.Uint16,
       read_only=true,read_on_configure=true,minimum_interval=10,maximum_interval=3600,reportable_change=100,
       scale=100,emit=emit.humidity()}),
   },
 }
-register_device_definition(third_reality_soil_gen2_core, {
-  device_helpers.create_fingerprint("Third Reality, Inc","3RSM0347Z"),
+register(third_reality_soil_gen2_core, {
+  fp("Third Reality, Inc","3RSM0347Z"),
 })
 
 local function third_reality_soil_cluster(device)
@@ -2097,8 +2104,8 @@ local third_reality_soil_core = {
     local cluster=third_reality_soil_cluster(device)
     local endpoint=device:get_endpoint(cluster)
     device:send(device_management.build_bind_request(device,cluster,driver.environment_info.hub_zigbee_eui,endpoint))
-    device:send(cluster_base.configure_reporting(device,data_types.ClusterId(cluster),data_types.AttributeId(0),
-      data_types.ZigbeeDataType(data_types.Uint16.ID),data_types.Uint16(10),data_types.Uint16(3600),data_types.Uint16(100)):to_endpoint(endpoint))
+    zcl.configure_reporting(device,{cluster=cluster,attribute=0,data_type=data_types.Uint16,
+      minimum_interval=10,maximum_interval=3600,reportable_change=100},endpoint,{key="zrThirdSoil"})
   end,
   parent_refresh=function(device)
     local cluster=third_reality_soil_cluster(device)
@@ -2107,8 +2114,8 @@ local third_reality_soil_core = {
     zcl.read_attribute(device,1,0x21,1)
   end,
   zcl_clusters={
-    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
-    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,from_device=battery_value}),
+    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
+    zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,from_device=battery_value}),
     zcl.cluster_attribute(0x0408,0,{name="third_reality_soil",data_type=data_types.Uint16,
       read_only=true,read_on_configure=false,scale=100,emit=emit.humidity()}),
     zcl.cluster_attribute(0x0405,0,{name="third_reality_soil_legacy",data_type=data_types.Uint16,
@@ -2118,8 +2125,8 @@ local third_reality_soil_core = {
       end,emit=emit.humidity()}),
   },
 }
-register_device_definition(third_reality_soil_core, {
-  device_helpers.create_fingerprint("Third Reality, Inc","3RSM0147Z"),
+register(third_reality_soil_core, {
+  fp("Third Reality, Inc","3RSM0147Z"),
 })
 
 local efekta_aq_smart_core = {
@@ -2134,8 +2141,8 @@ local efekta_aq_smart_core = {
       from_device=function(value) return math.floor(value*1000000+0.5) end,emit=emit.co2()}),
   },
 }
-register_device_definition(efekta_aq_smart_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_AQ_Smart_Monitor"),
+register(efekta_aq_smart_core, {
+  fp("EfektaLab","EFEKTA_AQ_Smart_Monitor"),
 })
 
 local efekta_aqs2c_core = {
@@ -2154,8 +2161,8 @@ local efekta_aqs2c_core = {
       from_device=function(value) return math.floor(value+0.5) end,emit=emit.pm25()}),
   },
 }
-register_device_definition(efekta_aqs2c_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_Air_Quality_Station_2c"),
+register(efekta_aqs2c_core, {
+  fp("EfektaLab","EFEKTA_Air_Quality_Station_2c"),
 })
 
 local function fp300_battery(device,value)
@@ -2205,8 +2212,8 @@ local aqara_fp300_core = {
     zcl.cluster_attribute(0xFCC0,0x14D,{name="fp300_pir",endpoint=1,mfg_code=0x115F,data_type=data_types.Uint8,
       read_only=true,read_on_configure=true,minimum_interval=0,maximum_interval=3600,reportable_change=1,
       from_device=function(value) return value==1 end,emit=emit.motion()}),
-    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
-    zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
+    zcl.humidity({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
     zcl.illuminance({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=5,read_on_configure=true}),
     zcl.cluster_attribute(0xFCC0,0xF7,{name="fp300_battery",endpoint=1,mfg_code=0x115F,
       read_only=true,read_on_configure=true,emit=fp300_battery}),
@@ -2223,8 +2230,8 @@ local aqara_fp300_core = {
       end}),
   },
 }
-register_device_definition(aqara_fp300_core, {
-  device_helpers.create_fingerprint("Aqara","lumi.sensor_occupy.agl8"),
+register(aqara_fp300_core, {
+  fp("Aqara","lumi.sensor_occupy.agl8"),
 })
 
 local samjin_multi_core = {
@@ -2242,7 +2249,7 @@ local samjin_multi_core = {
     low_mapping(true),
     zcl.temperature({endpoint=1,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=false}),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=0,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
     passive(zcl.battery_voltage({endpoint=1,from_device=battery_value})),
     zcl.cluster_attribute(1,0x3E,{name="samjin_multi_battery_alarm",endpoint=1,data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=false,emit=function(_,value)
@@ -2251,8 +2258,8 @@ local samjin_multi_core = {
     }),
   },
 }
-register_device_definition(samjin_multi_core, {
-  device_helpers.create_fingerprint("Samjin","multi"),
+register(samjin_multi_core, {
+  fp("Samjin","multi"),
 })
 
 local function bosch_bsd2_default_sensitivity(device)
@@ -2275,7 +2282,7 @@ local bosch_bsd2_core = {
       end,
     }),
     zcl.battery({endpoint=1,minimum_interval=0,maximum_interval=65000,reportable_change=1,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
     zcl.cluster_attribute(1,0x3E,{name="bosch_bsd2_battery_alarm",endpoint=1,data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=true,minimum_interval=0,maximum_interval=65000,
       emit=function(_,value)
@@ -2284,8 +2291,8 @@ local bosch_bsd2_core = {
     }),
   },
 }
-register_device_definition(bosch_bsd2_core, {
-  device_helpers.create_fingerprint("BOSCH","RBSH-SD-ZB-EU"),
+register(bosch_bsd2_core, {
+  fp("BOSCH","RBSH-SD-ZB-EU"),
 })
 
 local airsense_reloaded_core = {
@@ -2294,8 +2301,8 @@ local airsense_reloaded_core = {
     for _, cluster in ipairs({0x0402,0x0405,0x0403,0x040D}) do zcl.read_attribute(device,cluster,0,1) end
   end,
   zcl_clusters={
-    zcl.temperature({endpoint=1,minimum_interval=20,maximum_interval=1200,reportable_change=15,read_on_configure=true}),
-    zcl.humidity({endpoint=1,minimum_interval=20,maximum_interval=1200,reportable_change=15,read_on_configure=true}),
+    zcl.temperature({endpoint=1,minimum_interval=20,maximum_interval=1200,reportable_change=15}),
+    zcl.humidity({endpoint=1,minimum_interval=20,maximum_interval=1200,reportable_change=15}),
     zcl.cluster_attribute(0x0403,0,{name="airsense_reloaded_pressure",endpoint=1,data_type=data_types.Int16,
       read_only=true,read_on_configure=true,minimum_interval=60,maximum_interval=1800,reportable_change=1,
       scale=10,emit=emit.atmospheric_pressure()}),
@@ -2305,8 +2312,8 @@ local airsense_reloaded_core = {
       from_device=function(value) return math.floor(value*1000000+0.5) end,emit=emit.co2()}),
   },
 }
-register_device_definition(airsense_reloaded_core, {
-  device_helpers.create_fingerprint("EfektaLab","DIYRuZ_AirSense_Reloaded"),
+register(airsense_reloaded_core, {
+  fp("EfektaLab","DIYRuZ_AirSense_Reloaded"),
 })
 
 local function efekta_pws_soil_cluster(device)
@@ -2317,8 +2324,8 @@ local efekta_pws_core = {
   configure=function(driver,device)
     local cluster=efekta_pws_soil_cluster(device)
     device:send(device_management.build_bind_request(device,cluster,driver.environment_info.hub_zigbee_eui,1))
-    device:send(cluster_base.configure_reporting(device,data_types.ClusterId(cluster),data_types.AttributeId(0),
-      data_types.ZigbeeDataType(data_types.Uint16.ID),data_types.Uint16(0),data_types.Uint16(21600),data_types.Uint16(0)):to_endpoint(1))
+    zcl.configure_reporting(device,{cluster=cluster,attribute=0,data_type=data_types.Uint16,
+      minimum_interval=0,maximum_interval=21600,reportable_change=0},1,{key="zrPwsSoil"})
     zcl.read_attribute(device,cluster,0,1)
   end,
   parent_refresh=function(device)
@@ -2328,8 +2335,8 @@ local efekta_pws_core = {
     zcl.read_attribute(device,1,0x20,1)
   end,
   zcl_clusters={
-    zcl.temperature({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0,read_on_configure=true}),
-    zcl.battery({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0,read_on_configure=true,from_device=battery_value}),
+    zcl.temperature({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0}),
+    zcl.battery({endpoint=1,minimum_interval=0,maximum_interval=21600,reportable_change=0,from_device=battery_value}),
     passive(zcl.battery_voltage({endpoint=1,from_device=battery_value})),
     zcl.cluster_attribute(0x0408,0,{name="efekta_pws_soil",endpoint=1,data_type=data_types.Uint16,
       read_only=true,read_on_configure=false,scale=100,emit=function(device,value)
@@ -2341,8 +2348,8 @@ local efekta_pws_core = {
       end}),
   },
 }
-register_device_definition(efekta_pws_core, {
-  device_helpers.create_fingerprint("efektalab.ru","EFEKTA_PWS"),
+register(efekta_pws_core, {
+  fp("efektalab.ru","EFEKTA_PWS"),
 })
 
 local function gwa1513_endpoint(cluster)
@@ -2365,7 +2372,7 @@ local develco_gwa1513_core = {
     passive(zcl.battery_low({endpoint=gwa1513_endpoint(0x0500),component="main",emit=function(_,value,context)
       if context.command_id==0 then return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal() end
     end})),
-    zcl.temperature({endpoint=gwa1513_endpoint(0x0402),component="main",minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.temperature({endpoint=gwa1513_endpoint(0x0402),component="main",minimum_interval=10,maximum_interval=3600,reportable_change=100}),
     passive(zcl.battery({endpoint=gwa1513_endpoint(1),component="main",from_device=battery_value})),
     zcl.cluster_attribute(1,0x20,{name="gwa1513_voltage",endpoint=gwa1513_endpoint(1),component="main",data_type=data_types.Uint8,
       read_only=true,read_on_configure=true,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
@@ -2375,8 +2382,8 @@ local develco_gwa1513_core = {
       end}),
   },
 }
-register_device_definition(develco_gwa1513_core, {
-  device_helpers.create_fingerprint("Develco Products A/S","GWA1513_WindowSensor"),
+register(develco_gwa1513_core, {
+  fp("Develco Products A/S","GWA1513_WindowSensor"),
 })
 
 local frient_wiszb138_core = {
@@ -2396,7 +2403,7 @@ local frient_wiszb138_core = {
     passive(zcl.battery_low({endpoint=35,emit=function(_,value,context)
       if context.command_id==0 then return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal() end
     end})),
-    zcl.temperature({endpoint=38,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.temperature({endpoint=38,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
     passive(zcl.battery({endpoint=35,from_device=battery_value})),
     zcl.cluster_attribute(1,0x20,{name="wiszb138_voltage",endpoint=35,data_type=data_types.Uint8,
       read_only=true,read_on_configure=true,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
@@ -2406,8 +2413,8 @@ local frient_wiszb138_core = {
       end}),
   },
 }
-register_device_definition(frient_wiszb138_core, {
-  device_helpers.create_fingerprint("frient A/S","WISZB-138"),
+register(frient_wiszb138_core, {
+  fp("frient A/S","WISZB-138"),
 })
 
 local multir_mir_ir100e_core = {
@@ -2421,13 +2428,13 @@ local multir_mir_ir100e_core = {
     passive(zcl.tamper({endpoint=1})),
     low_mapping(false),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
     passive(zcl.battery_voltage({endpoint=1,from_device=battery_value})),
   },
 }
-register_device_definition(multir_mir_ir100e_core, {
-  device_helpers.create_fingerprint("MultIR","MIR-IR100-E"),
-  device_helpers.create_fingerprint("MultiIR","MIR-IR100-E"),
+register(multir_mir_ir100e_core, {
+  fp("MultIR","MIR-IR100-E"),
+  fp("MultiIR","MIR-IR100-E"),
 })
 
 local efekta_pws_max_core = {
@@ -2438,19 +2445,19 @@ local efekta_pws_max_core = {
     zcl.read_attribute(device,1,0x20,1)
   end,
   zcl_clusters={
-    zcl.temperature({endpoint=1,component="main",minimum_interval=0,maximum_interval=21600,reportable_change=0,read_on_configure=true}),
-    zcl.humidity({endpoint=1,component="main",minimum_interval=0,maximum_interval=21600,reportable_change=0,read_on_configure=true}),
+    zcl.temperature({endpoint=1,component="main",minimum_interval=0,maximum_interval=21600,reportable_change=0}),
+    zcl.humidity({endpoint=1,component="main",minimum_interval=0,maximum_interval=21600,reportable_change=0}),
     zcl.illuminance({endpoint=1,component="main",minimum_interval=0,maximum_interval=21600,reportable_change=0,read_on_configure=true}),
     zcl.cluster_attribute(0x0408,0,{name="pws_max_soil",endpoint=1,component="soil",data_type=data_types.Uint16,
       read_only=true,read_on_configure=true,minimum_interval=0,maximum_interval=21600,reportable_change=0,
       from_device=function(value) return value/100 end,emit=emit.humidity()}),
     zcl.battery({endpoint=1,component="main",minimum_interval=0,maximum_interval=21600,reportable_change=0,
-      read_on_configure=true,from_device=battery_value}),
+      from_device=battery_value}),
     passive(zcl.battery_voltage({endpoint=1,component="main",from_device=battery_value})),
   },
 }
-register_device_definition(efekta_pws_max_core, {
-  device_helpers.create_fingerprint("EFEKTA_FOR_BELOUSOV.A","EFEKTA_PWS_Max"),
+register(efekta_pws_max_core, {
+  fp("EFEKTA_FOR_BELOUSOV.A","EFEKTA_PWS_Max"),
 })
 
 local develco_wiszb137_core = {
@@ -2471,7 +2478,7 @@ local develco_wiszb137_core = {
     passive(zcl.battery_low({endpoint=45,emit=function(_,value)
       return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
     end})),
-    zcl.temperature({endpoint=38,minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.temperature({endpoint=38,minimum_interval=10,maximum_interval=3600,reportable_change=100}),
     passive(zcl.battery({endpoint=45,from_device=battery_value})),
     zcl.cluster_attribute(1,0x20,{name="wiszb137_voltage",endpoint=45,data_type=data_types.Uint8,
       read_only=true,read_on_configure=true,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
@@ -2481,9 +2488,9 @@ local develco_wiszb137_core = {
       end}),
   },
 }
-register_device_definition(develco_wiszb137_core, {
-  device_helpers.create_fingerprint("frient A/S","WISZB-137"),
-  device_helpers.create_fingerprint("Develco Products A/S","WISZB-137"),
+register(develco_wiszb137_core, {
+  fp("frient A/S","WISZB-137"),
+  fp("Develco Products A/S","WISZB-137"),
 })
 
 local tuya_ts020c_core = {
@@ -2518,8 +2525,8 @@ local tuya_ts020c_core = {
       end}),
   },
 }
-register_device_definition(tuya_ts020c_core, {
-  device_helpers.create_fingerprint("_TZ3040_wc6kfjtc","TS020C"),
+register(tuya_ts020c_core, {
+  fp("_TZ3040_wc6kfjtc","TS020C"),
 })
 
 local efekta_pixel_air2_core = {
@@ -2534,8 +2541,8 @@ local efekta_pixel_air2_core = {
       from_device=function(value) return math.floor(value*1000000+0.5) end,emit=emit.co2()}),
   },
 }
-register_device_definition(efekta_pixel_air2_core, {
-  device_helpers.create_fingerprint("EfektaLab for you","EFEKTA_Pixel_Open_Air_II"),
+register(efekta_pixel_air2_core, {
+  fp("EfektaLab for you","EFEKTA_Pixel_Open_Air_II"),
 })
 
 local efekta_iaqs2_core = {
@@ -2556,8 +2563,8 @@ local efekta_iaqs2_core = {
       from_device=function(value) return math.floor(value*1000000+0.5) end,emit=emit.co2()}),
   },
 }
-register_device_definition(efekta_iaqs2_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_iAQ_S_II"),
+register(efekta_iaqs2_core, {
+  fp("EfektaLab","EFEKTA_iAQ_S_II"),
 })
 
 local efekta_iaq3_core = {
@@ -2575,8 +2582,8 @@ local efekta_iaq3_core = {
       from_device=function(value) return math.floor(value*1000000+0.5) end,emit=emit.co2()}),
   },
 }
-register_device_definition(efekta_iaq3_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_iAQ3"),
+register(efekta_iaq3_core, {
+  fp("EfektaLab","EFEKTA_iAQ3"),
 })
 
 local efekta_eflora_core = {
@@ -2592,16 +2599,16 @@ local efekta_eflora_core = {
     zcl.cluster_attribute(0x0408,0,{name="eflora_base_soil",endpoint=1,component="soil",data_type=data_types.Uint16,
       minimum_interval=600,maximum_interval=7200,reportable_change=100,read_only=true,read_on_configure=false,
       scale=100,emit=emit.humidity()}),
-    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
-    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,from_device=battery_value}),
+    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,from_device=battery_value}),
     zcl.cluster_attribute(1,0x3E,{name="eflora_base_battery_alarm",endpoint=1,component="main",data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=false,emit=function(_,value)
         return (value&0xF03C0F)~=0 and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
       end}),
   },
 }
-register_device_definition(efekta_eflora_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_eFlora"),
+register(efekta_eflora_core, {
+  fp("EfektaLab","EFEKTA_eFlora"),
 })
 
 local efekta_zflora_pro_core = {
@@ -2617,18 +2624,18 @@ local efekta_zflora_pro_core = {
     zcl.cluster_attribute(0x0408,0,{name="zflora_pro_soil",endpoint=1,component="soil",data_type=data_types.Uint16,
       minimum_interval=600,maximum_interval=7200,reportable_change=100,read_only=true,read_on_configure=false,
       scale=100,emit=emit.humidity()}),
-    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
-    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,from_device=battery_value}),
+    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,from_device=battery_value}),
     zcl.cluster_attribute(1,0x3E,{name="zflora_pro_battery_alarm",endpoint=1,component="main",data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=false,emit=function(_,value)
         return (value&0xF03C0F)~=0 and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
       end}),
   },
 }
-register_device_definition(efekta_zflora_pro_core, {
-  device_helpers.create_fingerprint("EfektaLab","zFlora_Pro"),
-  device_helpers.create_fingerprint("EfektaLab","zFlora_S_Max"),
-  device_helpers.create_fingerprint("EfektaLab_for_Zigbee-Shop.ru","zFlora_S_Max"),
+register(efekta_zflora_pro_core, {
+  fp("EfektaLab","zFlora_Pro"),
+  fp("EfektaLab","zFlora_S_Max"),
+  fp("EfektaLab_for_Zigbee-Shop.ru","zFlora_S_Max"),
 })
 
 local efekta_zflora_s_core = {
@@ -2643,16 +2650,16 @@ local efekta_zflora_s_core = {
     zcl.cluster_attribute(0x0408,0,{name="zflora_s_soil",endpoint=1,component="soil",data_type=data_types.Uint16,
       minimum_interval=600,maximum_interval=7200,reportable_change=100,read_only=true,read_on_configure=false,
       scale=100,emit=emit.humidity()}),
-    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
-    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,from_device=battery_value}),
+    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,from_device=battery_value}),
     zcl.cluster_attribute(1,0x3E,{name="zflora_s_battery_alarm",endpoint=1,component="main",data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=false,emit=function(_,value)
         return (value&0xF03C0F)~=0 and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
       end}),
   },
 }
-register_device_definition(efekta_zflora_s_core, {
-  device_helpers.create_fingerprint("EfektaLab","zFlora_S"),
+register(efekta_zflora_s_core, {
+  fp("EfektaLab","zFlora_S"),
 })
 
 local efekta_zflora_promax_core = {
@@ -2668,16 +2675,16 @@ local efekta_zflora_promax_core = {
     zcl.cluster_attribute(0x0408,0,{name="zflora_promax_soil",endpoint=1,component="soil",data_type=data_types.Uint16,
       minimum_interval=600,maximum_interval=7200,reportable_change=100,read_only=true,read_on_configure=false,
       scale=100,emit=emit.humidity()}),
-    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
-    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,from_device=battery_value}),
+    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,from_device=battery_value}),
     zcl.cluster_attribute(1,0x3E,{name="zflora_promax_battery_alarm",endpoint=1,component="main",data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=false,emit=function(_,value)
         return (value&0xF03C0F)~=0 and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
       end}),
   },
 }
-register_device_definition(efekta_zflora_promax_core, {
-  device_helpers.create_fingerprint("EfektaLab","zFlora_ProMax"),
+register(efekta_zflora_promax_core, {
+  fp("EfektaLab","zFlora_ProMax"),
 })
 
 local efekta_eflora_pro_core = {
@@ -2693,16 +2700,16 @@ local efekta_eflora_pro_core = {
     zcl.cluster_attribute(0x0408,0,{name="eflora_pro_soil",endpoint=3,component="soil",data_type=data_types.Uint16,
       minimum_interval=600,maximum_interval=7200,reportable_change=100,read_only=true,read_on_configure=false,
       scale=100,emit=emit.humidity()}),
-    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
-    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,from_device=battery_value}),
+    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,from_device=battery_value}),
     zcl.cluster_attribute(1,0x3E,{name="eflora_pro_battery_alarm",endpoint=1,component="main",data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=false,emit=function(_,value)
         return (value&0xF03C0F)~=0 and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
       end}),
   },
 }
-register_device_definition(efekta_eflora_pro_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_eFlora_Pro"),
+register(efekta_eflora_pro_core, {
+  fp("EfektaLab","EFEKTA_eFlora_Pro"),
 })
 
 local efekta_eflora_max_core = {
@@ -2718,16 +2725,16 @@ local efekta_eflora_max_core = {
     zcl.cluster_attribute(0x0408,0,{name="eflora_soil",endpoint=3,component="soil",data_type=data_types.Uint16,
       minimum_interval=600,maximum_interval=7200,reportable_change=100,read_only=true,read_on_configure=false,
       scale=100,emit=emit.humidity()}),
-    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
-    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,read_on_configure=true,from_device=battery_value}),
+    zcl.battery({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,reportable_change=1,from_device=battery_value}),
+    zcl.battery_voltage({endpoint=1,component="main",minimum_interval=3600,maximum_interval=21600,from_device=battery_value}),
     zcl.cluster_attribute(1,0x3E,{name="eflora_battery_alarm",endpoint=1,component="main",data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=false,emit=function(_,value)
         return (value&0xF03C0F)~=0 and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
       end}),
   },
 }
-register_device_definition(efekta_eflora_max_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_eFlora_Max_Pro"),
+register(efekta_eflora_max_core, {
+  fp("EfektaLab","EFEKTA_eFlora_Max_Pro"),
 })
 
 local efekta_zflora_x_max_core = {
@@ -2745,8 +2752,8 @@ local efekta_zflora_x_max_core = {
       read_only=true,read_on_configure=true,scale=2,from_device=battery_value,emit=emit.battery()}),
   },
 }
-register_device_definition(efekta_zflora_x_max_core, {
-  device_helpers.create_fingerprint("EfektaLab","zFlora_X_Max"),
+register(efekta_zflora_x_max_core, {
+  fp("EfektaLab","zFlora_X_Max"),
 })
 
 local efekta_eair_core = {
@@ -2767,8 +2774,8 @@ local efekta_eair_core = {
       end}),
   },
 }
-register_device_definition(efekta_eair_core, {
-  device_helpers.create_fingerprint("EfektaLab","EFEKTA_eAir_Monitor"),
+register(efekta_eair_core, {
+  fp("EfektaLab","EFEKTA_eAir_Monitor"),
 })
 
 -- Current Z2M 8e3b01c: AirCube Base and Pro share one exact identity. Both
@@ -2785,9 +2792,9 @@ local aircube_common_core = {
   end,
   zcl_clusters={
     zcl.temperature({endpoint=10,minimum_interval=10,maximum_interval=60,
-      reportable_change=50,read_on_configure=true}),
+      reportable_change=50}),
     zcl.humidity({endpoint=10,minimum_interval=10,maximum_interval=60,
-      reportable_change=100,read_on_configure=true}),
+      reportable_change=100}),
     zcl.cluster_attribute(0xFC01,0,{name="aircube_equivalent_co2",endpoint=10,
       data_type=data_types.Uint16,read_only=true,read_on_configure=true,
       minimum_interval=10,maximum_interval=60,reportable_change=50,
@@ -2802,8 +2809,8 @@ local aircube_common_core = {
       emit=emit.airCubeVocLevel()}),
   },
 }
-register_device_definition(aircube_common_core, {
-  device_helpers.create_fingerprint("StuckAtPrototype","AirCube"),
+register(aircube_common_core, {
+  fp("StuckAtPrototype","AirCube"),
 })
 
 -- Current Z2M 8e3b01c captured-hardware identity: NoDieby ND-01.  Keep the
@@ -2830,8 +2837,8 @@ local nodieby_nd01_motion_core = {
       end})),
   },
 }
-register_device_definition(nodieby_nd01_motion_core, {
-  device_helpers.create_fingerprint("NoDieby","ND-01"),
+register(nodieby_nd01_motion_core, {
+  fp("NoDieby","ND-01"),
 })
 
 local besisglas_ms01 = {
@@ -2842,7 +2849,7 @@ local besisglas_ms01 = {
         return {emit.motion()(device,value),emit.presence()(device,value)}
       end}),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,
-      reportable_change=10,read_on_configure=true,from_device=battery_value}),
+      reportable_change=10,from_device=battery_value}),
     zcl.battery_low({endpoint=1,configure_reporting=false,read_on_configure=false,
       emit=function(_,value)
         return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
@@ -2855,8 +2862,8 @@ local besisglas_ms01 = {
     end,
   },
 }
-register_device_definition(besisglas_ms01,{
-  device_helpers.create_fingerprint("zbeacon","MS01"),
+register(besisglas_ms01,{
+  fp("zbeacon","MS01"),
 })
 
 local besisglas_wl01 = {
@@ -2864,16 +2871,148 @@ local besisglas_wl01 = {
   zcl_clusters={
     passive(zcl.water({endpoint=1,read_only=true})),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,
-      reportable_change=10,read_on_configure=true,from_device=battery_value}),
+      reportable_change=10,from_device=battery_value}),
     zcl.battery_low({endpoint=1,configure_reporting=false,read_on_configure=false,
       emit=function(_,value)
         return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
       end}),
   },
 }
-register_device_definition(besisglas_wl01,{
-  device_helpers.create_fingerprint("Zbeacon","SNZB-05P"),
+register(besisglas_wl01,{
+  fp("Zbeacon","SNZB-05P"),
 })
+
+-- These families configure reports directly because their endpoint interviews
+-- differ from the SDK's automatic cluster configuration. Keep that lifecycle
+-- and expose the same defaults for user overrides.
+for _, spec in ipairs({
+  {imou_ztm1_core, 1, 0x21, 1, 3600, 65000, 10},
+  {sihas_osm300z_core, 1, 0x20, false, 3600, 65000, 10},
+  {thirdreality_3rms26z_core, 1, 0x21, false, 3600, 65000, 10},
+  {adeo_pirth_v3_core, 1, 0x21, false, 3600, 65000, 10},
+  {multir_mir_ir100_core, 1, 0x21, false, 3600, 65000, 10},
+  {bacchus_presence2_core, 0x0406, 0, 1, 0, 3600, 0},
+  {diyruz_airsense_core, 0x0402, 0, 1, 0, 3600, 0},
+  {diyruz_airsense_core, 0x0405, 0, 1, 0, 3600, 0},
+  {diyruz_airsense_core, 0x040D, 0, 1, 0, 3600, 0},
+}) do
+  for _, mapping in ipairs(spec[1].zcl_clusters) do
+    if mapping.cluster_id == spec[2] and mapping.attribute_id == spec[3] and
+        (spec[4] == false or mapping.endpoint == spec[4]) then
+      mapping.reporting_defaults = {minimum_interval=spec[5], maximum_interval=spec[6], reportable_change=spec[7]}
+    end
+  end
+end
+for _, spec in ipairs({
+  {third_reality_soil_core, third_reality_soil_cluster, 10, 3600, 100, "zrThirdSoil"},
+  {efekta_pws_core, efekta_pws_soil_cluster, 0, 21600, 0, "zrPwsSoil"},
+}) do
+  for _, mapping in ipairs(spec[1].zcl_clusters) do
+    if mapping.cluster_id == 0x0408 or mapping.cluster_id == 0x0405 then
+      local cluster = mapping.cluster_id
+      mapping.reporting_defaults = {
+        minimum_interval=spec[3], maximum_interval=spec[4], reportable_change=spec[5],
+        key=spec[6], label="Soil moisture", supported=function(device) return spec[2](device) == cluster end,
+      }
+    end
+  end
+end
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-com"},
+  {2, "rpt-ceh"},
+  {4, "rpt-cwy"},
+  {5, "rpt-oof"},
+  {6, "rpt-hqj"},
+  {7, "rpt-zwu", {["zr040500001"] = "Humidity", ["zr040500002"] = "HumidityTwo"}},
+  {9, "rpt-tdw"},
+  {11, "rpt-hvw"},
+  {17, "rpt-cpj"},
+  {18, "rpt-fgk"},
+  {19, "rpt-sfw"},
+  {20, "rpt-sfw"},
+  {21, "rpt-psd"},
+  {23, "rpt-sfw"},
+  {24, "rpt-zfz"},
+  {27, "rpt-zgg"},
+  {28, "rpt-lrf"},
+  {29, "rpt-zbf"},
+  {30, "rpt-hux"},
+  {31, "rpt-hux"},
+  {32, "rpt-hah"},
+  {33, "rpt-heu"},
+  {34, "rpt-rzz"},
+  {35, "rpt-riy"},
+  {37, "rpt-sfw"},
+  {38, "rpt-zuk"},
+  {39, "rpt-zin"},
+  {42, "rpt-zqa"},
+  {43, "rpt-sxh"},
+  {44, "rpt-muo"},
+  {45, "rpt-wcq"},
+  {46, "rpt-cid"},
+  {47, "rpt-ska"},
+  {49, "rpt-sbo"},
+  {50, "rpt-zes", {["zr040200001"] = "Temp", ["zr040200002"] = "TempTwo", ["zr040500001"] = "Humidity", ["zr040500002"] = "HumidityTwo"}},
+  {51, "rpt-cbe"},
+  {54, "rpt-tjf"},
+  {55, "rpt-zsl"},
+  {56, "rpt-hjr"},
+  {57, "rpt-abc"},
+  {60, "rpt-ovs"},
+  {61, "rpt-cxe"},
+  {62, "rpt-zqz"},
+  {63, "rpt-uts"},
+  {64, "rpt-zuh"},
+  {65, "rpt-zmc"},
+  {66, "rpt-mlr"},
+  {67, "rpt-zlr"},
+  {69, "rpt-cfw"},
+  {70, "rpt-eal"},
+  {71, "rpt-eff"},
+  {72, "rpt-els"},
+  {73, "rpt-eoa", {["zr040200001"] = "Temp", ["zr040200002"] = "TempTwo", ["zr040500001"] = "Humidity", ["zr040500002"] = "HumidityTwo"}},
+  {74, "rpt-tjc"},
+  {75, "rpt-heu"},
+  {77, "rpt-fje"},
+  {78, "rpt-hux"},
+  {79, "rpt-hux"},
+  {80, "rpt-zuh"},
+  {83, "rpt-txf"},
+  {84, "rpt-tlps"},
+  {85, "rpt-ldk"},
+  {86, "rpt-wzu"},
+  {87, "rpt-uti"},
+  {88, "rpt-uti"},
+  {89, "rpt-heu"},
+  {90, "rpt-zea"},
+  {91, "rpt-zea"},
+  {92, "rpt-evv"},
+  {94, "rpt-lhh"},
+  {95, "rpt-mke"},
+  {96, "rpt-rmm"},
+  {97, "rpt-dkk"},
+  {98, "rpt-evu"},
+  {99, "rpt-uti"},
+  {100, "rpt-uti"},
+  {101, "rpt-zqa"},
+  {102, "rpt-ezx"},
+  {103, "rpt-wfi"},
+  {105, "rpt-evv"},
+  {106, "rpt-edu", {["zr040200001"] = "Temp", ["zr040200002"] = "TempTwo", ["zr040500001"] = "Humidity", ["zr040500002"] = "HumidityTwo"}},
+  {107, "rpt-etn", {["zr040200001"] = "Temp", ["zr040200002"] = "TempTwo", ["zr040500001"] = "Humidity", ["zr040500002"] = "HumidityTwo"}},
+  {108, "rpt-epb"},
+  {109, "rpt-epb"},
+  {110, "rpt-zbu"},
+  {111, "rpt-epb"},
+  {112, "rpt-epb"},
+  {113, "rpt-epb"},
+  {116, "rpt-ahd"},
+  {118, "rpt-mml"},
+  {119, "rpt-sdm"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id="zcl.sensors.simple_sensors",

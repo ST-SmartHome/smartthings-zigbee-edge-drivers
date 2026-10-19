@@ -1,0 +1,20 @@
+name: rpt-tuj
+components:
+- id: main
+  capabilities:
+  - id: switch
+    version: 1
+  - id: concertmirror08464.ts0001BbebPowerOnBehavior
+    version: 1
+  - id: concertmirror08464.ts0001BbebBacklightMode
+    version: 1
+  - id: concertmirror08464.ts0001BbebIndicatorPattern
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMax
+    version: 1
+  categories:
+  - name: Switch

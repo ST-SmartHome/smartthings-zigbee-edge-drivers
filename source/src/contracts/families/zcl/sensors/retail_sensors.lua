@@ -8,10 +8,10 @@ local cluster_base = require "st.zigbee.cluster_base"
 local shared_definitions = require "contracts.helpers.zcl_sensor_definitions"
 local fp = device_helpers.create_fingerprint
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 local function register_aliases(definition, aliases)
-  register_device_definition(definition, aliases)
+  register(definition, aliases)
 end
 
 local function bind_clusters_by_endpoint(bindings)
@@ -63,14 +63,11 @@ local ewelink_motion_sensor = {
     zcl.battery({
       minimum_interval = 3600,
       maximum_interval = 7200,
-      reportable_change = 2,
-      read_on_configure = true,
     }),
     zcl.battery_voltage({
       minimum_interval = 3600,
       maximum_interval = 7200,
       reportable_change = 100,
-      read_on_configure = true,
     }),
   },
 }
@@ -391,15 +388,15 @@ local schneider_smoke_sensor = {
   profile = "safety-smoke-temp-tamper-battery-low-battery-voltage-schneider-pending",magic_packet=false,
   zcl_clusters = {
     zcl.smoke({minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=true}),
-    zcl.temperature({minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.temperature({minimum_interval=10,maximum_interval=3600,reportable_change=100}),
     zcl.tamper({minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=false}),
     zcl.battery_low({minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=false,
       emit=function(_,value)
         return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
       end}),
-    zcl.battery({minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,
+    zcl.battery({minimum_interval=3600,maximum_interval=65000,reportable_change=10,
       from_device=function(value,_,context) if context.raw_value~=255 then return value end end}),
-    zcl.battery_voltage({minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,
+    zcl.battery_voltage({minimum_interval=3600,maximum_interval=65000,reportable_change=10,
       from_device=function(value,_,context) if context.raw_value~=255 then return value end end}),
   },
 }
@@ -528,22 +525,25 @@ local terncy_dc01 = {
 local sunricher_terncy_dc01 = {
   profile = "safety-contact-battery",
   zcl_clusters = {
-    zcl.cluster_attribute(0x000F, 0x0055, {
-      name = "contact",
-      emit = emit.contact(),
-      data_type = data_types.SinglePrecisionFloat,
-      from_device = function(value)
-        return value == 0
+    notification_only_ias(zcl.contact({
+      endpoint = 1,
+      read_only = true,
+      read_on_refresh = false,
+      from_device = function(_, _, context)
+        -- ZHC wally U02I007C01: EP1 notifications only; alarm1 means open.
+        if context.command_id ~= 0x00 then return nil end
+        return bit32.band(context.raw_value, 0x0001) ~= 0
       end,
-      minimum_interval = 0,
-      maximum_interval = 300,
-      reportable_change = 1,
-    }),
+    })),
     zcl.cluster_attribute(zcl.CLUSTER_POWER_CONFIGURATION, zcl.ATTR_BATTERY_PERCENTAGE_REMAINING, {
       name = "battery",
       emit = emit.battery(),
       data_type = data_types.Uint8,
-      scale = 1,
+      scale = 2,
+      from_device = function(value, _, context)
+        if context.raw_value == 255 then return nil end
+        return value
+      end,
       minimum_interval = 300,
       maximum_interval = 21600,
       reportable_change = 1,
@@ -690,6 +690,41 @@ register_aliases(third_reality_door_sensor, {
 register_aliases(third_reality_tilt_sensor, {
   fp("Third Reality, Inc", "3RDTS01056Z"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-txk"},
+  {2, "rpt-zcl"},
+  {3, "rpt-cep"},
+  {4, "rpt-cgl"},
+  {5, "rpt-cvm"},
+  {6, "rpt-cvm"},
+  {7, "rpt-hqa"},
+  {8, "rpt-rab"},
+  {9, "rpt-tku"},
+  {10, "rpt-cxv"},
+  {11, "rpt-tml"},
+  {12, "rpt-cxv"},
+  {13, "rpt-tml"},
+  {14, "rpt-tgdf"},
+  {15, "rpt-sgy"},
+  {16, "rpt-tgdf"},
+  {17, "rpt-zkk"},
+  {18, "rpt-tgdf"},
+  {19, "rpt-tgdf"},
+  {20, "rpt-zzw"},
+  {21, "rpt-sgy"},
+  {22, "rpt-hlk"},
+  {23, "rpt-trc", {["zr000f0055auto"] = false}},
+  {24, "rpt-tcg"},
+  {25, "rpt-zxh"},
+  {26, "rpt-tctq"},
+  {27, "rpt-tctq"},
+  {28, "rpt-zjr"},
+  {29, "rpt-tku"},
+  {30, "rpt-hqa"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.retail_sensors",

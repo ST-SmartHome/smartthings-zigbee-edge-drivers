@@ -1,21 +1,21 @@
-local switch_command_router={}
-function switch_command_router.route(options)
-local is_zcl=options.uses_zcl_on_off(options.device)local handled=options.send_named(options.device,options.command,"switch",options.value)if handled then
-if is_zcl then
-if options.value==true and options.begin_power_poll_burst~=nil then
-options.begin_power_poll_burst(options.device)
+local b={}
+function b.route(a)
+local c=a.uses_zcl_on_off(a.device)local d=a.send_named(a.device,a.command,"switch",a.value)if d then
+if c then
+if a.value==true and a.begin_power_poll_burst~=nil then
+a.begin_power_poll_burst(a.device)
 end
-elseif options.after_ef00_switch_command~=nil then
-options.after_ef00_switch_command(options.device,options.command,options.value)
+elseif a.after_ef00_switch_command~=nil then
+a.after_ef00_switch_command(a.device,a.command,a.value)
 end
 return true
 end
-if not is_zcl then
+if not c then
 return false
 end
-if options.value==true and options.begin_power_poll_burst~=nil then
-options.begin_power_poll_burst(options.device)
+if a.value==true and a.begin_power_poll_burst~=nil then
+a.begin_power_poll_burst(a.device)
 end
-options.default_handler(options.driver,options.device,options.command)return true
+a.default_handler(a.driver,a.device,a.command)return true
 end
-return switch_command_router
+return b

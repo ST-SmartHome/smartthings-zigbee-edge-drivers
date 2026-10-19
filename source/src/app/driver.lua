@@ -114,18 +114,7 @@ end, function(device)
     zcl.has_cluster(preset.zcl_clusters, zcl.CLUSTER_POWER_CONFIGURATION)
 end)
 
-local function is_callable(value)
-  if type(value) == "function" then
-    return true
-  end
-
-  if type(value) ~= "table" then
-    return false
-  end
-
-  local metatable = getmetatable(value)
-  return type(metatable) == "table" and type(metatable.__call) == "function"
-end
+local is_callable = require("runtime.capability_support").is_callable
 
 local function profile_supports_main_capability(device, capability_id)
   if type(device) ~= "table" or type(capability_id) ~= "string" then
@@ -1133,7 +1122,6 @@ local driver_template = {
       battery_refresh.start_daily(device)
       emit_window_shade_preset_state(device)
       custom_capability_runtime.maybe_request_initial_custom_state(device, preset)
-      custom_capability_runtime.schedule_placeholder_states(device, definition)
       -- BUILD_FEATURE dynamic_endpoint_children BEGIN
       schedule_dynamic_child_creation(driver, device, definition)
       -- BUILD_FEATURE dynamic_endpoint_children END
@@ -1200,4 +1188,17 @@ local driver_template = {
 -- ── 실행 ──
 
 local ZigbeeDriver = require "st.zigbee"
-ZigbeeDriver("tuya-universal", driver_template):run()
+local driver = ZigbeeDriver("tuya-universal", driver_template)
+local dispatcher = driver.zigbee_message_dispatcher
+local dispatch = dispatcher.dispatch
+function dispatcher:dispatch(driver, device, zb_rx, ...)
+  if device:supports_capability_by_id(capabilities.signalStrength.ID, "main") then
+    local options = { visibility = { displayed = false } }
+    device:emit_event(capabilities.signalStrength.lqi(zb_rx.lqi.value, options))
+    if zb_rx.rssi.value <= 0 then
+      device:emit_event(capabilities.signalStrength.rssi({ value = zb_rx.rssi.value, unit = "dBm" }, options))
+    end
+  end
+  return dispatch(self, driver, device, zb_rx, ...)
+end
+driver:run()

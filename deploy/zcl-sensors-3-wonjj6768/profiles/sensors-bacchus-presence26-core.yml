@@ -1,1 +1,0 @@
-{name: sensors-bacchus-presence26-core,components:[{id: main,capabilities:[{id: motionSensor,version: 1},{id: illuminanceMeasurement,version: 1},{id: refresh,version: 1}],categories:[{name: MotionSensor}]}]}
