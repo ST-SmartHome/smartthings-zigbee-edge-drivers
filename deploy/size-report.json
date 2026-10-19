@@ -1,9 +1,9 @@
 [
   {
     "name": "zcl-switch-wonjj6768",
-    "raw_size": 389630,
+    "raw_size": 389616,
     "under_limit": true,
-    "free_bytes": 134658,
+    "free_bytes": 134672,
     "meets_headroom": true,
     "profiles": [
       "controllers-easyiot-sp1000",
@@ -9383,9 +9383,9 @@
   },
   {
     "name": "zcl-plugs-wonjj6768",
-    "raw_size": 223797,
+    "raw_size": 223788,
     "under_limit": true,
-    "free_bytes": 300491,
+    "free_bytes": 300500,
     "meets_headroom": true,
     "profiles": [
       "rpt-lsu",
@@ -17762,9 +17762,9 @@
   },
   {
     "name": "zcl-sensors-wonjj6768",
-    "raw_size": 468478,
+    "raw_size": 468476,
     "under_limit": true,
-    "free_bytes": 55810,
+    "free_bytes": 55812,
     "meets_headroom": true,
     "profiles": [
       "network-repeater",
@@ -45909,9 +45909,9 @@
   },
   {
     "name": "ef00-switch-wonjj6768",
-    "raw_size": 307200,
+    "raw_size": 307201,
     "under_limit": true,
-    "free_bytes": 217088,
+    "free_bytes": 217087,
     "meets_headroom": true,
     "profiles": [
       "rpt-tcts",
@@ -61197,9 +61197,9 @@
   },
   {
     "name": "ef00-energy-wonjj6768",
-    "raw_size": 243440,
+    "raw_size": 243448,
     "under_limit": true,
-    "free_bytes": 280848,
+    "free_bytes": 280840,
     "meets_headroom": true,
     "profiles": [
       "din-rail-switch-power-energy-3phase-stb3l125zj",
@@ -153681,9 +153681,9 @@
   },
   {
     "name": "ef00-switch-2-wonjj6768",
-    "raw_size": 283195,
+    "raw_size": 283199,
     "under_limit": true,
-    "free_bytes": 241093,
+    "free_bytes": 241089,
     "meets_headroom": true,
     "profiles": [
       "switches-automaton-ch8z",

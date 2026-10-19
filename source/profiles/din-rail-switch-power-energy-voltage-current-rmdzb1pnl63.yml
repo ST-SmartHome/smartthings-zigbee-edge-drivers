@@ -39,7 +39,7 @@ deviceConfig:
         version: 1
         group: main
         values:
-          - label: "{{power.value}} {{power.unit}}"
+          - label: " {{power.value}} {{power.unit}}"
         composite: true
     actions:
       - component: main

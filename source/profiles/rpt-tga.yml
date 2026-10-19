@@ -43,7 +43,7 @@ deviceConfig:
       version: 1
       group: main
       values:
-      - label: '{{level.value}} {{level.unit}}'
+      - label: ' {{level.value}}{{level.unit}}'
       composite: true
     actions:
     - component: main

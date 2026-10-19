@@ -26,7 +26,7 @@ deviceConfig:
         capability: powerMeter
         version: 1
         group: main
-        values: [{label: " | {{power.value}}{{power.unit}}"}]
+        values: [{label: " {{power.value}}{{power.unit}}"}]
         composite: true
     actions:
       - component: main
