@@ -4,9 +4,9 @@ components:
   capabilities:
   - id: concertmirror08464.shellyBluDisplayLightLevel
     version: 1
-  - id: concertmirror08464.shellyBluDisplayDarkThreshold
+  - id: concertmirror08464.shellyDisplayDarkThresholdV2
     version: 1
-  - id: concertmirror08464.shellyBluDisplayBrightThreshold
+  - id: concertmirror08464.shellyDisplayBrightThresholdV2
     version: 1
   - id: temperatureMeasurement
     version: 1
@@ -15,6 +15,8 @@ components:
   - id: battery
     version: 1
   - id: refresh
+    version: 1
+  - id: concertmirror08464.shellyDisplayIdentify
     version: 1
   - id: signalStrength
     version: 1
@@ -68,9 +70,9 @@ deviceConfig:
   - component: main
     capability: concertmirror08464.shellyBluDisplayLightLevel
   - component: main
-    capability: concertmirror08464.shellyBluDisplayDarkThreshold
+    capability: concertmirror08464.shellyDisplayDarkThresholdV2
   - component: main
-    capability: concertmirror08464.shellyBluDisplayBrightThreshold
+    capability: concertmirror08464.shellyDisplayBrightThresholdV2
   - component: main
     capability: temperatureMeasurement
   - component: main
@@ -81,6 +83,8 @@ deviceConfig:
     capability: refresh
   - component: main
     capability: signalStrength
+  - component: main
+    capability: concertmirror08464.shellyDisplayIdentify
   - component: main
     capability: concertmirror08464.zclTempReportMin
   - component: main
@@ -104,9 +108,9 @@ deviceConfig:
     - component: main
       capability: concertmirror08464.shellyBluDisplayLightLevel
     - component: main
-      capability: concertmirror08464.shellyBluDisplayDarkThreshold
+      capability: concertmirror08464.shellyDisplayDarkThresholdV2
     - component: main
-      capability: concertmirror08464.shellyBluDisplayBrightThreshold
+      capability: concertmirror08464.shellyDisplayBrightThresholdV2
     - component: main
       capability: temperatureMeasurement
     - component: main
@@ -135,9 +139,11 @@ deviceConfig:
       capability: concertmirror08464.zclBatteryReportChange20
     actions:
     - component: main
-      capability: concertmirror08464.shellyBluDisplayDarkThreshold
+      capability: concertmirror08464.shellyDisplayDarkThresholdV2
     - component: main
-      capability: concertmirror08464.shellyBluDisplayBrightThreshold
+      capability: concertmirror08464.shellyDisplayBrightThresholdV2
+    - component: main
+      capability: concertmirror08464.shellyDisplayIdentify
     - component: main
       capability: concertmirror08464.zclTempReportMin
     - component: main

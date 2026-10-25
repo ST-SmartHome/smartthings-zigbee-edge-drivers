@@ -56,7 +56,7 @@ if type(b)~="number"then
 return b
 end
 return bit32.band(b,z)~=0
-end,
+end
 }
 end
 local function f(u)
@@ -65,14 +65,14 @@ if g==nil then
 return nil
 end
 return{
-raw_value=g.value or g,typed_value=g,}
+raw_value=g.value or g,typed_value=g}
 end
 local function h(q,p,o)
 return{
-minimum_interval=q,maximum_interval=p,reportable_change=o,read_on_configure=true,}
+minimum_interval=q,maximum_interval=p,reportable_change=o,read_on_configure=true}
 end
 local function j(...)
-local v={}for _,k in ipairs({...})do
+local v={}for _,k in ipairs{...}do
 e(v,k)
 end
 return v
@@ -85,15 +85,15 @@ a.configure_reporting=nil
 if y then
 e(a,j(
 {
-name="occupancy",emit=x.occupancy(),converter=s(1),ias_configure_method=r.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=f,},h(30,300,nil)))return B.ias_zone(a)
+name="occupancy",emit=x.occupancy(),converter=s(1),ias_configure_method=r.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=f},h(30,300,nil)))return B.ias_zone(a)
 end
 if m==false then
 e(a,{
-emit=x.occupancy(),read_on_configure=true,})return B.occupancy_sensing(a)
+emit=x.occupancy(),read_on_configure=true})return B.occupancy_sensing(a)
 end
 e(a,j(
 {
-emit=x.occupancy(),},h(0,300,nil)))return B.occupancy_sensing(a)
+emit=x.occupancy()},h(0,300,nil)))return B.occupancy_sensing(a)
 end
 end
 return n

@@ -50,7 +50,7 @@ local n={}
 for _,f in ipairs(L)do n[#n+1]=F(f)end
 return n
 end
-a.numeric=z({},G)a.enum=z({},K)a.text=z({{"last_power_response_time",1,1,0,0,nil,"Last power response time",64}},M)a.driver_message={["attribute_name"]="driverMessage",["capability_id"]="concertmirror08464.driverMessage",["emit_name"]="driver_message",["label"]="Driver message",["maximum_length"]=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
+a.numeric=z({},G)a.enum=z({},K)a.text=z({{"last_power_response_time",1,1,0,0,nil,"Last power response time",64}},M)a.driver_message={attribute_name="driverMessage",capability_id="concertmirror08464.driverMessage",emit_name="driver_message",label="Driver message",maximum_length=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
 local function o(y)
 for _,e in ipairs(y)do
 a.by_emit_name[e.emit_name]=e
@@ -74,6 +74,6 @@ local h=type(C)=="table"and C[e.range_key]or nil
 if type(h)~="table"then h=d end
 if type(h)~="table"then return nil end
 return{
-minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil),}
+minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil)}
 end
 return a

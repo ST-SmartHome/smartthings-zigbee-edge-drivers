@@ -1,5 +1,6 @@
 -- EF00 touch-panel and scene-panel families owned by the switch-panel package.
 local tuya = require "protocol.tuya"
+local zcl = require "protocol.zcl"
 local device_helpers = require "contracts.helpers.family"
 local emit = require "capabilities.events.all"
 local common = require "contracts.helpers.ef00_switches"
@@ -1229,6 +1230,8 @@ register_device_definition(switch_model_ts0601_switch_8_2, device_helpers.create
   "_TZE204_adlblwab",
   "_TZE284_adlblwab",
 }))
+
+
 
 
 

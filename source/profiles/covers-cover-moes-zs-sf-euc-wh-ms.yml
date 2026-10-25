@@ -14,7 +14,7 @@ components:
         version: 1
       - id: concertmirror08464.moesSfDirection
         version: 1
-      - id: concertmirror08464.moesSfTravelTime
+      - id: concertmirror08464.moesSfTravelTimeV2
         version: 1
     categories:
       - name: Blind
@@ -50,7 +50,7 @@ deviceConfig:
       capability: concertmirror08464.moesSfDirection
       version: 1
     - component: main
-      capability: concertmirror08464.moesSfTravelTime
+      capability: concertmirror08464.moesSfTravelTimeV2
       version: 1
     - component: main
       capability: windowShade
@@ -73,7 +73,7 @@ deviceConfig:
         capability: concertmirror08464.moesSfDirection
         version: 1
       - component: main
-        capability: concertmirror08464.moesSfTravelTime
+        capability: concertmirror08464.moesSfTravelTimeV2
         version: 1
       - component: main
         capability: windowShade
@@ -92,7 +92,7 @@ deviceConfig:
         capability: concertmirror08464.moesSfDirection
         version: 1
       - component: main
-        capability: concertmirror08464.moesSfTravelTime
+        capability: concertmirror08464.moesSfTravelTimeV2
         version: 1
       - component: main
         capability: windowShade

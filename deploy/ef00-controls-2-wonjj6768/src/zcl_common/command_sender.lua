@@ -21,14 +21,14 @@ if w then
 L:set_disable_default_response()
 end
 local at={
-cmd=q.ZCLCommandId(p),frame_ctrl=L,}if A~=nil then
+cmd=q.ZCLCommandId(p),frame_ctrl=L}if A~=nil then
 at.mfg_code=q.Uint16(A)
 end
 return o(
-b,aA.ZigbeeMessageTx({
+b,aA.ZigbeeMessageTx{
 address_header=aA.AddressHeader(
-B.HUB.ADDR,B.HUB.ENDPOINT,b:get_short_address(),b:get_endpoint(h),B.HA_PROFILE_ID,h),body=aq.ZclMessageBody({
-zcl_header=aq.ZclHeader(at),zcl_body=az.GenericBody(H or""),}),}),f)
+B.HUB.ADDR,B.HUB.ENDPOINT,b:get_short_address(),b:get_endpoint(h),B.HA_PROFILE_ID,h),body=aq.ZclMessageBody{
+zcl_header=aq.ZclHeader(at),zcl_body=az.GenericBody(H or"")}},f)
 end
 local function m(b,h,p,H,f,G)
 return s(b,h,p,H,f,G,nil)
@@ -60,7 +60,7 @@ if type(c)~="number"or type(i)~="table"then
 return c
 end
 local aQ={
-Uint8={0,255},Uint16={0,65535},Uint24={0,0xFFFFFF},Uint32={0,0xFFFFFFFF},Int8={-128,127},Int16={-32768,32767},Int24={-8388608,8388607},Int32={-0x80000000,0x7FFFFFFF},Enum8={0,255},}local aH=aQ[i.NAME]if aH==nil then
+Uint8={0,255},Uint16={0,65535},Uint24={0,0xFFFFFF},Uint32={0,0xFFFFFFFF},Int8={-128,127},Int16={-32768,32767},Int24={-8388608,8388607},Int32={-0x80000000,0x7FFFFFFF},Enum8={0,255}}local aH=aQ[i.NAME]if aH==nil then
 return c
 end
 local au=math.max(aH[1],math.min(aH[2],math.floor(c+0.5)))if au~=c then
@@ -76,7 +76,7 @@ local function C(i)
 local an=ad(i)if type(an)~="string"then
 return false
 end
-return an:match("^Uint")~=nil or an:match("^Int")~=nil or an:match("^Enum")~=nil
+return an:match"^Uint"~=nil or an:match"^Int"~=nil or an:match"^Enum"~=nil
 end
 local function I(d)
 if type(d)~="table"then
@@ -129,7 +129,7 @@ return c
 end
 local function R(b,c,e,a,d)
 local i=d and d.write_type or nil
-local ax=ad(i)if ax==nil or not tostring(ax):match("^Enum")then
+local ax=ad(i)if ax==nil or not tostring(ax):match"^Enum"then
 return c
 end
 if type(c)=="number"then
@@ -187,7 +187,10 @@ local function ag(b,e,value,W)
 local d=j.mapping_meta(e)if d==nil or d.tx_command_id==nil or d.cluster_id==nil then
 return false
 end
-local a=x(b,e,W,value)local c=l(b,e,value,a)local y=nil
+local a=x(b,e,W,value)local c=l(b,e,value,a)if d.to_device~=nil and c==nil then
+return false
+end
+local y
 if d.tx_command_direction=="client"then
 y=j.get_generated_client_command and
 j.get_generated_client_command(d.cluster_id,d.tx_command_id)or nil
@@ -316,7 +319,7 @@ b,j.CLUSTER_WINDOW_COVERING,8,string.char(r(M,0,100)),f)
 end
 local function ap(b,aD,f)
 local aB={
-open=0,close=1,stop=2,}local p=aB[aD]if p==nil then
+open=0,close=1,stop=2}local p=aB[aD]if p==nil then
 ai.warn(string.format("ZCL unknown cover command: %s",tostring(aD)))return false
 end
 local n=j.get_generated_server_command and

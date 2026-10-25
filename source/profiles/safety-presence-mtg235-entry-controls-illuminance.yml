@@ -1,0 +1,162 @@
+name: safety-presence-mtg235-entry-controls-illuminance
+components:
+- id: main
+  capabilities:
+  - id: presenceSensor
+    version: 1
+  - id: illuminanceMeasurement
+    version: 1
+  - id: concertmirror08464.mtg235TargetDistance
+    version: 1
+  - id: concertmirror08464.mtg235RadarSensitivity
+    version: 1
+  - id: concertmirror08464.mtg235DetectionRange
+    version: 1
+  - id: concertmirror08464.mtg235ShieldRange
+    version: 1
+  - id: concertmirror08464.mtg235EntrySensitivity
+    version: 1
+  - id: concertmirror08464.mtg235EntryIndentation
+    version: 1
+  - id: concertmirror08464.mtg235EntryFilterTime
+    version: 1
+  - id: concertmirror08464.mtg235DepartureDelay
+    version: 1
+  - id: concertmirror08464.mtg235BlockTime
+    version: 1
+  - id: concertmirror08464.mtg235IlluminanceThreshold
+    version: 1
+  - id: concertmirror08464.mtg235BreakerMode
+    version: 1
+  - id: concertmirror08464.mtg235BreakerStatus
+    version: 1
+  - id: concertmirror08464.mtg235StatusIndication
+    version: 1
+  - id: concertmirror08464.mtg235SensorState
+    version: 1
+  - id: concertmirror08464.mtg235DistanceReport
+    version: 1
+  - id: concertmirror08464.driverMessage
+    version: 1
+  - id: refresh
+    version: 1
+  - id: signalStrength
+    version: 1
+  categories:
+  - name: PresenceSensor
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: presenceSensor
+      group: main
+    actions: []
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: presenceSensor
+  - component: main
+    capability: illuminanceMeasurement
+  - component: main
+    capability: concertmirror08464.mtg235TargetDistance
+  - component: main
+    capability: concertmirror08464.mtg235RadarSensitivity
+  - component: main
+    capability: concertmirror08464.mtg235DetectionRange
+  - component: main
+    capability: concertmirror08464.mtg235ShieldRange
+  - component: main
+    capability: concertmirror08464.mtg235EntrySensitivity
+  - component: main
+    capability: concertmirror08464.mtg235EntryIndentation
+  - component: main
+    capability: concertmirror08464.mtg235EntryFilterTime
+  - component: main
+    capability: concertmirror08464.mtg235DepartureDelay
+  - component: main
+    capability: concertmirror08464.mtg235BlockTime
+  - component: main
+    capability: concertmirror08464.mtg235IlluminanceThreshold
+  - component: main
+    capability: concertmirror08464.mtg235BreakerMode
+  - component: main
+    capability: concertmirror08464.mtg235BreakerStatus
+  - component: main
+    capability: concertmirror08464.mtg235StatusIndication
+  - component: main
+    capability: concertmirror08464.mtg235SensorState
+  - component: main
+    capability: concertmirror08464.mtg235DistanceReport
+  - component: main
+    capability: concertmirror08464.driverMessage
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
+  automation:
+    conditions:
+    - component: main
+      capability: presenceSensor
+    - component: main
+      capability: illuminanceMeasurement
+    - component: main
+      capability: concertmirror08464.mtg235TargetDistance
+    - component: main
+      capability: concertmirror08464.mtg235RadarSensitivity
+    - component: main
+      capability: concertmirror08464.mtg235DetectionRange
+    - component: main
+      capability: concertmirror08464.mtg235ShieldRange
+    - component: main
+      capability: concertmirror08464.mtg235EntrySensitivity
+    - component: main
+      capability: concertmirror08464.mtg235EntryIndentation
+    - component: main
+      capability: concertmirror08464.mtg235EntryFilterTime
+    - component: main
+      capability: concertmirror08464.mtg235DepartureDelay
+    - component: main
+      capability: concertmirror08464.mtg235BlockTime
+    - component: main
+      capability: concertmirror08464.mtg235IlluminanceThreshold
+    - component: main
+      capability: concertmirror08464.mtg235BreakerMode
+    - component: main
+      capability: concertmirror08464.mtg235BreakerStatus
+    - component: main
+      capability: concertmirror08464.mtg235StatusIndication
+    - component: main
+      capability: concertmirror08464.mtg235SensorState
+    - component: main
+      capability: concertmirror08464.mtg235DistanceReport
+    - component: main
+      capability: signalStrength
+    actions:
+    - component: main
+      capability: concertmirror08464.mtg235RadarSensitivity
+    - component: main
+      capability: concertmirror08464.mtg235ShieldRange
+    - component: main
+      capability: concertmirror08464.mtg235DetectionRange
+    - component: main
+      capability: concertmirror08464.mtg235EntryFilterTime
+    - component: main
+      capability: concertmirror08464.mtg235DepartureDelay
+    - component: main
+      capability: concertmirror08464.mtg235EntrySensitivity
+    - component: main
+      capability: concertmirror08464.mtg235EntryIndentation
+    - component: main
+      capability: concertmirror08464.mtg235IlluminanceThreshold
+    - component: main
+      capability: concertmirror08464.mtg235BlockTime
+    - component: main
+      capability: concertmirror08464.mtg235BreakerMode
+    - component: main
+      capability: concertmirror08464.mtg235BreakerStatus
+    - component: main
+      capability: concertmirror08464.mtg235StatusIndication
+    - component: main
+      capability: concertmirror08464.mtg235SensorState
+    - component: main
+      capability: concertmirror08464.mtg235DistanceReport

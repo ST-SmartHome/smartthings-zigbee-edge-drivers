@@ -52,9 +52,6 @@ local function definition(profile)
   return {
     profile = profile,
     package_group = "wave19-cover",
-    transport_classification = "CUSTOM_PAYLOAD",
-    z2m_converter_source = "legacy.fz.tuya_cover+legacy.tz.tuya_cover_control",
-    wire_cluster = "manuSpecificTuya",
     magic_packet = false,
     query_on_configure = false,
     time_start = "off",

@@ -26,13 +26,13 @@ end
 end
 return l
 end
-local function k(f,i)
-local e={}if type(f)=="string"then
-e.name=f
+local function k(h,i)
+local g={}if type(h)=="string"then
+g.name=h
 else
-p(e,f)
+p(g,h)
 end
-p(e,i)return e
+p(g,i)return g
 end
 local function A(d,z,y)
 if d<z then
@@ -49,14 +49,14 @@ from=function(d)
 if type(d)~="number"then
 return d
 end
-return math.floor((A(d,0,254)*100/254)+0.5)
+return math.floor(A(d,0,254)*100/254+0.5)
 end,
 to=function(d)
 if type(d)~="number"then
 return d
 end
-return math.floor((A(d,0,100)*254/100)+0.5)
-end,
+return math.floor(A(d,0,100)*254/100+0.5)
+end
 }
 end
 local function j()
@@ -65,118 +65,123 @@ from=function(d)
 if type(d)~="number"then
 return d
 end
-return math.floor((A(d,0,254)*100/254)+0.5)
+return math.floor(A(d,0,254)*100/254+0.5)
 end,
 to=function(d)
 if type(d)~="number"then
 return d
 end
-return math.floor((A(d,0,100)*254/100)+0.5)
-end,
+return math.floor(A(d,0,100)*254/100+0.5)
+end
 }
 end
-local function b(v,u,s)
+local function a(v,u,s)
 return{
-minimum_interval=v,maximum_interval=u,reportable_change=s,read_on_configure=true,}
+minimum_interval=v,maximum_interval=u,reportable_change=s,read_on_configure=true}
 end
-local function h(...)
-local B={}for _,c in ipairs({...})do
+local function f(...)
+local B={}for _,c in ipairs{...}do
 m(B,c)
 end
 return B
 end
-local function g(J,F,t)
-n[J]=function(f,i)
-local e=k(f,i)local a=e.configure_reporting
-local c=t(e)e.configure_reporting=nil
-if a==false then
+local function e(J,F,t)
+n[J]=function(h,i)
+local g=k(h,i)local b=g.configure_reporting
+local c=t(g)g.configure_reporting=nil
+if b==false then
 c.minimum_interval=nil
 c.maximum_interval=nil
 c.reportable_change=nil
 c.physical_reportable_change=nil
 c.reporting_defaults=nil
 end
-m(e,c)return F(e)
+m(g,c)return F(g)
 end
 end
-g("battery",n.power_configuration_battery,function()
-return h(
+e("temperature",n.temperature_measurement,function()
+return f(
 {
-emit=o.battery(),scale=2,},b(300,21600,2))
+emit=o.temperature"C",scale=100},a(30,300,50))
 end)
-g("battery_voltage",n.power_configuration_battery_voltage,function()
-return h(
+e("battery",n.power_configuration_battery,function()
+return f(
 {
-emit=o.voltage(),scale=10,},b(300,21600,1))
+emit=o.battery(),scale=2},a(300,21600,2))
 end)
-g("switch",n.on_off,function(i)
-local a=i.configure_reporting
+e("battery_voltage",n.power_configuration_battery_voltage,function()
+return f(
+{
+emit=o.voltage(),scale=10},a(300,21600,1))
+end)
+e("switch",n.on_off,function(i)
+local b=i.configure_reporting
 i.configure_reporting=nil
-if a==false then
+if b==false then
 return{
-emit=o.switch(),}
+emit=o.switch()}
 end
-return h(
+return f(
 {
-emit=o.switch(),},b(0,300,nil))
+emit=o.switch()},a(0,300,nil))
 end)
-n.tuya_magic_packet=function(f,i)
-local e=k(f,i)m(e,{
-name="tuya_magic_packet",read_only=true,read_on_configure=true,})return n.cluster_attribute(0,65534,e)
+n.tuya_magic_packet=function(h,i)
+local g=k(h,i)m(g,{
+name="tuya_magic_packet",read_only=true,read_on_configure=true})return n.cluster_attribute(0,65534,g)
 end
-g("level",n.level_control,function(i)
-local a=i.configure_reporting
+e("level",n.level_control,function(i)
+local b=i.configure_reporting
 i.configure_reporting=nil
 local c={
-name="brightness",emit=o.level(),converter=r(),}
-if a==false then return c end
-return h(c,b(1,3600,1))
+name="brightness",emit=o.level(),converter=r()}
+if b==false then return c end
+return f(c,a(1,3600,1))
 end)
-g("power",n.electrical_measurement_power,function()
-return h(
+e("power",n.electrical_measurement_power,function()
+return f(
 {
-emit=o.power(),metering_kind="power",poll_interval=300,},b(5,300,1))
+emit=o.power(),metering_kind="power",poll_interval=300},a(5,300,1))
 end)
-g("current",n.electrical_measurement_current,function()
-return h(
+e("current",n.electrical_measurement_current,function()
+return f(
 {
-emit=o.current(),scale=1000,metering_kind="current",poll_interval=300,},b(5,300,1))
+emit=o.current(),scale=1000,metering_kind="current",poll_interval=300},a(5,300,1))
 end)
-g("voltage",n.electrical_measurement_voltage,function()
-return h(
+e("voltage",n.electrical_measurement_voltage,function()
+return f(
 {
-emit=o.voltage(),metering_kind="voltage",poll_interval=300,},b(5,300,1))
+emit=o.voltage(),metering_kind="voltage",poll_interval=300},a(5,300,1))
 end)
-g("energy",n.simple_metering,function()
+e("energy",n.simple_metering,function()
 return{
-emit=o.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900,}
+emit=o.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900}
 end)
-g("color_hue",n.color_control_hue,function(i)
-local a=i.configure_reporting
+e("color_hue",n.color_control_hue,function(i)
+local b=i.configure_reporting
 i.configure_reporting=nil
 local c={
 name="color_hue",emit=o.color_hue(),converter=j(),tx_command_id=0,
 to_device=function(d)
 local x=j().to(d)return{x,0,0,0,0}
-end,
+end
 }
-if a==false then return c end
-return h(c,b(1,300,1))
+if b==false then return c end
+return f(c,a(1,300,1))
 end)
-g("color_saturation",n.color_control_saturation,function(i)
-local a=i.configure_reporting
+e("color_saturation",n.color_control_saturation,function(i)
+local b=i.configure_reporting
 i.configure_reporting=nil
 local c={
 name="color_saturation",emit=o.color_saturation(),converter=j(),tx_command_id=3,
 to_device=function(d)
 local x=j().to(d)return{x,0,0,0}
-end,
+end
 }
-if a==false then return c end
-return h(c,b(1,300,1))
+if b==false then return c end
+return f(c,a(1,300,1))
 end)
-n.color=function(f,i)
-local e=k(f,i)m(e,{
+n.color=function(h,i)
+local g=k(h,i)m(g,{
 name="color",cluster_id=n.CLUSTER_COLOR_CONTROL,attribute_id=n.ATTR_CURRENT_HUE,write_only=true,tx_command_id=6,
 to_device=function(d)
 if type(d)~="table"then
@@ -186,8 +191,8 @@ local I=j().to(d.hue)local w=j().to(d.saturation)if type(I)~="number"or type(w)~
 return nil
 end
 return{I,w,0,0,0}
-end,
-})return n.cluster_attribute(e.cluster_id,e.attribute_id,e)
+end
+})return n.cluster_attribute(g.cluster_id,g.attribute_id,g)
 end
 end
 return q

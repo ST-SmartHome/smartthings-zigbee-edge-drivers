@@ -1144,8 +1144,8 @@ local thermostat_pro_900z = {
     emit = emit.pro900zSensor(),
     converter = converter.lookup_from_to({
       ["in"] = 0,
-      ["al"] = 1,
-      ["ou"] = 2,
+      al = 1,
+      ou = 2,
     }),
   }),
   tuya.dp_raw(101, { name = "schedule_monday" }),                            -- profile 미포함

@@ -42,9 +42,6 @@ local function qa_definition(profile, gang_count)
   return {
     profile = profile,
     package_group = "wave14-switch",
-    transport_classification = "EF00_LEGACY_DP",
-    z2m_converter_source = "legacy.fz.tuya_switch + legacy.tz.tuya_switch_state",
-    wire_cluster = "manuSpecificTuya",
     magic_packet = false,
     query_on_configure = false,
     datapoints = datapoints,

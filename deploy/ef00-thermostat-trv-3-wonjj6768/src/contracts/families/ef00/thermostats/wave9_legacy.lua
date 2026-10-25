@@ -10,11 +10,11 @@ return Z.create_fingerprints("TS0601",ar)
 end
 local function H(al,az,ay,aK)
 al.heating_setpoint_range={
-minimum=az,maximum=ay,step=aK,unit="C",}
+minimum=az,maximum=ay,step=aK,unit="C"}
 al.runtime_start=function(i)
 i:emit_component_event(
-{id="main"},as.thermostatHeatingSetpoint.heatingSetpointRange({
-value={minimum=az,maximum=ay,step=aK},unit="C",}))
+{id="main"},as.thermostatHeatingSetpoint.heatingSetpointRange{
+value={minimum=az,maximum=ay,step=aK},unit="C"})
 end
 end
 local function z(b)
@@ -37,7 +37,7 @@ local function E(b)
 if type(b)~="string"then
 return nil
 end
-local aN,aE=b:match("^%s*([%+%-]?)(%d+)")if aE==nil then
+local aN,aE=b:match"^%s*([%+%-]?)(%d+)"if aE==nil then
 return nil
 end
 local f=tonumber(aE)if aN=="-"then
@@ -68,9 +68,9 @@ local l=ah(b)if #l<12 then
 return nil
 end
 local p={}for R=1,12 do
-local an=l[R]local ap,k=an:match("^([^/]*)/([^/]*)")local V,minute_text
+local an=l[R]local ap,k=an:match"^([^/]*)/([^/]*)"local V,minute_text
 if ap~=nil then
-V,minute_text=ap:match("^([^:]*):([^:]*)")
+V,minute_text=ap:match"^([^:]*):([^:]*)"
 end
 local q=E(V)local minute=E(minute_text)local a=E(k)if q==nil or minute==nil or a==nil then
 return nil
@@ -87,7 +87,7 @@ return c.from_to(D,M)
 end
 local o="__wave9_moes_local_temperature"
 local s="__wave9_moes_temperature_calibration"
-local n=c.signed_number_pair(1)local C=e.moesBrtTempCalibration()local Y=e.temperature("C")
+local n=c.signed_number_pair(1)local C=e.moesBrtTempCalibration()local Y=e.temperature"C"
 local function F(i,aL,aq,am)
 local b=i:get_field(aL)
 if b==nil and type(i.get_latest_state)=="function"then
@@ -126,39 +126,39 @@ end
 return #aa>0 and aa or nil
 end
 local aJ={
-profile="thermostats-wave9-moes-brt100",package_group="trv",transport_classification="CUSTOM_PAYLOAD",z2m_converter_source="legacy.moesS_thermostat",wire_cluster="manuSpecificTuya",query_on_configure=false,time_start="1970",force_time_updates=true,ota_disabled_reason="Frozen Z2M records that the available OTA bricks this device",d.dp_enum(1,{
-name="moes_brt_preset",converter=c.lookup_from_to({
-programming=0,manual=1,temporary_manual=2,holiday=3,}),emit=e.moesBrtPreset(),}),d.dp_current_heating_setpoint(2,{
-scale=1,to_device=z,emit=e.heating_setpoint("C"),}),d.dp_local_temperature(3,{
-from_device=B,read_only=true,emit=e.temperature("C"),}),d.dp_binary(4,{
-name="moes_brt_boost_heating",converter=c.lookup_from_to({ON=true,OFF=false}),emit=e.moesBrtBoostHeating(),}),d.dp_numeric(5,{
-name="moes_brt_boost_countdown",read_only=true,emit=e.moesBrtBoostCountdown(),}),d.dp_binary(7,{
+profile="thermostats-wave9-moes-brt100",package_group="trv",query_on_configure=false,time_start="1970",force_time_updates=true,ota_disabled_reason="Frozen Z2M records that the available OTA bricks this device",d.dp_enum(1,{
+name="moes_brt_preset",converter=c.lookup_from_to{
+programming=0,manual=1,temporary_manual=2,holiday=3},emit=e.moesBrtPreset()}),d.dp_current_heating_setpoint(2,{
+scale=1,to_device=z,emit=e.heating_setpoint"C"}),d.dp_local_temperature(3,{
+from_device=B,read_only=true,emit=e.temperature"C"}),d.dp_binary(4,{
+name="moes_brt_boost_heating",converter=c.lookup_from_to{ON=true,OFF=false},emit=e.moesBrtBoostHeating()}),d.dp_numeric(5,{
+name="moes_brt_boost_countdown",read_only=true,emit=e.moesBrtBoostCountdown()}),d.dp_binary(7,{
 name="running_state",read_only=true,
 converter=c.from_only(function(b)
 return(b==true or b==1)and"idle"or"heating"
 end),
-emit=e.thermostat_operating_state(),}),d.dp_binary(7,{
+emit=e.thermostat_operating_state()}),d.dp_binary(7,{
 name="moes_brt_valve_state",read_only=true,
 converter=c.from_only(function(b)
 return(b==true or b==1)and"CLOSED"or"OPEN"
 end),
-emit=e.moesBrtValveState(),}),d.dp_binary(8,{
-name="moes_brt_window_detection",converter=c.lookup_from_to({ON=true,OFF=false}),emit=e.moesBrtWindowDetection(),}),d.dp_binary(9,{
+emit=e.moesBrtValveState()}),d.dp_binary(8,{
+name="moes_brt_window_detection",converter=c.lookup_from_to{ON=true,OFF=false},emit=e.moesBrtWindowDetection()}),d.dp_binary(9,{
 name="moes_brt_window",read_only=true,
 converter=c.from_only(function(b)
 return(b==true or b==1)and"CLOSED"or"OPEN"
 end),
-emit=e.moesBrtWindow(),}),d.dp_child_lock(13,{
-name="moes_brt_child_lock",converter=c.lookup_from_to({LOCK=true,UNLOCK=false}),emit=e.moesBrtChildLock(),}),d.dp_battery(14,{read_only=true,emit=e.battery()}),d.dp_raw(101,{
-name="moes_brt_programming_mode",converter=O(),emit=e.moesBrtProgrammingMode(),}),d.dp_numeric(103,{
-name="moes_brt_boost_time_setting",emit=e.moesBrtBoostTimeSetting(),}),d.dp_numeric(104,{
-name="moes_brt_position",read_only=true,emit=e.moesBrtPosition(),}),d.dp_local_temperature_calibration(105,{
-name="moes_brt_temp_calibration",converter=n,from_device=v,emit=x,}),d.dp_binary(106,{
-name="moes_brt_eco_mode",converter=c.lookup_from_to({ON=true,OFF=false}),emit=e.moesBrtEcoMode(),}),d.dp_numeric(107,{
-name="moes_brt_eco_temperature",to_device=z,emit=e.moesBrtEcoTemperature(),}),d.dp_numeric(108,{
-name="moes_brt_max_temperature",to_device=z,emit=e.moesBrtMaxTemperature(),}),d.dp_numeric(109,{
-name="moes_brt_min_temperature",to_device=z,emit=e.moesBrtMinTemperature(),}),}H(aJ,0,35,1)r(aJ,w({
-"_TZE200_b6wax7g0","_TZE200_qsoecqlk","_TZE200_6y7kyjga",}))local u="__wave9_lidl_setpoint_raw"
+emit=e.moesBrtWindow()}),d.dp_child_lock(13,{
+name="moes_brt_child_lock",converter=c.lookup_from_to{LOCK=true,UNLOCK=false},emit=e.moesBrtChildLock()}),d.dp_battery(14,{read_only=true,emit=e.battery()}),d.dp_raw(101,{
+name="moes_brt_programming_mode",converter=O(),emit=e.moesBrtProgrammingMode()}),d.dp_numeric(103,{
+name="moes_brt_boost_time_setting",emit=e.moesBrtBoostTimeSetting()}),d.dp_numeric(104,{
+name="moes_brt_position",read_only=true,emit=e.moesBrtPosition()}),d.dp_local_temperature_calibration(105,{
+name="moes_brt_temp_calibration",converter=n,from_device=v,emit=x}),d.dp_binary(106,{
+name="moes_brt_eco_mode",converter=c.lookup_from_to{ON=true,OFF=false},emit=e.moesBrtEcoMode()}),d.dp_numeric(107,{
+name="moes_brt_eco_temperature",to_device=z,emit=e.moesBrtEcoTemperature()}),d.dp_numeric(108,{
+name="moes_brt_max_temperature",to_device=z,emit=e.moesBrtMaxTemperature()}),d.dp_numeric(109,{
+name="moes_brt_min_temperature",to_device=z,emit=e.moesBrtMinTemperature()})}H(aJ,0,35,1)r(aJ,w{
+"_TZE200_b6wax7g0","_TZE200_qsoecqlk","_TZE200_6y7kyjga"})local u="__wave9_lidl_setpoint_raw"
 local function A(b)
 local f=tonumber(b)if f==nil then
 return nil
@@ -215,28 +215,28 @@ end
 local function W(i,b)
 if b=="off"then
 return{
-{dp=2,datatype=d.DP_TYPE_ENUM,value=1},{dp=16,datatype=d.DP_TYPE_VALUE,value=0},}
+{dp=2,datatype=d.DP_TYPE_ENUM,value=1},{dp=16,datatype=d.DP_TYPE_VALUE,value=0}}
 end
 if b=="auto"then
 return{{dp=2,datatype=d.DP_TYPE_ENUM,value=0}}
 end
 if b=="heat"then
 return{
-{dp=2,datatype=d.DP_TYPE_ENUM,value=1},{dp=16,datatype=d.DP_TYPE_VALUE,value=i:get_field(u)or 43},}
+{dp=2,datatype=d.DP_TYPE_ENUM,value=1},{dp=16,datatype=d.DP_TYPE_VALUE,value=i:get_field(u)or 43}}
 end
 return nil
 end
 local function aj(i,b)
 if b=="boost"then
 return{
-{dp=2,datatype=d.DP_TYPE_ENUM,value=1},{dp=16,datatype=d.DP_TYPE_VALUE,value=60},}
+{dp=2,datatype=d.DP_TYPE_ENUM,value=1},{dp=16,datatype=d.DP_TYPE_VALUE,value=60}}
 end
 local aw=({schedule=0,manual=1,holiday=2})[b]if aw==nil then
 return nil
 end
 local at={{dp=2,datatype=d.DP_TYPE_ENUM,value=aw}}if b=="manual"then
 at[#at+1]={
-dp=16,datatype=d.DP_TYPE_VALUE,value=i:get_field(u)or 43,}
+dp=16,datatype=d.DP_TYPE_VALUE,value=i:get_field(u)or 43}
 end
 return at
 end
@@ -254,7 +254,7 @@ if type(b)~="string"then
 return nil
 end
 local T,G,day,q,minute,a,days=
-b:match("^(%d+)%-(%d+)%-(%d+) (%d+):(%d+)/([%d%.%-]+)/(%d+)$")T,G,day=tonumber(T),tonumber(G),tonumber(day)q,minute=tonumber(q),tonumber(minute)a,days=tonumber(a),tonumber(days)if T==nil or G==nil or day==nil or q==nil or minute==nil
+b:match"^(%d+)%-(%d+)%-(%d+) (%d+):(%d+)/([%d%.%-]+)/(%d+)$"T,G,day=tonumber(T),tonumber(G),tonumber(day)q,minute=tonumber(q),tonumber(minute)a,days=tonumber(a),tonumber(days)if T==nil or G==nil or day==nil or q==nil or minute==nil
 or a==nil or days==nil then
 return nil
 end
@@ -324,7 +324,7 @@ local p={aB}for R,an in ipairs(l)do
 local a
 if R<9 then
 local V,minute_text,k=
-an:match("^(%d+):(%d+)/([%d%.%-]+)$")local q=tonumber(V)local minute=tonumber(minute_text)a=tonumber(k)if q==nil or minute==nil or a==nil
+an:match"^(%d+):(%d+)/([%d%.%-]+)$"local q=tonumber(V)local minute=tonumber(minute_text)a=tonumber(k)if q==nil or minute==nil or a==nil
 or q<0 or q>24
 or(minute~=0 and minute~=15 and minute~=30 and minute~=45)then
 return nil
@@ -336,7 +336,7 @@ p[#p+1]=math.floor(a*2+0.5)local y=q*4+minute/15
 if y<1 then y=1 end
 if y>96 then y=96 end
 p[#p+1]=math.floor(y+0.5)else
-local k=an:match("^END/([%d%.%-]+)$")a=tonumber(k)if a==nil then
+local k=an:match"^END/([%d%.%-]+)$"a=tonumber(k)if a==nil then
 return nil
 end
 if a<0.5 or a>29.5 then
@@ -356,17 +356,17 @@ end
 return au
 end
 local aC={
-profile="thermostats-wave9-lidl-368308",package_group="trv",transport_classification="CUSTOM_PAYLOAD",z2m_converter_source="legacy.zs_thermostat",wire_cluster="manuSpecificTuya",query_on_configure=false,time_start="1970",force_time_updates=true,bind_basic_on_configure=true,d.dp_system_mode(2,{
-name="system_mode",read_only=true,converter=c.from_only(c.lookup_value({
-[0]="auto",[1]="heat",[2]="auto",})),emit=e.thermostat_mode(),}),d.dp_enum(2,{
-name="lidl_trv_preset",read_only=true,converter=c.from_only(c.lookup_value({
-[0]="schedule",[1]="manual",[2]="holiday",})),emit=e.lidlTrvPreset(),}),d.dp_enum(2,{
+profile="thermostats-wave9-lidl-368308",package_group="trv",query_on_configure=false,time_start="1970",force_time_updates=true,bind_basic_on_configure=true,d.dp_system_mode(2,{
+name="system_mode",read_only=true,converter=c.from_only(c.lookup_value{
+[0]="auto",[1]="heat",[2]="auto"}),emit=e.thermostat_mode()}),d.dp_enum(2,{
+name="lidl_trv_preset",read_only=true,converter=c.from_only(c.lookup_value{
+[0]="schedule",[1]="manual",[2]="holiday"}),emit=e.lidlTrvPreset()}),d.dp_enum(2,{
 name="lidl_trv_away_mode",read_only=true,
 converter=c.from_only(function(b)
 return tonumber(b)==2 and"ON"or"OFF"
 end),
-emit=e.lidlTrvAwayMode(),}),d.dp_current_heating_setpoint(16,{
-from_device=S,to_device=U,emit=e.heating_setpoint("C"),}),d.dp_numeric(16,{
+emit=e.lidlTrvAwayMode()}),d.dp_current_heating_setpoint(16,{
+from_device=S,to_device=U,emit=e.heating_setpoint"C"}),d.dp_numeric(16,{
 name="system_mode_setpoint_sentinel",read_only=true,
 from_device=function(b)
 local f=tonumber(b)
@@ -374,26 +374,26 @@ if f==0 then return"off"end
 if f==60 then return"heat"end
 return nil
 end,
-emit=e.thermostat_mode(),}),d.dp_numeric(16,{
+emit=e.thermostat_mode()}),d.dp_numeric(16,{
 name="lidl_trv_preset_setpoint_sentinel",read_only=true,
 from_device=function(b)
 return tonumber(b)==60 and"boost"or nil
 end,
-emit=e.lidlTrvPreset(),}),d.dp_local_temperature(24,{scale=10,read_only=true,emit=e.temperature("C")}),d.dp_numeric(35,{
-name="lidl_trv_battery_voltage",read_only=true,converter=c.from_only(c.multiply_by(10)),emit=e.lidlTrvBatteryVoltage(),}),d.dp_child_lock(40,{
-name="lidl_trv_child_lock",converter=c.lookup_from_to({LOCK=true,UNLOCK=false}),emit=e.lidlTrvChildLock(),}),d.dp_numeric(101,{
-name="lidl_trv_comfort_temperature",converter=c.divide_by_pair(2),emit=e.lidlTrvComfortTemperature(),}),d.dp_numeric(102,{
-name="lidl_trv_eco_temperature",converter=c.divide_by_pair(2),emit=e.lidlTrvEcoTemperature(),}),d.dp_raw(103,{
-name="lidl_trv_away_setting",converter=ae(),emit=e.lidlTrvAwaySetting(),}),d.dp_local_temperature_calibration(104,{
-name="lidl_trv_temp_calibration",converter=N(),emit=e.lidlTrvTempCalibration(),}),d.dp_numeric(105,{
-name="lidl_trv_auto_setpoint",converter=t(),emit=e.lidlTrvAutoSetpoint(),}),d.dp_raw(109,{name="lidl_trv_schedule_monday",converter=g(1),emit=e.lidlTrvScheduleMonday()}),d.dp_raw(110,{name="lidl_trv_schedule_tuesday",converter=g(2),emit=e.lidlTrvScheduleTuesday()}),d.dp_raw(111,{name="lidl_trv_schedule_wednesday",converter=g(3),emit=e.lidlTrvScheduleWednesday()}),d.dp_raw(112,{name="lidl_trv_schedule_thursday",converter=g(4),emit=e.lidlTrvScheduleThursday()}),d.dp_raw(113,{name="lidl_trv_schedule_friday",converter=g(5),emit=e.lidlTrvScheduleFriday()}),d.dp_raw(114,{name="lidl_trv_schedule_saturday",converter=g(6),emit=e.lidlTrvScheduleSaturday()}),d.dp_raw(115,{name="lidl_trv_schedule_sunday",converter=g(7),emit=e.lidlTrvScheduleSunday()}),d.dp_numeric(116,{
-name="lidl_trv_window_temperature",converter=t(),emit=e.lidlTrvWindowTemperature(),}),d.dp_numeric(117,{
-name="lidl_trv_window_time",emit=e.lidlTrvWindowTime(),}),}aC.named_mapping={
+emit=e.lidlTrvPreset()}),d.dp_local_temperature(24,{scale=10,read_only=true,emit=e.temperature"C"}),d.dp_numeric(35,{
+name="lidl_trv_battery_voltage",read_only=true,converter=c.from_only(c.multiply_by(10)),emit=e.lidlTrvBatteryVoltage()}),d.dp_child_lock(40,{
+name="lidl_trv_child_lock",converter=c.lookup_from_to{LOCK=true,UNLOCK=false},emit=e.lidlTrvChildLock()}),d.dp_numeric(101,{
+name="lidl_trv_comfort_temperature",converter=c.divide_by_pair(2),emit=e.lidlTrvComfortTemperature()}),d.dp_numeric(102,{
+name="lidl_trv_eco_temperature",converter=c.divide_by_pair(2),emit=e.lidlTrvEcoTemperature()}),d.dp_raw(103,{
+name="lidl_trv_away_setting",converter=ae(),emit=e.lidlTrvAwaySetting()}),d.dp_local_temperature_calibration(104,{
+name="lidl_trv_temp_calibration",converter=N(),emit=e.lidlTrvTempCalibration()}),d.dp_numeric(105,{
+name="lidl_trv_auto_setpoint",converter=t(),emit=e.lidlTrvAutoSetpoint()}),d.dp_raw(109,{name="lidl_trv_schedule_monday",converter=g(1),emit=e.lidlTrvScheduleMonday()}),d.dp_raw(110,{name="lidl_trv_schedule_tuesday",converter=g(2),emit=e.lidlTrvScheduleTuesday()}),d.dp_raw(111,{name="lidl_trv_schedule_wednesday",converter=g(3),emit=e.lidlTrvScheduleWednesday()}),d.dp_raw(112,{name="lidl_trv_schedule_thursday",converter=g(4),emit=e.lidlTrvScheduleThursday()}),d.dp_raw(113,{name="lidl_trv_schedule_friday",converter=g(5),emit=e.lidlTrvScheduleFriday()}),d.dp_raw(114,{name="lidl_trv_schedule_saturday",converter=g(6),emit=e.lidlTrvScheduleSaturday()}),d.dp_raw(115,{name="lidl_trv_schedule_sunday",converter=g(7),emit=e.lidlTrvScheduleSunday()}),d.dp_numeric(116,{
+name="lidl_trv_window_temperature",converter=t(),emit=e.lidlTrvWindowTemperature()}),d.dp_numeric(117,{
+name="lidl_trv_window_time",emit=e.lidlTrvWindowTime()})}aC.named_mapping={
 named_mappings=ab(aC,{
-system_mode=W,lidl_trv_preset=aj,}),}J.attach(aC,{"off","heat","auto"},0.5,29.5,0.5)r(aC,w({
-"_TZE200_chyvmhay","_TZE200_uiyqstza",}))local ax={
-profile="thermostats-wave9-evanell-ez200",package_group="trv",transport_classification="CUSTOM_PAYLOAD",z2m_converter_source="legacy.evanell_thermostat",wire_cluster="manuSpecificTuya",query_on_configure=false,time_start="2000",bind_basic_on_configure=true,d.dp_system_mode(2,{
-name="system_mode",converter=c.lookup_from_to({auto=0,heat=2,off=3}),emit=e.thermostat_mode(),}),d.dp_current_heating_setpoint(4,{scale=10,emit=e.heating_setpoint("C")}),d.dp_local_temperature(5,{scale=10,read_only=true,emit=e.temperature("C")}),d.dp_battery(6,{read_only=true,emit=e.battery()}),d.dp_child_lock(8,{
-name="evanell_ez_child_lock",converter=c.lookup_from_to({LOCK=true,UNLOCK=false}),emit=e.evanellEzChildLock(),}),}J.attach(ax,{"off","heat","auto"},5,30,0.5)r(ax,w({
-"_TZE200_dmfguuli","_TZE200_rxypyjkw",}))return{
-id="ef00.thermostats.wave9_legacy",registrations=af,}
+system_mode=W,lidl_trv_preset=aj})}J.attach(aC,{"off","heat","auto"},0.5,29.5,0.5)r(aC,w{
+"_TZE200_chyvmhay","_TZE200_uiyqstza"})local ax={
+profile="thermostats-wave9-evanell-ez200",package_group="trv",query_on_configure=false,time_start="2000",bind_basic_on_configure=true,d.dp_system_mode(2,{
+name="system_mode",converter=c.lookup_from_to{auto=0,heat=2,off=3},emit=e.thermostat_mode()}),d.dp_current_heating_setpoint(4,{scale=10,emit=e.heating_setpoint"C"}),d.dp_local_temperature(5,{scale=10,read_only=true,emit=e.temperature"C"}),d.dp_battery(6,{read_only=true,emit=e.battery()}),d.dp_child_lock(8,{
+name="evanell_ez_child_lock",converter=c.lookup_from_to{LOCK=true,UNLOCK=false},emit=e.evanellEzChildLock()})}J.attach(ax,{"off","heat","auto"},5,30,0.5)r(ax,w{
+"_TZE200_dmfguuli","_TZE200_rxypyjkw"})return{
+id="ef00.thermostats.wave9_legacy",registrations=af}

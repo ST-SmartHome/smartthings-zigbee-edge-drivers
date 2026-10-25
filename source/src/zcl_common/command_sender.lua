@@ -321,6 +321,9 @@ local function load_command_sender(zcl)
 
     local mapping_context = build_or_reuse_mapping_context(device, mapping, context, value)
     local encoded = encode_command_value(device, mapping, value, mapping_context)
+    if meta.to_device ~= nil and encoded == nil then
+      return false
+    end
     local generated_command = nil
 
     if meta.tx_command_direction == "client" then

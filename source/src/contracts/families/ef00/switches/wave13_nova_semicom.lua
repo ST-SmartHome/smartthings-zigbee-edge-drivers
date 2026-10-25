@@ -102,9 +102,6 @@ local function build_nova(profile, capability_prefix, mapping_prefix, channels)
   local definition = {
     profile = profile,
     package_group = "switch-panel",
-    transport_classification = "CUSTOM_PAYLOAD",
-    z2m_converter_source = "meta.tuyaDatapoints+convLocal.novaDigitalToWk*",
-    wire_cluster = "manuSpecificTuya",
     magic_packet = true,
     query_on_configure = false,
     time_start = "1970",
@@ -253,9 +250,6 @@ end
 local semicom = {
   profile = "switches-wave13-tuya-semicom-two-two",
   package_group = "switch-panel",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = false,
   datapoints = {

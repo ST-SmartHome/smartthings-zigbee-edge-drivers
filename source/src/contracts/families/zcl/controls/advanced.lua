@@ -1,5 +1,6 @@
 local zcl = require "protocol.zcl"
 local device_helpers = require "contracts.helpers.family"
+local zcl_device_helpers = require "contracts.helpers.zcl"
 local emit = require "capabilities.events.all"
 local capabilities = require "st.capabilities"
 -- Battery refresh is provided by the protocol facade.
@@ -76,6 +77,10 @@ local function passive_battery_voltage_cluster()
   })
 end
 
+local function ewelink_battery_value(value,_,context)
+  if context.raw_value~=255 then return value end
+end
+
 local function ewelink_battery_voltage_cluster()
   return zcl.cluster_attribute(zcl.CLUSTER_POWER_CONFIGURATION, zcl.ATTR_BATTERY_VOLTAGE, {
     name = "battery_voltage",
@@ -88,6 +93,7 @@ local function ewelink_battery_voltage_cluster()
     reportable_change = 100,
     read_on_configure = true,
     read_only = true,
+    from_device = ewelink_battery_value,
   })
 end
 
@@ -359,7 +365,17 @@ local function namron_4512793_action(zb_rx, cluster_id, command_id, source_endpo
   return nil, component_id, true
 end
 
-local function shelly_button_tough_action(_, cluster_id, command_id, source_endpoint)
+local function remote_transaction_duplicate(device, rx, field)
+  field = field or "__shelly_blu_transactions"
+  local header = rx.body.zcl_header
+  if header.frame_ctrl:is_mfg_specific_set() or header.frame_ctrl:is_direction_set() then return true end
+  local endpoint, sequence = rx.address_header.src_endpoint.value, header.seqno.value
+  if zcl_device_helpers.duplicate_transaction(device, endpoint, sequence, field) then return true end
+  device:set_field("__zcl_last_remote_action", nil, {persist=false})
+  return false
+end
+
+local function shelly_button_tough_action(rx, cluster_id, command_id, source_endpoint, device)
   local endpoint_action = {
     [1] = "single",
     [2] = "double",
@@ -367,14 +383,32 @@ local function shelly_button_tough_action(_, cluster_id, command_id, source_endp
   }
 
   if cluster_id == zcl.CLUSTER_ON_OFF and command_id == 0x02 then
+    if device and remote_transaction_duplicate(device, rx) then return nil, nil, true end
     return endpoint_action[source_endpoint], "main", true
   end
   if cluster_id == CLUSTER_SCENES and command_id == 0x05 then
+    if device and remote_transaction_duplicate(device, rx) then return nil, nil, true end
     local action = endpoint_action[source_endpoint]
     return action and (action .. "_long") or nil, "main", true
   end
 
   return nil, nil, true
+end
+
+local function shelly_remote_control_action(rx, cluster_id, command_id, _, device)
+  local action
+  if cluster_id == zcl.CLUSTER_ON_OFF then
+    action = ({[0]="off", [1]="on", [2]="toggle", [0x40]="off"})[command_id]
+  elseif cluster_id == zcl.CLUSTER_LEVEL_CONTROL then
+    if command_id == 0 or command_id == 4 then action = "brightness_move_to_level"
+    elseif command_id == 1 or command_id == 5 then
+      action = body_member_value(rx, "move_mode", "movemode") == 1 and "brightness_move_down" or "brightness_move_up"
+    elseif command_id == 2 or command_id == 6 then
+      action = body_member_value(rx, "step_mode", "stepmode") == 1 and "brightness_step_down" or "brightness_step_up"
+    elseif command_id == 3 or command_id == 7 then action = "brightness_stop" end
+  end
+  if action and remote_transaction_duplicate(device, rx) then return nil, nil, true end
+  return action, nil, true
 end
 
 
@@ -584,7 +618,6 @@ end
 
 local ts004f_knob = build_advanced_remote("buttons-ts004f-knob", 1, {
   knob_remote = true,
-  placeholder_custom_states = false,
   remote_action_handler = ts004f_knob_rotation,
   remote_action_emit_name = "tsfKnobAction",
   standard_action_button_events = { toggle = "pushed", hue_move = "held", hue_down = "held" },
@@ -760,10 +793,10 @@ local slacky_remote_4 = build_standard_action_remote("buttons-button-4-battery-r
   slacky_multistate = true,
   standard_action_endpoint_suffix = true,
 })
-local shelly_remote_control = build_standard_action_remote("buttons-button-4-battery-remote-action", 4, {
+local shelly_remote_control = build_standard_action_remote("buttons-shelly-rc", 4, {
   button_actions = { "up", "down", "up_hold", "down_hold" },
 })
-local shelly_button_tough = build_standard_action_remote("buttons-button-1-battery-remote-action", 1, {
+local shelly_button_tough = build_standard_action_remote("buttons-shelly-tough", 1, {
   button_actions = { "pushed", "double", "pushed_3x", "held" },
 })
 local shelly_four_button = build_standard_action_remote("buttons-button-4-battery-remote-action", 4, {
@@ -832,18 +865,23 @@ slacky_remote_1.configure = bind_clusters_endpoints(slacky_command_clusters, 1)
 slacky_remote_2.configure = bind_clusters_endpoints(slacky_command_clusters, 2)
 
 slacky_remote_4.configure = bind_clusters_endpoints(slacky_command_clusters, 4)
-shelly_button_tough.zcl_clusters = { zcl.battery() }
 shelly_button_tough.standard_command_action_resolver = shelly_button_tough_action
+shelly_button_tough.remote_action_emit_name = "shellyToughAction"
 shelly_button_tough.standard_action_button_events = {
   single = "pushed",
   double = "double",
   triple = "pushed_3x",
   single_long = "held",
+  double_long = "held",
+  triple_long = "held",
 }
-shelly_button_tough.configure = bind_clusters_endpoints({
-  zcl.CLUSTER_ON_OFF,
-  CLUSTER_SCENES,
-}, 3)
+shelly_button_tough.configure = function(driver, device)
+  for _, endpoint in pairs(device.zigbee_endpoints) do
+    for _, cluster in ipairs({zcl.CLUSTER_ON_OFF, CLUSTER_SCENES}) do
+      zcl.bind_cluster(device, cluster, driver.environment_info.hub_zigbee_eui, endpoint.id)
+    end
+  end
+end
 shelly_four_button.zcl_clusters = { zcl.battery() }
 shelly_four_button.standard_command_action_resolver = shelly_four_button_action
 shelly_four_button.standard_action_button_events = {
@@ -879,6 +917,7 @@ ewelink_button.zcl_clusters = {
     minimum_interval = 3600,
     maximum_interval = 7200,
     reportable_change = 2,
+    from_device = ewelink_battery_value,
   }),
   ewelink_battery_voltage_cluster(),
 }
@@ -956,8 +995,11 @@ zcl.register_cluster_command_handler(CLUSTER_NAMRON_PRIVATE_E004, 0x00, function
   device:emit_component_event({ id = component_id }, builder({ state_change = true }))
   zcl.schedule_battery_refresh_after_button(device)
 end)
-shelly_remote_control.zcl_clusters = {
-  zcl.battery(),
+shelly_remote_control.standard_command_action_resolver = shelly_remote_control_action
+shelly_remote_control.remote_action_emit_name = "shellyRcAction"
+shelly_remote_control.standard_action_metadata_emit_names = {
+  action_group="shellyRcGroup", action_level="shellyRcLevel", action_rate="shellyRcRate",
+  action_step_size="shellyRcStep", action_transition_time="shellyRcTransition",
 }
 shelly_remote_control.group_component_map = {
   [0] = "main",
@@ -972,20 +1014,88 @@ shelly_remote_control.standard_action_button_events = {
   brightness_step_down = "down_hold",
 }
 shelly_remote_control.configure = function(driver, device)
-  device:send(device_management.build_bind_request(
-    device,
-    zcl.CLUSTER_ON_OFF,
-    driver.environment_info.hub_zigbee_eui
-  ))
-  device:send(device_management.build_bind_request(
-    device,
-    zcl.CLUSTER_LEVEL_CONTROL,
-    driver.environment_info.hub_zigbee_eui
-  ))
+  for _, endpoint in pairs(device.zigbee_endpoints) do
+    for _, cluster in ipairs(endpoint.client_clusters or {}) do
+      if cluster == zcl.CLUSTER_ON_OFF or cluster == zcl.CLUSTER_LEVEL_CONTROL then
+        zcl.bind_cluster(device, cluster, driver.environment_info.hub_zigbee_eui, endpoint.id)
+      end
+    end
+  end
 
   for group_id = 0, 3 do
     driver:add_hub_to_zigbee_group(group_id)
   end
+end
+
+local function remote_battery_percent(value, _, context)
+  if context.raw_value ~= 255 then return value end
+end
+
+local function build_somfy_remote(profile, prefix, channels)
+  local endpoints
+  if channels > 1 then
+    endpoints = {}
+    for endpoint = 1, channels do endpoints[component_for_button(endpoint)] = endpoint end
+  end
+  return {
+    profile = profile,
+    advanced_remote = true,
+    magic_packet = false,
+    initial_custom_state_query = false,
+    remote_action_emit_name = prefix .. "Action",
+    standard_action_metadata_emit_names = {action_group = prefix .. "Group"},
+    component_to_endpoint_map = endpoints,
+    standard_command_action_resolver = function(rx, cluster, command, endpoint, device)
+      if channels > 1 and (endpoint < 1 or endpoint > channels) then return nil, nil, true end
+      local action
+      if cluster == zcl.CLUSTER_ON_OFF then
+        action = ({[0]="off", [1]="on", [2]="toggle", [0x40]="off"})[command]
+      elseif cluster == zcl.CLUSTER_WINDOW_COVERING then
+        action = ({[0]="open", [1]="close", [2]="stop"})[command]
+      end
+      if action and remote_transaction_duplicate(device, rx, "__somfy_ysia_transactions") then return nil, nil, true end
+      return action, channels > 1 and component_for_button(endpoint) or "main", true
+    end,
+    configure = function(driver, device)
+      for _, endpoint in pairs(device.zigbee_endpoints) do
+        if channels == 1 or (endpoint.id >= 1 and endpoint.id <= channels) then
+          for _, cluster in ipairs(endpoint.client_clusters or {}) do
+            if cluster == zcl.CLUSTER_ON_OFF or cluster == zcl.CLUSTER_WINDOW_COVERING then
+              zcl.bind_cluster(device, cluster, driver.environment_info.hub_zigbee_eui, endpoint.id)
+            end
+          end
+        end
+      end
+    end,
+    parent_refresh = function(device)
+      for _, attribute in ipairs({0x21, 0x20}) do
+        pcall(zcl.read_attribute, device, 1, attribute, device:get_endpoint(1))
+      end
+    end,
+    zcl_clusters = {zcl.battery({read_only=true, minimum_interval=3600,
+      maximum_interval=65000, reportable_change=10, from_device=remote_battery_percent})},
+  }
+end
+
+local ysia_one = build_somfy_remote("buttons-ysia-one", "ysiaOne", 1)
+local ysia_five = build_somfy_remote("buttons-ysia-five", "ysiaFive", 5)
+local situo_four = build_somfy_remote("buttons-situo-four", "situoFour", 4)
+
+for _, item in ipairs({
+  {shelly_remote_control, "shellyRcIdentify", "shelly_rc"},
+  {shelly_button_tough, "shellyToughIdentify", "shelly_tough"},
+}) do
+  local definition, capability, prefix = table.unpack(item)
+  local writer = prefix .. "_identify"
+  definition.magic_packet, definition.initial_custom_state_query = false, false
+  definition.zcl_clusters = {zcl.battery({read_only=true, minimum_interval=3600,
+    maximum_interval=65000, reportable_change=10, from_device=remote_battery_percent})}
+  definition.protocol_writers = {[writer]=zcl_device_helpers.identify}
+  definition.capability_commands = {
+    {capability_id="concertmirror08464." .. capability, command_name="identify", mapping_name=writer, value=3},
+    {capability_id="concertmirror08464." .. capability, command_name="setIdentifyTime",
+      argument_name="identifyTime", mapping_name=writer},
+  }
 end
 
 register_device_definition(ysr_mini_z, device_helpers.create_fingerprints("TS004F", {
@@ -1068,6 +1178,7 @@ register_device_definition(ewelink_button, {
   -- Actual WB-01 hardware reports this literal model on the same On/Off
   -- command and Power Configuration contract.
   device_helpers.create_fingerprint("eWeLink", "WB-01"),
+  device_helpers.create_fingerprint("eWeLink", "WB01"),
   device_helpers.create_fingerprint("eWeLink", "SNZB-01"),
   -- User-directed SONOFF manufacturer exacts for the same ZHC definition.
   -- Keep the observed eWeLink identities above; these are additive aliases.
@@ -1101,6 +1212,14 @@ register_device_definition(ts004f_knob, device_helpers.create_fingerprints("TS00
   "_TZ3000_gwkzibhs",
 }))
 
+register_device_definition(ysia_one, {
+  device_helpers.create_fingerprint("SOMFY", "Ysia 1 Zigbee Europe"),
+  device_helpers.create_fingerprint("SOMFY", "Ysia 1 HP Zigbee"),
+  device_helpers.create_fingerprint("SOMFY", "Situo 1 Zigbee"),
+})
+register_device_definition(ysia_five, {device_helpers.create_fingerprint("SOMFY", "Ysia 5 HP Zigbee")})
+register_device_definition(situo_four, {device_helpers.create_fingerprint("SOMFY", "Situo 4 Zigbee")})
+
 -- ZCL REPORTING CAPABILITIES BEGIN
 zcl.attach_reporting_capabilities(device_definitions, {
   {1, "rpt-top"},
@@ -1111,12 +1230,15 @@ zcl.attach_reporting_capabilities(device_definitions, {
   {6, "rpt-tfs"},
   {7, "rpt-tyq"},
   {8, "rpt-tom"},
-  {9, "rpt-tom"},
-  {10, "rpt-tfs"},
+  {9, "rpt-bii"},
+  {10, "rpt-biz"},
   {11, "rpt-tom"},
   {13, "rpt-chu"},
   {16, "rpt-tnc"},
   {17, "rpt-teb"},
+  {18, "rpt-ybg"},
+  {19, "rpt-yab"},
+  {20, "rpt-snl"},
 })
 -- ZCL REPORTING CAPABILITIES END
 

@@ -304,7 +304,7 @@ register_device_definition(zg101z_sos_remote, device_helpers.create_fingerprints
 }))
 
 local zrf01 = {
-  profile = "controllers-zrf01", placeholder_custom_states = false,
+  profile = "controllers-zrf01",
   magic_packet = true, query_on_configure = false, named_datapoints = true,
   datapoints = {
     tuya.dp_binary(117, { name = "zrf01_learning_mode", emit = emit.zrf01LearningMode(),

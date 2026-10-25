@@ -83,7 +83,6 @@ register_device_definition(beca_bvrf_l001,ef00_helpers.ts0601_fingerprints({"_TZ
 local tervix_119710 = {
   profile = "thermostats-tervix-119710",
   package_group = "wall-2",
-  placeholder_custom_states = false,
   magic_packet = true,
   mcu_version_request_on_configure = true,
   query_on_configure = false,

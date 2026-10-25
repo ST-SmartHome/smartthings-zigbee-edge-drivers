@@ -1,0 +1,17 @@
+name: switches-ewelink-sw02
+components:
+  - id: main
+    label: Switch 1
+    capabilities:
+      - {id: switch, version: 1}
+      - {id: momentary, version: 1}
+      - {id: concertmirror08464.ewelinkSw02PowerOne, version: 1}
+      - {id: refresh, version: 1}
+    categories: [{name: Switch}]
+  - id: switch2
+    label: Switch 2
+    capabilities:
+      - {id: switch, version: 1}
+      - {id: momentary, version: 1}
+      - {id: concertmirror08464.ewelinkSw02PowerTwo, version: 1}
+    categories: [{name: Switch}]

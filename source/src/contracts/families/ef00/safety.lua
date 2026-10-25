@@ -623,7 +623,6 @@ local smoke_model_288wz = {
   initial_custom_state_query = false,
   refresh_state_query = false,
   time_start = "off",
-  placeholder_custom_states = false,
   tuya.dp_enum(1, {
     name = "smoke_state",
     read_only = true,

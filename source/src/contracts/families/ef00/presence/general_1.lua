@@ -494,7 +494,6 @@ register_device_definition(presence_hps, ts0601_fingerprints({
 -- ══════════════════════════════════════════════════════════════
 
 local presence_model_gnpflcoq = {
-  placeholder_custom_states = false,
   profile = "safety-presence-gnpflcoq-illuminance-temp-humidity-battery",
   package_group = "presence-general-1",
   datapoints = {

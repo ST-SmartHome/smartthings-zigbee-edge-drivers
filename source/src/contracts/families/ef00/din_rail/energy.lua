@@ -333,11 +333,23 @@ register_device_definition(din_rail_model_leakage_protector, device_helpers.crea
 -- 1-10. din_rail_model_ts0601_rcbo: RCBO + 계측
 -- Z2M: TS0601_rcbo / ZJSBL7-100Z
 -- ══════════════════════════════════════════════════════════════
+local emit_rcbo_trip = emit.zjsbl7Trip()
 local din_rail_model_ts0601_rcbo = {
   profile = "din-rail-switch-power-energy-voltage-current-rcbo",
   package_group = "energy",
+  capability_commands = {
+    { capability_id = "concertmirror08464.zjsbl7ClearData", command_name = "clearData", mapping_name = "clear_device_data", value = true },
+    { capability_id = "concertmirror08464.zjsbl7Trip", command_name = "clearTrip", mapping_name = "clear_trip", value = true },
+  },
   datapoints = {
-    tuya.dp_on_off(1, { name = "switch", emit = emit.switch() }),
+    tuya.dp_on_off(1, { name = "switch", emit = emit.switch(),
+      handler = function(device, value)
+        if value == true then
+          device:set_field("trip", "clear", { persist = true })
+          device:emit_event(emit_rcbo_trip(device, "clear"))
+        end
+      end,
+    }),
     tuya.dp_numeric(9, { name = "countdown_timer", emit = emit.rcboCountdownTimer() }),
     tuya.dp_enum(26, {
       name = "alarm",
@@ -356,41 +368,131 @@ local din_rail_model_ts0601_rcbo = {
     }),
     tuya.dp_power_on_behavior(27, {
       name = "power_on_behavior",
+      command_id = 4,
       emit = emit.rcboPowerOnBehavior(),
       converter = converter.lookup_from_to({ off = 0, on = 1, previous = 2 }),
     }),
-    tuya.dp_child_lock(29, { name = "child_lock", emit = emit.rcboChildLock() }),
-    tuya.dp_raw(101, { name = "voltage", converter = converter.raw_uint_be(10, { length = 2 }), emit = emit_voltage }),
-    tuya.dp_raw(102, { name = "current", converter = converter.raw_uint_be(1000, { start = 2, length = 2 }), emit = emit_current }),
-    tuya.dp_raw(103, { name = "power", converter = converter.raw_uint_be(10, { start = 2, length = 2 }), emit = emit_power }),
+    tuya.dp_child_lock(29, { name = "child_lock", emit = emit.rcboChildLock(),
+      converter = converter.lookup_from_to({ off = false, on = true }),
+    }),
+    tuya.dp_raw(101, { name = "voltage", read_only = true, converter = converter.raw_uint_be(10, { length = 2 }), emit = emit_voltage }),
+    tuya.dp_raw(102, { name = "current", read_only = true, converter = converter.raw_uint_be(1000, { start = 2, length = 2 }), emit = emit_current }),
+    tuya.dp_raw(103, { name = "power", read_only = true, converter = converter.raw_uint_be(10, { start = 2, length = 2 }), emit = emit_power }),
     tuya.dp_temperature(105, {
       name = "temperature",
       scale = 1,
       read_only = true,
       emit = emit.temperature(),
     }),
-    tuya.dp_raw(110, { name = "voltage_threshold" }),                      -- 프로파일 미포함
-    tuya.dp_numeric(111, { name = "current_threshold", emit = emit.currentThresholdRcbo63a() }),
-    tuya.dp_raw(112, { name = "temperature_threshold" }),                  -- 프로파일 미포함
-    tuya.dp_energy(113, { emit = emit.energy(), scale = 100 }),
-    tuya.dp_string(114, { name = "meter_number", read_only = true, emit = emit.rcboMeterNumber() }),
-    tuya.dp_on_off(115, { name = "clear_energy", emit = emit.clearEnergyRcbo(), converter = converter.lookup_from_to({ on = true, off = false }) }),
-    tuya.dp_binary(116, { name = "trip_test", emit = emit.tripTestRcboTripClear(), converter = converter.lookup_from_to({ trip = true, clear = false }) }),
+    tuya.dp_energy(113, { emit = emit.energy(), scale = 100, read_only = true }),
+    tuya.dp_string(114, { name = "meter_number", read_only = true, emit = emit.zjsbl7MeterNumber(),
+      from_device = function(value) return value:match("^%s*(.-)%s*$") end,
+    }),
+    tuya.dp_binary(115, { name = "clear_device_data", write_only = true, command_id = 4 }),
+    tuya.dp_binary(116, { name = "trip", read_only = true, persist = true, emit = emit_rcbo_trip,
+      converter = converter.from_only(converter.lookup_value({ [true] = "trip", [false] = "clear" })),
+    }),
+    tuya.dp_binary(116, { name = "clear_trip", write_only = true, command_id = 4 }),
     tuya.dp_raw(118, {
       name = "voltage_rms",
+      read_only = true,
       converter = converter.raw_uint_be(10, { length = 2 }),
-      emit = emit.rcboVoltageRms(),
+      emit = emit.zjsbl7VoltageRms(),
     }),
     tuya.dp_raw(119, {
       name = "current_average",
+      read_only = true,
       converter = converter.raw_uint_be(1000, { start = 2, length = 2 }),
       emit = emit.rcboCurrentAverage(),
     }),
   },
 }
 
+for phase = 1, 3 do
+  local start = 3 * phase + 2
+  local read = converter.raw_uint_be(10, { start = start, length = 2 }).from
+  din_rail_model_ts0601_rcbo.datapoints[#din_rail_model_ts0601_rcbo.datapoints + 1] = tuya.dp_raw(103, {
+    name = "power_l" .. phase, component = "l" .. phase, read_only = true, emit = emit_power,
+    from_device = function(value)
+      if #value >= start + 1 then return read(value) end
+    end,
+  })
+end
+
+-- Name, emitter, width, conversion, writer fallback, SET min/max.
+-- Fallbacks only assemble SET packets; they are never initial reported states.
+for _, group in ipairs({
+  { 109, {
+    { "self_test_auto_days", emit.zjsbl7SelfTestAutoDays(), 1, 1, 0 },
+    { "self_test_auto_hours", emit.zjsbl7SelfTestAutoHours(), 1, 1, 0 },
+    { "self_test_auto", emit.zjsbl7SelfTestAuto(), 1, "flag", "off" },
+    { "over_leakage_current_threshold", emit.zjsbl7OverLeakageThreshold(), 2, 1, 30, 10, 100 },
+    { "over_leakage_current_trip", emit.zjsbl7OverLeakageTrip(), 1, "flag", "off", true },
+    { "over_leakage_current_alarm", emit.zjsbl7OverLeakageAlarm(), 1, "flag", "off", true },
+    { "self_test", emit.zjsbl7SelfTest(), 1, "test", "clear" },
+  } },
+  { 110, {
+    { "over_voltage_threshold", emit.zjsbl7OverVoltageThreshold(), 2, 10, 280, 200, 300 },
+    { "over_voltage_trip", emit.zjsbl7OverVoltageTrip(), 1, "flag", "off", true },
+    { "over_voltage_alarm", emit.zjsbl7OverVoltageAlarm(), 1, "flag", "off", true },
+    { "under_voltage_threshold", emit.zjsbl7UnderVoltageThreshold(), 2, 10, 150, 100, 215 },
+    { "under_voltage_trip", emit.zjsbl7UnderVoltageTrip(), 1, "flag", "off", true },
+    { "under_voltage_alarm", emit.zjsbl7UnderVoltageAlarm(), 1, "flag", "off", true },
+  } },
+  { 111, {
+    { "over_current_threshold", emit.zjsbl7OverCurrentThreshold(), 3, 1000, 63, 1, 100 },
+    { "over_current_trip", emit.zjsbl7OverCurrentTrip(), 1, "flag", "off", true },
+    { "over_current_alarm", emit.zjsbl7OverCurrentAlarm(), 1, "flag", "off", true },
+  } },
+  { 112, {
+    { "over_temperature_threshold", emit.zjsbl7OverTempThreshold(), 1, "signed", 80, 30, 100 },
+    { "over_temperature_trip", emit.zjsbl7OverTempTrip(), 1, "flag", "off", true },
+    { "over_temperature_alarm", emit.zjsbl7OverTempAlarm(), 1, "flag", "off", true },
+  } },
+}) do
+  local dp, fields, format = group[1], group[2], ">!1"
+  for _, field in ipairs(fields) do format = format .. "I" .. field[3] end
+  local offset = 1
+  for _, field in ipairs(fields) do
+    local mode, writable = field[4], field[6] ~= nil
+    local read = converter.raw_uint_be(type(mode) == "number" and mode or 1, { start = offset, length = field[3] }).from
+    din_rail_model_ts0601_rcbo.datapoints[#din_rail_model_ts0601_rcbo.datapoints + 1] = tuya.dp_raw(dp, {
+      name = field[1], emit = field[2], read_only = not writable,
+      persist = true, command_id = 4, suppress_optimistic_state = true,
+      from_device = function(value)
+        value = read(value)
+        if value == nil then return nil end
+        if mode == "flag" then return value ~= 0 and "on" or "off" end
+        if mode == "test" then return value ~= 0 and "test" or "clear" end
+        if mode == "signed" and value > 127 then return 128 - value end
+        return value
+      end,
+      to_device = writable and function(value, device)
+        if mode == "flag" then
+          if value ~= "on" and value ~= "off" then return nil end
+        elseif type(value) ~= "number" or value % 1 ~= 0 or value < field[6] or value > field[7] then
+          return nil
+        end
+        local values = {}
+        for index, sibling in ipairs(fields) do
+          local current = sibling == field and value or device:get_field(sibling[1])
+          if current == nil then current = sibling[5] end
+          if sibling[4] == "test" then current = 0
+          elseif sibling[4] == "flag" then current = current == "on" and 1 or 0
+          elseif sibling[4] == "signed" then current = current < 0 and 128 - current or current
+          else current = math.floor(current * sibling[4] + 0.5) end
+          values[index] = current
+        end
+        return string.pack(format, table.unpack(values))
+      end or nil,
+    })
+    offset = offset + field[3]
+  end
+end
+
 register_device_definition(din_rail_model_ts0601_rcbo, {
   device_helpers.create_fingerprint("_TZE200_hkdl5fmv", "TS0601"),
+  device_helpers.create_fingerprint("_TZE284_hkdl5fmv", "TS0601"),
   device_helpers.create_fingerprint("HOCH", "ZJSBL7-100Z"),
   device_helpers.create_fingerprint("WDYK", "ZJSBL7-100Z"),
 })
@@ -594,16 +696,343 @@ local din_rail_model_towsmr1 = {
   }),
 }
 
-register_device_definition(din_rail_model_towsmr1, device_helpers.create_fingerprints("TS0601", {
-  "_TZE204_kobbcyum",
-  "_TZE284_kobbcyum",
-  "_TZE284_hecsejsb",
-  "_TZE284_432zhuwe",
-  "_TZE204_432zhuwe",
-  "_TZE284_s5vuaadg",
+-- The pinned getDataValue uses signed32 for VALUE/BITMAP, not Uint32.
+-- Preserve Enum byte scalars; signed_number_pair alone would sign-extend Enum FF.
+local function towsmr_scalar(value, _, info)
+  if type(value) ~= "number" then return end
+  if info and (info.datatype == 2 or info.datatype == 5) and info.length == 4 then
+    return info.signed_value
+  end
+  return value
+end
+
+local function towsmr_numeric(dp, name, event, bounds, scale)
+  scale = scale or 1
+  return tuya.dp_numeric(dp, {
+    name = name,
+    emit = event,
+    read_only = bounds == false,
+    signed = dp == 118,
+    from_device = function(value, device, info)
+      local number = towsmr_scalar(value, device, info)
+      if number ~= nil then return number / scale end
+    end,
+    to_device = bounds ~= false and function(value)
+      if type(value) ~= "number" or value ~= value or value == math.huge or value == -math.huge then return end
+      if bounds and (value < bounds[1] or value > bounds[2]) then return end
+      -- Step is a primary expose/UI hint, not a converter grid restriction.
+      -- The existing VALUE serializer rounds once after this primary scale.
+      return value * scale
+    end or nil,
+  })
+end
+
+-- Official ST temperatureMeasurement bounds, not physical device limits.
+-- Decode remains signed32 /10; unsupported standard event values are not clamped.
+local towsmr_temperature = emit.temperature()
+local function towsmr_temperature_event(device, value)
+  if type(value) == "number" and value >= -460 and value <= 10000 then
+    return towsmr_temperature(device, value)
+  end
+end
+
+local towsmr_basic = require "st.zigbee.zcl.clusters".Basic
+local TOWSMR_NATIVE = "towsmr1:native_sw_build_id"
+local TOWSMR_APP = "towsmr1:app_version"
+local TOWSMR_FIRMWARE = "towsmr1:firmware_id"
+local TOWSMR_CUSTOM = "towsmr1:custom_firmware_id"
+local TOWSMR_PROBE = "towsmr1:native_probe"
+local TOWSMR_PERSIST = {persist = true}
+local TOWSMR_TRANSIENT = {persist = false}
+
+local function towsmr_has_native(device)
+  local value = device:get_field(TOWSMR_NATIVE)
+  return type(value) == "string" and value ~= ""
+end
+
+local function towsmr_version(value)
+  return string.format("%d.%d.%d", value >> 6, (value & 0x30) >> 4, value & 0x0F)
+end
+
+local function towsmr_save_firmware(device, value, custom)
+  device:set_field(TOWSMR_FIRMWARE, value, TOWSMR_PERSIST)
+  device:set_field(TOWSMR_CUSTOM, custom, TOWSMR_PERSIST)
+end
+
+local function towsmr_finish_probe(device, pending)
+  if device:get_field(TOWSMR_PROBE) ~= pending then return end
+  device:set_field(TOWSMR_PROBE, nil, TOWSMR_TRANSIENT)
+  if pending.timer then device.thread:cancel_timer(pending.timer) end
+  if not towsmr_has_native(device) then
+    -- ZHC seq=0x0002 uses herdsman UINT16 (LE), not the shared BE helper.
+    return tuya.send_raw(device, 0x10, "\x02\x00")
+  end
+end
+
+local function towsmr_configure(_, device)
+  local previous = device:get_field(TOWSMR_PROBE)
+  if previous then
+    device:set_field(TOWSMR_PROBE, nil, TOWSMR_TRANSIENT)
+    if previous.timer then device.thread:cancel_timer(previous.timer) end
+  end
+  -- Preserve the primary request order; Basic4000 is the explicit Edge
+  -- replacement for the herdsman interview cache, after magic/dataQuery.
+  tuya.send_magic_packet(device)
+  tuya.send_state_request(device)
+  if towsmr_has_native(device) then return end
+  local pending = {}
+  device:set_field(TOWSMR_PROBE, pending, TOWSMR_TRANSIENT)
+  pending.timer = device.thread:call_with_delay(10, function()
+    -- Timer may already be queued when a newer configure cancels it.
+    if device:get_field(TOWSMR_PROBE) == pending then
+      pending.timer = nil
+      towsmr_finish_probe(device, pending)
+    end
+  end, "TOWSMR1 native firmware read timeout")
+  local sent = pcall(device.send, device, towsmr_basic.attributes.SWBuildID:read(device))
+  if not sent then towsmr_finish_probe(device, pending) end
+end
+
+local function towsmr_zigbee_message(device, rx)
+  local address, message = rx.address_header, rx.body
+  local header = message and message.zcl_header
+  if not address or not header or address.src_endpoint.value ~= 1 then return end
+  if header.frame_ctrl:is_mfg_specific_set() or not header.frame_ctrl:is_direction_set() then return end
+  local cluster, command, body = address.cluster.value, header.cmd.value, message.zcl_body
+  if cluster == 0 and not header.frame_ctrl:is_cluster_specific_set() then
+    local pending = device:get_field(TOWSMR_PROBE)
+    if (command == 1 or command == 10) and type(body.attr_records) == "table" then
+      local native_record = false
+      for _, record in ipairs(body.attr_records) do
+        local id = record.attr_id.value
+        local success = not record.status or record.status.value == 0
+        local kind = record.data_type and record.data_type.value
+        local value = record.data and record.data.value
+        if id == 1 and success and kind == 0x20 and type(value) == "number" then
+          device:set_field(TOWSMR_APP, value, TOWSMR_PERSIST)
+        elseif id == 0x4000 then
+          native_record = true
+          if success and kind == 0x42 and type(value) == "string" and value ~= "" then
+            device:set_field(TOWSMR_NATIVE, value, TOWSMR_PERSIST)
+            towsmr_save_firmware(device, value, false)
+          end
+        end
+      end
+      -- An unrelated Basic record must not complete this read. An empty read
+      -- response is a missing result; an actual native report is authoritative.
+      if pending and ((command == 1 and (native_record or #body.attr_records == 0))
+          or (native_record and towsmr_has_native(device))) then
+        towsmr_finish_probe(device, pending)
+      end
+    elseif command == 0x0B and pending and body.cmd and body.cmd.value == 0
+        and body.status and body.status.value ~= 0 then
+      towsmr_finish_probe(device, pending)
+    end
+  elseif cluster == 0xEF00 and header.frame_ctrl:is_cluster_specific_set() and command == 0x11 then
+    local payload = body.body_bytes
+    if type(payload) ~= "string" or #payload ~= 3 or towsmr_has_native(device) then return end
+    local app, mcu = device:get_field(TOWSMR_APP), payload:byte(3)
+    if type(app) == "number" and app ~= 0 and mcu ~= 0 then
+      towsmr_save_firmware(device,
+        "Zigbee module: " .. towsmr_version(app) .. ", MCU module: " .. towsmr_version(mcu), true)
+    end
+  end
+end
+
+-- Fixed user-selected UTC offset; no host timezone or automatic DST inference.
+local function towsmr_send_time(device, mode, hours)
+  local utc = os.time()
+  if mode == "1970" then return tuya.send_time(device, utc, utc + hours * 3600) end
+  if mode == "2000" then return tuya.send_time_with_offset(device, 946684800, utc, utc + hours * 3600) end
+  return false
+end
+
+local TOWSMR_ALARM = converter.lookup_from_to({ignore = 0, alarm = 1, trip = 2})
+local TOWSMR_BINARY = converter.lookup_from_to({off = false, on = true})
+local TOWSMR_EVENT = converter.from_only(converter.lookup_value(BREAKER_EVENT_LOOKUP))
+
+local function towsmr_family(profile, route_prefix, events, current_max, leakage)
+  local function route(name) return route_prefix .. "_" .. name end
+  local time_start_field, time_zone_field = route("time_start"), route("time_zone")
+  local function alarm(dp, name)
+    return tuya.dp_enum(dp, {name = route(name), converter = TOWSMR_ALARM, emit = events[name]})
+  end
+  local function binary(dp, name)
+    return tuya.dp_on_off(dp, {name = route(name), converter = TOWSMR_BINARY, emit = events[name]})
+  end
+  return {
+    profile = profile,
+    package_group = "energy",
+    -- The app's single existing polling path resolves persisted override first.
+    default_power_poll_interval_seconds = 10,
+    configure = towsmr_configure,
+    magic_packet = false,
+    query_on_configure = false, -- owned by configure, exactly once
+    mcu_version_request_on_configure = false,
+    query_on_announce = false,
+    refresh_state_query = true,
+    time_start = "off",
+    time_handler = function(device)
+      return towsmr_send_time(device, device:get_field(time_start_field) or "off", device:get_field(time_zone_field) or 0)
+    end,
+    protocol_writers = {
+      [route("time_start")] = function(device, mode)
+        if mode ~= "off" and mode ~= "1970" and mode ~= "2000" then return false end
+        if mode ~= "off" and not towsmr_send_time(device, mode, device:get_field(time_zone_field) or 0) then return false end
+        device:set_field(time_start_field, mode, TOWSMR_PERSIST)
+        return true
+      end,
+      [route("time_zone")] = function(device, hours)
+        if type(hours) ~= "number" or hours ~= hours or hours < -12 or hours > 14 or hours * 4 ~= math.floor(hours * 4) then return false end
+        local mode = device:get_field(time_start_field) or "off"
+        if mode ~= "off" and not towsmr_send_time(device, mode, hours) then return false end
+        device:set_field(time_zone_field, hours, TOWSMR_PERSIST)
+        return true
+      end,
+    },
+    -- Restore/display local time configuration only; no polling/timer/time TX.
+    runtime_start = function(device)
+      device:emit_component_event({id = "main"}, events.time_start(device, device:get_field(time_start_field) or "off"))
+      device:emit_component_event({id = "main"}, events.time_zone(device, device:get_field(time_zone_field) or 0))
+    end,
+    force_time_updates = false,
+    respond_to_mcu_version_response = false,
+    zigbee_message_handler = towsmr_zigbee_message,
+    -- Retain all 23 primary DP routes. Hidden conditional routes have no
+    -- custom ID/UI; their presence is not a hardware-support certification.
+    towsmr_numeric(1, "energy", emit.energy(), false, 100),
+    tuya.dp_phase_variant2(6, {read_only = true, emit = emit_metric_bundle({voltage = true, current = true, power = true})}),
+    towsmr_numeric(15, route("leakage_current"), events.leakage_current, false),
+    tuya.dp_on_off(16, {name = "switch", emit = emit.switch()}),
+    alarm(102, "over_voltage_setting"),
+    alarm(103, "under_voltage_setting"),
+    alarm(104, "over_current_setting"),
+    alarm(105, "over_power_setting"),
+    alarm(107, "temperature_setting"),
+    alarm(108, "leakage_setting"),
+    tuya.dp_enum(110, {name = route("event"), read_only = true, converter = TOWSMR_EVENT, emit = events.event}),
+    binary(112, "auto_reclosing"),
+    binary(113, "restore_default"),
+    towsmr_numeric(114, route("over_current_threshold"), events.over_current_threshold, current_max and {1, current_max} or nil),
+    towsmr_numeric(115, route("over_voltage_threshold"), events.over_voltage_threshold, {240, 295}),
+    towsmr_numeric(116, route("under_voltage_threshold"), events.under_voltage_threshold, {145, 220}),
+    towsmr_numeric(117, route("leakage_threshold"), events.leakage_threshold, leakage and {30, 100} or nil),
+    towsmr_numeric(118, route("temperature_threshold"), events.temperature_threshold, {-25, 100}, 10),
+    towsmr_numeric(119, route("over_power_threshold"), events.over_power_threshold, {5, 25000}),
+    towsmr_numeric(131, "temperature", towsmr_temperature_event, false, 10),
+    binary(143, "overcurrent_recloser"),
+    binary(144, "leakage_recloser"),
+    binary(145, "overpower_recloser"),
+  }
+end
+
+-- Four literal event tables are assembled here; IDs are not built dynamically
+-- in runtime callbacks. The four tables below use existing generated emitter factories.
+local din_rail_model_towsmr1_20ac = towsmr_family("energy-towsmr1-20ac", "towsmr20ac", {
+  leakage_current = emit.towsmr20AcLeakageCurrent(),
+  event = emit.towsmr20AcEvent(),
+  time_start = emit.towsmr20AcTimeStart(),
+  time_zone = emit.towsmr20AcTimeZone(),
+  over_voltage_setting = emit.towsmr20AcOverVoltageSetting(),
+  over_voltage_threshold = emit.towsmr20AcOverVoltageThreshold(),
+  under_voltage_setting = emit.towsmr20AcUnderVoltageSetting(),
+  under_voltage_threshold = emit.towsmr20AcUnderVoltageThreshold(),
+  over_current_setting = emit.towsmr20AcOverCurrentSetting(),
+  over_current_threshold = emit.towsmr20AcOverCurrentThreshold(),
+  over_power_setting = emit.towsmr20AcOverPowerSetting(),
+  over_power_threshold = emit.towsmr20AcOverPowerThreshold(),
+  temperature_setting = emit.towsmr20AcTemperatureSetting(),
+  temperature_threshold = emit.towsmr20AcTemperatureThreshold(),
+  leakage_setting = emit.towsmr20AcLeakageSetting(),
+  leakage_threshold = emit.towsmr20AcLeakageThreshold(),
+  auto_reclosing = emit.towsmr20AcAutoReclosing(),
+  restore_default = emit.towsmr20AcRestoreDefault(),
+  overcurrent_recloser = emit.towsmr20AcOvercurrentRecloser(),
+  leakage_recloser = emit.towsmr20AcLeakageRecloser(),
+  overpower_recloser = emit.towsmr20AcOverpowerRecloser(),
+}, 20, true)
+register_device_definition(din_rail_model_towsmr1_20ac, device_helpers.create_fingerprints("TS0601", {
   "_TZE284_tuhfx7tf",
   "_TZE204_tuhfx7tf",
 }))
+
+local din_rail_model_towsmr1_40ac = towsmr_family("energy-towsmr1-40ac", "towsmr40ac", {
+  leakage_current = emit.towsmr40AcLeakageCurrent(),
+  event = emit.towsmr40AcEvent(),
+  time_start = emit.towsmr40AcTimeStart(),
+  time_zone = emit.towsmr40AcTimeZone(),
+  over_voltage_setting = emit.towsmr40AcOverVoltageSetting(),
+  over_voltage_threshold = emit.towsmr40AcOverVoltageThreshold(),
+  under_voltage_setting = emit.towsmr40AcUnderVoltageSetting(),
+  under_voltage_threshold = emit.towsmr40AcUnderVoltageThreshold(),
+  over_current_setting = emit.towsmr40AcOverCurrentSetting(),
+  over_current_threshold = emit.towsmr40AcOverCurrentThreshold(),
+  over_power_setting = emit.towsmr40AcOverPowerSetting(),
+  over_power_threshold = emit.towsmr40AcOverPowerThreshold(),
+  temperature_setting = emit.towsmr40AcTemperatureSetting(),
+  temperature_threshold = emit.towsmr40AcTemperatureThreshold(),
+  leakage_setting = emit.towsmr40AcLeakageSetting(),
+  leakage_threshold = emit.towsmr40AcLeakageThreshold(),
+  auto_reclosing = emit.towsmr40AcAutoReclosing(),
+  restore_default = emit.towsmr40AcRestoreDefault(),
+  overcurrent_recloser = emit.towsmr40AcOvercurrentRecloser(),
+  leakage_recloser = emit.towsmr40AcLeakageRecloser(),
+  overpower_recloser = emit.towsmr40AcOverpowerRecloser(),
+}, 40, true)
+register_device_definition(din_rail_model_towsmr1_40ac, device_helpers.create_fingerprints("TS0601", {
+  "_TZE204_kobbcyum",
+  "_TZE284_432zhuwe",
+  "_TZE204_432zhuwe",
+}))
+
+local din_rail_model_towsmr1_40a = towsmr_family("energy-towsmr1-40a", "towsmr40a", {
+  event = emit.towsmr40AEvent(),
+  time_start = emit.towsmr40ATimeStart(),
+  time_zone = emit.towsmr40ATimeZone(),
+  over_voltage_setting = emit.towsmr40AOverVoltageSetting(),
+  over_voltage_threshold = emit.towsmr40AOverVoltageThreshold(),
+  under_voltage_setting = emit.towsmr40AUnderVoltageSetting(),
+  under_voltage_threshold = emit.towsmr40AUnderVoltageThreshold(),
+  over_current_setting = emit.towsmr40AOverCurrentSetting(),
+  over_current_threshold = emit.towsmr40AOverCurrentThreshold(),
+  over_power_setting = emit.towsmr40AOverPowerSetting(),
+  over_power_threshold = emit.towsmr40AOverPowerThreshold(),
+  temperature_setting = emit.towsmr40ATemperatureSetting(),
+  temperature_threshold = emit.towsmr40ATemperatureThreshold(),
+  auto_reclosing = emit.towsmr40AAutoReclosing(),
+  restore_default = emit.towsmr40ARestoreDefault(),
+  overcurrent_recloser = emit.towsmr40AOvercurrentRecloser(),
+  leakage_recloser = emit.towsmr40ALeakageRecloser(),
+  overpower_recloser = emit.towsmr40AOverpowerRecloser(),
+}, 40, false)
+register_device_definition(din_rail_model_towsmr1_40a, device_helpers.create_fingerprints("TS0601", {
+  "_TZE284_s5vuaadg",
+}))
+
+local din_rail_model_towsmr1_base = towsmr_family("energy-towsmr1-base", "towsmr1base", {
+  event = emit.towsmr1BaseEvent(),
+  time_start = emit.towsmr1BaseTimeStart(),
+  time_zone = emit.towsmr1BaseTimeZone(),
+  over_voltage_setting = emit.towsmr1BaseOverVoltageSetting(),
+  over_voltage_threshold = emit.towsmr1BaseOverVoltageThreshold(),
+  under_voltage_setting = emit.towsmr1BaseUnderVoltageSetting(),
+  under_voltage_threshold = emit.towsmr1BaseUnderVoltageThreshold(),
+  over_power_setting = emit.towsmr1BaseOverPowerSetting(),
+  over_power_threshold = emit.towsmr1BaseOverPowerThreshold(),
+  temperature_setting = emit.towsmr1BaseTemperatureSetting(),
+  temperature_threshold = emit.towsmr1BaseTemperatureThreshold(),
+  auto_reclosing = emit.towsmr1BaseAutoReclosing(),
+  restore_default = emit.towsmr1BaseRestoreDefault(),
+  overcurrent_recloser = emit.towsmr1BaseOvercurrentRecloser(),
+  leakage_recloser = emit.towsmr1BaseLeakageRecloser(),
+  overpower_recloser = emit.towsmr1BaseOverpowerRecloser(),
+}, nil, false)
+register_device_definition(din_rail_model_towsmr1_base, device_helpers.create_fingerprints("TS0601", {
+  "_TZE284_kobbcyum",
+  "_TZE284_hecsejsb",
+}))
+
+
 
 register_device_definition(din_rail_model_towsmr1, {
   device_helpers.create_fingerprint("Tongou", "TOWSMR1-40A-AC"),

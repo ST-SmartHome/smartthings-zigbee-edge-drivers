@@ -2,6 +2,6 @@ local e=require"protocol.zcl"
 local c=require"contracts.helpers.family"
 local d=require"contracts.helpers.zcl_sensor_definitions"
 local a,b=c.definition_registry()b(d.water_battery_low_battery_sensor,{
-c.create_fingerprint("eWeLink","CK-TLSR8656-Z23SE11HW-01(7019)"),})e.attach_reporting_capabilities(a,{
-{1,"rpt-tml"},})return{
-id="zcl.sensors.z2m_absorption_water",registrations=a,}
+c.create_fingerprint("eWeLink","CK-TLSR8656-Z23SE11HW-01(7019)")})e.attach_reporting_capabilities(a,{
+{1,"rpt-tml"}})return{
+id="zcl.sensors.z2m_absorption_water",registrations=a}

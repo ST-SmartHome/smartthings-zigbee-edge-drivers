@@ -141,7 +141,7 @@ register_device_definition(shelly_presence, {
 
 -- ZCL REPORTING CAPABILITIES BEGIN
 zcl.attach_reporting_capabilities(device_definitions, {
-  {1, "rpt-plx", {["zr040600001"] = "Occupancy", ["zr0406000010"] = "OccupancyTen", ["zr040600002"] = "OccupancyTwo", ["zr040600003"] = "OccupancyThree", ["zr040600004"] = "OccupancyFour", ["zr040600005"] = "OccupancyFive", ["zr040600006"] = "OccupancySix", ["zr040600007"] = "OccupancySeven", ["zr040600008"] = "OccupancyEight", ["zr040600009"] = "OccupancyNine"}},
+  {1, "rpt-plx", {zr040600001 = "Occupancy", zr0406000010 = "OccupancyTen", zr040600002 = "OccupancyTwo", zr040600003 = "OccupancyThree", zr040600004 = "OccupancyFour", zr040600005 = "OccupancyFive", zr040600006 = "OccupancySix", zr040600007 = "OccupancySeven", zr040600008 = "OccupancyEight", zr040600009 = "OccupancyNine"}},
 })
 -- ZCL REPORTING CAPABILITIES END
 

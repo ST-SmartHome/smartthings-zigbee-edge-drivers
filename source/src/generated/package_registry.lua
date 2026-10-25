@@ -309,4 +309,22 @@ for _, entry in ipairs(package_51) do
   entries[#entries + 1] = entry
 end
 
+local package_52 = require "generated.packages.ef00_switch_panel_2_wonjj6768"
+assert(type(package_52) == "table", "Canonical package bootstrap must return a table: generated.packages.ef00_switch_panel_2_wonjj6768")
+for _, entry in ipairs(package_52) do
+  entries[#entries + 1] = entry
+end
+
+local package_53 = require "generated.packages.zcl_switch_3_wonjj6768"
+assert(type(package_53) == "table", "Canonical package bootstrap must return a table: generated.packages.zcl_switch_3_wonjj6768")
+for _, entry in ipairs(package_53) do
+  entries[#entries + 1] = entry
+end
+
+local package_54 = require "generated.packages.zcl_sensors_4_wonjj6768"
+assert(type(package_54) == "table", "Canonical package bootstrap must return a table: generated.packages.zcl_sensors_4_wonjj6768")
+for _, entry in ipairs(package_54) do
+  entries[#entries + 1] = entry
+end
+
 return entries

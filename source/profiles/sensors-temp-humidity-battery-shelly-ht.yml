@@ -1,0 +1,65 @@
+name: sensors-temp-humidity-battery-shelly-ht
+components:
+- id: main
+  capabilities:
+  - id: temperatureMeasurement
+    version: 1
+  - id: relativeHumidityMeasurement
+    version: 1
+  - id: battery
+    version: 1
+  - id: refresh
+    version: 1
+  - {id: signalStrength, version: 1}
+  - id: concertmirror08464.shellyHtIdentify
+    version: 1
+  categories:
+  - name: TempHumiditySensor
+preferences:
+  - preferenceId: tempOffset
+    explicit: true
+  - preferenceId: humidityOffset
+    explicit: true
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: temperatureMeasurement
+      group: main
+      values:
+      - label: '{{temperature.value}}{{temperature.unit}}'
+      composite: true
+    - component: main
+      capability: relativeHumidityMeasurement
+      group: main
+      values:
+      - label: ' {{humidity.value}}{{humidity.unit}}'
+      composite: true
+    actions: []
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: temperatureMeasurement
+  - component: main
+    capability: relativeHumidityMeasurement
+  - component: main
+    capability: battery
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
+  - component: main
+    capability: concertmirror08464.shellyHtIdentify
+  automation:
+    conditions:
+    - component: main
+      capability: temperatureMeasurement
+    - component: main
+      capability: relativeHumidityMeasurement
+    - component: main
+      capability: battery
+    - component: main
+      capability: signalStrength
+    actions:
+    - component: main
+      capability: concertmirror08464.shellyHtIdentify

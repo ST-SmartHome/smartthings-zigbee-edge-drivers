@@ -1,0 +1,16 @@
+name: covers-somfy-lift-battery
+components:
+  - id: main
+    capabilities:
+      - id: windowShade
+        version: 1
+      - id: windowShadeLevel
+        version: 1
+      - id: battery
+        version: 1
+      - id: refresh
+        version: 1
+      - id: signalStrength
+        version: 1
+    categories:
+      - name: Blind

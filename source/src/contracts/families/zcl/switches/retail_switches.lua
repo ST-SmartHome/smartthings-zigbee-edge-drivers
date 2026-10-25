@@ -7,12 +7,9 @@ local data_types = require "st.zigbee.data_types"
 local capabilities = require "st.capabilities"
 local device_management = require "st.zigbee.device_management"
 local cluster_base = require "st.zigbee.cluster_base"
+local generic_body = require "st.zigbee.generic_body"
 
 local device_definitions, register = device_helpers.definition_registry()
-
-local function register_aliases(definition, aliases)
-  register(definition, aliases)
-end
 
 local function create_model_fingerprints(manufacturer, models)
   local fingerprints = {}
@@ -48,27 +45,37 @@ end
 
 local switch_1 = switch_definition("switches-switch-1", { 1 })
 local switch_2 = switch_definition("switches-switch-2", { 1, 2 })
-local switch_3 = switch_definition("switches-switch-3", { 1, 2, 3 })
-local heiman_switch_3 = switch_definition("switches-switch-3-device-temperature", { 1, 2, 3 })
-zcl_device_helpers.append_clusters(heiman_switch_3.zcl_clusters,
-  zcl.cluster_attribute(0x0002, 0x0000, {
-    name = "device_temperature",
-    endpoint = 1,
-    emit = emit.temperature("C"),
-    data_type = data_types.Int16,
-    read_on_configure = true,
-  })
-)
-local heiman_switch_3_on_off_configure = heiman_switch_3.configure
-heiman_switch_3.configure = function(driver, device)
-  heiman_switch_3_on_off_configure(driver, device)
-  device:send(device_management.build_bind_request(
-    device,
-    0x0002,
-    driver.environment_info.hub_zigbee_eui,
-    1
-  ))
+local heiman_switch_report = {minimum_interval=0,maximum_interval=3600}
+local heiman_temperature_report = {minimum_interval=300,maximum_interval=3600,reportable_change=1}
+local function heiman_switch(profile, count)
+  local clusters = {}
+  for endpoint = 1, count do
+    clusters[#clusters+1] = zcl.switch({endpoint=endpoint,component=endpoint==1 and "main" or "switch"..endpoint,
+      configure_reporting=false,read_on_configure=false,suppress_optimistic_state=true,data_type=data_types.Boolean,
+      reporting_defaults=count==1 and heiman_switch_report or nil})
+  end
+  clusters[#clusters+1] = zcl.cluster_attribute(2,0,{name="device_temperature",endpoint=1,component="main",
+    data_type=data_types.Int16,read_only=true,read_on_configure=false,emit=emit.temperature("C"),
+    reporting_defaults=heiman_temperature_report})
+  return {profile=profile,zcl_clusters=clusters,
+    configure=function(driver,device)
+      local hub=driver.environment_info.hub_zigbee_eui
+      for endpoint=1,count do zcl.bind_cluster(device,6,hub,endpoint) end
+      zcl.bind_cluster(device,2,hub,1)
+      for _,mapping in ipairs(clusters) do
+        local defaults=mapping.reporting_defaults
+        if defaults then zcl.configure_reporting(device,{
+          cluster=mapping.cluster_id,attribute=mapping.attribute_id,data_type=mapping.data_type,
+          minimum_interval=defaults.minimum_interval,maximum_interval=defaults.maximum_interval,
+          reportable_change=defaults.reportable_change},mapping.endpoint,{defer_on_override=true}) end
+      end
+    end,
+  }
 end
+local heiman_switch_1 = heiman_switch("switches-heiman-one",1)
+local heiman_switch_2 = heiman_switch("switches-heiman-two",2)
+local heiman_switch_3 = heiman_switch("switches-switch-3-device-temperature",3)
+
 local switch_1_ep10 = switch_definition("switches-switch-1", { 10 })
 local switch_2_ep10 = switch_definition("switches-switch-2", { 10, 11 })
 local switch_3_ep10 = switch_definition("switches-switch-3", { 10, 11, 12 })
@@ -88,20 +95,6 @@ local battery_switch = {
     zcl.switch(),
     zcl.battery(),
   },
-}
-local single_power_switch = {
-  profile = "switches-switch-1-power-options",
-  zcl_clusters = zcl_device_helpers.metering_clusters({
-    include_switch = true,
-    include_current = true,
-  }),
-}
-local dual_power_switch = {
-  profile = "switches-switch-2-power-options",
-  zcl_clusters = zcl_device_helpers.metering_clusters({
-    include_switch = true,
-    include_current = true,
-  }),
 }
 local dual_metered_switch_ep3 = switch_definition("switches-switch-2-power-options", { 1, 2 })
 for _, cluster in ipairs(zcl_device_helpers.metering_clusters({
@@ -320,46 +313,48 @@ local zunzunbee_sswz8t = {
   },
 }
 
-register_aliases(plug_1, {
+register(plug_1, {
   fp("Third Reality", "3RSP0186Z"),
   fp("Third Reality", "3RSPJ0187Z"),
   fp("Third Reality", "3RSPE02065Z"),
   fp("Third Reality", "3RSPU01080Z"),
 })
 
-register_aliases(plug_2, {
+register(plug_2, {
   fp("Third Reality", "3RWP01073Z"),
 })
 
-register_aliases(battery_switch, {
+register(battery_switch, {
   fp("Third Reality, Inc", "3RSS009Z"),
   fp("Third Reality, Inc", "3RSS008Z"),
 })
 
-register_aliases(switch_1, {
+register(switch_1, {
   fp("Third Reality, Inc", "3RSS007Z"),
 })
 
-register_aliases(sonoff_zbmini_r2, {
+register(sonoff_zbmini_r2, {
   fp("SONOFF", "MINI-ZBD"),
   fp("SONOFF", "ZBMINIR2"),
 })
 
-register_aliases(dual_metered_switch_ep3, {
+register(dual_metered_switch_ep3, {
   fp("Candeo", "C-ZB-SM30-2G"),
 })
 
-register_aliases(switch_1, {
+register(switch_1, {
   fp("Candeo", "C205"),
   fp("IKEA", "E2006"),
 })
 
-register_aliases(switch_1, {
+register(heiman_switch_1, {
   fp("HEIMAN", "HS2SW1A-EF-3.0"),
   fp("HEIMAN", "HS2SW1A-EFR-3.0"),
+  fp("HEIMAN", "HS2SW1L-EFR-3.0"),
+  fp("HEIMAN", "HS6SW1A-W-EF-3.0"),
 })
 
-register_aliases(switch_1, {
+register(switch_1, {
   fp("KlikAanKlikUit", "Built-in Switch"),
   fp("Oz Smart Things", "WSP403"),
   fp("Sibling", "Powerswitch-ZK(W)"),
@@ -384,7 +379,7 @@ register_aliases(switch_1, {
   fp("Sunricher", "SR-ZG9100A-S"),
 })
 
-register_aliases(switch_1, {
+register(switch_1, {
   fp("Schneider Electric", "1GANG/SWITCH/1"),
   fp("Schneider Electric", "CH10AX/SWITCH/1"),
   fp("Schneider Electric", "CH2AX/SWITCH/1"),
@@ -393,53 +388,57 @@ register_aliases(switch_1, {
   fp("Schneider Electric", "U201SRY2KWZB"),
 })
 
-register_aliases(switch_1, {
+register(switch_1, {
   fp("TERNCY", "TERNCY-LS01"),
 })
 
-register_aliases(switch_1_ep10, {
+register(switch_1_ep10, {
   fp("Schneider Electric", "A3N31SR800ZB_xx_C1"),
   fp("Schneider Electric", "E8331SRY800ZB"),
 })
 
-register_aliases(switch_2_ep10, {
+register(switch_2_ep10, {
   fp("Schneider Electric", "A3N32SR800ZB_xx_C1"),
   fp("Schneider Electric", "E8332SRY800ZB"),
 })
 
-register_aliases(switch_3_ep10, {
+register(switch_3_ep10, {
   fp("Schneider Electric", "A3N33SR800ZB_xx_C1"),
   fp("Schneider Electric", "E8333SRY800ZB"),
 })
 
-register_aliases(switch_1, create_model_fingerprints("Sunricher", {
+register(switch_1, create_model_fingerprints("Sunricher", {
   "ON/OFF",
   "ZIGBEE-SWITCH",
   "Micro Smart OnOff",
   "HK-SL-RELAY-A",
 }))
 
-register_aliases(switch_2, {
+register(switch_2, {
   fp("Candeo", "C-ZB-SM205-2G"),
 })
 
-register_aliases(switch_2, {
+register(heiman_switch_2, {
   fp("HEIMAN", "HS2SW2A-EF-3.0"),
   fp("HEIMAN", "HS2SW2A-EFR-3.0"),
+  fp("HEIMAN", "HS2SW2L-EFR-3.0"),
+  fp("HEIMAN", "HS6SW2A-W-EF-3.0"),
 })
 
-register_aliases(switch_2, {
+register(switch_2, {
   fp("LED-Trading", "UP-SA-9127D"),
   fp("Sunricher", "ON/OFF(2CH)"),
   fp("Sunricher", "SR-ZG9101SAC-HP-SWITCH-2CH"),
 })
 
-register_aliases(heiman_switch_3, {
+register(heiman_switch_3, {
   fp("HEIMAN", "HS2SW3A-EF-3.0"),
   fp("HEIMAN", "HS2SW3A-EFR-3.0"),
+  fp("HEIMAN", "HS2SW3L-EFR-3.0"),
+  fp("HEIMAN", "HS6SW3A-W-EF-3.0"),
 })
 
-register_aliases(switch_4, {
+register(switch_4, {
   fp("Nova Digital", "TPZ-4"),
   fp("Tuya", "DS-111"),
   fp("MHCOZY", "TYWB 4ch-RF"),
@@ -466,37 +465,37 @@ register_aliases(switch_4, {
   fp("LELLKI", "WP33-EU"),
 })
 
-register_aliases(switch_5_ep5, {
+register(switch_5_ep5, {
   fp("Sunricher", "SR-ZG9023A-EU"),
 })
 
-register_aliases(zunzunbee_sswz8t, {
+register(zunzunbee_sswz8t, {
   fp("zunzunbee", "SSWZ8T"),
 })
 
 -- ZCL REPORTING CAPABILITIES BEGIN
 zcl.attach_reporting_capabilities(device_definitions, {
   {1, "rpt-zvs"},
-  {2, "rpt-zef", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {2, "rpt-zef", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
   {3, "rpt-zej"},
   {4, "rpt-sit"},
   {5, "rpt-mcf"},
-  {6, "rpt-cba", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {6, "rpt-cba", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
   {7, "rpt-sit"},
-  {8, "rpt-sit"},
+  {8, "rpt-hzd"},
   {9, "rpt-sit"},
   {10, "rpt-sit"},
   {11, "rpt-sit"},
   {12, "rpt-sit"},
-  {13, "rpt-lpm", {["zr0006000010"] = "Switch", ["zr0006000011"] = "SwitchTwo"}},
-  {14, "rpt-lek", {["zr0006000010"] = "Switch", ["zr0006000011"] = "SwitchTwo", ["zr0006000012"] = "SwitchThree"}},
+  {13, "rpt-lpm", {zr0006000010 = "Switch", zr0006000011 = "SwitchTwo"}},
+  {14, "rpt-lek", {zr0006000010 = "Switch", zr0006000011 = "SwitchTwo", zr0006000012 = "SwitchThree"}},
   {15, "rpt-sit"},
-  {16, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {17, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {18, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {19, "rpt-hns", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
-  {20, "rpt-tmr", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
-  {21, "rpt-swt", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive"}},
+  {16, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {17, "rpt-hjl"},
+  {18, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {19, "rpt-hns"},
+  {20, "rpt-tmr", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour"}},
+  {21, "rpt-swt", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour", zr000600005 = "SwitchFive"}},
   {22, "rpt-sfh"},
 })
 -- ZCL REPORTING CAPABILITIES END

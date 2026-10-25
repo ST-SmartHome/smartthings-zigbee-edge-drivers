@@ -1,79 +1,105 @@
-local o=require"protocol.zcl"
-local c={}
-local function a(b,i)
-if i~=nil then
-b[#b+1]=i
+local q=require"protocol.zcl"
+local a={}
+function a.duplicate_transaction(m,d,r,D)
+if r==nil then return false end
+local G=require"cosock.socket".gettime()*1000
+local n=m:get_field(D)or{}local g,C,expiry={},nil,math.huge
+for _,h in ipairs(n[d]or{})do
+if h[1]==r and h[2]>G then return true end
+if h[2]>G then
+g[#g+1]=h
+if h[2]<expiry then C,expiry=#g,h[2]end
 end
 end
-function c.append_clusters(b,...)
-for y=1,select("#",...)do
-local r=select(y,...)if type(r)=="table"and r[1]~=nil then
-for _,i in ipairs(r)do
-a(b,i)
+if #g>4 then table.remove(g,C)end
+g[#g+1],n[d]={r,G+10000},g
+m:set_field(D,n,{persist=false})return false
+end
+function a.passive(l)
+l.minimum_interval=nil
+l.maximum_interval=nil
+l.reportable_change=nil
+l.read_on_configure=false
+return l
+end
+function a.identify(m,i)
+if type(i)~="number"or i%1~=0 or i<1 or i>30 then return false end
+return q.send_raw_cluster_command(m,3,0,string.pack("<I2",i),m:get_endpoint(3))
+end
+local function b(c,o)
+if o~=nil then
+c[#c+1]=o
+end
+end
+function a.append_clusters(c,...)
+for H=1,select("#",...)do
+local h=select(H,...)if type(h)=="table"and h[1]~=nil then
+for _,o in ipairs(h)do
+b(c,o)
 end
 else
-a(b,r)
+b(c,h)
 end
 end
-return b
+return c
 end
-function c.metering_clusters(d)
-d=d or{}local e=d.endpoint
-local p=d.include_switch~=false
-local l=d.include_current==true
-local w=d.power_poll or 300
-local u=d.voltage_poll or 300
-local s=d.current_poll or 300
-local v=d.energy_poll or 900
-local t=d.energy_scale or 100
-local b={}if p then
-a(b,o.switch({
-endpoint=e,component=d.switch_component,}))
+function a.metering_clusters(e)
+e=e or{}local d=e.endpoint
+local v=e.include_switch~=false
+local t=e.include_current==true
+local B=e.power_poll or 300
+local z=e.voltage_poll or 300
+local x=e.current_poll or 300
+local A=e.energy_poll or 900
+local y=e.energy_scale or 100
+local c={}if v then
+b(c,q.switch{
+endpoint=d,component=e.switch_component})
 end
-a(b,o.power({
-endpoint=e,poll_interval=w,}))a(b,o.voltage({
-endpoint=e,poll_interval=u,}))if l then
-a(b,o.current({
-endpoint=e,poll_interval=s,}))
+b(c,q.power{
+endpoint=d,poll_interval=B})b(c,q.voltage{
+endpoint=d,poll_interval=z})if t then
+b(c,q.current{
+endpoint=d,poll_interval=x})
 end
-a(b,o.energy({
-endpoint=e,scale=t,ignore_reported_scaler=d.energy_ignore_reported_scaler,poll_interval=v,}))return b
+b(c,q.energy{
+endpoint=d,scale=y,ignore_reported_scaler=e.energy_ignore_reported_scaler,poll_interval=A})return c
 end
-function c.switch_cluster(e,q)
-if e==nil and q==nil then
-return o.switch()
+function a.switch_cluster(d,w)
+if d==nil and w==nil then
+return q.switch()
 end
-return o.switch({
-endpoint=e,component=q,})
+return q.switch{
+endpoint=d,component=w}
 end
-local function g(j,...)
-local x=j and j.body and j.body.zcl_body or nil
-if type(x)~="table"then return nil end
-for _,z in ipairs({...})do
-local n=x[z]
-if type(n)=="table"and n.value~=nil then return n.value end
-if n~=nil then return n end
+local function j(p,...)
+local E=p and p.body and p.body.zcl_body or nil
+if type(E)~="table"then return nil end
+for _,I in ipairs{...}do
+local i=E[I]
+if type(i)=="table"and i.value~=nil then return i.value end
+if i~=nil then return i end
 end
 end
-function c.resolve_rd1p_rotary_action(j,k,h,m)
-if m~=2 then return nil,nil,true end
-if k==o.CLUSTER_ON_OFF then
+function a.resolve_rd1p_rotary_action(p,s,k,u)
+if u~=2 then return nil,nil,true end
+if s==q.CLUSTER_ON_OFF then
 return({
-[0]="double_pressed",[1]="pressed",[2]="held",[3]="released",})[h],"main",true
+[0]="double_pressed",[1]="pressed",[2]="held",[3]="released"})[k],"main",true
 end
-if k==o.CLUSTER_LEVEL_CONTROL then
-if h==3 then return"stopped_rotating","main",true end
+if s==q.CLUSTER_LEVEL_CONTROL then
+if k==3 then return"stopped_rotating","main",true end
 local f
-if h==5 then
-f=g(j,"move_mode","movemode","mode")
+if k==5 then
+f=j(p,"move_mode","movemode","mode")
 if f==0 then return"started_rotating_right","main",true end
 if f==1 then return"started_rotating_left","main",true end
-elseif h==6 then
-f=g(j,"step_mode","stepmode","mode")
+elseif k==6 then
+f=j(p,"step_mode","stepmode","mode")
 if f==0 then return"rotating_right","main",true end
 if f==1 then return"rotating_left","main",true end
 end
 end
 return nil,nil,true
 end
-return c
+return a

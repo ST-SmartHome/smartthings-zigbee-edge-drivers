@@ -1,212 +1,206 @@
-local function ab(ay,u)
-local aC=u.utils
-local s=u.log
-local C=u.math_floor
-local e=u.type_check
-local d=u.tonumber_check
-local at=u.raw_bytes
-local S=u.string_byte
-local aA=u.string_char
-local D=u.string_len
-local ah=u.table_concat
-local z={}
-local function az(b)
+local function aa(ax,s)
+local aB=s.utils
+local r=s.log
+local B=s.math_floor
+local f=s.type_check
+local d=s.tonumber_check
+local as=s.raw_bytes
+local R=s.string_byte
+local az=s.string_char
+local C=s.string_len
+local ag=s.table_concat
+local y={}
+local function ay(b)
 return b
 end
-local function p(an,g,c)
-if e(an)=="function"then
-return an(g,c)
+local function k(am,g,c)
+if f(am)=="function"then
+return am(g,c)
 end
-return an
+return am
 end
-local function t(k,g,c)
-if e(k)=="function"then
-return k(g,c)
-end
-return k
-end
-local function i(an,g,c)
-local v=p(an,g,c)if v==nil then
+local function i(am,g,c)
+local u=k(am,g,c)if u==nil then
 return nil
 end
-return d(v)
+return d(u)
 end
-local function w(H)
-local P={}for ax,aq in pairs(H)do
-P[aq]=ax
+local function v(G)
+local O={}for aw,ap in pairs(G)do
+O[ap]=aw
 end
-return P
+return O
 end
-local function B(H,g,c)
-local v=p(H,g,c)if v==nil then
-return z
+local function A(G,g,c)
+local u=k(G,g,c)if u==nil then
+return y
 end
-if e(v)~="table"then
-s.warn(string.format("Tuya lookup expects table map, got %s",e(v)))return z
+if f(u)~="table"then
+r.warn(string.format("Tuya lookup expects table map, got %s",f(u)))return y
 end
-return v
+return u
 end
-local function af(n,h,j)
-if e(n)~="string"then
+local function ae(n,h,j)
+if f(n)~="string"then
 return nil
 end
-local X=h or 1
-local ai=j or(D(n)-X+1)if X<1 or ai<1 or(X+ai-1)>D(n)then
+local W=h or 1
+local ah=j or(C(n)-W+1)if W<1 or ah<1 or(W+ah-1)>C(n)then
 return nil
 end
 local b=0
-for aj=X,X+ai-1 do
-b=(b*256)+S(n,aj)
+for ai=W,W+ah-1 do
+b=(b*256)+R(n,ai)
 end
 return b
 end
-local function Q(n,J,g,c)
-local V=D(n)local m=e(J)=="table"and J or z
+local function P(n,I,g,c)
+local U=C(n)local m=f(I)=="table"and I or y
 local j=i(m.bytes or m.length,g,c)if j==nil then
-j=V
+j=U
 end
-j=C(j)if j<1 or j>V then
-s.warn("Tuya raw_uint_be requires valid byte count")return nil,nil
+j=B(j)if j<1 or j>U then
+r.warn"Tuya raw_uint_be requires valid byte count"return nil,nil
 end
 local h=i(m.start,g,c)if h==nil then
-local ar=i(m.offset,g,c)if ar~=nil then
-h=C(ar)+1
+local aq=i(m.offset,g,c)if aq~=nil then
+h=B(aq)+1
 end
 end
 if h==nil then
-local ap=p(m.from_tail,g,c)if ap==true then
-h=V-j+1
+local ao=k(m.from_tail,g,c)if ao==true then
+h=U-j+1
 else
 h=1
 end
 end
-h=C(h)if h<1 or(h+j-1)>V then
-s.warn("Tuya raw_uint_be slice is out of range")return nil,nil
+h=B(h)if h<1 or(h+j-1)>U then
+r.warn"Tuya raw_uint_be slice is out of range"return nil,nil
 end
 return h,j
 end
-local function au(n)
-local al={}for aj=1,D(n)do
-al[#al+1]=string.format("%02X",S(n,aj))
+local function at(n)
+local ak={}for ai=1,C(n)do
+ak[#ak+1]=string.format("%02X",R(n,ai))
 end
-return ah(al)
+return ag(ak)
 end
-local function am(H)
-local ak={}for ax,_ in pairs(H or z)do
-local R=d(ax)if R~=nil then
-ak[#ak+1]=C(R)
+local function al(G)
+local aj={}for aw,_ in pairs(G or y)do
+local Q=d(aw)if Q~=nil then
+aj[#aj+1]=B(Q)
 end
 end
-table.sort(ak)return ak
+table.sort(aj)return aj
 end
-local a=ay.converter
+local a=ax.converter
 function a.pipe(...)
-local Y={...}if #Y==1 and e(Y[1])=="table"then
-Y=Y[1]
+local X={...}if #X==1 and f(X[1])=="table"then
+X=X[1]
 end
 return function(b,g,c)
-local Z=b
-for _,aB in ipairs(Y)do
-Z=aB(Z,g,c)
+local Y=b
+for _,aA in ipairs(X)do
+Y=aA(Y,g,c)
 end
-return Z
+return Y
 end
 end
-function a.from_to(A,I)
-local av={}
-if e(A)=="function"then
-av.from=A
+function a.from_to(z,H)
+local au={}
+if f(z)=="function"then
+au.from=z
 end
-if e(I)=="function"then
-av.to=I
+if f(H)=="function"then
+au.to=H
 end
-return av
+return au
 end
-function a.from_only(A)
-return a.from_to(A,nil)
+function a.from_only(z)
+return a.from_to(z,nil)
 end
-function a.to_only(I)
-return a.from_to(nil,I)
+function a.to_only(H)
+return a.from_to(nil,H)
 end
-function a.to_bool(y,r)
+function a.to_bool(x,q)
 return function(b)
-if e(b)=="boolean"then
+if f(b)=="boolean"then
 return b
 end
-if b==y then
+if b==x then
 return true
 end
-if b==r then
+if b==q then
 return false
 end
-s.warn(string.format("Tuya to_bool expected %s or %s, got %s",tostring(y),tostring(r),tostring(b)))return nil
+r.warn(string.format("Tuya to_bool expected %s or %s, got %s",tostring(x),tostring(q),tostring(b)))return nil
 end
 end
-function a.bool_pair(y,r)
+function a.bool_pair(x,q)
 return a.from_to(
-a.to_bool(y,r),
+a.to_bool(x,q),
 function(b)
 if b==true then
-return y
+return x
 end
 if b==false then
-return r
+return q
 end
-s.warn(string.format("Tuya bool_pair expected boolean, got %s",e(b)))return nil
+r.warn(string.format("Tuya bool_pair expected boolean, got %s",f(b)))return nil
 end
 )
 end
-function a.constant(ag)
+function a.constant(af)
 return function()
-return ag
+return af
 end
 end
-function a.lookup_from_to(H,k)
-local x=e(H)=="table"and H or nil
-local ad=x and w(x)or nil
+function a.lookup_from_to(G,t)
+local w=f(G)=="table"and G or nil
+local ac=w and v(w)or nil
 return a.from_to(
 function(b,g,c)
-local F=x or B(H,g,c)local P=ad or w(F)local M=P[b]if M~=nil then
-return M
+local E=w or A(G,g,c)local O=ac or v(E)local L=O[b]if L~=nil then
+return L
 end
-local E=t(k,g,c)if E~=nil then
-return E
+local D=k(t,g,c)if D~=nil then
+return D
 end
-s.warn(string.format("Tuya lookup_from_to missing value: %s",tostring(b)))return nil
+r.warn(string.format("Tuya lookup_from_to missing value: %s",tostring(b)))return nil
 end,
-a.lookup_value(H,k))
+a.lookup_value(G,t))
 end
-function a.lookup_value(H,k)
-local x=e(H)=="table"and H or nil
+function a.lookup_value(G,t)
+local w=f(G)=="table"and G or nil
 return function(b,g,c)
-local F=x or B(H,g,c)local M=F[b]if M~=nil then
-return M
+local E=w or A(G,g,c)local L=E[b]if L~=nil then
+return L
 end
-local E=t(k,g,c)if E~=nil then
-return E
+local D=k(t,g,c)if D~=nil then
+return D
 end
-s.warn(string.format("Tuya lookup missing key: %s",tostring(b)))return nil
+r.warn(string.format("Tuya lookup missing key: %s",tostring(b)))return nil
 end
 end
-function a.raw_uint_be(o,J)
-local ac=e(J)=="table"and J or nil
+function a.raw_uint_be(o,I)
+local ab=f(I)=="table"and I or nil
 return a.from_only(function(b,g,c)
-local n=at(b)if n==nil then
-s.warn(string.format("Tuya raw_uint_be expects bytes, got %s",e(b)))return nil
+local n=as(b)if n==nil then
+r.warn(string.format("Tuya raw_uint_be expects bytes, got %s",f(b)))return nil
 end
-local h,j=Q(n,ac,g,c)if h==nil then
+local h,j=P(n,ab,g,c)if h==nil then
 return nil
 end
-local as=af(n,h,j)if as==nil then
-s.warn("Tuya raw_uint_be failed to parse payload")return nil
+local ar=ae(n,h,j)if ar==nil then
+r.warn"Tuya raw_uint_be failed to parse payload"return nil
 end
-local ae=i(o,g,c)if ae==nil then
-ae=1
+local ad=i(o,g,c)if ad==nil then
+ad=1
 end
-if ae==0 then
-s.warn("Tuya raw_uint_be divisor cannot be zero")return nil
+if ad==0 then
+r.warn"Tuya raw_uint_be divisor cannot be zero"return nil
 end
-return as/ae
+return ar/ad
 end)
 end
 function a.true_false1()
@@ -214,95 +208,95 @@ return a.bool_pair(1,0)
 end
 function a.power()
 return a.from_only(function(b)
-local f=d(b)if f==nil then
-s.warn(string.format("Tuya power expects number, got %s",e(b)))return nil
+local e=d(b)if e==nil then
+r.warn(string.format("Tuya power expects number, got %s",f(b)))return nil
 end
-if f>268435455 then
-return(429496732-f)*-1
+if e>268435455 then
+return(429496732-e)*-1
 end
-return f
+return e
 end)
 end
-function a.scale(U,T,O,N)
+function a.scale(T,S,N,M)
 return function(b)
-local f=d(b)local G=d(U)local L=d(T)local K=d(O)local W=d(N)if f==nil then
-s.warn(string.format("Tuya scale expects number, got %s",e(b)))return nil
+local e=d(b)local F=d(T)local K=d(S)local J=d(N)local V=d(M)if e==nil then
+r.warn(string.format("Tuya scale expects number, got %s",f(b)))return nil
 end
-if G==nil or L==nil or K==nil or W==nil then
-s.warn("Tuya scale expects numeric ranges")return nil
+if F==nil or K==nil or J==nil or V==nil then
+r.warn"Tuya scale expects numeric ranges"return nil
 end
-if L==G then
-s.warn("Tuya scale input range cannot be zero")return nil
+if K==F then
+r.warn"Tuya scale input range cannot be zero"return nil
 end
-return((f-G)*(W-K)/(L-G))+K
+return((e-F)*(V-J)/(K-F))+J
 end
 end
-function a.scale_pair(U,T,O,N)
+function a.scale_pair(T,S,N,M)
 return a.from_to(
-a.scale(U,T,O,N),a.scale(O,N,U,T))
+a.scale(T,S,N,M),a.scale(N,M,T,S))
 end
 function a.divide_by(o)
 return function(b,g,c)
-local f=d(b)local ae=i(o,g,c)if f==nil or ae==nil then
-s.warn("Tuya divide_by expects numeric input and divisor")return nil
+local e=d(b)local ad=i(o,g,c)if e==nil or ad==nil then
+r.warn"Tuya divide_by expects numeric input and divisor"return nil
 end
-if ae==0 then
-s.warn("Tuya divide_by divisor cannot be zero")return nil
+if ad==0 then
+r.warn"Tuya divide_by divisor cannot be zero"return nil
 end
-return f/ae
+return e/ad
 end
 end
 function a.divide_by_pair(o)
 return a.from_to(
 a.divide_by(o),a.multiply_by(o))
 end
-function a.signed_number_pair(aw)
+function a.signed_number_pair(av)
 return a.from_to(
-function(b,g,aa,c)
-local l=nil
-if e(aa)=="table"and d(aa.signed_value)~=nil then
-l=d(aa.signed_value)else
+function(b,g,Z,c)
+local l
+if f(Z)=="table"and d(Z.signed_value)~=nil then
+l=d(Z.signed_value)else
 l=d(b)if l~=nil and l>0x7FFFFFFF then
 l=l-4294967296
 end
 end
 if l==nil then
-s.warn(string.format("Tuya signed_number_pair expects number, got %s",e(b)))return nil
+r.warn(string.format("Tuya signed_number_pair expects number, got %s",f(b)))return nil
 end
-local o=i(aw,g,c)if o==nil then
+local o=i(av,g,c)if o==nil then
 o=1
 end
 if o==0 then
-s.warn("Tuya signed_number_pair scale cannot be zero")return nil
+r.warn"Tuya signed_number_pair scale cannot be zero"return nil
 end
 return l/o
 end,
 function(b,g,c)
-local f=d(b)if f==nil then
-s.warn(string.format("Tuya signed_number_pair expects number, got %s",e(b)))return nil
+local e=d(b)if e==nil then
+r.warn(string.format("Tuya signed_number_pair expects number, got %s",f(b)))return nil
 end
-local q=i(aw,g,c)if q==nil then
-q=1
+local p=i(av,g,c)if p==nil then
+p=1
 end
-if q==0 then
-s.warn("Tuya signed_number_pair scale cannot be zero")return nil
+if p==0 then
+r.warn"Tuya signed_number_pair scale cannot be zero"return nil
 end
-return f*q
+return e*p
 end
 )
 end
-function a.multiply_by(q)
+function a.multiply_by(p)
 return function(b,g,c)
-local f=d(b)local ao=i(q,g,c)if f==nil or ao==nil then
-s.warn("Tuya multiply_by expects numeric input and multiplier")return nil
+local e=d(b)local an=i(p,g,c)if e==nil or an==nil then
+r.warn"Tuya multiply_by expects numeric input and multiplier"return nil
 end
-return f*ao
+return e*an
 end
 end
 function a.threshold_parser()
 return function(b)
-return ay.parse_threshold(b)
+return ax.parse_threshold(b)
 end
 end
 end
-return ab
+return aa

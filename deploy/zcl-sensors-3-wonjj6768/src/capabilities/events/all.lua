@@ -7,7 +7,7 @@ local ak=require"log"
 local i={}local u=k.by_emit_name.last_power_response_time
 local q="_tuya_last_power_response_at"
 local w="waiting"
-local p=require("runtime.capability_support").is_callable
+local p=require"runtime.capability_support".is_callable
 local function h(v,M)
 local f=b[v]local m=f and f[M]or nil
 if not p(m)and f and type(f.attributes)=="table"then
@@ -64,8 +64,8 @@ end
 local T=os.time()if type(T)=="number"then
 e:set_field(q,T,{persist=false})
 end
-return m({
-value=E(e:get_field(q)),})
+return m{
+value=E(e:get_field(q))}
 end
 local function d(e,c,ag)
 if type(e)~="table"or type(c)~="table"then
@@ -190,14 +190,14 @@ function i.temperature(D)
 D=D or"C"
 return function(_,a)
 if a~=nil then
-return b.temperatureMeasurement.temperature({value=a,unit=D})
+return b.temperatureMeasurement.temperature{value=a,unit=D}
 end
 end
 end
 function i.humidity()
 return function(_,a)
 if a~=nil then
-return b.relativeHumidityMeasurement.humidity({value=a})
+return b.relativeHumidityMeasurement.humidity{value=a}
 end
 end
 end
@@ -211,21 +211,21 @@ end
 function i.illuminance()
 return function(_,a)
 if a~=nil then
-return b.illuminanceMeasurement.illuminance({value=a})
+return b.illuminanceMeasurement.illuminance{value=a}
 end
 end
 end
 function i.atmospheric_pressure()
 return function(_,a)
 if a~=nil then
-return b.atmosphericPressureMeasurement.atmosphericPressure({value=a,unit="kPa"})
+return b.atmosphericPressureMeasurement.atmosphericPressure{value=a,unit="kPa"}
 end
 end
 end
 function i.co2()
 return function(_,a)
 if a~=nil then
-return b.carbonDioxideMeasurement.carbonDioxide({value=a,unit="ppm"})
+return b.carbonDioxideMeasurement.carbonDioxide{value=a,unit="ppm"}
 end
 end
 end
@@ -233,14 +233,14 @@ function i.voc(D)
 D=D or"ppb"
 return function(_,a)
 if a~=nil then
-return b.tvocMeasurement.tvocLevel({value=a,unit=D})
+return b.tvocMeasurement.tvocLevel{value=a,unit=D}
 end
 end
 end
 function i.pm25()
 return function(_,a)
 if a~=nil then
-return b.fineDustSensor.fineDustLevel({value=a})
+return b.fineDustSensor.fineDustLevel{value=a}
 end
 end
 end
@@ -267,7 +267,7 @@ end
 function i.power()
 return function(e,a,t,r)
 if a~=nil then
-local L=b.powerMeter.power({value=a,unit="W"})local A=F(e)if A~=nil then
+local L=b.powerMeter.power{value=a,unit="W"}local A=F(e)if A~=nil then
 local x=l(r)or l(t)or o(r)or o(t)if x~=nil and x~="main"then
 e:emit_event(A)return L
 end
@@ -280,22 +280,22 @@ end
 function i.energy()
 return function(e,a,t,r)
 if a~=nil then
-local x=l(r)or l(t)or o(r)or o(t)return b.energyMeter.energy({
-value=ab.apply_report(e,a,x),unit="kWh",})
+local x=l(r)or l(t)or o(r)or o(t)return b.energyMeter.energy{
+value=ab.apply_report(e,a,x),unit="kWh"}
 end
 end
 end
 function i.voltage()
 return function(_,a)
 if a~=nil then
-return b.voltageMeasurement.voltage({value=a,unit="V"})
+return b.voltageMeasurement.voltage{value=a,unit="V"}
 end
 end
 end
 function i.current()
 return function(_,a)
 if a~=nil then
-return b.currentMeasurement.current({value=a,unit="A"})
+return b.currentMeasurement.current{value=a,unit="A"}
 end
 end
 end
@@ -339,9 +339,9 @@ end
 return
 end
 local D=c.event_unit or(c.default_range and c.default_range.unit or nil)if D~=nil then
-return g({value=j,unit=D})
+return g{value=j,unit=D}
 end
-return g({value=j})
+return g{value=j}
 end
 end
 local function V(c)
@@ -380,7 +380,7 @@ d(e,c,"attribute")
 end
 return
 end
-return g({value=a})
+return g{value=a}
 end
 end
 local function W(c,U)
@@ -398,7 +398,7 @@ end
 local z=c.maximum_length or R.length(a)local N=R.truncate(a,z)if N==nil then
 return
 end
-return g({value=N})
+return g{value=N}
 end
 end
 for _,c in ipairs(k.numeric)do
@@ -431,7 +431,7 @@ local z=c.maximum_length or 512
 local N=R.truncate(a,z)if N==nil then
 return
 end
-return g({value=N})
+return g{value=N}
 end
 end
 end
@@ -474,7 +474,7 @@ function i.value(I,D)
 return function(_,a)
 if a~=nil then
 if D then
-return I({value=a,unit=D})else
+return I{value=a,unit=D}else
 return I(a)
 end
 end

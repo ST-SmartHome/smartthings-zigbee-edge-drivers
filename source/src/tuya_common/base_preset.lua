@@ -1,5 +1,4 @@
 local function load_base_preset(tuya, shared)
-  local EPOCH_2000_OFFSET = shared.EPOCH_2000_OFFSET
   local type_check = shared.type_check
   local prepare_mappings = shared.prepare_mappings
 
@@ -585,8 +584,8 @@ local function load_base_preset(tuya, shared)
         end,
       },
       capability_handlers = {
-        ["refresh"] = {
-          ["refresh"] = function(driver, device)
+        refresh = {
+          refresh = function(driver, device)
             self:send_state_request(device)
           end,
         },

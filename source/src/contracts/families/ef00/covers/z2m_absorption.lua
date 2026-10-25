@@ -125,6 +125,7 @@ local cover_model_gm25teq = {
 local cover_model_moes_zs_sf_euc_wh_ms = {
   profile = "covers-cover-moes-zs-sf-euc-wh-ms",
   query_on_configure = false,
+  initial_custom_state_query = false,
   time_start = "off",
   tuya.dp_enum(3, {
     name = "moes_sf_calibration", emit = emit.moesSfCalibration(),
@@ -137,9 +138,17 @@ local cover_model_moes_zs_sf_euc_wh_ms = {
   tuya.dp_enum(8, {
     name = "moes_sf_direction", emit = emit.moesSfDirection(),
     converter = converter.lookup_from_to({normal = 0, reversed = 1}),
+    from_device = function(value)
+      if type(value) == "string" then return value == "back" and "reversed" or "normal" end
+      return ({[0] = "normal", [1] = "reversed"})[value]
+    end,
   }),
   tuya.dp_numeric(10, {
-    name = "moes_sf_travel_time", emit = emit.moesSfTravelTime(),
+    name = "moes_sf_travel_time", emit = emit.moesSfTravelTimeV2(),
+    converter = converter.from_to(converter.wrap_signed(0x100000000, 0x7FFFFFFF).from,
+      function(value)
+        if type(value) == "number" and value % 1 == 0 and value >= 10 and value <= 180 then return value end
+      end),
   }),
   tuya.dp_enum(1, {
     name = "cover_state",
@@ -180,15 +189,11 @@ register_device_definition(cover_model_moes_zs_sf_euc_wh_ms, device_helpers.crea
 local cover_model_nova_zcmr_one_core = {
   profile = "covers-nova-zcmr1-core",
   package_group = "covers",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   mcu_version_request_on_configure = true,
   query_on_configure = true,
   named_datapoints = true,
   time_start = "off",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_enum(1, {
       name = "cover_state",
@@ -282,7 +287,6 @@ local cover5_px = {
   mcu_version_request_on_configure = true,
   query_on_configure = false,
   query_on_announce = false,
-  initial_custom_states = false,
   refresh_state = false,
   refresh_state_query = false,
   time_start = "off",
@@ -330,7 +334,6 @@ local cover14_a0 = {
   mcu_version_request_on_configure = true,
   query_on_configure = false,
   query_on_announce = false,
-  initial_custom_states = false,
   refresh_state = false,
   refresh_state_query = false,
   time_start = "off",
@@ -367,7 +370,6 @@ local fwjz_16eb = {
   mcu_version_request_on_configure = true,
   query_on_configure = false,
   query_on_announce = false,
-  initial_custom_states = false,
   refresh_state = false,
   refresh_state_query = false,
   time_start = "off",

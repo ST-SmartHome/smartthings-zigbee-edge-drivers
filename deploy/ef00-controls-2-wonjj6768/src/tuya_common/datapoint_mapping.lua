@@ -50,7 +50,7 @@ local bi=string.format("RX %s (%s): %s",N,bQ,aR(h))local bx=p.maximum_length or 
 bi=bP.truncate(bi,bx)if bi==nil then
 return
 end
-b:emit_event(ba({value=bi}))
+b:emit_event(ba{value=bi})
 end
 local function k(N)
 bT.warn(string.format("Tuya %s ignored",N))
@@ -70,7 +70,7 @@ if am(aX)then
 u(aX,s)return
 end
 bh[ap]={
-[aA]=true,aX,s,}
+[aA]=true,aX,s}
 end
 local function aH(c)
 if a(c)~="table"then
@@ -105,7 +105,7 @@ handler=a(c.handler)=="function"and c.handler or nil,
 emit=a(c.emit)=="function"and c.emit or nil,
 endpoint=(a(c.endpoint)=="number"or a(c.endpoint)=="function")and c.endpoint or nil,
 component=(a(c.component)=="string"or a(c.component)=="function")and c.component or nil,
-persist=bF(c.persist),}
+persist=bF(c.persist)}
 end
 local function O(q)
 if a(q)~="number"or q%1~=0 then
@@ -170,7 +170,7 @@ return nil
 end
 local function aq(b,c,d,h)
 local f={
-mapping=c,value=h,}if a(d)=="table"then
+mapping=c,value=h}if a(d)=="table"then
 for ap,e in pairs(d)do
 f[ap]=e
 end
@@ -242,7 +242,7 @@ return I
 end
 return nil
 end
-local R=nil
+local R
 local C=-1
 for _,c in ipairs(I)do
 local aj=ab(c,b,d)if aj>C then
@@ -433,7 +433,7 @@ if au~=nil and next(au)==nil then
 au=nil
 end
 return{
-dp=e.dp,datatype=bz,value=e.value,command_id=e.command_id,transaction=aT(e.transaction),signed=e.signed==true,to_device=v and v.to_device or nil,skip=e.skip,batch_key=e.batch_key,match_transaction=e.match_transaction~=false,response_dp=e.response_dp,response_dps=au,match_response=e.match_response,}
+dp=e.dp,datatype=bz,value=e.value,command_id=e.command_id,transaction=aT(e.transaction),signed=e.signed==true,to_device=v and v.to_device or nil,skip=e.skip,batch_key=e.batch_key,match_transaction=e.match_transaction~=false,response_dp=e.response_dp,response_dps=au,match_response=e.match_response}
 end
 local function bl(A)
 if a(A)~="table"then
@@ -540,7 +540,7 @@ local bq=z[1].command_id
 local bk=z[1].transaction
 for bh=2,#z do
 if z[bh].command_id~=bq or z[bh].transaction~=bk then
-local az=nil
+local az
 for _,e in ipairs(z)do
 az=H.send_datapoint(b,e.dp,e.datatype,e.value,e.command_id,e.signed,e.transaction)if az==nil then
 return nil
@@ -593,7 +593,7 @@ if e.to_device then
 bI=e.to_device(h,b,e,f)
 end
 return{
-dp=e.dp,datatype=e.datatype,value=bI,command_id=e.command_id,transaction=e.transaction,signed=e.signed,batch_key=e.batch_key,match_transaction=e.match_transaction,response_dp=e.response_dp,response_dps=e.response_dps,match_response=e.match_response,}
+dp=e.dp,datatype=e.datatype,value=bI,command_id=e.command_id,transaction=e.transaction,signed=e.signed,batch_key=e.batch_key,match_transaction=e.match_transaction,response_dp=e.response_dp,response_dps=e.response_dps,match_response=e.match_response}
 end
 X=function(b,c,h,d)
 if a(c)=="function"then
@@ -670,7 +670,7 @@ if not e.batch_key then
 u(P,e)return
 end
 local at=P[#P]local bd={
-dp=e.dp,datatype=e.datatype,value=e.value,command_id=e.command_id,transaction=e.transaction,signed=e.signed,}if at and
+dp=e.dp,datatype=e.datatype,value=e.value,command_id=e.command_id,transaction=e.transaction,signed=e.signed}if at and
 at.batch_key==e.batch_key and
 at.command_id==e.command_id and
 at.transaction==e.transaction and
@@ -686,7 +686,7 @@ end
 return
 end
 local s={
-items={bd},command_id=e.command_id,batch_key=e.batch_key,transaction=e.transaction,match_transaction=e.match_transaction,match_response=e.match_response,}if e.response_dp~=nil then
+items={bd},command_id=e.command_id,batch_key=e.batch_key,transaction=e.transaction,match_transaction=e.match_transaction,match_response=e.match_response}if e.response_dp~=nil then
 s.response_dps={e.response_dp}elseif e.response_dps then
 s.response_dps=bl(e.response_dps)
 end

@@ -10,7 +10,7 @@ c.WIFI_CLUSTER=64514
 c.LIGHT_LEVEL_CLUSTER=64545
 local q="_shelly_gen4_full_wifi_ssid"
 local h={
-status={id=0,data_type=d.CharString},ip={id=1,data_type=d.CharString},action_code={id=2,data_type=d.Uint8},dhcp={id=3,data_type=d.Boolean},enabled={id=4,data_type=d.Boolean},ssid={id=5,data_type=d.CharString},password={id=6,data_type=d.CharString},static_ip={id=7,data_type=d.CharString},net_mask={id=8,data_type=d.CharString},gateway={id=9,data_type=d.CharString},name_server={id=10,data_type=d.CharString},}
+status={id=0,data_type=d.CharString},ip={id=1,data_type=d.CharString},action_code={id=2,data_type=d.Uint8},dhcp={id=3,data_type=d.Boolean},enabled={id=4,data_type=d.Boolean},ssid={id=5,data_type=d.CharString},password={id=6,data_type=d.CharString},static_ip={id=7,data_type=d.CharString},net_mask={id=8,data_type=d.CharString},gateway={id=9,data_type=d.CharString},name_server={id=10,data_type=d.CharString}}
 local function N(s)
 return assert(ad[s],"missing custom capability emitter: "..tostring(s))()
 end
@@ -101,7 +101,7 @@ local function K(s,T,j,L,g)
 g=g or{}local e=assert(h[j],"unknown Shelly Wi-Fi attribute: "..tostring(j))local F=ag.cluster_attribute(c.WIFI_CLUSTER,e.id,{
 name=s,endpoint=c.ENDPOINT,emit=N(T),data_type=e.data_type,write_type=e.data_type,mfg_code=c.MANUFACTURER_CODE,profile_id=c.PROFILE_ID,read_only=L~=true,sender=L==true and R(e,g.allow_empty==true)or nil,from_device=j=="ssid"and z or
 ((j=="status"or j=="ip")and v or
-(e.data_type==d.Boolean and t or n)),})if g.suppress_optimistic_state==true then
+(e.data_type==d.Boolean and t or n))})if g.suppress_optimistic_state==true then
 F.suppress_optimistic_state=true
 end
 if g.write_only==true then
@@ -111,16 +111,16 @@ return F
 end
 function c.append_wifi_mappings(D,Y,O)
 local ac={
-{"wifi_status","WifiStatus","status",false},{"ip_address","IpAddress","ip",false},{"dhcp_enabled","DhcpEnabled","dhcp",false},{"wifi_enabled","WifiEnabled","enabled",true},{"wifi_ssid","WifiSsid","ssid",true},{"wifi_password","WifiPassword","password",true,true,true},{"static_ip","StaticIp","static_ip",true,false,false,true},{"net_mask","NetMask","net_mask",true,false,false,true},{"gateway","Gateway","gateway",true,false,false,true},{"name_server","NameServer","name_server",true,false,false,true},}for _,spec in ipairs(ac)do
+{"wifi_status","WifiStatus","status",false},{"ip_address","IpAddress","ip",false},{"dhcp_enabled","DhcpEnabled","dhcp",false},{"wifi_enabled","WifiEnabled","enabled",true},{"wifi_ssid","WifiSsid","ssid",true},{"wifi_password","WifiPassword","password",true,true,true},{"static_ip","StaticIp","static_ip",true,false,false,true},{"net_mask","NetMask","net_mask",true,false,false,true},{"gateway","Gateway","gateway",true,false,false,true},{"name_server","NameServer","name_server",true,false,false,true}}for _,spec in ipairs(ac)do
 D[#D+1]=K(
 Y.."_"..spec[1],O..spec[2],spec[3],spec[4],{
-suppress_optimistic_state=spec[5]==true,write_only=spec[6]==true,allow_empty=spec[7]==true,})
+suppress_optimistic_state=spec[5]==true,write_only=spec[6]==true,allow_empty=spec[7]==true})
 end
 return D
 end
 function c.refresh_wifi(b)
-c.begin_wifi_refresh(b)for _,s in ipairs({
-"status","ip","enabled","dhcp","ssid","static_ip","net_mask","gateway","name_server",})do
+c.begin_wifi_refresh(b)for _,s in ipairs{
+"status","ip","enabled","dhcp","ssid","static_ip","net_mask","gateway","name_server"}do
 local e=h[s]G(b,c.WIFI_CLUSTER,e.id)
 end
 return true
@@ -157,7 +157,7 @@ return true
 end
 local function k(s,Z)
 return{
-protocol="zcl",cluster_id=c.RPC_CLUSTER,name=s,endpoint=c.ENDPOINT,mfg_code=c.MANUFACTURER_CODE,write_only=true,sender=Z,}
+protocol="zcl",cluster_id=c.RPC_CLUSTER,name=s,endpoint=c.ENDPOINT,mfg_code=c.MANUFACTURER_CODE,write_only=true,sender=Z}
 end
 function c.rpc_presence_setting(s,path,g)
 g=g or{}

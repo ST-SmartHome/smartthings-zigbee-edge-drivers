@@ -8,7 +8,7 @@ end
 return T
 end
 local C={
-[x.GET_DATA]=true,[x.SET_DATA_RESPONSE]=true,[x.REPORT_STATUS]=true,[x.ACTIVE_STATUS_REPORT]=true,}local J=1
+[x.GET_DATA]=true,[x.SET_DATA_RESPONSE]=true,[x.REPORT_STATUS]=true,[x.ACTIVE_STATUS_REPORT]=true}local J=1
 local H=2
 local function E(c)
 if type(c)=="string"then
@@ -78,14 +78,14 @@ if v-1>#e then
 return nil
 end
 local h=string.byte(e,k+1)local f=string.sub(e,B,v-1)return{
-dp=string.byte(e,k),datatype=h,length=Q,value_bytes=f,value=L(h,f),int_value=w(f),signed_value=R(f),next_index=v,}
+dp=string.byte(e,k),datatype=h,length=Q,value_bytes=f,value=L(h,f),int_value=w(f),signed_value=R(f),next_index=v}
 end
 function x.parse_read_only_datapoint_report(c)
 local e=E(c)if type(e)~="string"or #e<2 then
 return nil
 end
 local j={
-command_id=p(c),endpoint=s(c),status=string.byte(e,1),transaction=string.byte(e,2),payload=e,datapoints={},}local k=3
+command_id=p(c),endpoint=s(c),status=string.byte(e,1),transaction=string.byte(e,2),payload=e,datapoints={}}local k=3
 while k<=#e do
 local b=G(e,k)if b==nil then
 return nil
@@ -112,7 +112,7 @@ g=d:get_component_id_for_endpoint(n)
 end
 return{
 mapping=a,value=b.value,dp=b.dp,frame=j,endpoint=n,component_id=g,component=g and d.profile and d.profile.components and
-d.profile.components[g]or nil,}
+d.profile.components[g]or nil}
 end
 local function D(d,o,i)
 if not o then

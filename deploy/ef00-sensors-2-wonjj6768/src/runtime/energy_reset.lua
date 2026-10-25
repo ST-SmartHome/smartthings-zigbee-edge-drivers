@@ -41,6 +41,6 @@ d=d+k
 end
 end
 b:set_field(h(a),d,{persist=true})b:emit_component_event(
-{id=a},f.energyMeter.energy({value=0.0,unit="kWh"}))
+{id=a},f.energyMeter.energy{value=0.0,unit="kWh"})
 end
 return g

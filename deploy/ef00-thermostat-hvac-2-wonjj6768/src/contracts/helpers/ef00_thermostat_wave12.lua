@@ -14,7 +14,7 @@ elseif b==nil and q~=nil and q~=1 then
 local t=g.divide_by_pair(q)b=t
 end
 local r={
-name=n,read_only=f==true,emit=c.custom(a),converter=b,}
+name=n,read_only=f==true,emit=c.custom(a),converter=b}
 if e.from_device~=nil then r.from_device=e.from_device end
 if e.to_device~=nil then r.to_device=e.to_device end
 if e.signed~=nil then r.signed=e.signed end
@@ -28,7 +28,7 @@ for M,X in pairs(p)do J[X]=M end
 return J
 end)()))
 or g.lookup_from_to(p)local e={
-name=n,read_only=f==true,converter=U,emit=c.custom(a),}if z==true then
+name=n,read_only=f==true,converter=U,emit=c.custom(a)}if z==true then
 return x.dp_numeric(P,e)
 end
 return x.dp_enum(P,e)
@@ -42,11 +42,11 @@ end
 return nil
 end)
 or g.lookup_from_to(p)return x.dp_binary(P,{
-name=n,read_only=f==true,converter=U,emit=c.custom(a),})
+name=n,read_only=f==true,converter=U,emit=c.custom(a)})
 end
 function c.raw(P,n,a,K,f)
 return x.dp_raw(P,{
-name=n,converter=K,read_only=f==true,emit=c.custom(a),})
+name=n,converter=K,read_only=f==true,emit=c.custom(a)})
 end
 function c.schedule_converter(k,h)
 local function E(o)
@@ -64,7 +64,7 @@ local function S(o)
 if type(o)~="string"then return nil end
 local i={k or 0}local L=0
 for N in string.gmatch(o,"%S+")do
-local Q,F,w=N:match("^(%d+):(%d+)/([%d%.%-]+)$")local u=tonumber(Q)local l=tonumber(F)local j=tonumber(w)if u==nil or l==nil or j==nil
+local Q,F,w=N:match"^(%d+):(%d+)/([%d%.%-]+)$"local u=tonumber(Q)local l=tonumber(F)local j=tonumber(w)if u==nil or l==nil or j==nil
 or u<0 or u>24 or l<0 or l>60
 or j<5 or j>35 then
 return nil
@@ -80,7 +80,7 @@ return g.from_to(E,S)
 end
 function c.add_day_schedules(d,W,s,T,h,y)
 local ab={
-{"monday","Monday"},{"tuesday","Tuesday"},{"wednesday","Wednesday"},{"thursday","Thursday"},{"friday","Friday"},{"saturday","Saturday"},{"sunday","Sunday"},}for A,day in ipairs(ab)do
+{"monday","Monday"},{"tuesday","Tuesday"},{"wednesday","Wednesday"},{"thursday","Thursday"},{"friday","Friday"},{"saturday","Saturday"},{"sunday","Sunday"}}for A,day in ipairs(ab)do
 local k=A
 if y==false then k=nil end
 d[#d+1]=c.raw(
@@ -93,12 +93,12 @@ d.named_mapping={named_mappings=C}
 end
 function c.attach_setpoint_range(d,I,H,Y)
 d.heating_setpoint_range={
-minimum=I,maximum=H,step=Y,unit="C",}local D=d.runtime_start
+minimum=I,maximum=H,step=Y,unit="C"}local D=d.runtime_start
 d.runtime_start=function(O)
 if D~=nil then D(O)end
 O:emit_component_event(
-{id="main"},B.thermostatHeatingSetpoint.heatingSetpointRange({
-value={minimum=I,maximum=H,step=Y},unit="C",}))
+{id="main"},B.thermostatHeatingSetpoint.heatingSetpointRange{
+value={minimum=I,maximum=H,step=Y},unit="C"})
 end
 end
 return c

@@ -1,0 +1,24 @@
+name: bridges-aeotec-wg001
+components:
+- id: main
+  capabilities:
+  - id: signalStrength
+    version: 1
+  categories:
+  - name: Networking
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: signalStrength
+      group: main
+    actions: []
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: signalStrength
+  automation:
+    conditions:
+    - component: main
+      capability: signalStrength
+    actions: []

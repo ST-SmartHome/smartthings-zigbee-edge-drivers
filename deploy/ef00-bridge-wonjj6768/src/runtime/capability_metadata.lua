@@ -1,4 +1,4 @@
-local a={}local H={"ON","OFF","wetenPciRestartMode","restart","force restart","–","wetenPciRfRemoteControl","wetenPciRfPairing","wetenPciBuzzerFeedback","wetenPciPowerOnBehavior","off","on","wetenPciChildLock","LOCK","UNLOCK","lastPowerResponseTime"}
+local a={}local H={"ON","OFF","wetenPciRestartMode","restart","force restart","–","wetenPciRfRemoteControl","wetenPciRfPairing","wetenPciBuzzerFeedback","wetenPciPowerOnBehavior","wetenPciChildLock","LOCK","UNLOCK","lastPowerResponseTime"}
 local function b(g)
 if type(g)=="number"then return H[g]end
 return g
@@ -50,7 +50,7 @@ local n={}
 for _,f in ipairs(L)do n[#n+1]=F(f)end
 return n
 end
-a.numeric=z({},G)a.enum=z({{3,nil,3,"restartMode",nil,nil,nil,"weten_pci_restart_mode","Weten Pci Restart Mode",{4,5,6},{4,5,6},1,2,1},{7,nil,7,"rfRemoteControl",nil,nil,nil,"weten_pci_rf_remote_control","Weten Pci Rf Remote Control",{1,2},{1,2},3,4,3},{8,nil,8,"rfPairing",nil,nil,nil,"weten_pci_rf_pairing","Weten Pci Rf Pairing",{1,2},{1,2},5,6,5},{9,nil,9,"buzzerFeedback",nil,nil,nil,"weten_pci_buzzer_feedback","Weten Pci Buzzer Feedback",{1,2},{1,2},7,8,7},{10,nil,10,"powerOnBehavior",nil,nil,nil,"weten_pci_power_on_behavior","Weten Pci Power On Behavior",{11,12},{11,12},9,10,9},{13,nil,13,"childLock",nil,nil,nil,"weten_pci_child_lock","Weten Pci Child Lock",{14,15},{14,15},11,12,11}},K)a.text=z({{"last_power_response_time",16,16,0,0,nil,"Last power response time",64}},M)a.driver_message={["attribute_name"]="driverMessage",["capability_id"]="concertmirror08464.driverMessage",["emit_name"]="driver_message",["label"]="Driver message",["maximum_length"]=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
+a.numeric=z({},G)a.enum=z({{3,nil,3,"restartMode",nil,nil,nil,"weten_pci_restart_mode","Weten Pci Restart Mode",{4,5,6},{4,5,6},1,2,1},{7,nil,7,"rfRemoteControl",nil,nil,nil,"weten_pci_rf_remote_control","Weten Pci Rf Remote Control",{1,2},{1,2},3,4,3},{8,nil,8,"rfPairing",nil,nil,nil,"weten_pci_rf_pairing","Weten Pci Rf Pairing",{1,2},{1,2},5,6,5},{9,nil,9,"buzzerFeedback",nil,nil,nil,"weten_pci_buzzer_feedback","Weten Pci Buzzer Feedback",{1,2},{1,2},7,8,7},{10,nil,10,"powerOnBehavior",nil,nil,nil,"weten_pci_power_on_behavior","Weten Pci Power On Behavior",{"off","on"},{"off","on"},9,10,9},{11,nil,11,"childLock",nil,nil,nil,"weten_pci_child_lock","Weten Pci Child Lock",{12,13},{12,13},11,12,11}},K)a.text=z({{"last_power_response_time",14,14,0,0,nil,"Last power response time",64}},M)a.driver_message={attribute_name="driverMessage",capability_id="concertmirror08464.driverMessage",emit_name="driver_message",label="Driver message",maximum_length=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
 local function o(y)
 for _,e in ipairs(y)do
 a.by_emit_name[e.emit_name]=e
@@ -74,6 +74,6 @@ local h=type(C)=="table"and C[e.range_key]or nil
 if type(h)~="table"then h=d end
 if type(h)~="table"then return nil end
 return{
-minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil),}
+minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil)}
 end
 return a

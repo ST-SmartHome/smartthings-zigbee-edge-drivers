@@ -18,7 +18,7 @@ h=a.query_on_configure
 end
 if type(t)=="table"then
 b({
-datapoints=a,presence_capability_ranges=t,query_on_configure=h,},e)return
+datapoints=a,presence_capability_ranges=t,query_on_configure=h},e)return
 end
 if type(a)=="table"then
 local o={}for w,s in pairs(a)do
@@ -30,12 +30,12 @@ end
 b(o,e)return
 end
 b({
-datapoints=a,query_on_configure=true,},e)
+datapoints=a,query_on_configure=true},e)
 end
-local j=n.lookup_from_to({
-on=true,off=false,})
+local j=n.lookup_from_to{
+on=true,off=false}
 local i=n.from_only(function(s)
 return tonumber(s)==1
 end)
 return{
-isolated_definition_registry=f,register_presence_definition=g,ts0601_fingerprints=p.ts0601_fingerprints,on_off_bool_converter=j,msa201_presence_converter=i,}
+isolated_definition_registry=f,register_presence_definition=g,ts0601_fingerprints=p.ts0601_fingerprints,on_off_bool_converter=j,msa201_presence_converter=i}

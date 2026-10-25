@@ -4,15 +4,15 @@ local m=require"st.zigbee.zcl"
 local s=require"st.zigbee.messages"
 local q=require"st.zigbee.generic_body"
 local v={
-EF00_CLUSTER=61184,GET_DATA=1,SET_DATA_RESPONSE=2,REPORT_STATUS=5,ACTIVE_STATUS_REPORT=6,MCU_VERSION_RESPONSE=17,SET_TIME=36,CONNECTION_STATUS=37,}require"protocol.tuya.runtime.read_only_datapoints"(v,true)
+EF00_CLUSTER=61184,GET_DATA=1,SET_DATA_RESPONSE=2,REPORT_STATUS=5,ACTIVE_STATUS_REPORT=6,MCU_VERSION_RESPONSE=17,SET_TIME=36,CONNECTION_STATUS=37}require"protocol.tuya.runtime.read_only_datapoints"(v,true)
 local function t(a,f,payload,j)
 j=j or v.EF00_CLUSTER
 local p=a:get_endpoint(j)
 if not p then return false end
-local r=m.ZclHeader({cmd=x.ZCLCommandId(f)})
+local r=m.ZclHeader{cmd=x.ZCLCommandId(f)}
 if j~=0 then r.frame_ctrl:set_cluster_specific()end
-r.frame_ctrl:set_disable_default_response()a:send(s.ZigbeeMessageTx({
-address_header=s.AddressHeader(l.HUB.ADDR,l.HUB.ENDPOINT,a:get_short_address(),p,l.HA_PROFILE_ID,j),body=m.ZclMessageBody({zcl_header=r,zcl_body=q.GenericBody(payload)}),}))return true
+r.frame_ctrl:set_disable_default_response()a:send(s.ZigbeeMessageTx{
+address_header=s.AddressHeader(l.HUB.ADDR,l.HUB.ENDPOINT,a:get_short_address(),p,l.HA_PROFILE_ID,j),body=m.ZclMessageBody{zcl_header=r,zcl_body=q.GenericBody(payload)}})return true
 end
 function v.build_base_preset(b)
 local e={datapoints=b.datapoints,zcl_clusters=b.zcl_clusters}
@@ -56,7 +56,7 @@ and c>=0 and c<=(h==4 and 255 or 4294967295)then
 payload=h==4 and string.char(c)or string.pack(">I4",c)else
 return false
 end
-local u=((a:get_field("__tuya_hybrid_sequence")or 0)+1)%65536
+local u=((a:get_field"__tuya_hybrid_sequence"or 0)+1)%65536
 a:set_field("__tuya_hybrid_sequence",u)return t(a,d.command_id or 0,string.pack(">I2",u)..string.char(d.dp,h)..string.pack(">I2",#payload)..payload)
 end
 end
@@ -73,7 +73,7 @@ return false
 end
 if b.force_time_updates==true and b.time_start~="off"and
 (f==1 or f==2 or f==5 or f==6 or f==36)then
-local w=os.time()if w>(a:get_field("__tuya_hybrid_time_due")or 0)then
+local w=os.time()if w>(a:get_field"__tuya_hybrid_time_due"or 0)then
 local z=b.time_start=="2000"and 946684800 or 0
 local B=os.date("!*t",w)B.isdst=false
 local D=os.difftime(w,os.time(B))a:set_field("__tuya_hybrid_time_due",w+3600)t(a,36,string.pack(">I2I4I4",8,w-z,w+D-z))

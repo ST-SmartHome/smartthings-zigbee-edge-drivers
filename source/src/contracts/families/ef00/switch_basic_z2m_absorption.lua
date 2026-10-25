@@ -67,15 +67,11 @@ register_device_definition(grxx6qek_temperature_humidity_switch,
 local zemismart_zmz609_two_core = {
   profile = "switches-zemismart-zmz609-2-core",
   package_group = "switch-basic",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   mcu_version_request_on_configure = true,
   query_on_configure = false,
   named_datapoints = true,
   time_start = "1970",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_on_off(1, { name = "switch", component = "main", transaction = 1, emit = emit.switch() }),
     tuya.dp_on_off(2, { name = "switch", component = "switch2", transaction = 1, emit = emit.switch() }),
@@ -97,15 +93,11 @@ register_device_definition(zemismart_zmz609_two_core, {
 local tuya_6gang_switch_two_core = {
   profile = "switches-tuya-6gang-switch-2-core",
   package_group = "switch-basic",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   mcu_version_request_on_configure = true,
   query_on_configure = false,
   named_datapoints = true,
   time_start = "off",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_on_off(1, { name = "switch", component = "main", transaction = 1, emit = emit.switch() }),
     tuya.dp_on_off(2, { name = "switch", component = "switch2", transaction = 1, emit = emit.switch() }),
@@ -131,15 +123,11 @@ register_device_definition(tuya_6gang_switch_two_core, {
 local makegood_mg_gpo02z_core = {
   profile = "switches-makegood-mg-gpo02z-core",
   package_group = "switch-basic",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   mcu_version_request_on_configure = true,
   query_on_configure = false,
   named_datapoints = true,
   time_start = "1970",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_on_off(1, { name = "switch", component = "main", transaction = 1, emit = emit.switch() }),
     tuya.dp_on_off(2, { name = "switch", component = "switch2", transaction = 1, emit = emit.switch() }),
@@ -167,15 +155,11 @@ register_device_definition(makegood_mg_gpo02z_core, {
 local makegood_mg_au03_core = {
   profile = "switches-makegood-mg-au03-core",
   package_group = "switch-basic",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   mcu_version_request_on_configure = true,
   query_on_configure = false,
   named_datapoints = true,
   time_start = "1970",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_on_off(1, { name = "switch", component = "main", transaction = 1, emit = emit.switch() }),
     tuya.dp_on_off(2, { name = "switch", component = "switch2", transaction = 1, emit = emit.switch() }),
@@ -204,15 +188,11 @@ register_device_definition(makegood_mg_au03_core, {
 local tuya_mg_au03gpozlp_core = {
   profile = "switches-tuya-mg-au03gpozlp-core",
   package_group = "switch-basic",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   mcu_version_request_on_configure = true,
   query_on_configure = false,
   named_datapoints = true,
   time_start = "off",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_on_off(1, { name = "switch", component = "main", transaction = 1, emit = emit.switch() }),
     tuya.dp_on_off(2, { name = "switch", component = "switch2", transaction = 1, emit = emit.switch() }),
@@ -236,7 +216,6 @@ local tervix_x10 = {
   query_on_announce = true,
   announce_delay = 0,
   time_start = "off",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_on_off(33, { name = "switch", component = "main", suppress_optimistic_state = true }),
     tuya.dp_on_off(101, { name = "switch", component = "zone1", suppress_optimistic_state = true }),
@@ -340,7 +319,6 @@ local makegood_single = {
   query_on_configure = false,
   query_on_refresh = false,
   time_start = "1970",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_on_off(1, {name = "switch", emit = emit.switch()}),
     tuya.dp_numeric(7, {

@@ -95,9 +95,6 @@ end
 local javis = {
   profile = "locks-wave18-javis-js-slk2-zb",
   package_group = "wave18-javis-lock",
-  transport_classification = "ZCL_BASIC_CUSTOM_ATTRIBUTE_RX",
-  z2m_converter_source = "local fzLocal.javis_lock_report + fz.battery",
-  wire_cluster = "genBasic(0x0000) + genPowerCfg(0x0001)",
   zcl_clusters = {
     zcl.cluster_attribute(BASIC_CLUSTER, JAVIS_REPORT_ATTRIBUTE, {
       name = "javis_unlock_report",

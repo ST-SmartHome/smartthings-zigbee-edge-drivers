@@ -12,7 +12,6 @@ local oxt_four = {
   initial_custom_state_query = false,
   refresh_state_query = false,
   time_start = "off",
-  placeholder_custom_states = false,
   component_to_endpoint_map = { main = 1, switch2 = 1, switch3 = 1, switch4 = 1 },
   endpoint_to_component_map = { [1] = "main" },
   datapoints = {},

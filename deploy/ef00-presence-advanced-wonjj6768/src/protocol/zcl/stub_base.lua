@@ -102,7 +102,7 @@ return{
 [b.CLUSTER_ON_OFF]={
 [b.ATTR_ON_OFF]=s(b.CLUSTER_ON_OFF,b.ATTR_ON_OFF,function(m)
 return m==true or m==1
-end),
+end)
 },[b.CLUSTER_POWER_CONFIGURATION]={
 [b.ATTR_BATTERY_PERCENTAGE_REMAINING]=s(
 b.CLUSTER_POWER_CONFIGURATION,b.ATTR_BATTERY_PERCENTAGE_REMAINING,
@@ -113,7 +113,7 @@ return m/z
 end
 return m
 end
-),},[b.CLUSTER_ILLUMINANCE]={
+)},[b.CLUSTER_ILLUMINANCE]={
 [b.ATTR_MEASURED_VALUE]=s(
 b.CLUSTER_ILLUMINANCE,b.ATTR_MEASURED_VALUE,
 function(m)
@@ -125,7 +125,7 @@ return 0
 end
 return math.floor(10 ^((m-1)/10000)+0.5)
 end
-),},}
+)}}
 end
 function b.build_zigbee_cluster_handlers(o)
 local function p(_,d,A)
@@ -152,7 +152,7 @@ end
 end
 return{
 [b.CLUSTER_IAS_ZONE]={
-[0]=p,},}
+[0]=p}}
 end
 function b.start_configuration(d,k)
 local G={}for _,a in ipairs(k or{})do

@@ -4,14 +4,14 @@ local P=L.copy_keys
 local w=L.merge_options
 local E=p.converter
 local y={
-"name","key","preference","field","fields","emit","handler","endpoint","component","persist","read_only","write_only","command_id","transaction","signed","batch_key","match_transaction","response_dp","response_dps","match_response","skip","value","optimistic_value","suppress_optimistic_state","converter","from_device","to_device",}local K={
-"command_id","transaction","batch_key","match_transaction","response_dp","response_dps","match_response",}
+"name","key","preference","field","fields","emit","handler","endpoint","component","persist","read_only","write_only","command_id","transaction","signed","batch_key","match_transaction","response_dp","response_dps","match_response","skip","value","optimistic_value","suppress_optimistic_state","converter","from_device","to_device"}local K={
+"command_id","transaction","batch_key","match_transaction","response_dp","response_dps","match_response"}
 local function x(O)
 return e(O)=="table"and(e(O.from)=="function"or e(O.to)=="function")
 end
 local function A(c,a,f)
-local r=nil
-local k=nil
+local r
+local k
 local b={}if e(c)=="string"then
 r=c
 else
@@ -32,7 +32,7 @@ end
 local function h(s,J,c,a,f)
 local r,k,b=
 A(c,a,f)local d={
-dp=s,datatype=b.datatype or J,}P(d,b,y)if e(b.send_policy)=="table"then
+dp=s,datatype=b.datatype or J}P(d,b,y)if e(b.send_policy)=="table"then
 for _,U in ipairs(K)do
 if d[U]==nil and b.send_policy[U]~=nil then
 d[U]=b.send_policy[U]

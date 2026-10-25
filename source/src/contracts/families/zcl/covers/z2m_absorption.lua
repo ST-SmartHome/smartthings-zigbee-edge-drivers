@@ -6,28 +6,37 @@ local cluster_base = require "st.zigbee.cluster_base"
 
 local registrations, register = device_helpers.definition_registry()
 
+local position = {
+  from = function(value) return value >= 0 and value <= 100 and 100-value or nil end,
+  to = function(value) return 100-value end,
+}
+local shade_state = {from = function(value)
+  if value < 0 or value > 100 then return nil end
+  return value == 0 and "open" or value == 100 and "closed" or "partially open"
+end}
+
 local somfy_glydea2 = {
   profile = "covers-somfy-glydea2",
+  component_to_endpoint = function() return 1 end,
+  parent_refresh = function(device)
+    zcl.read_attribute(device, 0x0102, 8, 1)
+    for _, attribute in ipairs({0x21, 0x20}) do pcall(zcl.read_attribute, device, 1, attribute, 232) end
+  end,
   zcl_clusters = {
     zcl.cover_position({
       endpoint = 1, component = "main",
       minimum_interval = 1, maximum_interval = 65000, reportable_change = 1,
-      converter = {
-        from = function(value) return value >= 0 and value <= 100 and 100-value or nil end,
-        to = function(value) return 100-value end,
-      },
+      converter = position,
     }),
     zcl.window_shade_state({
       endpoint = 1, component = "main", configure_reporting = false, read_on_configure = false,
-      converter = {from = function(value)
-        if value < 0 or value > 100 then return nil end
-        return value == 0 and "open" or value == 100 and "closed" or "partially open"
-      end},
+      converter = shade_state,
     }),
     zcl.cover_state({endpoint=1, component="main"}),
     zcl.battery({
       endpoint = 232, component = "main",
       minimum_interval = 3600, maximum_interval = 65000, reportable_change = 10,
+      from_device = function(value, _, context) if context.raw_value ~= 255 then return value end end,
     }),
   },
   configure = function(driver, device)
@@ -52,17 +61,11 @@ local allesin_cover = {
     zcl.cover_position({
       endpoint = 1, component = "main",
       minimum_interval = 1, maximum_interval = 65000, reportable_change = 1,
-      converter = {
-        from = function(value) return value >= 0 and value <= 100 and 100-value or nil end,
-        to = function(value) return 100-value end,
-      },
+      converter = position,
     }),
     zcl.window_shade_state({
       endpoint = 1, component = "main", configure_reporting = false, read_on_configure = false,
-      converter = {from = function(value)
-        if value < 0 or value > 100 then return nil end
-        return value == 0 and "open" or value == 100 and "closed" or "partially open"
-      end},
+      converter = shade_state,
     }),
     zcl.cover_state({endpoint = 1, component = "main"}),
     zcl.battery({

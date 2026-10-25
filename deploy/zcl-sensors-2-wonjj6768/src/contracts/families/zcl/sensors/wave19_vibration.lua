@@ -39,10 +39,10 @@ end,"wave19 TS0210 vibration clear")
 d:set_field(b,r,{persist=false})
 end
 local u={
-profile="safety-wave19-tuya-ts0210-quoted",package_group="wave19-vibration",transport_classification="STANDARD_ZCL_WITH_LITERAL_IDENTITY",z2m_converter_source="fz.battery + fz.ias_vibration_alarm_1_with_timeout + tzLocal.TS0210_sensitivity",wire_cluster="Power Configuration 0x0001 + IAS Zone 0x0500",zcl_clusters={
-g(s.motion({
-emit=c,handler=h,})),g(s.tamper()),g(s.battery({from_device=e})),g(s.battery_voltage({from_device=e})),s.cluster_attribute(1280,19,{
+profile="safety-wave19-tuya-ts0210-quoted",package_group="wave19-vibration",zcl_clusters={
+g(s.motion{
+emit=c,handler=h}),g(s.tamper()),g(s.battery{from_device=e}),g(s.battery_voltage{from_device=e}),s.cluster_attribute(1280,19,{
 name="tuya_ts0210_sensitivity",data_type=o.Uint8,write_type=o.Uint8,write_only=true,to_device=l,numeric_range={
-minimum=0,maximum=50,step=1,},}),},}f(u,{
-j.create_fingerprint("'_TZ32101000000_5oy7cysk'","TS0210"),})return{
-id="zcl.sensors.wave19_vibration",registrations=m,}
+minimum=0,maximum=50,step=1}})}}f(u,{
+j.create_fingerprint("'_TZ32101000000_5oy7cysk'","TS0210")})return{
+id="zcl.sensors.wave19_vibration",registrations=m}

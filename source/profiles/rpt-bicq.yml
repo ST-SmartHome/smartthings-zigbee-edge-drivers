@@ -6,23 +6,21 @@ components:
     version: 1
   - id: concertmirror08464.shellyBluDoorHandlePosition
     version: 1
-  - id: concertmirror08464.batteryLow
+  - id: concertmirror08464.shellyDoorBatteryLow
     version: 1
   - id: concertmirror08464.shellyBluDoorLightLevel
     version: 1
-  - id: concertmirror08464.shellyBluDoorDarkThreshold
+  - id: concertmirror08464.shellyDoorDarkThreshold
     version: 1
-  - id: concertmirror08464.shellyBluDoorBrightThreshold
+  - id: concertmirror08464.shellyDoorBrightThreshold
+    version: 1
+  - id: concertmirror08464.shellyDoorIdentify
     version: 1
   - id: battery
     version: 1
   - id: refresh
     version: 1
   - id: signalStrength
-    version: 1
-  - id: concertmirror08464.zclIasReportMin
-    version: 1
-  - id: concertmirror08464.zclIasReportMax
     version: 1
   - id: concertmirror08464.zclBatteryReportMin
     version: 1

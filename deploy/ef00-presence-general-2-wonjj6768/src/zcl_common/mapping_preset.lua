@@ -54,15 +54,15 @@ return 0
 end
 local E=10000*(math.log(g)/math.log(10))+1
 return math.floor(E+0.5)
-end,
+end
 }
 end
 local function m(q,p,n)
 return{
-minimum_interval=q,maximum_interval=p,reportable_change=n,read_on_configure=true,}
+minimum_interval=q,maximum_interval=p,reportable_change=n,read_on_configure=true}
 end
 local function r(...)
-local t={}for _,a in ipairs({...})do
+local t={}for _,a in ipairs{...}do
 j(t,a)
 end
 return t
@@ -86,11 +86,11 @@ local e=h.configure_reporting
 h.configure_reporting=nil
 if e==false then
 return{
-emit=z.illuminance(),converter=d(),read_on_configure=true,}
+emit=z.illuminance(),converter=d(),read_on_configure=true}
 end
 return r(
 {
-emit=z.illuminance(),converter=d(),},m(30,300,100))
+emit=z.illuminance(),converter=d()},m(30,300,100))
 end)
 end
 return l

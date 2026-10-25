@@ -33,20 +33,6 @@ local function load_fans() local tuya = require "protocol.tuya"
     end
   )
 
-  local five_speed_fan_mode = converter.from_to(
-    function(value)
-      if value <= 1 then return "low" end
-      if value == 2 then return "medium" end
-      return "high"
-    end,
-    function(value)
-      if value == "low" then return 0 end
-      if value == "medium" then return 2 end
-      if value == "high" or value == "on" then return 4 end
-      return nil
-    end
-  )
-
   local zero_based_five_speed = converter.from_to(
     function(value)
       local n = tonumber(value) or 0
@@ -297,7 +283,6 @@ local function load_lights()
   local tuya = require "protocol.tuya"
   local emit = require "capabilities.events.all"
   local device_helpers = require "contracts.helpers.family"
-  local ef00_helpers = require "contracts.helpers.ef00"
   local device_management = require "st.zigbee.device_management"
 
   local device_definitions, register_device_definition = device_helpers.definition_registry()
@@ -831,9 +816,8 @@ local function load_lights()
     function(value) return math.floor(value * 1000 / 254 + 0.5) end
   )
 
-  local function add_ts0601_knob_reports(definition)
-    -- Local knob events use standard reports; app writes retain the Tuya DPs.
-    -- Periodic reports are stale on ION firmware, so request change-only reports.
+  local function add_ts0601_knob_reports(definition, reporting)
+    -- Keep standard RX alongside Tuya writes; select reporting by exact group.
     definition.magic_packet = true
     definition.mcu_version_request_on_configure = true
     definition.query_on_configure = false
@@ -843,14 +827,14 @@ local function load_lights()
     definition.time_start = "off"
     definition.parent_refresh = function() end
     definition.zcl_clusters = {
-      zcl.switch({name = "knob_switch", read_only = true, read_on_configure = false, maximum_interval = 0}),
-      zcl.level({name = "knob_level", read_only = true, read_on_configure = false, maximum_interval = 0}),
+      zcl.switch({name = "knob_switch", read_only = true, read_on_configure = false, configure_reporting = reporting, maximum_interval = reporting and 0 or nil}),
+      zcl.level({name = "knob_level", read_only = true, read_on_configure = false, configure_reporting = reporting, maximum_interval = reporting and 0 or nil}),
     }
-    definition.configure = function(driver, device)
+    definition.configure = reporting and function(driver, device)
       for _, cluster in ipairs({0x0006, 0x0008}) do
         device:send(device_management.build_bind_request(device, cluster, driver.environment_info.hub_zigbee_eui, 1))
       end
-    end
+    end or nil
   end
 
   -- Z2M TS0601_dimmer_1_gang_1 contract, narrowed by exact hardware reports.
@@ -866,7 +850,7 @@ local function load_lights()
     tuya.dp_backlight_mode(21, { name = "la2_dimmer_backlight_mode", emit = emit.la2DimmerBacklightMode() }),
   }
 
-  add_ts0601_knob_reports(dimmer_model_ts0601_la2c2uo9)
+  add_ts0601_knob_reports(dimmer_model_ts0601_la2c2uo9, false)
   register_device_definition(dimmer_model_ts0601_la2c2uo9, device_helpers.create_fingerprints("TS0601", {
     "_TZE200_la2c2uo9",
   }))
@@ -884,7 +868,7 @@ local function load_lights()
     tuya.dp_power_on_behavior(14, { name = "dfx_dimmer_power_on_behavior", datatype = tuya.DP_TYPE_VALUE, emit = emit.dfxDimmerPowerOnBehavior() }),
   }
 
-  add_ts0601_knob_reports(dimmer_model_ts0601_dfxkcots)
+  add_ts0601_knob_reports(dimmer_model_ts0601_dfxkcots, false)
   register_device_definition(dimmer_model_ts0601_dfxkcots, device_helpers.create_fingerprints("TS0601", {
     "_TZE200_dfxkcots",
   }))
@@ -903,7 +887,7 @@ local function load_lights()
     tuya.dp_backlight_mode(21, { name = "tsd1_backlight_mode", emit = emit.tsd1BacklightMode() }),
   }
 
-  add_ts0601_knob_reports(dimmer_model_ts0601_dimmer_1_gang_1)
+  add_ts0601_knob_reports(dimmer_model_ts0601_dimmer_1_gang_1, false)
   register_device_definition(dimmer_model_ts0601_dimmer_1_gang_1, device_helpers.create_fingerprints("TS0601", {
     "_TZE200_ip2akl4w",
     "_TZE200_1agwnems",
@@ -930,6 +914,7 @@ local function load_lights()
     "_TZE284_xc7dve2g",
   }))
 
+  add_ts0601_knob_reports(dimmer_model_ts0601_dimmer_1_gang_1, true)
   register_device_definition(dimmer_model_ts0601_dimmer_1_gang_1, {
     device_helpers.create_fingerprint("Lerlink", "X706U"),
     device_helpers.create_fingerprint("Moes", "ZS-EUD_1gang"),
@@ -959,16 +944,19 @@ local function load_lights()
     tuya.dp_countdown(6, {name = "ion_countdown", emit = emit.ionDimmerCountdown()}),
     tuya.dp_power_on_behavior(14, {datatype = tuya.DP_TYPE_VALUE, name = "ion_power_on", emit = emit.ionDimmerPowerOn()}),
   }
-  add_ts0601_knob_reports(dimmer_ion)
+  add_ts0601_knob_reports(dimmer_ion, true)
   register_device_definition(dimmer_ion, {
     device_helpers.create_fingerprint("_TZE200_4mh6tyyo", "TS0601"),
     device_helpers.create_fingerprint("_TZE200_ykgar0ow", "TS0601"),
-    device_helpers.create_fingerprint("_TZE200_0hb4rdnp", "TS0601"),
-    device_helpers.create_fingerprint("_TZE200_gne0e6mk", "TS0601"),
-    device_helpers.create_fingerprint("_TZE200_itp8dt7f", "TS0601"),
     device_helpers.create_fingerprint("ION Industries", "ID200W-ZIGB"),
     device_helpers.create_fingerprint("ION Industries", "90.500.090"),
     device_helpers.create_fingerprint("ION Industries", "90.500.040"),
+  })
+  add_ts0601_knob_reports(dimmer_ion, false)
+  register_device_definition(dimmer_ion, {
+    device_helpers.create_fingerprint("_TZE200_0hb4rdnp", "TS0601"),
+    device_helpers.create_fingerprint("_TZE200_gne0e6mk", "TS0601"),
+    device_helpers.create_fingerprint("_TZE200_itp8dt7f", "TS0601"),
   })
 
   -- Z2M AVATTO ZDMS16-1 contract (avatto.ts): DP1 state, DP2 brightness,
@@ -1391,9 +1379,6 @@ append_registrations(load_lights())
 
 -- ZCL REPORTING CAPABILITIES BEGIN
 zcl.attach_reporting_capabilities(registrations, {
-  {10, "rpt-tta"},
-  {11, "rpt-tga"},
-  {12, "rpt-txv"},
   {13, "rpt-txv"},
   {14, "rpt-tpf"},
 })

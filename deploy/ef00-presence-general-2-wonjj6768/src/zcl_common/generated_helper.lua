@@ -26,7 +26,7 @@ local function C(b,g)
 local y=x(b,g)local e=k[y]if e~=nil then
 return e
 end
-local a=n(b)local c=nil
+local a=n(b)local c
 if a~=nil and a~=false then
 local B=a.attr_id_map and a.attr_id_map()[g]or nil
 if B~=nil and a.server and a.server.attributes then
@@ -40,7 +40,7 @@ local function t(d,f)
 local y=string.format("%s:%s",tostring(d),tostring(f))local e=l[y]if e~=nil then
 return e
 end
-local c=nil
+local c
 local a=m(d)if a~=nil and a~=false and a.server and a.server.attributes then
 c=a.server.attributes[f]if c~=nil and c~=false and c.ID~=nil then
 k[x(a.ID,c.ID)]=c
@@ -53,7 +53,7 @@ local function z(b,h,p,F)
 local y=x(b,h)local e=F[y]if e~=nil then
 return e
 end
-local a=n(b)local i=nil
+local a=n(b)local i
 if a~=nil and a~=false then
 local H=p=="client"and a.client_id_map and a.client_id_map()[h]or p=="server"and a.server_id_map and a.server_id_map()[h]or nil
 if H~=nil and a[p]and a[p].commands then
@@ -89,7 +89,7 @@ local a=n(b)if a==nil or a==false or type(s)~="table"or s.ID==nil then
 return nil
 end
 local y=table.concat({
-tostring(b),tostring(g),tostring(s.ID),writable==false and"0"or"1",is_complex==true and"1"or"0",tostring(f or""),},":")local e=j[y]if e~=nil then
+tostring(b),tostring(g),tostring(s.ID),writable==false and"0"or"1",is_complex==true and"1"or"0",tostring(f or"")},":")local e=j[y]if e~=nil then
 return e~=false and e or nil
 end
 local c=D.build_cluster_attribute(

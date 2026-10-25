@@ -1,0 +1,467 @@
+{
+  "name": "thermostats-schneider-meg5779",
+  "components": [
+    {
+      "id": "main",
+      "capabilities": [
+        {
+          "id": "temperatureMeasurement",
+          "version": 1
+        },
+        {
+          "id": "thermostatHeatingSetpoint",
+          "version": 1,
+          "config": {
+            "values": [
+              {
+                "key": "heatingSetpoint.value",
+                "range": [
+                  4,
+                  30
+                ],
+                "step": 0.5
+              }
+            ]
+          }
+        },
+        {
+          "id": "thermostatCoolingSetpoint",
+          "version": 1,
+          "config": {
+            "values": [
+              {
+                "key": "coolingSetpoint.value",
+                "range": [
+                  4,
+                  30
+                ],
+                "step": 0.5
+              }
+            ]
+          }
+        },
+        {
+          "id": "thermostatMode",
+          "version": 1,
+          "config": {
+            "values": [
+              {
+                "key": "thermostatMode.value",
+                "enabledValues": [
+                  "off",
+                  "heat",
+                  "cool"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "thermostatOperatingState",
+          "version": 1
+        },
+        {
+          "id": "refresh",
+          "version": 1
+        },
+        {
+          "id": "signalStrength",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779HeatMin",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779HeatMax",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779CoolMin",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779CoolMax",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779HeatDemand",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779ActiveBrightness",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779InactiveBrightness",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779DisplayTimeout",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779DisplayUnit",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779Keypad",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779Application",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779HeatingFuel",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779TransferMedium",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779HeatingEmitter",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.meg5779WindowOpen",
+          "version": 1
+        }
+      ],
+      "categories": [
+        {
+          "name": "Thermostat"
+        }
+      ]
+    },
+    {
+      "id": "unoccupied",
+      "label": "Unoccupied setpoints",
+      "capabilities": [
+        {
+          "id": "thermostatHeatingSetpoint",
+          "version": 1,
+          "config": {
+            "values": [
+              {
+                "key": "heatingSetpoint.value",
+                "range": [
+                  4,
+                  30
+                ],
+                "step": 0.5
+              }
+            ]
+          }
+        },
+        {
+          "id": "thermostatCoolingSetpoint",
+          "version": 1,
+          "config": {
+            "values": [
+              {
+                "key": "coolingSetpoint.value",
+                "range": [
+                  4,
+                  30
+                ],
+                "step": 0.5
+              }
+            ]
+          }
+        }
+      ],
+      "categories": [
+        {
+          "name": "Thermostat"
+        }
+      ]
+    }
+  ],
+  "deviceConfig": {
+    "dashboard": {
+      "states": [
+        {
+          "component": "main",
+          "capability": "temperatureMeasurement"
+        },
+        {
+          "component": "main",
+          "capability": "thermostatOperatingState"
+        }
+      ],
+      "actions": [
+        {
+          "component": "main",
+          "capability": "thermostatMode"
+        }
+      ],
+      "basicPlus": []
+    },
+    "detailView": [
+      {
+        "component": "main",
+        "capability": "temperatureMeasurement"
+      },
+      {
+        "component": "main",
+        "capability": "thermostatHeatingSetpoint"
+      },
+      {
+        "component": "main",
+        "capability": "thermostatCoolingSetpoint"
+      },
+      {
+        "component": "main",
+        "capability": "thermostatMode"
+      },
+      {
+        "component": "main",
+        "capability": "thermostatOperatingState"
+      },
+      {
+        "component": "main",
+        "capability": "signalStrength"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779HeatMin"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779HeatMax"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779CoolMin"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779CoolMax"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779HeatDemand"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779ActiveBrightness"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779InactiveBrightness"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779DisplayTimeout"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779DisplayUnit"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779Keypad"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779Application"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779HeatingFuel"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779TransferMedium"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779HeatingEmitter"
+      },
+      {
+        "component": "main",
+        "capability": "concertmirror08464.meg5779WindowOpen"
+      },
+      {
+        "component": "unoccupied",
+        "capability": "thermostatHeatingSetpoint"
+      },
+      {
+        "component": "unoccupied",
+        "capability": "thermostatCoolingSetpoint"
+      }
+    ],
+    "automation": {
+      "conditions": [
+        {
+          "component": "main",
+          "capability": "temperatureMeasurement"
+        },
+        {
+          "component": "main",
+          "capability": "thermostatHeatingSetpoint"
+        },
+        {
+          "component": "main",
+          "capability": "thermostatCoolingSetpoint"
+        },
+        {
+          "component": "main",
+          "capability": "thermostatMode"
+        },
+        {
+          "component": "main",
+          "capability": "thermostatOperatingState"
+        },
+        {
+          "component": "main",
+          "capability": "signalStrength"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779HeatMin"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779HeatMax"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779CoolMin"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779CoolMax"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779HeatDemand"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779ActiveBrightness"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779InactiveBrightness"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779DisplayTimeout"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779DisplayUnit"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779Keypad"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779Application"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779HeatingFuel"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779TransferMedium"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779HeatingEmitter"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779WindowOpen"
+        },
+        {
+          "component": "unoccupied",
+          "capability": "thermostatHeatingSetpoint"
+        },
+        {
+          "component": "unoccupied",
+          "capability": "thermostatCoolingSetpoint"
+        }
+      ],
+      "actions": [
+        {
+          "component": "main",
+          "capability": "thermostatHeatingSetpoint"
+        },
+        {
+          "component": "main",
+          "capability": "thermostatCoolingSetpoint"
+        },
+        {
+          "component": "main",
+          "capability": "thermostatMode"
+        },
+        {
+          "component": "unoccupied",
+          "capability": "thermostatHeatingSetpoint"
+        },
+        {
+          "component": "unoccupied",
+          "capability": "thermostatCoolingSetpoint"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779HeatMin"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779HeatMax"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779CoolMin"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779CoolMax"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779ActiveBrightness"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779InactiveBrightness"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779DisplayTimeout"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779DisplayUnit"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779Keypad"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779Application"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779HeatingFuel"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779TransferMedium"
+        },
+        {
+          "component": "main",
+          "capability": "concertmirror08464.meg5779HeatingEmitter"
+        }
+      ]
+    }
+  }
+}

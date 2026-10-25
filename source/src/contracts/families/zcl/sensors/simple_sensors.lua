@@ -7,16 +7,11 @@ local device_management = require "st.zigbee.device_management"
 local clusters = require "st.zigbee.zcl.clusters"
 local cluster_base = require "st.zigbee.cluster_base"
 local device_helpers = require "contracts.helpers.family"
+local zcl_device_helpers = require "contracts.helpers.zcl"
 local fp = device_helpers.create_fingerprint
 local device_definitions, register = device_helpers.definition_registry()
 
-local function passive(mapping)
-  mapping.minimum_interval=nil
-  mapping.maximum_interval=nil
-  mapping.reportable_change=nil
-  mapping.read_on_configure=false
-  return mapping
-end
+local passive = zcl_device_helpers.passive
 
 local function battery_value(value,_,context)
   if context.raw_value==255 then return nil end
@@ -674,6 +669,13 @@ register(leedarson_s0000_core, {
 
 local somfy_motion_core = {
   profile="safety-motion-somfy-core",magic_packet=false,
+  protocol_writers={somfy_motion_identify=zcl_device_helpers.identify},
+  capability_commands={
+    {capability_id="concertmirror08464.somfyMotionIdentify",command_name="identify",
+      mapping_name="somfy_motion_identify",value=3},
+    {capability_id="concertmirror08464.somfyMotionIdentify",command_name="setIdentifyTime",
+      argument_name="identifyTime",mapping_name="somfy_motion_identify"},
+  },
   zcl_clusters={
     motion_mapping(false),low_mapping(false),
     zcl.battery({endpoint=1,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
@@ -895,6 +897,7 @@ local iris_3320_core = {
   profile="sensors-iris-3320-core",magic_packet=false,zcl_clusters=iris_contact_clusters(false),
 }
 register(iris_3320_core, {
+  fp("CentraLite","3320-L"),
   fp("iMagic by GreatStar","3320-L"),
 })
 
@@ -2842,7 +2845,7 @@ register(nodieby_nd01_motion_core, {
 })
 
 local besisglas_ms01 = {
-  profile="sensors-besisglas-ms01",magic_packet=false,placeholder_custom_states=false,
+  profile="sensors-besisglas-ms01",magic_packet=false,
   zcl_clusters={
     zcl.motion({endpoint=1,configure_reporting=false,read_on_configure=false,read_only=true,
       emit=function(device,value)
@@ -2925,7 +2928,7 @@ zcl.attach_reporting_capabilities(device_definitions, {
   {4, "rpt-cwy"},
   {5, "rpt-oof"},
   {6, "rpt-hqj"},
-  {7, "rpt-zwu", {["zr040500001"] = "Humidity", ["zr040500002"] = "HumidityTwo"}},
+  {7, "rpt-zwu", {zr040500001 = "Humidity", zr040500002 = "HumidityTwo"}},
   {9, "rpt-tdw"},
   {11, "rpt-hvw"},
   {17, "rpt-cpj"},
@@ -2954,7 +2957,7 @@ zcl.attach_reporting_capabilities(device_definitions, {
   {46, "rpt-cid"},
   {47, "rpt-ska"},
   {49, "rpt-sbo"},
-  {50, "rpt-zes", {["zr040200001"] = "Temp", ["zr040200002"] = "TempTwo", ["zr040500001"] = "Humidity", ["zr040500002"] = "HumidityTwo"}},
+  {50, "rpt-zes", {zr040200001 = "Temp", zr040200002 = "TempTwo", zr040500001 = "Humidity", zr040500002 = "HumidityTwo"}},
   {51, "rpt-cbe"},
   {54, "rpt-tjf"},
   {55, "rpt-zsl"},
@@ -2972,7 +2975,7 @@ zcl.attach_reporting_capabilities(device_definitions, {
   {70, "rpt-eal"},
   {71, "rpt-eff"},
   {72, "rpt-els"},
-  {73, "rpt-eoa", {["zr040200001"] = "Temp", ["zr040200002"] = "TempTwo", ["zr040500001"] = "Humidity", ["zr040500002"] = "HumidityTwo"}},
+  {73, "rpt-eoa", {zr040200001 = "Temp", zr040200002 = "TempTwo", zr040500001 = "Humidity", zr040500002 = "HumidityTwo"}},
   {74, "rpt-tjc"},
   {75, "rpt-heu"},
   {77, "rpt-fje"},
@@ -3000,8 +3003,8 @@ zcl.attach_reporting_capabilities(device_definitions, {
   {102, "rpt-ezx"},
   {103, "rpt-wfi"},
   {105, "rpt-evv"},
-  {106, "rpt-edu", {["zr040200001"] = "Temp", ["zr040200002"] = "TempTwo", ["zr040500001"] = "Humidity", ["zr040500002"] = "HumidityTwo"}},
-  {107, "rpt-etn", {["zr040200001"] = "Temp", ["zr040200002"] = "TempTwo", ["zr040500001"] = "Humidity", ["zr040500002"] = "HumidityTwo"}},
+  {106, "rpt-edu", {zr040200001 = "Temp", zr040200002 = "TempTwo", zr040500001 = "Humidity", zr040500002 = "HumidityTwo"}},
+  {107, "rpt-etn", {zr040200001 = "Temp", zr040200002 = "TempTwo", zr040500001 = "Humidity", zr040500002 = "HumidityTwo"}},
   {108, "rpt-epb"},
   {109, "rpt-epb"},
   {110, "rpt-zbu"},

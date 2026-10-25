@@ -208,7 +208,7 @@ zcl.attach_reporting_capabilities(device_definitions, {
   {6, "rpt-tpd"},
   {7, "rpt-cfc"},
   {8, "rpt-zdh"},
-  {9, "rpt-suw", {["zr020100005"] = "LocalTemp", ["zr020100006"] = "LocalTempTwo", ["zr020100125"] = "HeatSet", ["zr020100126"] = "HeatSetTwo", ["zr0201001c5"] = "Mode", ["zr0201001c6"] = "ModeTwo", ["zr020100295"] = "State", ["zr020100296"] = "StateTwo"}},
+  {9, "rpt-suw", {zr020100005 = "LocalTemp", zr020100006 = "LocalTempTwo", zr020100125 = "HeatSet", zr020100126 = "HeatSetTwo", zr0201001c5 = "Mode", zr0201001c6 = "ModeTwo", zr020100295 = "State", zr020100296 = "StateTwo"}},
   {10, "rpt-fsr"},
 })
 -- ZCL REPORTING CAPABILITIES END

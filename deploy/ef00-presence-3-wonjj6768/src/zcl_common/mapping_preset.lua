@@ -54,7 +54,7 @@ return 0
 end
 local K=10000*(math.log(c)/math.log(10))+1
 return math.floor(K+0.5)
-end,
+end
 }
 end
 local function q(D)
@@ -79,7 +79,7 @@ if type(c)~="number"then
 return c
 end
 return bit32.band(c,D)~=0
-end,
+end
 }
 end
 local function g(z)
@@ -88,14 +88,14 @@ if n==nil then
 return nil
 end
 return{
-raw_value=n.value or n,typed_value=n,}
+raw_value=n.value or n,typed_value=n}
 end
 local function f(x,w,t)
 return{
-minimum_interval=x,maximum_interval=w,reportable_change=t,read_on_configure=true,}
+minimum_interval=x,maximum_interval=w,reportable_change=t,read_on_configure=true}
 end
 local function j(...)
-local A={}for _,d in ipairs({...})do
+local A={}for _,d in ipairs{...}do
 h(A,d)
 end
 return A
@@ -117,18 +117,18 @@ end
 o("battery",y.power_configuration_battery,function()
 return j(
 {
-emit=v.battery(),scale=2,},f(300,21600,2))
+emit=v.battery(),scale=2},f(300,21600,2))
 end)
 o("illuminance",y.illuminance_measurement,function(k)
 local b=k.configure_reporting
 k.configure_reporting=nil
 if b==false then
 return{
-emit=v.illuminance(),converter=i(),read_on_configure=true,}
+emit=v.illuminance(),converter=i(),read_on_configure=true}
 end
 return j(
 {
-emit=v.illuminance(),converter=i(),},f(30,300,100))
+emit=v.illuminance(),converter=i()},f(30,300,100))
 end)
 y.occupancy=function(e,k)
 local a=l(e,k)local C=a.ias_zone==true
@@ -138,21 +138,21 @@ a.configure_reporting=nil
 if C then
 h(a,j(
 {
-name="occupancy",emit=v.occupancy(),converter=q(1),ias_configure_method=p.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=g,},f(30,300,nil)))return y.ias_zone(a)
+name="occupancy",emit=v.occupancy(),converter=q(1),ias_configure_method=p.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=g},f(30,300,nil)))return y.ias_zone(a)
 end
 if b==false then
 h(a,{
-emit=v.occupancy(),read_on_configure=true,})return y.occupancy_sensing(a)
+emit=v.occupancy(),read_on_configure=true})return y.occupancy_sensing(a)
 end
 h(a,j(
 {
-emit=v.occupancy(),},f(0,300,nil)))return y.occupancy_sensing(a)
+emit=v.occupancy()},f(0,300,nil)))return y.occupancy_sensing(a)
 end
 o("motion",y.ias_zone,function(k)
 local b=k.configure_reporting
 k.configure_reporting=nil
 local d={
-name="motion",emit=v.motion(),converter=q(1),ias_configure_method=p.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=g,read_on_configure=true,}if b==false then
+name="motion",emit=v.motion(),converter=q(1),ias_configure_method=p.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=g,read_on_configure=true}if b==false then
 return d
 end
 return j(d,f(30,300,nil))

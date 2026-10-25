@@ -149,7 +149,7 @@ end
 function thermostat_common.daily_schedule(day, count)
   return {
     from = function(value)
-      if type(value) ~= "string" or #value ~= 1 + count * 4 then return nil end
+      if type(value) ~= "string" or #value < 1 + count * 4 then return nil end
       local periods = {}
       for index = 0, count - 1 do
         local hour, minute, temperature = string.unpack(">BBI2", value, 2 + index * 4)

@@ -1,0 +1,8 @@
+name: bridges-egony-v6
+components:
+  - id: main
+    capabilities:
+      - {id: signalStrength, version: 1}
+      - {id: concertmirror08464.egonyV6Reset, version: 1}
+      - {id: refresh, version: 1}
+    categories: [{name: Bridges}]

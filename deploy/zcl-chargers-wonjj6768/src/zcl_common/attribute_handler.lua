@@ -58,9 +58,9 @@ n=="Date"or
 n=="UtcTime"or
 n=="IeeeAddress"or
 n=="SecurityKey"or
-n:match("^Uint%d+$")~=nil or
-n:match("^Int%d+$")~=nil or
-n:match("String$")~=nil
+n:match"^Uint%d+$"~=nil or
+n:match"^Int%d+$"~=nil or
+n:match"String$"~=nil
 end
 local function p(c,h,a)
 local u=a.typed_value
@@ -191,7 +191,7 @@ l.note_report(b)
 end
 local K=Z(b)if K and K.zcl_clusters then
 local E=s(aa)local y=F(aa)local c=o(d)local e={
-cluster_id=j,attribute_id=f,zb_rx=aa,src_endpoint=E,endpoint=E,mfg_code=y,typed_value=d,zcl_clusters=K.zcl_clusters,}m.handle_internal_attribute(b,j,f,d,e)m.apply_attribute(b,K.zcl_clusters,j,f,c,e)
+cluster_id=j,attribute_id=f,zb_rx=aa,src_endpoint=E,endpoint=E,mfg_code=y,typed_value=d,zcl_clusters=K.zcl_clusters}m.handle_internal_attribute(b,j,f,d,e)m.apply_attribute(b,K.zcl_clusters,j,f,c,e)
 end
 end
 end

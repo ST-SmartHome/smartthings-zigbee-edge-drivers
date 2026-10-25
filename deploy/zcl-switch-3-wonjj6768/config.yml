@@ -1,0 +1,6 @@
+name: "ZCL Switch 3 wonjj6768"
+packageKey: "zcl-switch-3-wonjj6768"
+description: "Zigbee switches with explicit device fingerprints."
+vendorSupportInformation: "Report issues with hub logcat: <a href=\"https://github.com/wonjj6768/smartthings-zigbee-edge-drivers\">GitHub</a> | URL: https://github.com/wonjj6768/smartthings-zigbee-edge-drivers"
+permissions:
+  zigbee: {}

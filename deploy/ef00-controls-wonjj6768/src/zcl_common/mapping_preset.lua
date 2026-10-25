@@ -63,7 +63,7 @@ if type(b)~="number"then
 return b
 end
 return bit32.band(b,B)~=0
-end,
+end
 }
 end
 local function g(y)
@@ -72,14 +72,14 @@ if h==nil then
 return nil
 end
 return{
-raw_value=h.value or h,typed_value=h,}
+raw_value=h.value or h,typed_value=h}
 end
 local function n(s,r,p)
 return{
-minimum_interval=s,maximum_interval=r,reportable_change=p,read_on_configure=true,}
+minimum_interval=s,maximum_interval=r,reportable_change=p,read_on_configure=true}
 end
 local function v(...)
-local z={}for _,a in ipairs({...})do
+local z={}for _,a in ipairs{...}do
 k(z,a)
 end
 return z
@@ -102,7 +102,7 @@ w("battery_low",G.ias_zone,function(i)
 local e=i.configure_reporting
 i.configure_reporting=nil
 local a={
-name="battery_low",emit=x("battery_low"),converter=u(8),ias_configure_method=t.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=g,read_on_configure=true,}if e==false then
+name="battery_low",emit=x"battery_low",converter=u(8),ias_configure_method=t.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=g,read_on_configure=true}if e==false then
 return a
 end
 return v(a,n(0,300,nil))

@@ -36,7 +36,6 @@ local water_alarm_battery_state = {
   time_start = "off",
   initial_custom_state_query = false,
   refresh_state_query = false,
-  placeholder_custom_states = false,
 
   tuya.dp_numeric(1, {
     name = "lincukoo_w_four_alarm_status",
@@ -68,7 +67,6 @@ local water_alarm_battery_ringtone = {
   time_start = "off",
   initial_custom_state_query = false,
   refresh_state_query = false,
-  placeholder_custom_states = false,
 
   tuya.dp_numeric(1, {
     name = "lincukoo_w_four_alarm_status",

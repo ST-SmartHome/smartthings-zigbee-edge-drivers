@@ -4,7 +4,7 @@ local p=x.merge_options
 local A=x.copy_table
 local y=string.lower
 local o={
-"command_id","transaction","batch_key","match_transaction","response_dp","response_dps","match_response",}
+"command_id","transaction","batch_key","match_transaction","response_dp","response_dps","match_response"}
 local function g(a,b)
 local c={}if f(a)=="table"then
 p(c,a)elseif a~=nil then

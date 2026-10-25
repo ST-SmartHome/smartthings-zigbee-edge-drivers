@@ -62,9 +62,6 @@ end
 local ts0210 = {
   profile = "safety-wave19-tuya-ts0210-quoted",
   package_group = "wave19-vibration",
-  transport_classification = "STANDARD_ZCL_WITH_LITERAL_IDENTITY",
-  z2m_converter_source = "fz.battery + fz.ias_vibration_alarm_1_with_timeout + tzLocal.TS0210_sensitivity",
-  wire_cluster = "Power Configuration 0x0001 + IAS Zone 0x0500",
   zcl_clusters = {
     passive_rx(zcl.motion({
       emit = acceleration_emitter,

@@ -1,537 +1,535 @@
-local function bf(r)
-local as=require"st.capabilities"
-local af=require"runtime.capability_metadata"
-local U=require"runtime.capability_support"
-local O=require"st.zigbee.constants"
-local bt=require"st.zigbee.device_management"
-local f=af.by_emit_name.power_poll_interval
-local p=af.by_emit_name.last_power_response_time
-local R="_zcl_power_poll_interval_seconds"
-local F="_zcl_last_power_response_at"
-local T="_zcl_switch_state"
+local function bg(s)
+local au=require"st.capabilities"
+local ai=require"runtime.capability_metadata"
+local X=require"runtime.capability_support"
+local R=require"st.zigbee.constants"
+local f=ai.by_emit_name.power_poll_interval
+local p=ai.by_emit_name.last_power_response_time
+local U="_zcl_power_poll_interval_seconds"
+local G="_zcl_last_power_response_at"
+local W="_zcl_switch_state"
 local i=f and f.default_range or{}local o=i.minimum or 5
 local n=i.maximum or 3600
 local A=i.step or 5
-local S=i.unit or"s"
-local Z="--"
-local aw=3600
-local ag={1,3,10,30}local ae={1,3}local j={}local Q=setmetatable({},{__mode="k"})local C=setmetatable({},{__mode="k"})
-local function aN(d)
-if type(d)=="table"then
-d=d.value
+local V=i.unit or"s"
+local ac="--"
+local ay=3600
+local aj={1,3,10,30}local ah={1,3}local j={}local N={demand="energy",summation="energy"}local T=setmetatable({},{__mode="k"})local D=setmetatable({},{__mode="k"})
+local function aP(e)
+if type(e)=="table"then
+e=e.value
 end
-if type(d)~="number"then
+if type(e)~="number"then
 return nil
 end
-return d
+return e
 end
 local function q(c)
-return r.normalize_endpoint(c)or 1
+return s.normalize_endpoint(c)or 1
 end
-local function aM(d)
-if type(d)=="table"then
-d=d.value
+local function aO(e)
+if type(e)=="table"then
+e=e.value
 end
-if type(d)=="string"and d~=""then
-local bs=tonumber(d)if bs~=nil then
-d=bs
+if type(e)=="string"and e~=""then
+local bt=tonumber(e)if bt~=nil then
+e=bt
 end
 end
-if type(d)~="number"or d~=d or d==math.huge or d==-math.huge then
+if type(e)~="number"or e~=e or e==math.huge or e==-math.huge then
 return nil
 end
-return math.floor(d+0.5)
+return math.floor(e+0.5)
 end
-local function y(d)
-d=aM(d)if d==nil then
+local function y(e)
+e=aO(e)if e==nil then
 return nil
 end
-if d<o then
-d=o
-elseif d>n then
-d=n
+if e<o then
+e=o
+elseif e>n then
+e=n
 end
-d=math.floor((d/A)+0.5)*A
-if d<o then
-d=o
-elseif d>n then
-d=n
+e=math.floor((e/A)+0.5)*A
+if e<o then
+e=o
+elseif e>n then
+e=n
 end
-return d
+return e
 end
 local function B(a,m)
 if m==nil then
 return false
 end
-return U.supports(a,m.ID,"main")
+return X.supports(a,m.ID,"main")
 end
-local function am(a,be)
-return U.supports(a,be,"main")
+local function ap(a,bf)
+return X.supports(a,bf,"main")
 end
-local function ac(a,bm)
-if bm==nil then
+local function af(a,bn)
+if bn==nil then
 return false
 end
 if type(a.emit_component_event)=="function"then
-a:emit_component_event({id="main"},bm)return true
+a:emit_component_event({id="main"},bn)return true
 end
 if type(a.emit_event)=="function"then
-a:emit_event(bm)return true
+a:emit_event(bn)return true
 end
 return false
 end
-local aP=U.is_callable
-local function t(a,aT,W)
-if type(aT)~="table"or type(W)~="string"or W==""then
+local aR=X.is_callable
+local function u(a,aV,Z)
+if type(aV)~="table"or type(Z)~="string"or Z==""then
 return nil,nil
 end
-if not am(a,aT.capability_id)then
+if not ap(a,aV.capability_id)then
 return nil,nil
 end
-local m=as[aT.capability_id]local w=m and m[W]or nil
-if not aP(w)and m and type(m.attributes)=="table"then
-w=m.attributes[W]
+local m=au[aV.capability_id]local x=m and m[Z]or nil
+if not aR(x)and m and type(m.attributes)=="table"then
+x=m.attributes[Z]
 end
-if not aP(w)then
-w=nil
+if not aR(x)then
+x=nil
 end
-return m,w
+return m,x
 end
-local function an(aq)
-if type(aq)~="number"or aq<=0 then
-return Z
+local function aq(aM)
+if type(aM)~="number"or aM<=0 then
+return ac
 end
-return os.date("!%Y-%m-%d %H:%M:%S UTC",aq)
+return os.date("!%Y-%m-%d %H:%M:%S UTC",aM)
 end
-local function L(a,b)
+local function M(a,b)
 if type(b)~="table"then
 return nil
 end
-local aA=nil
+local aC
 for _,h in ipairs(b)do
 if type(h)=="table"then
-local e=r.mapping_meta(h)if e~=nil and e.metering_kind=="power"and not e.write_only then
-local aK=r.build_mapping_context(a,h,nil)local bb={
-mapping=h,meta=e,context=aK,}if aK.component_id=="main"then
-return bb
+local d=s.mapping_meta(h)if d~=nil and d.metering_kind=="power"and not d.write_only then
+local aL=s.build_mapping_context(a,h,nil)local bc={
+mapping=h,meta=d,context=aL}if aL.component_id=="main"then
+return bc
 end
-if aA==nil then
-aA=bb
-end
-end
+if aC==nil then
+aC=bc
 end
 end
-return aA
 end
-local function N(a,b)
-local bv=L(a,b)if bv==nil then
+end
+return aC
+end
+local function P(a,b)
+local bv=M(a,b)if bv==nil then
 return nil
 end
 return y(bv.meta.poll_interval)
 end
-local function J(a,b)
-local bh=y(a:get_field(R))if bh~=nil then
-return bh
+local function K(a,b)
+local bi=y(a:get_field(U))if bi~=nil then
+return bi
 end
-return N(a,b)
+return P(a,b)
 end
-local function bp()
-local aq=os.time()if type(aq)=="number"then
-return aq
-end
-return nil
-end
-local function E(d)
-if d==true or d=="on"then
+local function F(e)
+if e==true or e=="on"then
 return"on"
 end
-if d==false or d=="off"then
+if e==false or e=="off"then
 return"off"
 end
 return nil
 end
-local function V(a)
-local bw=E(a:get_field(T))if bw~=nil then
+local function Y(a)
+local bw=F(a:get_field(W))if bw~=nil then
 return bw
 end
-local br=E(type(a.get_latest_state)=="function"and
-a:get_latest_state("main",as.switch.ID,"switch")or nil)if br~=nil then
-return br
+local bs=F(type(a.get_latest_state)=="function"and
+a:get_latest_state("main",au.switch.ID,"switch")or nil)if bs~=nil then
+return bs
 end
 return nil
 end
-local function u(a)
-return B(a,as.switch)
+local function v(a)
+return B(a,au.switch)
 end
-local function ak(a,b)
+local function an(a,b)
 if type(b)~="table"then
 return false
 end
-local aG=0
-local ah={}for _,h in ipairs(b)do
+local aI=0
+local ak={}for _,h in ipairs(b)do
 if type(h)=="table"then
-local e=r.mapping_meta(h)if e~=nil and e.metering_kind~=nil and not e.write_only then
-local k=r.build_mapping_context(a,h,nil)local aX=string.format(
-"%04X:%04X:%s:%s",e.cluster_id or 0,e.attribute_id or 0,tostring(k.endpoint),tostring(e.mfg_code))if not ah[aX]then
-ah[aX]=true
-r.read_mapping(a,h,k)aG=aG+1
+local d=s.mapping_meta(h)if d~=nil and d.metering_kind~=nil and not d.write_only then
+local k=s.build_mapping_context(a,h,nil)local aY=string.format(
+"%04X:%04X:%s:%s",d.cluster_id or 0,d.attribute_id or 0,tostring(k.endpoint),tostring(d.mfg_code))if not ak[aY]then
+ak[aY]=true
+s.read_mapping(a,h,k)aI=aI+1
 end
 end
 end
 end
-return aG>0
+return aI>0
 end
-local function K(a,b,ba,bq,bo)
+local function L(a,b,bb,bq,bp)
 if type(b)~="table"or a.thread==nil or type(a.thread.call_with_delay)~="function"then
 return false
 end
 if type(bq)~="table"then
 return false
 end
-local bd=false
-local M=Q[a]if type(M)~="table"then
-M={}Q[a]=M
+local be=false
+local O=T[a]if type(O)~="table"then
+O={}T[a]=O
 end
-for _,bl in ipairs(bq)do
-if type(bl)=="number"and bl>0 then
-local az=a.thread:call_with_delay(bl,function()
-if V(a)==ba then
-ak(a,b)
+for _,bm in ipairs(bq)do
+if type(bm)=="number"and bm>0 then
+local aB=a.thread:call_with_delay(bm,function()
+if Y(a)==bb then
+an(a,b)
 end
-end,bo)
-if az~=nil then
-M[#M+1]=az
-bd=true
+end,bp)
+if aB~=nil then
+O[#O+1]=aB
+be=true
 end
 end
 end
-return bd
+return be
 end
-local function ax(a,b,e)
-if e==nil then
+local function az(a,b,d)
+if d==nil then
 return nil
 end
-local l=e.poll_interval
-if e.metering_kind=="power"then
-l=J(a,b)
+local l=d.poll_interval
+if d.metering_kind=="power"then
+l=K(a,b)
 end
 if type(l)~="number"or l<=0 then
 return l
 end
-if not u(a)or e.metering_kind==nil then
+if not v(a)or d.metering_kind==nil then
 return l
 end
-if V(a)=="off"and e.metering_kind~="voltage"then
-return aw
+if Y(a)=="off"and d.metering_kind~="voltage"then
+return ay
 end
 return l
 end
-local function ad(a,b)
-local au=J(a,b)local m,w=t(
-a,f,f and f.attribute_name or nil)if au==nil or w==nil or not B(a,m)then
+local function ag(a,b)
+local aw=K(a,b)local m,x=u(
+a,f,f and f.attribute_name or nil)if aw==nil or x==nil or not B(a,m)then
 return false
 end
-local _,ay=t(
-a,f,f and f.range_attribute_name or nil)if ay~=nil then
-ac(a,ay({
+local _,aA=u(
+a,f,f and f.range_attribute_name or nil)if aA~=nil then
+af(a,aA{
 value={
-minimum=o,maximum=n,step=A,},unit=S,}))
+minimum=o,maximum=n,step=A},unit=V})
 end
-ac(a,w({
-value=au,unit=S,}))return true
+af(a,x{
+value=aw,unit=V})return true
 end
-local function D(a)
-local m,w=t(
-a,p,p and p.attribute_name or nil)if w==nil or not B(a,m)then
+local function E(a)
+local m,x=u(
+a,p,p and p.attribute_name or nil)if x==nil or not B(a,m)then
 return false
 end
-ac(a,w({
-value=an(a:get_field(F)),}))return true
+af(a,x{
+value=aq(a:get_field(G))})return true
 end
-local function bc(bu,v,c)
-return string.format("_zcl_metering:%s:%s:%d",tostring(bu),tostring(v),q(c))
+local function bd(bu,w,c)
+return string.format("_zcl_metering:%s:%s:%d",tostring(bu),tostring(w),q(c))
 end
-local function ab(bu,at,aY,bg,aF,aL)
-local ap=r.get_generated_cluster_id(at)local z=r.get_generated_attribute_by_name(at,aY)local H=r.get_generated_attribute_by_name(at,bg)if ap==nil or z==nil or H==nil then
+local function ae(bu,av,aZ,bh,aH,aN)
+local as=s.get_generated_cluster_id(av)local z=s.get_generated_attribute_by_name(av,aZ)local I=s.get_generated_attribute_by_name(av,bh)if as==nil or z==nil or I==nil then
 return nil
 end
 return{
-kind=bu,cluster_id=ap,multiplier_attribute_id=z.ID,divisor_attribute_id=H.ID,multiplier_store_key=aF,divisor_store_key=aL,}
+kind=bu,cluster_id=as,multiplier_attribute_id=z.ID,divisor_attribute_id=I.ID,multiplier_store_key=aH,divisor_store_key=aN}
 end
-local function aZ(a,g,v,d,c)
-local P=aN(d)if P==nil then
+local function ba(a,g,w,e,c)
+local S=aP(e)if S==nil then
 return false
 end
-a:set_field(bc(g.kind,v,c),P,{persist=true})if q(c)==1 then
-if v=="multiplier"and g.multiplier_store_key~=nil then
-a:set_field(g.multiplier_store_key,P,{persist=true})elseif v=="divisor"and g.divisor_store_key~=nil then
-a:set_field(g.divisor_store_key,P,{persist=true})
+a:set_field(bd(g.kind,w,c),S,{persist=true})if q(c)==1 then
+if w=="multiplier"and g.multiplier_store_key~=nil then
+a:set_field(g.multiplier_store_key,S,{persist=true})elseif w=="divisor"and g.divisor_store_key~=nil then
+a:set_field(g.divisor_store_key,S,{persist=true})
 end
 end
 return true
 end
-local function ar(a,g,v,c)
-c=q(c)local P=a:get_field(bc(g.kind,v,c))if type(P)=="number"then
-return P
+local function at(a,g,w,c)
+c=q(c)local S=a:get_field(bd(g.kind,w,c))if type(S)=="number"then
+return S
 end
 if c==1 then
-local ao=v=="multiplier"and g.multiplier_store_key or g.divisor_store_key
-if ao~=nil then
-P=a:get_field(ao)if type(P)=="number"then
-return P
+local ar=w=="multiplier"and g.multiplier_store_key or g.divisor_store_key
+if ar~=nil then
+S=a:get_field(ar)if type(S)=="number"then
+return S
 end
 end
 end
 return nil
 end
-local function aj(a,h,e,g,c)
-local aU=e.physical_reportable_change
-if type(aU)~="number"or aU<=0 then
+local function am(a,h,d,g,c)
+local aW=d.physical_reportable_change
+if type(aW)~="number"or aW<=0 then
 return nil
 end
-local z=ar(a,g,"multiplier",c)local H=ar(a,g,"divisor",c)if type(z)~="number"or z<=0 or type(H)~="number"or H<=0 then
+local z=at(a,g,"multiplier",c)local I=at(a,g,"divisor",c)if type(z)~="number"or z<=0 or type(I)~="number"or I<=0 then
 return nil
 end
-local bk=aU*H/z
-if bk~=bk or bk==math.huge or bk==-math.huge then
+local bl=aW*I/z
+if bl~=bl or bl==math.huge or bl==-math.huge then
 return nil
 end
-local aD=math.floor(bk+0.5)if aD<=0 or math.abs(bk-aD)>0.000000001 then
+local aF=math.floor(bl+0.5)if aF<=0 or math.abs(bl-aF)>0.000000001 then
 return nil
 end
-if type(e.data_type)=="function"then
-return e.data_type(aD)
+if type(d.data_type)=="function"then
+return d.data_type(aF)
 end
-if type(e.data_type)=="table"then
-local mt=getmetatable(e.data_type)
+if type(d.data_type)=="table"then
+local mt=getmetatable(d.data_type)
 if type(mt)=="table"and type(mt.__call)=="function"then
-return e.data_type(aD)
+return d.data_type(aF)
 end
 end
-return aD
+return aF
 end
-local function al(a,g,c,b)
+local function ao(a,g,c,b)
 if type(b)~="table"or type(a.send)~="function"then
 return false
 end
-local aJ=false
-local ah={}for _,h in ipairs(b)do
-local e=type(h)=="table"and r.mapping_meta(h)or nil
-if e~=nil and e.metering_kind==g.kind and e.physical_reportable_change~=nil then
-local aK=r.build_mapping_context(a,h,nil)local aS=q(aK.endpoint)if aS==c and e.cluster_id~=nil and e.attribute_id~=nil then
-local aX=string.format("%04X:%04X:%d",e.cluster_id,e.attribute_id,c)if not ah[aX]then
-ah[aX]=true
-local Y=aj(a,h,e,g,c)if Y~=nil then
-local aI=require"zcl_common.reporting"
-local bx=aI.configuration(r,a,h,Y)or{
-cluster=e.cluster_id,attribute=e.attribute_id,minimum_interval=e.minimum_interval or 0,maximum_interval=e.maximum_interval or 300,data_type=e.data_type,reportable_change=Y,mfg_code=e.mfg_code,}local aW=aI.describe(r,h,a)aI.send_config(a,aW and aW.key,bx,c)aJ=true
+local aK=false
+local ak={}for _,h in ipairs(b)do
+local d=type(h)=="table"and s.mapping_meta(h)or nil
+if d~=nil and d.metering_kind==g.kind and d.physical_reportable_change~=nil then
+local aL=s.build_mapping_context(a,h,nil)local aU=q(aL.endpoint)if aU==c and d.cluster_id~=nil and d.attribute_id~=nil then
+local aY=string.format("%04X:%04X:%d",d.cluster_id,d.attribute_id,c)if not ak[aY]then
+ak[aY]=true
+local ab=am(a,h,d,g,c)if ab~=nil then
+local aJ=require"zcl_common.reporting"
+local bx=aJ.configuration(s,a,h,ab)or{
+cluster=d.cluster_id,attribute=d.attribute_id,minimum_interval=d.minimum_interval or 0,maximum_interval=d.maximum_interval or 300,data_type=d.data_type,reportable_change=ab,mfg_code=d.mfg_code}local aX=aJ.describe(s,h,a)aJ.send_config(a,aX and aX.key,bx,c)aK=true
 end
 end
 end
 end
 end
-return aJ
+return aK
 end
-local function X(a,g,v,c,b)
-local s=C[a]if s==nil then
-s={}C[a]=s
+local function aa(a,g,w,c,b)
+local t=D[a]if t==nil then
+t={}D[a]=t
 end
-s[g.kind]=s[g.kind]or{}local bn=s[g.kind][c]or{}s[g.kind][c]=bn
-bn[v]=true
-if bn.multiplier~=true or bn.divisor~=true then
+t[g.kind]=t[g.kind]or{}local bo=t[g.kind][c]or{}t[g.kind][c]=bo
+bo[w]=true
+if bo.multiplier~=true or bo.divisor~=true then
 return false
 end
-s[g.kind][c]={}return al(a,g,c,b)
+t[g.kind][c]={}return ao(a,g,c,b)
 end
-local function av(a,g,c)
-local s=C[a]if s==nil then
-s={}C[a]=s
+local function ax(a,g,c)
+local t=D[a]if t==nil then
+t={}D[a]=t
 end
-s[g.kind]=s[g.kind]or{}s[g.kind][c]={}
+t[g.kind]=t[g.kind]or{}t[g.kind][c]={}
 end
-local function aQ(a,g,aa,c)
-if r.read_attribute==nil then
+local function aS(a,g,ad,c)
+if s.read_attribute==nil then
 return false
 end
-return r.read_attribute(a,g.cluster_id,aa,c)
+return s.read_attribute(a,g.cluster_id,ad,c)
 end
-local function ai(a)
-local M=Q[a]
-if type(M)~="table"or a.thread==nil or type(a.thread.cancel_timer)~="function"then
-Q[a]=nil
+local function al(a)
+local O=T[a]
+if type(O)~="table"or a.thread==nil or type(a.thread.cancel_timer)~="function"then
+T[a]=nil
 return
 end
-for _,az in ipairs(M)do
-if az~=nil then
-a.thread:cancel_timer(az)
+for _,aB in ipairs(O)do
+if aB~=nil then
+a.thread:cancel_timer(aB)
 end
 end
-Q[a]=nil
+T[a]=nil
 end
-local function I()
+local function J()
 if next(j)~=nil then
 return
 end
-j.energy=ab(
-"energy","SimpleMetering","Multiplier","Divisor",O.SIMPLE_METERING_MULTIPLIER_KEY,O.SIMPLE_METERING_DIVISOR_KEY)j.power=ab(
-"power","ElectricalMeasurement","ACPowerMultiplier","ACPowerDivisor",O.ELECTRICAL_MEASUREMENT_MULTIPLIER_KEY,O.ELECTRICAL_MEASUREMENT_DIVISOR_KEY)j.voltage=ab(
-"voltage","ElectricalMeasurement","ACVoltageMultiplier","ACVoltageDivisor")j.current=ab(
-"current","ElectricalMeasurement","ACCurrentMultiplier","ACCurrentDivisor")j.frequency=ab(
+j.energy=ae(
+"energy","SimpleMetering","Multiplier","Divisor",R.SIMPLE_METERING_MULTIPLIER_KEY,R.SIMPLE_METERING_DIVISOR_KEY)j.power=ae(
+"power","ElectricalMeasurement","ACPowerMultiplier","ACPowerDivisor",R.ELECTRICAL_MEASUREMENT_MULTIPLIER_KEY,R.ELECTRICAL_MEASUREMENT_DIVISOR_KEY)j.voltage=ae(
+"voltage","ElectricalMeasurement","ACVoltageMultiplier","ACVoltageDivisor")j.current=ae(
+"current","ElectricalMeasurement","ACCurrentMultiplier","ACCurrentDivisor")j.frequency=ae(
 "frequency","ElectricalMeasurement","ACFrequencyMultiplier","ACFrequencyDivisor")for _,g in pairs(j)do
 if g~=nil then
-r.register_attribute(g.cluster_id,g.multiplier_attribute_id)r.register_attribute(g.cluster_id,g.divisor_attribute_id)
+s.register_attribute(g.cluster_id,g.multiplier_attribute_id)s.register_attribute(g.cluster_id,g.divisor_attribute_id)
 end
 end
 end
-function r.handle_internal_attribute(a,ap,aa,x,G)
-I()local c=q(type(G)=="table"and
-(G.endpoint or G.src_endpoint)or nil)local b=type(G)=="table"and G.zcl_clusters or nil
+function s.handle_internal_attribute(a,as,ad,r,H)
+J()local c=q(type(H)=="table"and
+(H.endpoint or H.src_endpoint)or nil)local b=type(H)=="table"and H.zcl_clusters or nil
 for _,g in pairs(j)do
-if g~=nil and ap==g.cluster_id then
-if aa==g.multiplier_attribute_id then
-local aB=aZ(a,g,"multiplier",x,c)if aB then
-X(a,g,"multiplier",c,b)
+if g~=nil and as==g.cluster_id then
+if ad==g.multiplier_attribute_id then
+local aD=ba(a,g,"multiplier",r,c)if aD then
+aa(a,g,"multiplier",c,b)
 end
-return aB
+return aD
 end
-if aa==g.divisor_attribute_id then
-local aB=aZ(a,g,"divisor",x,c)if aB then
-X(a,g,"divisor",c,b)
+if ad==g.divisor_attribute_id then
+local aD=ba(a,g,"divisor",r,c)if aD then
+aa(a,g,"divisor",c,b)
 end
-return aB
+return aD
 end
 end
 end
 return false
 end
-function r.scale_mapping_value(a,h,x,e,k)
-if x==nil or e==nil then
-return x
+function s.scale_mapping_value(a,h,r,d,k)
+if r==nil or d==nil then
+return r
 end
-local g=e.metering_kind and j[e.metering_kind]or nil
-if g~=nil and type(x)=="number"and not e.ignore_reported_scaler then
+local g=d.metering_kind and j[N[d.metering_kind]or d.metering_kind]or nil
+if g~=nil and type(r)=="number"and not d.ignore_reported_scaler then
 local c=k and k.endpoint or nil
-local aH=ar(a,g,"multiplier",c)local aV=ar(a,g,"divisor",c)local z=aH or 1
-local H=aV or 1
-if H==0 then
-H=1
+local C=at(a,g,"multiplier",c)local Q=at(a,g,"divisor",c)if N[d.metering_kind]then
+local br=C and C~=0 and
+Q and Q~=0 and C/Q
+return r*(br and br*(d.metering_kind=="demand"and 1000 or 1)or 1)
 end
-if z~=H then
-return x*z/H
+local z=C or 1
+local I=Q or 1
+if I==0 then
+I=1
+end
+if z~=I then
+return r*z/I
 end
 end
-if e.scale==nil or e.scale==1 then
-return x
+if d.scale==nil or d.scale==1 then
+return r
 end
-if type(x)=="number"and type(e.scale)=="number"and e.scale~=0 then
-return x/e.scale
+if type(r)=="number"and type(d.scale)=="number"and d.scale~=0 then
+return r/d.scale
 end
-return x
+return r
 end
-function r.read_metering_scalers(a,b)
-I()if type(b)~="table"then
+function s.read_metering_scalers(a,b)
+J()if type(b)~="table"then
 return false
 end
-local aJ=false
-local ah={}local aR={}for _,h in ipairs(b)do
+local aK=false
+local ak={}local aT={}for _,h in ipairs(b)do
 if type(h)=="table"then
-local e=r.mapping_meta(h)local g=e and e.metering_kind and j[e.metering_kind]or nil
-if g~=nil and not e.ignore_reported_scaler then
-local k=r.build_mapping_context(a,h,nil)local c=q(k.endpoint)local bi=string.format("%s:%d",g.kind,c)if not aR[bi]then
-aR[bi]=true
-av(a,g,c)
+local d=s.mapping_meta(h)local g=d and d.metering_kind and j[N[d.metering_kind]or d.metering_kind]or nil
+if g~=nil and not d.ignore_reported_scaler then
+local k=s.build_mapping_context(a,h,nil)local c=q(k.endpoint)local bj=string.format("%s:%d",g.kind,c)if not aT[bj]then
+aT[bj]=true
+ax(a,g,c)
 end
-local aE=string.format("%04X:%04X:%d",g.cluster_id,g.multiplier_attribute_id,c)if not ah[aE]then
-ah[aE]=true
-aJ=aQ(a,g,g.multiplier_attribute_id,c)or aJ
+local aG=string.format("%04X:%04X:%d",g.cluster_id,g.multiplier_attribute_id,c)if not ak[aG]then
+ak[aG]=true
+aK=aS(a,g,g.multiplier_attribute_id,c)or aK
 end
-local aO=string.format("%04X:%04X:%d",g.cluster_id,g.divisor_attribute_id,c)if not ah[aO]then
-ah[aO]=true
-aJ=aQ(a,g,g.divisor_attribute_id,c)or aJ
-end
-end
+local aQ=string.format("%04X:%04X:%d",g.cluster_id,g.divisor_attribute_id,c)if not ak[aQ]then
+ak[aQ]=true
+aK=aS(a,g,g.divisor_attribute_id,c)or aK
 end
 end
-return aJ
 end
-function r.emit_power_polling_state(a,b)
-if L(a,b)==nil then
+end
+return aK
+end
+function s.emit_power_polling_state(a,b)
+if M(a,b)==nil then
 return false
 end
-local aC=false
-aC=ad(a,b)or aC
-aC=D(a)or aC
-return aC
+local aE=false
+aE=ag(a,b)or aE
+aE=E(a)or aE
+return aE
 end
-function r.set_power_poll_interval(a,b,d)
-if N(a,b)==nil then
+function s.set_power_poll_interval(a,b,e)
+if P(a,b)==nil then
 return false
 end
-local au=y(d)if au==nil then
+local aw=y(e)if aw==nil then
 return false
 end
-a:set_field(R,au,{persist=true})r.start_runtime(a,b)r.emit_power_polling_state(a,b)return true
+a:set_field(U,aw,{persist=true})s.start_runtime(a,b)s.emit_power_polling_state(a,b)return true
 end
-function r.handle_metering_value(a,_,d,e)
-if e==nil or e.metering_kind~="power"or type(d)~="number"then
+function s.handle_metering_value(a,_,e,d)
+if d==nil or d.metering_kind~="power"or type(e)~="number"then
 return false
 end
-local aq=os.time()if type(aq)~="number"then
+local aM=os.time()if type(aM)~="number"then
 return false
 end
-a:set_field(F,aq,{persist=false})D(a)return true
+a:set_field(G,aM,{persist=false})E(a)return true
 end
-function r.begin_power_poll_burst(a,b)
-if not u(a)then
+function s.begin_power_poll_burst(a,b)
+if not v(a)then
 return false
 end
-a:set_field(T,"on",{persist=false})if type(b)=="table"then
-r.start_runtime(a,b)K(a,b,"on",ag,"zcl on-state confirm poll")
+a:set_field(W,"on",{persist=false})if type(b)=="table"then
+s.start_runtime(a,b)L(a,b,"on",aj,"zcl on-state confirm poll")
 end
 return true
 end
-function r.handle_switch_state(a,b,d)
-d=E(d)if not u(a)or d==nil then
+function s.handle_switch_state(a,b,e)
+e=F(e)if not v(a)or e==nil then
 return false
 end
-local bj=V(a)a:set_field(T,d,{persist=false})if d=="on"and bj~="on"then
-return r.begin_power_poll_burst(a,b)
+local bk=Y(a)a:set_field(W,e,{persist=false})if e=="on"and bk~="on"then
+return s.begin_power_poll_burst(a,b)
 end
-if d=="off"and bj~="off"then
+if e=="off"and bk~="off"then
 if type(b)=="table"then
-r.start_runtime(a,b)K(a,b,"off",ae,"zcl off-state confirm poll")
+s.start_runtime(a,b)L(a,b,"off",ah,"zcl off-state confirm poll")
 end
 return true
 end
 return false
 end
-function r.start_runtime(a,b)
-ai(a)
+function s.start_runtime(a,b)
+al(a)
 if type(b)~="table"or a.thread==nil or type(a.thread.call_on_schedule)~="function"then
 return false
 end
-local M={}local ah={}for _,h in ipairs(b)do
+local O={}local ak={}for _,h in ipairs(b)do
 if type(h)=="table"then
-local e=r.mapping_meta(h)local l=ax(a,b,e)if e~=nil and type(l)=="number"and l>0 and not e.write_only then
-local k=r.build_mapping_context(a,h,nil)local aX=string.format(
-"%04X:%04X:%s:%s",e.cluster_id or 0,e.attribute_id or 0,tostring(k.endpoint),tostring(e.mfg_code))if not ah[aX]then
-ah[aX]=true
-local az=a.thread:call_on_schedule(l,function()
-r.read_mapping(a,h,r.build_mapping_context(a,h,nil))
-end,string.format("zcl metering poll %s",tostring(e.name or aX)))
-if az~=nil then
-M[#M+1]=az
+local d=s.mapping_meta(h)local l=az(a,b,d)if d~=nil and type(l)=="number"and l>0 and not d.write_only then
+local k=s.build_mapping_context(a,h,nil)local aY=string.format(
+"%04X:%04X:%s:%s",d.cluster_id or 0,d.attribute_id or 0,tostring(k.endpoint),tostring(d.mfg_code))if not ak[aY]then
+ak[aY]=true
+local aB=a.thread:call_on_schedule(l,function()
+s.read_mapping(a,h,s.build_mapping_context(a,h,nil))
+end,string.format("zcl metering poll %s",tostring(d.name or aY)))
+if aB~=nil then
+O[#O+1]=aB
 end
 end
 end
 end
 end
-Q[a]=M
-return #M>0
+T[a]=O
+return #O>0
 end
-function r.stop_runtime(a)
-ai(a)
+function s.stop_runtime(a)
+al(a)
 end
-I()
+J()
 end
-return bf
+return bg

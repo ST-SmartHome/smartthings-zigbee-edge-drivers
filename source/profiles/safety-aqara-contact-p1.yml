@@ -1,0 +1,37 @@
+name: safety-aqara-contact-p1
+components:
+- id: main
+  capabilities:
+  - id: contactSensor
+    version: 1
+  - id: tamperAlert
+    version: 1
+  - id: battery
+    version: 1
+  - id: voltageMeasurement
+    version: 1
+  - id: refresh
+    version: 1
+  - id: signalStrength
+    version: 1
+  - id: button
+    version: 1
+  - id: concertmirror08464.aqContactP1Distance
+    version: 1
+  categories:
+  - name: ContactSensor
+preferences:
+- name: aqContactP1BatteryMinMv
+  title: Battery 0% voltage (mV)
+  description: Both values are required and minimum must be lower than maximum. Invalid
+    pair uses 2850/3000 mV. Applies on next RX.
+  required: false
+  preferenceType: number
+  definition: {}
+- name: aqContactP1BatteryMaxMv
+  title: Battery 100% voltage (mV)
+  description: Both values are required and minimum must be lower than maximum. Invalid
+    pair uses 2850/3000 mV. Applies on next RX.
+  required: false
+  preferenceType: number
+  definition: {}

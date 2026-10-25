@@ -1,6 +1,6 @@
 local function af(M)
 local O="__zcl_mapping_bucket"
-local ad=setmetatable({},{__mode="k"})local ab=setmetatable({},{__mode="k"})local R=setmetatable({},{__mode="k"})local S=require("runtime.capability_support").is_callable
+local ad=setmetatable({},{__mode="k"})local ab=setmetatable({},{__mode="k"})local R=setmetatable({},{__mode="k"})local S=require"runtime.capability_support".is_callable
 local function r(g)
 if type(g)~="number"or g%1~=0 then
 return nil
@@ -51,7 +51,7 @@ local aa=a.prefer_typed_value==true or
 false
 local B=S(a.data_type)and a.data_type or nil
 local K=S(a.write_type)and a.write_type or B
-local l=nil
+local l
 if a.cluster_id~=nil and a.attribute_id~=nil and M.get_generated_attribute~=nil then
 l=M.get_generated_attribute(a.cluster_id,a.attribute_id)
 end
@@ -77,7 +77,7 @@ component=(type(a.component)=="string"or type(a.component)=="function")and a.com
 read_only=a.read_only==true,write_only=a.write_only==true,minimum_interval=a.minimum_interval,maximum_interval=a.maximum_interval,reportable_change=a.reportable_change,reporting_defaults=a.reporting_defaults,physical_reportable_change=type(a.physical_reportable_change)=="number"and
 a.physical_reportable_change or nil,read_on_configure=a.read_on_configure==true,read_on_refresh=a.read_on_refresh,poll_interval=type(a.poll_interval)=="number"and a.poll_interval or nil,ias_configure_method=a.ias_configure_method,mfg_code=type(a.mfg_code)=="number"and a.mfg_code or nil,profile_id=type(a.profile_id)=="number"and a.profile_id or nil,metering_kind=type(a.metering_kind)=="string"and a.metering_kind or nil,scale=type(a.scale)=="number"and a.scale or nil,ignore_reported_scaler=a.ignore_reported_scaler==true,attribute_def=l,data_type=B or
 (l and l.base_type or nil),write_type=K or
-(l and l.base_type or nil),name=a.name,cluster_id=a.cluster_id,attribute_id=a.attribute_id,}
+(l and l.base_type or nil),name=a.name,cluster_id=a.cluster_id,attribute_id=a.attribute_id}
 if ah~=false then ad[a]=ae end
 return ae
 end
@@ -100,7 +100,7 @@ return nil
 end
 local function W(c,a,b,ai)
 local f={
-mapping=a,value=ai,}if type(b)=="table"then
+mapping=a,value=ai}if type(b)=="table"then
 for aj,am in pairs(b)do
 f[aj]=am
 end
@@ -175,7 +175,7 @@ X[#X+1]=a
 return
 end
 q[aj]={
-[O]=true,X,a,}
+[O]=true,X,a}
 end
 local function D(h,c,b)
 if h==nil then
@@ -190,7 +190,7 @@ end
 if c==nil then
 return h[1]
 end
-local J=nil
+local J
 local p=-1
 for _,a in ipairs(h)do
 local C=u(a,c,b)if C>p then
@@ -210,7 +210,7 @@ return{h}
 end
 return{}
 end
-local J={}local p=nil
+local J={}local p
 for _,a in ipairs(h)do
 local C=c==nil and 0 or u(a,c,b)if C>=0 then
 if p==nil or C>p then
@@ -245,7 +245,7 @@ end
 end
 end
 local q={
-by_cluster_attribute=s,by_name=ag,cluster_ids=V,}ab[d]=q
+by_cluster_attribute=s,by_name=ag,cluster_ids=V}ab[d]=q
 return q
 end
 function M.normalize_endpoint(g)

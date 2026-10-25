@@ -10,13 +10,6 @@ local fp = device_helpers.create_fingerprint
 
 local device_definitions, register_device_definition = device_helpers.definition_registry()
 
-local contact_sensor = {
-  profile = "safety-contact-battery",
-  zcl_clusters = {
-    zcl.contact(),
-    zcl.battery(),
-  },
-}
 
 local contact_tamper_sensor = {
   profile = "safety-contact-tamper-battery",
@@ -113,14 +106,6 @@ local tuya_scene_contact_sensor = {
   },
 }
 
-local contact_temp_sensor = {
-  profile = "safety-contact-temp-battery",
-  zcl_clusters = {
-    zcl.contact(),
-    zcl.temperature(),
-    zcl.battery(),
-  },
-}
 
 local contact_temp_battery_low_sensor = {
   profile = "safety-contact-temp-battery-low-battery",
@@ -281,14 +266,6 @@ local c3007_pressure_sensor = {
     zcl.battery_voltage(),
   },
 }
-local motion_tamper_sensor = {
-  profile = "safety-motion-tamper-battery",
-  zcl_clusters = {
-    zcl.motion(),
-    zcl.tamper(),
-    zcl.battery(),
-  },
-}
 
 local whd02_motion_sensor = {
   profile = "safety-motion-tamper-battery-battery-low",
@@ -328,14 +305,6 @@ local motion_illuminance_tamper_battery_low_battery_sensor = {
   },
 }
 
-local motion_illuminance_sensor = {
-  profile = "safety-motion-illuminance-battery",
-  zcl_clusters = {
-    zcl.motion(),
-    zcl.illuminance(),
-    zcl.battery(),
-  },
-}
 
 local tuya_motion_illuminance_sensor = {
   profile = "safety-motion-illuminance-tamper-battery-low-battery",
@@ -361,16 +330,6 @@ local motion_illuminance_temp_humidity_tamper_sensor = {
   },
 }
 
-local motion_illuminance_temp_humidity_sensor = {
-  profile = "safety-motion-illuminance-temp-humidity-battery",
-  zcl_clusters = {
-    zcl.motion(),
-    zcl.illuminance(),
-    zcl.temperature(),
-    zcl.humidity(),
-    zcl.battery(),
-  },
-}
 
 local sunricher_4in1_sensor = {
   profile = "safety-occupancy-illuminance-temp-humidity-battery",
@@ -430,13 +389,6 @@ local namron_4512771_multisensor = {
   end,
 }
 
-local water_sensor = {
-  profile = "safety-water-leak-battery",
-  zcl_clusters = {
-    zcl.water(),
-    zcl.battery(),
-  },
-}
 
 local water_battery_low_battery_sensor = {
   profile = "safety-water-leak-battery-low-battery",
@@ -477,14 +429,6 @@ local water_temp_battery_low_battery_sensor = {
   },
 }
 
-local water_temp_sensor = {
-  profile = "safety-water-leak-temp-battery",
-  zcl_clusters = {
-    zcl.water(),
-    zcl.temperature(),
-    zcl.battery(),
-  },
-}
 
 local sunricher_water_temp_sensor = {
   profile = "safety-water-temp-tamper-battery-low-battery",
@@ -521,10 +465,6 @@ local solar_rain_sensor = {
   },
 }
 
-local vibration_sensor = {
-  profile = "safety-acceleration-battery",
-  zcl_clusters = { zcl.motion({ emit = emit.acceleration() }), zcl.battery() },
-}
 
 local tuya_vibration_sensor = {
   profile = "safety-acceleration-battery-tuya-pending",
@@ -553,13 +493,6 @@ local third_reality_vibration_sensor = {
   zcl_clusters = { zcl.motion({ emit = emit.acceleration() }), zcl.battery() },
 }
 
-local smoke_sensor = {
-  profile = "safety-smoke-detector-battery",
-  zcl_clusters = {
-    zcl.smoke(),
-    zcl.battery(),
-  },
-}
 
 local smoke_battery_low_battery_sensor = {
   profile = "safety-smoke-battery-low-battery",

@@ -49,14 +49,14 @@ from=function(c)
 if type(c)~="number"then
 return c
 end
-return math.floor((B(c,0,254)*100/254)+0.5)
+return math.floor(B(c,0,254)*100/254+0.5)
 end,
 to=function(c)
 if type(c)~="number"then
 return c
 end
-return math.floor((B(c,0,100)*254/100)+0.5)
-end,
+return math.floor(B(c,0,100)*254/100+0.5)
+end
 }
 end
 local function m()
@@ -66,22 +66,22 @@ from=function(c)
 if type(c)~="number"or c<=0 then
 return c
 end
-return math.floor((i/c)+0.5)
+return math.floor(i/c+0.5)
 end,
 to=function(c)
 if type(c)~="number"or c<=0 then
 return c
 end
-return math.floor((i/c)+0.5)
-end,
+return math.floor(i/c+0.5)
+end
 }
 end
 local function g(u,t,r)
 return{
-minimum_interval=u,maximum_interval=t,reportable_change=r,read_on_configure=true,}
+minimum_interval=u,maximum_interval=t,reportable_change=r,read_on_configure=true}
 end
 local function j(...)
-local y={}for _,b in ipairs({...})do
+local y={}for _,b in ipairs{...}do
 n(y,b)
 end
 return y
@@ -105,17 +105,17 @@ local a=d.configure_reporting
 d.configure_reporting=nil
 if a==false then
 return{
-emit=x.switch(),}
+emit=x.switch()}
 end
 return j(
 {
-emit=x.switch(),},g(0,300,nil))
+emit=x.switch()},g(0,300,nil))
 end)
 k("level",D.level_control,function(d)
 local a=d.configure_reporting
 d.configure_reporting=nil
 local b={
-name="brightness",emit=x.level(),converter=q(),}
+name="brightness",emit=x.level(),converter=q()}
 if a==false then return b end
 return j(b,g(1,3600,1))
 end)
@@ -123,7 +123,7 @@ k("color_temperature",D.color_control_temperature,function(d)
 local a=d.configure_reporting
 d.configure_reporting=nil
 local b={
-name="color_temperature",emit=x.color_temperature(),converter=m(),tx_command_id=10,}
+name="color_temperature",emit=x.color_temperature(),converter=m(),tx_command_id=10}
 if a==false then return b end
 return j(b,g(1,300,1))
 end)

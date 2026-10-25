@@ -11,7 +11,6 @@ local data_types = require "st.zigbee.data_types"
 
 local device_definitions, register = device_helpers.definition_registry()
 
-local CLUSTER_POWER_CONFIGURATION = 0x0001
 local CLUSTER_POLL_CONTROL = 0x0020
 local CLUSTER_TEMPERATURE = 0x0402
 local CLUSTER_PRESSURE = 0x0403
@@ -740,6 +739,7 @@ local snzb04_classic = {
 }
 
 register(snzb04_classic, {
+  fp("eWeLink", "DS01"),
   fp("SONOFF", "SNZB-04"),
   fp("SONOFF", "DS01"),
   fp("SONOFF", "CK-TLSR8656-SS5-01(7003)"),

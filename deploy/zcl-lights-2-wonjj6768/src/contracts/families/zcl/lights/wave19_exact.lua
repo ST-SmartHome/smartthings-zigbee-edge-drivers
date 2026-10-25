@@ -34,39 +34,39 @@ end
 local V={
 profile="lights-wave19-candeo-rd1pv2-dim",capability_commands={
 {
-capability_id="concertmirror08464.candeoRotaryDimOnLevel",command_name="usePreviousOnLevel",mapping_name="candeoRotaryDim_on_level",value=255,},},package_group="wave19-light",transport_classification="ZCL",z2m_converter_source="modernExtend.light/electricityMeter + rd1p local converters",advanced_remote=true,unprefixed_remote_actions=true,remote_action_emit_name="candeoRotaryDimAction",standard_command_action_resolver=z,placeholder_custom_states=false,zcl_clusters={
-g.switch({endpoint=1,minimum_interval=0,maximum_interval=65000,reportable_change=1}),g.level({endpoint=1,minimum_interval=1,maximum_interval=3600,reportable_change=1}),g.power({endpoint=1,minimum_interval=5,maximum_interval=300,reportable_change=10}),g.voltage({endpoint=1,minimum_interval=5,maximum_interval=600,reportable_change=500}),g.current({endpoint=1,minimum_interval=5,maximum_interval=900,reportable_change=10}),g.energy({endpoint=1,minimum_interval=5,maximum_interval=1800,reportable_change=50}),g.cluster_attribute(g.CLUSTER_ON_OFF,32768,{
-name="candeoRotaryDim_extra_commands",endpoint=1,emit=i("candeoRotaryDimExtraCommands"),
+capability_id="concertmirror08464.candeoRotaryDimOnLevel",command_name="usePreviousOnLevel",mapping_name="candeoRotaryDim_on_level",value=255}},package_group="wave19-light",advanced_remote=true,unprefixed_remote_actions=true,remote_action_emit_name="candeoRotaryDimAction",standard_command_action_resolver=z,zcl_clusters={
+g.switch{endpoint=1,minimum_interval=0,maximum_interval=65000,reportable_change=1},g.level{endpoint=1,minimum_interval=1,maximum_interval=3600,reportable_change=1},g.power{endpoint=1,minimum_interval=5,maximum_interval=300,reportable_change=10},g.voltage{endpoint=1,minimum_interval=5,maximum_interval=600,reportable_change=500},g.current{endpoint=1,minimum_interval=5,maximum_interval=900,reportable_change=10},g.energy{endpoint=1,minimum_interval=5,maximum_interval=1800,reportable_change=50},g.cluster_attribute(g.CLUSTER_ON_OFF,32768,{
+name="candeoRotaryDim_extra_commands",endpoint=1,emit=i"candeoRotaryDimExtraCommands",
 from_device=function(a)return a and"ON"or"OFF"end,
 to_device=function(a)return a=="ON"end,
-data_type=b.Boolean,write_type=b.Boolean,configure_reporting=false,read_on_configure=true,}),g.cluster_attribute(g.CLUSTER_ON_OFF,16387,{
-name="candeoRotaryDim_power_behavior",endpoint=1,emit=i("candeoRotaryDimPowerBehavior"),
+data_type=b.Boolean,write_type=b.Boolean,configure_reporting=false,read_on_configure=true}),g.cluster_attribute(g.CLUSTER_ON_OFF,16387,{
+name="candeoRotaryDim_power_behavior",endpoint=1,emit=i"candeoRotaryDimPowerBehavior",
 from_device=function(a)
 return({[0]="off",[1]="on",[2]="toggle",[255]="previous"})[a]
 end,
 to_device=function(a)
 return({off=0,on=1,toggle=2,previous=255})[a]
 end,
-data_type=b.Enum8,write_type=b.Enum8,read_on_configure=true,}),g.cluster_attribute(g.CLUSTER_LEVEL_CONTROL,17,{
-name="candeoRotaryDim_on_level",endpoint=1,emit=i("candeoRotaryDimOnLevel"),
+data_type=b.Enum8,write_type=b.Enum8,read_on_configure=true}),g.cluster_attribute(g.CLUSTER_LEVEL_CONTROL,17,{
+name="candeoRotaryDim_on_level",endpoint=1,emit=i"candeoRotaryDimOnLevel",
 from_device=function(a)return f(a,0,255)end,
 to_device=function(a)return f(a,1,255)end,
-numeric_range={minimum=0,maximum=255,step=1},data_type=b.Uint8,write_type=b.Uint8,read_on_configure=true,}),g.cluster_attribute(g.CLUSTER_LEVEL_CONTROL,16384,{
-name="candeoRotaryDim_startup_level",endpoint=1,emit=i("candeoRotaryDimStartupLevel"),
+numeric_range={minimum=0,maximum=255,step=1},data_type=b.Uint8,write_type=b.Uint8,read_on_configure=true}),g.cluster_attribute(g.CLUSTER_LEVEL_CONTROL,16384,{
+name="candeoRotaryDim_startup_level",endpoint=1,emit=i"candeoRotaryDimStartupLevel",
 from_device=function(a)return f(a,0,255)end,
 to_device=function(a)return f(a,0,255)end,
-numeric_range={minimum=0,maximum=255,step=1},data_type=b.Uint8,write_type=b.Uint8,read_on_configure=true,}),g.cluster_attribute(g.CLUSTER_LEVEL_CONTROL,16,{
-name="candeoRotaryDim_on_transition",endpoint=1,emit=i("candeoRotaryDimOnTransition"),from_device=n,to_device=q,numeric_range={minimum=0,maximum=6553.5,step=0.1,unit="s"},data_type=b.Uint16,write_type=b.Uint16,read_on_configure=true,}),g.cluster_attribute(g.CLUSTER_LEVEL_CONTROL,18,{
-name="candeoRotaryDim_off_transition",endpoint=1,emit=i("candeoRotaryDimOffTransition"),from_device=n,to_device=q,numeric_range={minimum=0,maximum=6553.5,step=0.1,unit="s"},data_type=b.Uint16,write_type=b.Uint16,read_on_configure=true,}),},
+numeric_range={minimum=0,maximum=255,step=1},data_type=b.Uint8,write_type=b.Uint8,read_on_configure=true}),g.cluster_attribute(g.CLUSTER_LEVEL_CONTROL,16,{
+name="candeoRotaryDim_on_transition",endpoint=1,emit=i"candeoRotaryDimOnTransition",from_device=n,to_device=q,numeric_range={minimum=0,maximum=6553.5,step=0.1,unit="s"},data_type=b.Uint16,write_type=b.Uint16,read_on_configure=true}),g.cluster_attribute(g.CLUSTER_LEVEL_CONTROL,18,{
+name="candeoRotaryDim_off_transition",endpoint=1,emit=i"candeoRotaryDimOffTransition",from_device=n,to_device=q,numeric_range={minimum=0,maximum=6553.5,step=0.1,unit="s"},data_type=b.Uint16,write_type=b.Uint16,read_on_configure=true})},
 configure=function(J,d)
-for _,K in ipairs({
-{1,g.CLUSTER_ON_OFF},{1,g.CLUSTER_LEVEL_CONTROL},{1,g.CLUSTER_ELECTRICAL_MEASUREMENT},{1,g.CLUSTER_SIMPLE_METERING},{2,g.CLUSTER_ON_OFF},{2,g.CLUSTER_LEVEL_CONTROL},})do
+for _,K in ipairs{
+{1,g.CLUSTER_ON_OFF},{1,g.CLUSTER_LEVEL_CONTROL},{1,g.CLUSTER_ELECTRICAL_MEASUREMENT},{1,g.CLUSTER_SIMPLE_METERING},{2,g.CLUSTER_ON_OFF},{2,g.CLUSTER_LEVEL_CONTROL}}do
 d:send(w.build_bind_request(
 d,K[2],J.environment_info.hub_zigbee_eui,K[1]))
 end
-end,
+end
 }j(V,{
-t.create_fingerprint("Candeo","C-ZB-RD1Pv2-DIM"),})local o=4648
+t.create_fingerprint("Candeo","C-ZB-RD1Pv2-DIM")})local o=4648
 local p=64716
 local c=64717
 local G=1600
@@ -98,7 +98,7 @@ if S==nil then return false end
 return h(d,c,0,u32le(S),s)
 end
 local function E(d,capability_id,Q,R)
-local a=nil
+local a
 if type(d.get_latest_state)=="function"then
 a=d:get_latest_state("main",O ..capability_id,Q)
 end
@@ -106,7 +106,7 @@ local e=tonumber(a)
 if e==nil then return R end
 return e
 end
-local l=i("terncyDimMinKelvin")local k=i("terncyDimMaxKelvin")
+local l=i"terncyDimMinKelvin"local k=i"terncyDimMaxKelvin"
 local function r(W)
 return function(d,_,a,s)
 local B=f(a,1000,10000)
@@ -125,32 +125,32 @@ return X
 end
 end
 local Y={
-profile="lights-wave19-terncy-dim003",package_group="wave19-light",transport_classification="CUSTOM_ZCL",z2m_converter_source="custom 0xFCCC/0xFCCD + modernExtend.light",placeholder_custom_states=false,zcl_clusters={
-g.switch({endpoint=1}),g.level({endpoint=1}),g.color_temperature({endpoint=1}),g.cluster_attribute(p,nil,{
-name="terncyDim_rated_current",endpoint=1,emit=i("terncyDimRatedCurrent"),data_type=b.Uint32,write_only=true,sender=C,}),g.cluster_attribute(c,nil,{
-name="terncyDim_startup_calibration",endpoint=1,emit=i("terncyDimStartupCalibration"),data_type=b.Uint32,write_only=true,sender=v,}),g.cluster_attribute(c,nil,{
-name="terncyDim_min_kelvin",endpoint=1,emit=l,data_type=b.Uint16,write_only=true,sender=r("minimum"),}),g.cluster_attribute(c,nil,{
-name="terncyDim_max_kelvin",endpoint=1,emit=k,data_type=b.Uint16,write_only=true,sender=r("maximum"),}),g.cluster_attribute(c,5,{
-name="terncyDim_io_reversed",endpoint=1,emit=i("terncyDimIoReversed"),
+profile="lights-wave19-terncy-dim003",package_group="wave19-light",zcl_clusters={
+g.switch{endpoint=1},g.level{endpoint=1},g.color_temperature{endpoint=1},g.cluster_attribute(p,nil,{
+name="terncyDim_rated_current",endpoint=1,emit=i"terncyDimRatedCurrent",data_type=b.Uint32,write_only=true,sender=C}),g.cluster_attribute(c,nil,{
+name="terncyDim_startup_calibration",endpoint=1,emit=i"terncyDimStartupCalibration",data_type=b.Uint32,write_only=true,sender=v}),g.cluster_attribute(c,nil,{
+name="terncyDim_min_kelvin",endpoint=1,emit=l,data_type=b.Uint16,write_only=true,sender=r"minimum"}),g.cluster_attribute(c,nil,{
+name="terncyDim_max_kelvin",endpoint=1,emit=k,data_type=b.Uint16,write_only=true,sender=r"maximum"}),g.cluster_attribute(c,5,{
+name="terncyDim_io_reversed",endpoint=1,emit=i"terncyDimIoReversed",
 from_device=function(a)return a and"ON"or"OFF"end,
 to_device=function(a)return a=="ON"end,
-data_type=b.Boolean,write_type=b.Boolean,mfg_code=o,configure_reporting=false,read_on_configure=false,}),g.cluster_attribute(c,7,{
-name="terncyDim_light_curve",endpoint=1,emit=i("terncyDimLightCurve"),
+data_type=b.Boolean,write_type=b.Boolean,mfg_code=o,configure_reporting=false,read_on_configure=false}),g.cluster_attribute(c,7,{
+name="terncyDim_light_curve",endpoint=1,emit=i"terncyDimLightCurve",
 from_device=function(a)
 return({[0]="fast_start",[1]="uniform",[2]="slow_start"})[a]
 end,
 to_device=function(a)
 return({fast_start=0,uniform=1,slow_start=2})[a]
 end,
-data_type=b.Uint8,write_type=b.Uint8,mfg_code=o,configure_reporting=false,read_on_configure=false,}),},
+data_type=b.Uint8,write_type=b.Uint8,mfg_code=o,configure_reporting=false,read_on_configure=false})},
 configure=function(J,d)
-for _,m in ipairs({
-g.CLUSTER_ON_OFF,g.CLUSTER_LEVEL_CONTROL,g.CLUSTER_COLOR_CONTROL,})do
+for _,m in ipairs{
+g.CLUSTER_ON_OFF,g.CLUSTER_LEVEL_CONTROL,g.CLUSTER_COLOR_CONTROL}do
 d:send(w.build_bind_request(
 d,m,J.environment_info.hub_zigbee_eui,1))
 end
-end,
+end
 }j(Y,{
-t.create_fingerprint("Xiaoyan","DIM003"),})g.attach_reporting_capabilities(u,{
-{1,"rpt-cmq"},{2,"rpt-doh"},})return{
-id="zcl.lights.wave19.exact",registrations=u,}
+t.create_fingerprint("Xiaoyan","DIM003")})g.attach_reporting_capabilities(u,{
+{1,"rpt-cmq"},{2,"rpt-doh"}})return{
+id="zcl.lights.wave19.exact",registrations=u}

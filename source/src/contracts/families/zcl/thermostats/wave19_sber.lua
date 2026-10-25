@@ -78,12 +78,6 @@ local function round_half(value)
   return math.floor(numeric * 2 + 0.5) / 2
 end
 
-local function clamp(value, minimum, maximum)
-  local numeric = tonumber(value)
-  if numeric == nil then return nil end
-  return math.max(minimum, math.min(maximum, numeric))
-end
-
 local function u16le(value)
   local numeric = math.floor(tonumber(value) or 0)
   if numeric < 0 then numeric = numeric + 0x10000 end
@@ -464,12 +458,8 @@ end
 local sber = {
   profile = "thermostats-wave19-sber-sbdv-00205",
   package_group = "wave19-thermostat-zcl",
-  transport_classification = "ZCL_CUSTOM_ATTRIBUTE_COMMAND",
-  z2m_converter_source = "sdevices fz/tz + thermostat/UI/weekly schedule converters",
-  wire_cluster = "standard ZCL + Sber 0xFCCF/0x152F",
   zcl_clusters = mappings,
   capability_commands = commands,
-  placeholder_custom_states = false,
   thermostat_supported_modes = { "off", "heat", "asleep" },
   heating_setpoint_range = { minimum = 1, maximum = 50, step = 0.5, unit = "C" },
   configure = configure,

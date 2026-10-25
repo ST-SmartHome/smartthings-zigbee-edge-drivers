@@ -7,7 +7,7 @@ local ak=require"log"
 local k={}local u=j.by_emit_name.last_power_response_time
 local q="_tuya_last_power_response_at"
 local w="waiting"
-local p=require("runtime.capability_support").is_callable
+local p=require"runtime.capability_support".is_callable
 local function h(v,L)
 local f=c[v]local m=f and f[L]or nil
 if not p(m)and f and type(f.attributes)=="table"then
@@ -64,8 +64,8 @@ end
 local S=os.time()if type(S)=="number"then
 e:set_field(q,S,{persist=false})
 end
-return m({
-value=D(e:get_field(q)),})
+return m{
+value=D(e:get_field(q))}
 end
 local function d(e,a,ag)
 if type(e)~="table"or type(a)~="table"then
@@ -118,14 +118,14 @@ function k.temperature(N)
 N=N or"C"
 return function(_,b)
 if b~=nil then
-return c.temperatureMeasurement.temperature({value=b,unit=N})
+return c.temperatureMeasurement.temperature{value=b,unit=N}
 end
 end
 end
 function k.humidity()
 return function(_,b)
 if b~=nil then
-return c.relativeHumidityMeasurement.humidity({value=b})
+return c.relativeHumidityMeasurement.humidity{value=b}
 end
 end
 end
@@ -139,7 +139,7 @@ end
 function k.illuminance()
 return function(_,b)
 if b~=nil then
-return c.illuminanceMeasurement.illuminance({value=b})
+return c.illuminanceMeasurement.illuminance{value=b}
 end
 end
 end
@@ -166,7 +166,7 @@ end
 function k.power()
 return function(e,b,t,r)
 if b~=nil then
-local K=c.powerMeter.power({value=b,unit="W"})local A=E(e)if A~=nil then
+local K=c.powerMeter.power{value=b,unit="W"}local A=E(e)if A~=nil then
 local x=l(r)or l(t)or o(r)or o(t)if x~=nil and x~="main"then
 e:emit_event(A)return K
 end
@@ -179,22 +179,22 @@ end
 function k.energy()
 return function(e,b,t,r)
 if b~=nil then
-local x=l(r)or l(t)or o(r)or o(t)return c.energyMeter.energy({
-value=ab.apply_report(e,b,x),unit="kWh",})
+local x=l(r)or l(t)or o(r)or o(t)return c.energyMeter.energy{
+value=ab.apply_report(e,b,x),unit="kWh"}
 end
 end
 end
 function k.voltage()
 return function(_,b)
 if b~=nil then
-return c.voltageMeasurement.voltage({value=b,unit="V"})
+return c.voltageMeasurement.voltage{value=b,unit="V"}
 end
 end
 end
 function k.current()
 return function(_,b)
 if b~=nil then
-return c.currentMeasurement.current({value=b,unit="A"})
+return c.currentMeasurement.current{value=b,unit="A"}
 end
 end
 end
@@ -245,9 +245,9 @@ end
 return
 end
 local N=a.event_unit or(a.default_range and a.default_range.unit or nil)if N~=nil then
-return g({value=i,unit=N})
+return g{value=i,unit=N}
 end
-return g({value=i})
+return g{value=i}
 end
 end
 local function U(a)
@@ -286,7 +286,7 @@ d(e,a,"attribute")
 end
 return
 end
-return g({value=b})
+return g{value=b}
 end
 end
 local function V(a,T)
@@ -304,7 +304,7 @@ end
 local z=a.maximum_length or Q.length(b)local M=Q.truncate(b,z)if M==nil then
 return
 end
-return g({value=M})
+return g{value=M}
 end
 end
 for _,a in ipairs(j.numeric)do
@@ -337,7 +337,7 @@ local z=a.maximum_length or 512
 local M=Q.truncate(b,z)if M==nil then
 return
 end
-return g({value=M})
+return g{value=M}
 end
 end
 end
@@ -387,7 +387,7 @@ function k.value(H,N)
 return function(_,b)
 if b~=nil then
 if N then
-return H({value=b,unit=N})else
+return H{value=b,unit=N}else
 return H(b)
 end
 end

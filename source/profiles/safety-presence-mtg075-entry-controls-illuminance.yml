@@ -6,7 +6,7 @@ components:
         version: 1
       - id: illuminanceMeasurement
         version: 1
-      - id: concertmirror08464.mtg075TargetDistance
+      - id: concertmirror08464.mtg075TargetDist
         version: 1
       - id: concertmirror08464.mtg075RadarSensitivity
         version: 1
@@ -57,7 +57,7 @@ deviceConfig:
   - component: main
     capability: illuminanceMeasurement
   - component: main
-    capability: concertmirror08464.mtg075TargetDistance
+    capability: concertmirror08464.mtg075TargetDist
   - component: main
     capability: concertmirror08464.mtg075RadarSensitivity
   - component: main
@@ -99,7 +99,7 @@ deviceConfig:
     - component: main
       capability: illuminanceMeasurement
     - component: main
-      capability: concertmirror08464.mtg075TargetDistance
+      capability: concertmirror08464.mtg075TargetDist
     - component: main
       capability: concertmirror08464.mtg075BreakerStatus
     - component: main

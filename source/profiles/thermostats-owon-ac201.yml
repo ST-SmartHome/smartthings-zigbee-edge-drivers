@@ -1,0 +1,45 @@
+name: thermostats-owon-ac201
+components:
+  - id: main
+    capabilities:
+      - id: temperatureMeasurement
+        version: 1
+      - id: thermostatHeatingSetpoint
+        version: 1
+        config:
+          values:
+            - key: heatingSetpoint.value
+              range: [8, 30]
+              step: 1
+      - id: thermostatCoolingSetpoint
+        version: 1
+        config:
+          values:
+            - key: coolingSetpoint.value
+              range: [8, 30]
+              step: 1
+      - id: thermostatMode
+        version: 1
+        config:
+          values:
+            - key: thermostatMode.value
+              enabledValues: ["off", heat, cool, auto, dryair, fanonly]
+      - id: concertmirror08464.owonAc201LouverPosition
+        version: 1
+      - id: refresh
+        version: 1
+      - id: signalStrength
+        version: 1
+    categories:
+      - name: AirConditioner
+  - id: fan
+    label: Fan
+    capabilities:
+      - id: airConditionerFanMode
+        version: 1
+        config:
+          values:
+            - key: fanMode.value
+              enabledValues: [low, medium, high, "on", auto]
+      - id: switch
+        version: 1

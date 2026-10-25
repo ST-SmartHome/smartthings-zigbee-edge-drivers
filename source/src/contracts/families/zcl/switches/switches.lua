@@ -41,9 +41,7 @@ local function build_switch(profile, count, options)
   }
 end
 
-local function append_option_clusters(clusters, ...)
-  return zcl_device_helpers.append_clusters(clusters, ...)
-end
+local append_option_clusters = zcl_device_helpers.append_clusters
 
 local function build_tuya_on_off_switch(profile, count, options)
   local clusters = build_switch(profile, count, options).zcl_clusters
@@ -138,10 +136,6 @@ local NFZB03_EMITTERS = {
   },
 }
 
-local NFZB_TWO_INCHING = {
-  [1] = { enabled_capability = "concertmirror08464.nfzbTwoInchingEnabledOne", enabled_attribute = "nfzbTwoInchingEnabledOne", time_capability = "concertmirror08464.nfzbTwoInchingTimeOne", time_attribute = "nfzbTwoInchingTimeOne" },
-  [2] = { enabled_capability = "concertmirror08464.nfzbTwoInchingEnabledTwo", enabled_attribute = "nfzbTwoInchingEnabledTwo", time_capability = "concertmirror08464.nfzbTwoInchingTimeTwo", time_attribute = "nfzbTwoInchingTimeTwo" },
-}
 
 local BASE64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
@@ -493,7 +487,6 @@ append_option_clusters(tuya_single_switch.zcl_clusters, zcl.tuya_magic_packet())
 tuya_single_switch.configure = bind_on_off_endpoints(1)
 local single_power_switch = build_single_power_switch("switches-switch-1-power-options")
 local single_power_outage_switch = build_single_power_switch("switches-switch-1-power-outage", false)
-local dual_switch = build_switch("switches-switch-2", 2)
 local bound_dual_switch = build_switch("switches-switch-2", 2)
 bound_dual_switch.configure = bind_on_off_endpoints(2)
 -- This profile numbers its second channel switch2, not switch1.
@@ -531,7 +524,6 @@ local tuya_quad_magic_only_switch = {
   zcl_clusters = zcl.multi_switch(4, { configure_reporting = false, index_offset = 1 }),
 }
 append_option_clusters(tuya_quad_magic_only_switch.zcl_clusters, zcl.tuya_magic_packet())
-local quint_switch = build_switch("switches-switch-5", 5)
 local quint_tuya_switch = build_tuya_on_off_switch("switches-switch-5-tuya-options", 5, { index_offset = 1 })
 local lellki_wp33_switch = build_switch("switches-lellki-wp33-5", 5, { index_offset = 1 })
 append_option_clusters(lellki_wp33_switch.zcl_clusters,
@@ -1374,10 +1366,10 @@ register(quint_tuya_switch, fps("TS011F", {
 -- ZCL REPORTING CAPABILITIES BEGIN
 zcl.attach_reporting_capabilities(device_definitions, {
   {1, "rpt-tuj"},
-  {2, "rpt-tkg", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
-  {3, "rpt-tcm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {2, "rpt-tkg", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree"}},
+  {3, "rpt-tcm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree"}},
   {4, "rpt-tzt"},
-  {5, "rpt-tkp", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {5, "rpt-tkp", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
   {6, "rpt-tzt"},
   {7, "rpt-sit"},
   {8, "rpt-sit"},
@@ -1407,43 +1399,43 @@ zcl.attach_reporting_capabilities(device_definitions, {
   {32, "rpt-tlc"},
   {33, "rpt-tks"},
   {34, "rpt-tpe"},
-  {35, "rpt-tye", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {36, "rpt-too", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {37, "rpt-too", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {38, "rpt-tve", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {39, "rpt-tfo", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {40, "rpt-tzz", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {41, "rpt-tum", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {42, "rpt-tev", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {43, "rpt-lvk", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {35, "rpt-tye", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {36, "rpt-too", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {37, "rpt-too", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {38, "rpt-tve", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {39, "rpt-tfo", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {40, "rpt-tzz", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {41, "rpt-tum", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {42, "rpt-tev", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {43, "rpt-lvk", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
   {44, "rpt-sit"},
-  {45, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {46, "rpt-lek", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
-  {47, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {48, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {49, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {50, "rpt-tsl", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {51, "rpt-tqv", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {52, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {53, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {54, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {55, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {56, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {57, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {58, "rpt-lpm", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {59, "rpt-tkw", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {60, "rpt-lek", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
-  {61, "rpt-tiu", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
-  {62, "rpt-lek", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {45, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {46, "rpt-lek", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree"}},
+  {47, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {48, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {49, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {50, "rpt-tsl", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {51, "rpt-tqv", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {52, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {53, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {54, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {55, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {56, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {57, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {58, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {59, "rpt-tkw", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {60, "rpt-lek", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree"}},
+  {61, "rpt-tiu", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree"}},
+  {62, "rpt-lek", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree"}},
   {63, "rpt-sit"},
-  {65, "rpt-tmr", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
-  {67, "rpt-tqvv", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive", ["zr000600006"] = "SwitchSix"}},
-  {68, "rpt-tmr", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
-  {69, "rpt-tmr", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
-  {70, "rpt-lek", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
-  {71, "rpt-tsh", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive"}},
-  {72, "rpt-tfx", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive"}},
-  {73, "rpt-tfx", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive"}},
+  {65, "rpt-tmr", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour"}},
+  {67, "rpt-tqvv", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour", zr000600005 = "SwitchFive", zr000600006 = "SwitchSix"}},
+  {68, "rpt-tmr", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour"}},
+  {69, "rpt-tmr", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour"}},
+  {70, "rpt-lek", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree"}},
+  {71, "rpt-tsh", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour", zr000600005 = "SwitchFive"}},
+  {72, "rpt-tfx", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour", zr000600005 = "SwitchFive"}},
+  {73, "rpt-tfx", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour", zr000600005 = "SwitchFive"}},
 })
 -- ZCL REPORTING CAPABILITIES END
 

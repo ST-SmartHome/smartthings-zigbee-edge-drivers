@@ -541,13 +541,9 @@ local function single_definition(model, profile, extras)
   return {
     profile = profile,
     package_group = "wave14-switch",
-    transport_classification = "ZCL_CUSTOM_ATTRIBUTE_COMMAND",
-    z2m_converter_source = "sdevicesExtend + local sdevices converters",
-    wire_cluster = "manuSpecificSDevices(0xFCCF) and standard ZCL",
     zcl_clusters = mappings,
     capability_commands = commands,
     button_actions = { "pushed", "held", "double" },
-    placeholder_custom_states = false,
     configure = configure_single(model, extras),
   }
 end
@@ -620,17 +616,34 @@ local function dynamic_definition(model, profile, extras)
   local mappings = {}
   local commands = {}
 
+  local function profile_matches(device, cover_enabled)
+    local components = device.profile and device.profile.components
+    if type(components) ~= "table" or components.main == nil then return false end
+    for name in pairs(components) do
+      if name ~= "main" and name ~= (cover_enabled and "cover" or "switch2") then return false end
+    end
+    local supports = device.supports_capability_by_id
+    if cover_enabled then
+      return components.cover ~= nil and components.switch2 == nil and
+        supports(device, "refresh", "main") and supports(device, "windowShade", "cover") and
+        supports(device, "windowShadeLevel", "cover") and
+        supports(device, CAPABILITY_NAMESPACE .. capability_prefix .. "CoverMode", "cover")
+    end
+    return components.switch2 ~= nil and components.cover == nil and
+      supports(device, "switch", "main") and supports(device, "switch", "switch2") and
+      supports(device, CAPABILITY_NAMESPACE .. capability_prefix .. "OneRelayMode", "main") and
+      supports(device, CAPABILITY_NAMESPACE .. capability_prefix .. "TwoRelayMode", "switch2")
+  end
+
   local function branch_allowed(device, cover_enabled)
-    local active_profile = cover_enabled and cover_profile or switch_profile
     return device:get_field(pending_field) ~= true and
       device:get_field(mode_field) == cover_enabled and
-      device.profile ~= nil and device.profile.id == active_profile
+      profile_matches(device, cover_enabled)
   end
 
   local function apply_mode_profile(device, cover_enabled, force, suppress_reconfigure)
     local wanted = cover_enabled and cover_profile or switch_profile
-    local current = device.profile and device.profile.id or nil
-    if force or current ~= wanted then
+    if force or not profile_matches(device, cover_enabled) then
       if suppress_reconfigure then
         device:set_field(profile_reconfigure_field, wanted)
       end
@@ -859,7 +872,7 @@ local function dynamic_definition(model, profile, extras)
 
   local function configure(driver, device)
     local expected_profile = device:get_field(profile_reconfigure_field)
-    if expected_profile ~= nil and device.profile ~= nil and device.profile.id == expected_profile then
+    if expected_profile ~= nil and profile_matches(device, expected_profile == cover_profile) then
       -- This is the infoChanged caused by our own asynchronous profile update.
       -- The new components now exist, so activate the persisted branch exactly
       -- once without another mode probe or fallback timer.
@@ -905,16 +918,15 @@ local function dynamic_definition(model, profile, extras)
     sber_mode_field = mode_field,
     sber_pending_field = pending_field,
     valid_parent_profiles = { [switch_profile] = true, [cover_profile] = true },
+    parent_profile_matches = function(device)
+      return profile_matches(device, false) or profile_matches(device, true)
+    end,
     package_group = "wave14-switch",
-    transport_classification = "ZCL_DYNAMIC_SWITCH_OR_COVER",
-    z2m_converter_source = "local sdevices fz/tz + dynamic exposes(device.meta.window_covering_enabled)",
-    wire_cluster = "standard ZCL + Sber 0xFCCF/0x152F",
     zcl_clusters = mappings,
     capability_commands = commands,
     button_actions = { "pushed", "held", "double" },
     component_to_endpoint_map = { main = 1, switch2 = 2, cover = 3 },
     endpoint_to_component_map = { [1] = "main", [2] = "switch2", [3] = "cover" },
-    placeholder_custom_states = false,
     runtime_start = runtime_start,
     configure = configure,
     parent_refresh = parent_refresh,
@@ -1034,12 +1046,8 @@ local function socket_definition()
   return {
     profile = "switches-wave14-sber-sbdv-00202",
     package_group = "wave14-switch",
-    transport_classification = "ZCL_CUSTOM_ATTRIBUTE_COMMAND",
-    z2m_converter_source = "sdevices.fz.emergency_shutoff_state + sdevicesExtend",
-    wire_cluster = "standard ZCL + Sber 0xFCCF/0x152F",
     zcl_clusters = mappings,
     capability_commands = commands,
-    placeholder_custom_states = false,
     configure = configure,
   }
 end

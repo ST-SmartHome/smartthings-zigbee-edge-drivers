@@ -41,15 +41,11 @@ local function tuya_lifecycle(profile, datapoints)
   return {
     profile = profile,
     package_group = "wave19-light",
-    transport_classification = "EF00_DP",
-    z2m_converter_source = "meta.tuyaDatapoints",
-    wire_cluster = "manuSpecificTuya",
     magic_packet = true,
     -- Frozen tuyaBase({dp = true}) keeps queryOnConfigure at its false default.
     query_on_configure = false,
     named_datapoints = true,
     time_start = "off",
-    placeholder_custom_states = false,
     datapoints = datapoints,
   }
 end
@@ -226,9 +222,6 @@ local lidl_datapoints = {
 local lidl = {
   profile = "lights-wave19-lidl-hg06467",
   package_group = "wave19-light",
-  transport_classification = "HYBRID_ZCL_EF00",
-  z2m_converter_source = "legacy.silvercrest_smart_led_string",
-  wire_cluster = "genOnOff + manuSpecificTuya",
   magic_packet = false,
   query_on_configure = false,
   time_start = "off",

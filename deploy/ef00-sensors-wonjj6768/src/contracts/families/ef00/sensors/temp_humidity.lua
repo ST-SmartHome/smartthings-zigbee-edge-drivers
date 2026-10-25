@@ -70,99 +70,99 @@ end
 d(Z,C)return
 end
 d({
-datapoints=r,query_on_configure=true,},C)
+datapoints=r,query_on_configure=true},C)
 end
 local X={
-profile="sensors-temp-humidity-battery",b.dp_numeric(1,{name="temperature",emit=c.temperature("C"),converter=a.tuya_unsigned_temp(10)}),b.dp_humidity(2,{emit=c.humidity(),scale=10}),b.dp_battery(4,{emit=c.battery()}),}d(X,e.ts0601_fingerprints({
-"_TZE200_bjawzodf","_TZE200_zl1kmjqx",}))local ae={
+profile="sensors-temp-humidity-battery",b.dp_numeric(1,{name="temperature",emit=c.temperature"C",converter=a.tuya_unsigned_temp(10)}),b.dp_humidity(2,{emit=c.humidity(),scale=10}),b.dp_battery(4,{emit=c.battery()})}d(X,e.ts0601_fingerprints{
+"_TZE200_bjawzodf","_TZE200_zl1kmjqx"})local ae={
 profile="sensors-temp-humidity-battery-unit-9ern5sfh",datapoints={
-b.dp_temperature(1,{emit=c.temperature("C"),scale=10,read_only=true}),b.dp_humidity(2,{emit=c.humidity(),scale=10,read_only=true}),b.dp_battery(4,{emit=c.battery(),read_only=true}),b.dp_enum(9,{
-name="temperature_unit",emit=c.ern9TemperatureUnit(),converter=a.lookup_from_to({celsius=0,fahrenheit=1}),}),b.dp_numeric(19,{name="temperature_sensitivity",read_only=true}),},force_time_updates=true,time_start="off",}g(ae,e.ts0601_fingerprints({
-"_TZE284_9ern5sfh",}))local ai={
-profile="sensors-temp-humidity-battery",b.dp_numeric(1,{name="temperature",emit=c.temperature("C"),converter=a.tuya_unsigned_temp(10)}),b.dp_humidity(2,{emit=c.humidity(),scale=1}),b.dp_battery(4,{emit=c.battery()}),}d(ai,e.ts0601_fingerprints({
-"_TZE200_bq5c8xfe","_TZE200_44af8vyi",}))local ag={
+b.dp_temperature(1,{emit=c.temperature"C",scale=10,read_only=true}),b.dp_humidity(2,{emit=c.humidity(),scale=10,read_only=true}),b.dp_battery(4,{emit=c.battery(),read_only=true}),b.dp_enum(9,{
+name="temperature_unit",emit=c.ern9TemperatureUnit(),converter=a.lookup_from_to{celsius=0,fahrenheit=1}}),b.dp_numeric(19,{name="temperature_sensitivity",read_only=true})},force_time_updates=true,time_start="off"}g(ae,e.ts0601_fingerprints{
+"_TZE284_9ern5sfh"})local ai={
+profile="sensors-temp-humidity-battery",b.dp_numeric(1,{name="temperature",emit=c.temperature"C",converter=a.tuya_unsigned_temp(10)}),b.dp_humidity(2,{emit=c.humidity(),scale=1}),b.dp_battery(4,{emit=c.battery()})}d(ai,e.ts0601_fingerprints{
+"_TZE200_bq5c8xfe","_TZE200_44af8vyi"})local ag={
 profile="sensors-temp-humidity-battery-state-qyfl",datapoints={
-b.dp_numeric(1,{name="temperature",emit=c.temperature("C"),converter=a.tuya_unsigned_temp(10)}),b.dp_humidity(2,{emit=c.humidity(),scale=1}),b.dp_enum(3,{
-name="battery_state",emit=c.qyflBatteryState(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="low",[1]="middle",[2]="high",})),}),b.dp_battery(4,{emit=c.battery()}),},}g(ag,e.ts0601_fingerprints({
-"_TZE200_qyflbnbj","_TZE204_qyflbnbj","_TZE284_qyflbnbj",}))local q={
+b.dp_numeric(1,{name="temperature",emit=c.temperature"C",converter=a.tuya_unsigned_temp(10)}),b.dp_humidity(2,{emit=c.humidity(),scale=1}),b.dp_enum(3,{
+name="battery_state",emit=c.qyflBatteryState(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="low",[1]="middle",[2]="high"})}),b.dp_battery(4,{emit=c.battery()})}}g(ag,e.ts0601_fingerprints{
+"_TZE200_qyflbnbj","_TZE204_qyflbnbj","_TZE284_qyflbnbj"})local q={
 b.dp_temperature(1,{
-emit=c.temperature("C"),read_only=true,signed=true,converter=a.signed_number_pair(10),}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),b.dp_battery(4,{emit=c.battery(),read_only=true}),b.dp_numeric(9,{
-name="temperature_unit",converter=a.lookup_from_to({celsius=0,fahrenheit=1}),}),b.dp_temperature_calibration(23,{emit=c.temperatureCalibrationZg227z()}),b.dp_humidity_calibration(24,{emit=c.humidityCalibrationZg227z()}),}local am={
-profile="sensors-temp-humidity-battery-calibration-zg227z",datapoints=q,query_on_configure=false,}d(am,e.ts0601_fingerprints({
-"_TZE200_qoy0ekbd","_TZE200_znbl8dj5","_TZE200_a8sdabtg","_TZE200_dikkika5","_TZE200_vs0skpuc","_TZE200_3xfjp0ag","_TZE200_ehhrv2e3","_TZE200_lhqtjwax","_TZE200_y8wkaq6w",}))local al={
+emit=c.temperature"C",read_only=true,signed=true,converter=a.signed_number_pair(10)}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),b.dp_battery(4,{emit=c.battery(),read_only=true}),b.dp_numeric(9,{
+name="temperature_unit",converter=a.lookup_from_to{celsius=0,fahrenheit=1}}),b.dp_temperature_calibration(23,{emit=c.temperatureCalibrationZg227z()}),b.dp_humidity_calibration(24,{emit=c.humidityCalibrationZg227z()})}local am={
+profile="sensors-temp-humidity-battery-calibration-zg227z",datapoints=q,query_on_configure=false}d(am,e.ts0601_fingerprints{
+"_TZE200_qoy0ekbd","_TZE200_znbl8dj5","_TZE200_a8sdabtg","_TZE200_dikkika5","_TZE200_vs0skpuc","_TZE200_3xfjp0ag","_TZE200_ehhrv2e3","_TZE200_lhqtjwax","_TZE200_y8wkaq6w"})local al={
 profile="sensors-th-three-unit",datapoints={
 b.dp_temperature(1,{
-emit=c.temperature("C"),read_only=true,signed=true,converter=a.signed_number_pair(10),}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),b.dp_battery(4,{emit=c.battery(),read_only=true}),b.dp_enum(9,{
-name="th_three_display_unit",emit=c.thThreeDisplayUnit(),converter=a.lookup_from_to({celsius=0,fahrenheit=1}),}),},query_on_configure=true,time_start="1970",force_time_updates=true,}d(al,e.ts0601_fingerprints({
-"_TZE200_s1xgth2u","_TZE200_t3xd7l44","_TZE284_kdqrazmy",}))local ak={
+emit=c.temperature"C",read_only=true,signed=true,converter=a.signed_number_pair(10)}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),b.dp_battery(4,{emit=c.battery(),read_only=true}),b.dp_enum(9,{
+name="th_three_display_unit",emit=c.thThreeDisplayUnit(),converter=a.lookup_from_to{celsius=0,fahrenheit=1}})},query_on_configure=true,time_start="1970",force_time_updates=true}d(al,e.ts0601_fingerprints{
+"_TZE200_s1xgth2u","_TZE200_t3xd7l44","_TZE284_kdqrazmy"})local ak={
 profile="sensors-temp-humidity-battery-sensitivity-nous-e6",datapoints={
 b.dp_temperature(1,{
-emit=c.temperature("C"),read_only=true,signed=true,converter=a.signed_number_pair(10),}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),b.dp_battery(4,{emit=c.battery(),read_only=true}),b.dp_enum(9,{
-name="temperature_unit",converter=a.lookup_from_to({celsius=0,fahrenheit=1}),}),b.dp_numeric(10,{
-name="max_temperature_alarm",signed=true,converter=a.signed_number_pair(10),}),b.dp_numeric(11,{
-name="min_temperature_alarm",signed=true,converter=a.signed_number_pair(10),}),b.dp_numeric(12,{name="max_humidity_alarm"}),b.dp_numeric(13,{name="min_humidity_alarm"}),b.dp_numeric(17,{name="temperature_report_interval"}),b.dp_numeric(19,{
-name="temperature_sensitivity",converter=a.divide_by_pair(10),emit=c.nousE6TemperatureSensitivity(),}),b.dp_numeric(20,{
-name="humidity_sensitivity",emit=c.nousE6HumiditySensitivity(),}),},query_on_configure=false,bind_basic_on_configure=true,time_start="1970",runtime_start=j,}d(ak,e.ts0601_fingerprints({
-"_TZE284_wtikaxzs","_TZE200_nnrfa68v","_TZE200_zppcgbdj","_TZE200_wtikaxzs",}))local S={
+emit=c.temperature"C",read_only=true,signed=true,converter=a.signed_number_pair(10)}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),b.dp_battery(4,{emit=c.battery(),read_only=true}),b.dp_enum(9,{
+name="temperature_unit",converter=a.lookup_from_to{celsius=0,fahrenheit=1}}),b.dp_numeric(10,{
+name="max_temperature_alarm",signed=true,converter=a.signed_number_pair(10)}),b.dp_numeric(11,{
+name="min_temperature_alarm",signed=true,converter=a.signed_number_pair(10)}),b.dp_numeric(12,{name="max_humidity_alarm"}),b.dp_numeric(13,{name="min_humidity_alarm"}),b.dp_numeric(17,{name="temperature_report_interval"}),b.dp_numeric(19,{
+name="temperature_sensitivity",converter=a.divide_by_pair(10),emit=c.nousE6TemperatureSensitivity()}),b.dp_numeric(20,{
+name="humidity_sensitivity",emit=c.nousE6HumiditySensitivity()})},query_on_configure=false,bind_basic_on_configure=true,time_start="1970",runtime_start=j}d(ak,e.ts0601_fingerprints{
+"_TZE284_wtikaxzs","_TZE200_nnrfa68v","_TZE200_zppcgbdj","_TZE200_wtikaxzs"})local S={
 profile="sensors-temp-humidity-battery",datapoints={
 b.dp_temperature(1,{
-emit=c.temperature("C"),read_only=true,signed=true,converter=a.signed_number_pair(10),}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),b.dp_battery(4,{emit=c.battery(),read_only=true}),b.dp_numeric(9,{
-name="temperature_unit",converter=a.lookup_from_to({celsius=0,fahrenheit=1}),}),},query_on_configure=false,mcu_version_request_on_configure=true,}d(S,e.ts0601_fingerprints({
-"_TZE204_s139roas",}))local ah={
-profile="sensors-temp-humidity-battery-calibration-zg227z",datapoints=q,query_on_configure=true,query_on_announce=true,respond_to_mcu_version_response=true,}d(ah,e.ts0601_fingerprints({
-"_TZE200_ysm4dsb1",}))local av={
+emit=c.temperature"C",read_only=true,signed=true,converter=a.signed_number_pair(10)}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),b.dp_battery(4,{emit=c.battery(),read_only=true}),b.dp_numeric(9,{
+name="temperature_unit",converter=a.lookup_from_to{celsius=0,fahrenheit=1}})},query_on_configure=false,mcu_version_request_on_configure=true}d(S,e.ts0601_fingerprints{
+"_TZE204_s139roas"})local ah={
+profile="sensors-temp-humidity-battery-calibration-zg227z",datapoints=q,query_on_configure=true,query_on_announce=true,respond_to_mcu_version_response=true}d(ah,e.ts0601_fingerprints{
+"_TZE200_ysm4dsb1"})local av={
 b.dp_temperature(1,{
-emit=c.temperature("C"),read_only=true,signed=true,converter=a.signed_number_pair(10),}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),b.dp_enum(3,{
-name="battery_state",emit=c.zsn03pBatteryState(),read_only=true,converter=a.lookup_from_to({low=0,medium=1,high=2}),}),b.dp_temperature_unit(9,{
-emit=c.zsn03pTemperatureUnit(),converter=a.lookup_from_to({celsius=0,fahrenheit=1}),}),b.dp_temperature_calibration(23,{emit=c.temperatureCalibrationZg227z()}),b.dp_humidity_calibration(24,{emit=c.zsn03pHumidityCalibration()}),}g({
-profile="sensors-temp-humidity-battery-state-calibration-zsn03p",datapoints=av,query_on_configure=false,},e.ts0601_fingerprints({
-"_TZE284_rjjsib2d",}))local J={
+emit=c.temperature"C",read_only=true,signed=true,converter=a.signed_number_pair(10)}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),b.dp_enum(3,{
+name="battery_state",emit=c.zsn03pBatteryState(),read_only=true,converter=a.lookup_from_to{low=0,medium=1,high=2}}),b.dp_temperature_unit(9,{
+emit=c.zsn03pTemperatureUnit(),converter=a.lookup_from_to{celsius=0,fahrenheit=1}}),b.dp_temperature_calibration(23,{emit=c.temperatureCalibrationZg227z()}),b.dp_humidity_calibration(24,{emit=c.zsn03pHumidityCalibration()})}g({
+profile="sensors-temp-humidity-battery-state-calibration-zsn03p",datapoints=av,query_on_configure=false},e.ts0601_fingerprints{
+"_TZE284_rjjsib2d"})local J={
 profile="sensors-temp-battery-pool-chlorine",datapoints={
-b.dp_numeric(1,{name="tds",emit=c.tdsChlorineMeter(),read_only=true}),b.dp_temperature(2,{emit=c.temperature("C"),scale=10,read_only=true}),b.dp_battery(7,{emit=c.battery(),read_only=true}),b.dp_numeric(10,{
-name="ph",emit=c.poolPhChlorineMeter(),converter=N(),read_only=true,}),b.dp_numeric(11,{name="ec",emit=c.ylPoolConductivity(),read_only=true}),b.dp_numeric(101,{name="orp",emit=c.poolOrpChlorineMeter(),read_only=true}),b.dp_numeric(102,{
-name="free_chlorine",converter=a.divide_by_pair(10),emit=c.freeChlorineChlorineMeter(),read_only=true,}),b.dp_numeric(105,{name="backlightvalue",emit=c.ylPoolBacklight()}),b.dp_numeric(106,{name="ph_max",emit=c.ylPoolPhMax("pH")}),b.dp_numeric(107,{name="ph_min",emit=c.ylPoolPhMin("pH")}),b.dp_numeric(108,{name="ec_max",emit=c.ylPoolEcMax("µS/cm")}),b.dp_numeric(109,{name="ec_min",emit=c.ylPoolEcMin("µS/cm")}),b.dp_numeric(110,{name="orp_max",emit=c.ylPoolOrpMax("mV")}),b.dp_numeric(111,{name="orp_min",emit=c.ylPoolOrpMin("mV")}),b.dp_numeric(112,{name="free_chlorine_max",emit=c.ylPoolChlorineMax("mg/L")}),b.dp_numeric(113,{name="free_chlorine_min",emit=c.ylPoolChlorineMin("mg/L")}),b.dp_numeric(117,{name="salinity",emit=c.salinityChlorineMeter(),read_only=true}),},query_on_configure=false,query_interval_seconds=10*60,query_on_announce=true,respond_to_mcu_version_response=true,runtime_start=w,}d(J,e.ts0601_fingerprints({
-"_TZE200_d9mzkhoq","_TZE200_v1jqz5cy",}))local R={
+b.dp_numeric(1,{name="tds",emit=c.tdsChlorineMeter(),read_only=true}),b.dp_temperature(2,{emit=c.temperature"C",scale=10,read_only=true}),b.dp_battery(7,{emit=c.battery(),read_only=true}),b.dp_numeric(10,{
+name="ph",emit=c.poolPhChlorineMeter(),converter=N(),read_only=true}),b.dp_numeric(11,{name="ec",emit=c.ylPoolConductivity(),read_only=true}),b.dp_numeric(101,{name="orp",emit=c.poolOrpChlorineMeter(),read_only=true}),b.dp_numeric(102,{
+name="free_chlorine",converter=a.divide_by_pair(10),emit=c.freeChlorineChlorineMeter(),read_only=true}),b.dp_numeric(105,{name="backlightvalue",emit=c.ylPoolBacklight()}),b.dp_numeric(106,{name="ph_max",emit=c.ylPoolPhMax"pH"}),b.dp_numeric(107,{name="ph_min",emit=c.ylPoolPhMin"pH"}),b.dp_numeric(108,{name="ec_max",emit=c.ylPoolEcMax"µS/cm"}),b.dp_numeric(109,{name="ec_min",emit=c.ylPoolEcMin"µS/cm"}),b.dp_numeric(110,{name="orp_max",emit=c.ylPoolOrpMax"mV"}),b.dp_numeric(111,{name="orp_min",emit=c.ylPoolOrpMin"mV"}),b.dp_numeric(112,{name="free_chlorine_max",emit=c.ylPoolChlorineMax"mg/L"}),b.dp_numeric(113,{name="free_chlorine_min",emit=c.ylPoolChlorineMin"mg/L"}),b.dp_numeric(117,{name="salinity",emit=c.salinityChlorineMeter(),read_only=true})},query_on_configure=false,query_interval_seconds=10*60,query_on_announce=true,respond_to_mcu_version_response=true,runtime_start=w}d(J,e.ts0601_fingerprints{
+"_TZE200_d9mzkhoq","_TZE200_v1jqz5cy"})local R={
 profile="sensors-temp-battery-heat-water-meter",datapoints={
 b.dp_water_consumed(1,{
-read_only=true,emit=c.waterConsumedHeatMeter(),}),b.dp_month_consumption(2,{
-name="monthly_water_consumption",raw=true,raw_bytes=4,raw_from_tail=true,read_only=true,}),b.dp_daily_consumption(3,{
-name="daily_water_consumption",raw=true,raw_bytes=4,raw_from_tail=true,read_only=true,}),b.dp_enum(4,{
-name="report_period",converter=a.report_period_hours(),}),b.dp_numeric(5,{
+read_only=true,emit=c.waterConsumedHeatMeter()}),b.dp_month_consumption(2,{
+name="monthly_water_consumption",raw=true,raw_bytes=4,raw_from_tail=true,read_only=true}),b.dp_daily_consumption(3,{
+name="daily_water_consumption",raw=true,raw_bytes=4,raw_from_tail=true,read_only=true}),b.dp_enum(4,{
+name="report_period",converter=a.report_period_hours()}),b.dp_numeric(5,{
 name="fault",read_only=true,converter=a.bitmap_flags({
-[1]="battery_alarm",[2]="magnetism_alarm",[4]="cover_alarm",[8]="credit_alarm",[16]="switch_gaps_alarm",[32]="meter_body_alarm",[64]="abnormal_water_alarm",[128]="arrearage_alarm",[256]="overflow_alarm",[512]="revflow_alarm",[1024]="over_pre_alarm",[2048]="empty_pip_alarm",[4096]="transduce_alarm",},"OK",", "),}),b.dp_binary(6,{name="prepayment_switch"}),b.dp_cumulative_heat(7,{name="cumulative_heat",read_only=true}),b.dp_meter_id(16,{read_only=true}),b.dp_instantaneous_flow_rate(19,{
-raw=true,raw_bytes=4,raw_from_tail=false,read_only=true,}),b.dp_inlet_water_temperature(21,{
-name="temperature",read_only=true,emit=c.temperature("C"),}),b.dp_outlet_water_temperature(22,{
-name="outlet_water_temperature",read_only=true,}),b.dp_numeric(24,{
-name="battery_voltage",read_only=true,converter=a.from_only(a.multiply_by(10)),}),},query_on_configure=false,}d(R,e.ts0601_fingerprints({
-"_TZE200_jt50ea5d",}))local G={
+[1]="battery_alarm",[2]="magnetism_alarm",[4]="cover_alarm",[8]="credit_alarm",[16]="switch_gaps_alarm",[32]="meter_body_alarm",[64]="abnormal_water_alarm",[128]="arrearage_alarm",[256]="overflow_alarm",[512]="revflow_alarm",[1024]="over_pre_alarm",[2048]="empty_pip_alarm",[4096]="transduce_alarm"},"OK",", ")}),b.dp_binary(6,{name="prepayment_switch"}),b.dp_cumulative_heat(7,{name="cumulative_heat",read_only=true}),b.dp_meter_id(16,{read_only=true}),b.dp_instantaneous_flow_rate(19,{
+raw=true,raw_bytes=4,raw_from_tail=false,read_only=true}),b.dp_inlet_water_temperature(21,{
+name="temperature",read_only=true,emit=c.temperature"C"}),b.dp_outlet_water_temperature(22,{
+name="outlet_water_temperature",read_only=true}),b.dp_numeric(24,{
+name="battery_voltage",read_only=true,converter=a.from_only(a.multiply_by(10))})},query_on_configure=false}d(R,e.ts0601_fingerprints{
+"_TZE200_jt50ea5d"})local G={
 profile="sensors-water-meter-ultrasonic-ajlu4cud",datapoints={
 b.dp_water_consumed(1,{
-read_only=true,emit=c.ajlu4cudWaterConsumed(),}),b.dp_month_consumption(2,{
-raw=true,raw_bytes=4,raw_from_tail=true,read_only=true,emit=c.ajlu4cudMonthConsumption(),}),b.dp_daily_consumption(3,{
-raw=true,raw_bytes=4,raw_from_tail=true,read_only=true,emit=c.ajlu4cudDailyConsumption(),}),b.dp_numeric(4,{
-name="report_period",converter=a.report_period_hours(),emit=c.ajlu4cudReportPeriod(),}),b.dp_water_meter_faults(5,{
-read_only=true,emit=c.ajlu4cudFaults(),}),b.dp_meter_id(16,{
-read_only=true,emit=c.ajlu4cudMeterId(),}),b.dp_reverse_water_consumed(18,{
-raw=true,raw_bytes=4,raw_from_tail=false,read_only=true,emit=c.ajlu4cudReverseWaterConsumed(),}),b.dp_flow_rate(21,{
-raw=true,raw_bytes=4,raw_from_tail=true,read_only=true,emit=c.ajlu4cudFlowRate(),}),b.dp_temperature(22,{
-scale=100,read_only=true,emit=c.temperature("C"),}),b.dp_battery_voltage(26,{name="battery_voltage",read_only=true}),},query_on_configure=false,}d(G,e.ts0601_fingerprints({
-"_TZE284_ajlu4cud",}))
+read_only=true,emit=c.ajlu4cudWaterConsumed()}),b.dp_month_consumption(2,{
+raw=true,raw_bytes=4,raw_from_tail=true,read_only=true,emit=c.ajlu4cudMonthConsumption()}),b.dp_daily_consumption(3,{
+raw=true,raw_bytes=4,raw_from_tail=true,read_only=true,emit=c.ajlu4cudDailyConsumption()}),b.dp_numeric(4,{
+name="report_period",converter=a.report_period_hours(),emit=c.ajlu4cudReportPeriod()}),b.dp_water_meter_faults(5,{
+read_only=true,emit=c.ajlu4cudFaults()}),b.dp_meter_id(16,{
+read_only=true,emit=c.ajlu4cudMeterId()}),b.dp_reverse_water_consumed(18,{
+raw=true,raw_bytes=4,raw_from_tail=false,read_only=true,emit=c.ajlu4cudReverseWaterConsumed()}),b.dp_flow_rate(21,{
+raw=true,raw_bytes=4,raw_from_tail=true,read_only=true,emit=c.ajlu4cudFlowRate()}),b.dp_temperature(22,{
+scale=100,read_only=true,emit=c.temperature"C"}),b.dp_battery_voltage(26,{name="battery_voltage",read_only=true})},query_on_configure=false}d(G,e.ts0601_fingerprints{
+"_TZE284_ajlu4cud"})
 local function i(s)
 local f={
 b.dp_temperature(1,{
-emit=c.temperature("C"),read_only=true,signed=true,converter=a.signed_number_pair(10),}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),}if s.battery_state then
+emit=c.temperature"C",read_only=true,signed=true,converter=a.signed_number_pair(10)}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true})}if s.battery_state then
 f[#f+1]=b.dp_enum(3,{
-name="battery_state",emit=c.cwyqwqbfBatteryState(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="low",[1]="medium",[2]="high",})),})else
+name="battery_state",emit=c.cwyqwqbfBatteryState(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="low",[1]="medium",[2]="high"})})else
 f[#f+1]=b.dp_battery(4,{emit=c.battery(),read_only=true})
 end
 f[#f+1]=b.dp_enum(9,{
-name="temperature_unit",converter=a.lookup_from_to({celsius=0,fahrenheit=1}),})f[#f+1]=b.dp_numeric(10,{
-name="max_temperature_alarm",signed=true,converter=a.signed_number_pair(10),})f[#f+1]=b.dp_numeric(11,{
-name="min_temperature_alarm",signed=true,converter=a.signed_number_pair(10),})f[#f+1]=b.dp_numeric(12,{name="max_humidity_alarm"})f[#f+1]=b.dp_numeric(13,{name="min_humidity_alarm"})f[#f+1]=b.dp_enum(14,{
-name="temperature_alarm",read_only=true,converter=s.alarm_converter,})f[#f+1]=b.dp_enum(15,{
-name="humidity_alarm",read_only=true,converter=s.alarm_converter,})if s.temperature_report_interval then
+name="temperature_unit",converter=a.lookup_from_to{celsius=0,fahrenheit=1}})f[#f+1]=b.dp_numeric(10,{
+name="max_temperature_alarm",signed=true,converter=a.signed_number_pair(10)})f[#f+1]=b.dp_numeric(11,{
+name="min_temperature_alarm",signed=true,converter=a.signed_number_pair(10)})f[#f+1]=b.dp_numeric(12,{name="max_humidity_alarm"})f[#f+1]=b.dp_numeric(13,{name="min_humidity_alarm"})f[#f+1]=b.dp_enum(14,{
+name="temperature_alarm",read_only=true,converter=s.alarm_converter})f[#f+1]=b.dp_enum(15,{
+name="humidity_alarm",read_only=true,converter=s.alarm_converter})if s.temperature_report_interval then
 f[#f+1]=b.dp_numeric(17,{name="temperature_report_interval"})
 end
 if s.humidity_report_interval then
@@ -170,98 +170,98 @@ f[#f+1]=b.dp_numeric(18,{name="humidity_report_interval"})
 end
 if s.temperature_sensitivity_emit then
 f[#f+1]=b.dp_numeric(19,{
-name="temperature_sensitivity",converter=a.divide_by_pair(10),emit=s.temperature_sensitivity_emit,})
+name="temperature_sensitivity",converter=a.divide_by_pair(10),emit=s.temperature_sensitivity_emit})
 end
 if s.humidity_sensitivity_emit then
 f[#f+1]=b.dp_numeric(20,{
-name="humidity_sensitivity",emit=s.humidity_sensitivity_emit,})
+name="humidity_sensitivity",emit=s.humidity_sensitivity_emit})
 end
 return f
 end
-local m=a.lookup_from_to({
-lower_alarm=0,upper_alarm=1,cancel=2,})local B=a.lookup_from_to({
-canceled=0,lower_alarm=1,upper_alarm=2,})local W={
-profile="sensors-temp-humidity-battery-alarm-sensitivity-th-alarm",datapoints=i({
-alarm_converter=m,temperature_report_interval=true,humidity_report_interval=true,temperature_sensitivity_emit=c.tempSensitivityThCToOne(),humidity_sensitivity_emit=c.humiditySensitivityThThreeTen(),}),query_on_configure=true,respond_to_mcu_version_response=true,time_start="1970",}d(W,e.ts0601_fingerprints({
-"_TZE200_vvmbj46n","_TZE284_vvmbj46n","_TZE200_w6n8jeuu",}))local O={
-profile="sensors-temp-humidity-battery-state-alarm-sensitivity-cwyqwqbf",datapoints=i({
-battery_state=true,alarm_converter=m,temperature_report_interval=true,humidity_report_interval=true,temperature_sensitivity_emit=c.tempSensitivityThCToOne(),humidity_sensitivity_emit=c.humiditySensitivityThThreeTen(),}),query_on_configure=true,respond_to_mcu_version_response=true,time_start="1970",}d(O,e.ts0601_fingerprints({
-"_TZE284_cwyqwqbf",}))local K={
-profile="sensors-temp-humidity-battery-alarm-sensitivity-nous-szt04",datapoints=i({
-alarm_converter=m,temperature_report_interval=true,humidity_report_interval=true,temperature_sensitivity_emit=c.nousSzT04TemperatureSensitivity(),humidity_sensitivity_emit=c.nousSzT04HumiditySensitivity(),}),query_on_configure=false,bind_basic_on_configure=true,time_start="1970",runtime_start=j,}d(K,e.ts0601_fingerprints({
-"_TZE200_lve3dvpy","_TZE200_c7emyjom","_TZE200_locansqn","_TZE200_qrztc3ev","_TZE200_snloy4rw","_TZE200_eanjj2pa","_TZE200_ydrdfkim","_TZE284_locansqn",}))local D={
-profile="sensors-temp-humidity-battery-alarm-sensitivity-lincukoo-szt04",datapoints=i({
-alarm_converter=B,temperature_sensitivity_emit=c.lincukooSzt04TempSensitivity(),humidity_sensitivity_emit=c.lincukooSzt04HumiditySensitivity(),}),query_on_configure=false,time_start="1970",runtime_start=j,}d(D,e.ts0601_fingerprints({
-"_TZE284_rs62zxk8","_TZE284_4dosadbh","_TZE284_mpzuabwk",}))local V={
-profile="sensors-temp-humidity-battery-jm-trh",datapoints=i({
-alarm_converter=m,temperature_report_interval=true,}),query_on_configure=false,bind_basic_on_configure=true,time_start="1970",runtime_start=j,}d(V,e.ts0601_fingerprints({
-"_TZE200_whkgqxse",}))local ar={
-profile="sensors-temp-humidity-battery-state-unit-th2aaa",b.dp_temperature(1,{emit=c.temperature("C"),scale=10,read_only=true}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),b.dp_enum(3,{
-name="battery_state",emit=c.th2aaaBatteryStateV2(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="low",[1]="medium",[2]="high",})),}),b.dp_enum(9,{
-name="temperature_unit",emit=c.th2aaaTemperatureUnit(),converter=a.lookup_from_to({celsius=0,fahrenheit=1}),}),query_on_configure=true,query_on_announce=true,respond_to_mcu_version_response=true,time_start="1970",}d(ar,e.ts0601_fingerprints({
-"_TZE200_upagmta9","_TZE204_upagmta9","_TZE284_upagmta9","_TZE200_cirvgep4","_TZE204_cirvgep4","_TZE204_jygvp6fk","_TZE200_yjjdcqsq","_TZE204_yjjdcqsq","_TZE284_yjjdcqsq","_TZE200_9yapgbuv","_TZE204_9yapgbuv","_TZE284_9yapgbuv","_TZE200_utkemkbs","_TZE204_utkemkbs","_TZE284_utkemkbs","_TZE204_ksz749x8","_TZE284_ksz749x8","_TZE204_1wnh8bqp","_TZE284_1wnh8bqp","_TZE204_kwi6bbk4","_TZE204_d7lpruvi","_TZE200_d7lpruvi","_TZE284_d7lpruvi","_TZE284_hdyjyqjm",}))local af={
-profile="sensors-temp-humidity-battery-excellux-dht",b.dp_battery(4,{emit=c.battery()}),b.dp_temperature(5,{emit=c.temperature("C"),scale=100}),b.dp_numeric(101,{
-name="sampling_interval",emit=c.excelluxDhtSamplingInterval(),}),b.dp_numeric(114,{
-name="temperature_calibration",emit=c.excelluxDhtTemperatureCalibration(),signed=true,converter=a.signed_number_pair(100),}),b.dp_numeric(115,{
-name="temperature_v0_set",emit=c.excelluxDhtTemperatureV0(),signed=true,converter=a.signed_number_pair(100),}),b.dp_numeric(116,{
-name="temperature_v1_set",emit=c.excelluxDhtTemperatureV1(),signed=true,converter=a.signed_number_pair(100),}),b.dp_enum(117,{
-name="temperature_warning",emit=c.excelluxDhtTemperatureWarning(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="none",[1]="low",[2]="high",})),}),b.dp_humidity(118,{emit=c.humidity(),scale=100}),b.dp_numeric(119,{
-name="humidity_calibration",emit=c.excelluxDhtHumidityCalibration(),signed=true,converter=a.signed_number_pair(100),}),b.dp_numeric(120,{
-name="humidity_v0_set",emit=c.excelluxDhtHumidityV0(),converter=a.divide_by_pair(100),}),b.dp_numeric(121,{
-name="humidity_v1_set",emit=c.excelluxDhtHumidityV1(),converter=a.divide_by_pair(100),}),b.dp_enum(122,{
-name="humidity_warning",emit=c.excelluxDhtHumidityWarning(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="none",[1]="low",[2]="high",})),}),}d(af,{
-l.create_fingerprint("DHT0001","Excellux"),l.create_fingerprint("DHTA001","Excellux"),})local P={
+local m=a.lookup_from_to{
+lower_alarm=0,upper_alarm=1,cancel=2}local B=a.lookup_from_to{
+canceled=0,lower_alarm=1,upper_alarm=2}local W={
+profile="sensors-temp-humidity-battery-alarm-sensitivity-th-alarm",datapoints=i{
+alarm_converter=m,temperature_report_interval=true,humidity_report_interval=true,temperature_sensitivity_emit=c.tempSensitivityThCToOne(),humidity_sensitivity_emit=c.humiditySensitivityThThreeTen()},query_on_configure=true,respond_to_mcu_version_response=true,time_start="1970"}d(W,e.ts0601_fingerprints{
+"_TZE200_vvmbj46n","_TZE284_vvmbj46n","_TZE200_w6n8jeuu"})local O={
+profile="sensors-temp-humidity-battery-state-alarm-sensitivity-cwyqwqbf",datapoints=i{
+battery_state=true,alarm_converter=m,temperature_report_interval=true,humidity_report_interval=true,temperature_sensitivity_emit=c.tempSensitivityThCToOne(),humidity_sensitivity_emit=c.humiditySensitivityThThreeTen()},query_on_configure=true,respond_to_mcu_version_response=true,time_start="1970"}d(O,e.ts0601_fingerprints{
+"_TZE284_cwyqwqbf"})local K={
+profile="sensors-temp-humidity-battery-alarm-sensitivity-nous-szt04",datapoints=i{
+alarm_converter=m,temperature_report_interval=true,humidity_report_interval=true,temperature_sensitivity_emit=c.nousSzT04TemperatureSensitivity(),humidity_sensitivity_emit=c.nousSzT04HumiditySensitivity()},query_on_configure=false,bind_basic_on_configure=true,time_start="1970",runtime_start=j}d(K,e.ts0601_fingerprints{
+"_TZE200_lve3dvpy","_TZE200_c7emyjom","_TZE200_locansqn","_TZE200_qrztc3ev","_TZE200_snloy4rw","_TZE200_eanjj2pa","_TZE200_ydrdfkim","_TZE284_locansqn"})local D={
+profile="sensors-temp-humidity-battery-alarm-sensitivity-lincukoo-szt04",datapoints=i{
+alarm_converter=B,temperature_sensitivity_emit=c.lincukooSzt04TempSensitivity(),humidity_sensitivity_emit=c.lincukooSzt04HumiditySensitivity()},query_on_configure=false,time_start="1970",runtime_start=j}d(D,e.ts0601_fingerprints{
+"_TZE284_rs62zxk8","_TZE284_4dosadbh","_TZE284_mpzuabwk"})local V={
+profile="sensors-temp-humidity-battery-jm-trh",datapoints=i{
+alarm_converter=m,temperature_report_interval=true},query_on_configure=false,bind_basic_on_configure=true,time_start="1970",runtime_start=j}d(V,e.ts0601_fingerprints{
+"_TZE200_whkgqxse"})local ar={
+profile="sensors-temp-humidity-battery-state-unit-th2aaa",b.dp_temperature(1,{emit=c.temperature"C",scale=10,read_only=true}),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),b.dp_enum(3,{
+name="battery_state",emit=c.th2aaaBatteryStateV2(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="low",[1]="medium",[2]="high"})}),b.dp_enum(9,{
+name="temperature_unit",emit=c.th2aaaTemperatureUnit(),converter=a.lookup_from_to{celsius=0,fahrenheit=1}}),query_on_configure=true,query_on_announce=true,respond_to_mcu_version_response=true,time_start="1970"}d(ar,e.ts0601_fingerprints{
+"_TZE200_upagmta9","_TZE204_upagmta9","_TZE284_upagmta9","_TZE200_cirvgep4","_TZE204_cirvgep4","_TZE204_jygvp6fk","_TZE200_yjjdcqsq","_TZE204_yjjdcqsq","_TZE284_yjjdcqsq","_TZE200_9yapgbuv","_TZE204_9yapgbuv","_TZE284_9yapgbuv","_TZE200_utkemkbs","_TZE204_utkemkbs","_TZE284_utkemkbs","_TZE204_ksz749x8","_TZE284_ksz749x8","_TZE204_1wnh8bqp","_TZE284_1wnh8bqp","_TZE204_kwi6bbk4","_TZE204_d7lpruvi","_TZE200_d7lpruvi","_TZE284_d7lpruvi","_TZE284_hdyjyqjm"})local af={
+profile="sensors-temp-humidity-battery-excellux-dht",b.dp_battery(4,{emit=c.battery()}),b.dp_temperature(5,{emit=c.temperature"C",scale=100}),b.dp_numeric(101,{
+name="sampling_interval",emit=c.excelluxDhtSamplingInterval()}),b.dp_numeric(114,{
+name="temperature_calibration",emit=c.excelluxDhtTemperatureCalibration(),signed=true,converter=a.signed_number_pair(100)}),b.dp_numeric(115,{
+name="temperature_v0_set",emit=c.excelluxDhtTemperatureV0(),signed=true,converter=a.signed_number_pair(100)}),b.dp_numeric(116,{
+name="temperature_v1_set",emit=c.excelluxDhtTemperatureV1(),signed=true,converter=a.signed_number_pair(100)}),b.dp_enum(117,{
+name="temperature_warning",emit=c.excelluxDhtTemperatureWarning(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="none",[1]="low",[2]="high"})}),b.dp_humidity(118,{emit=c.humidity(),scale=100}),b.dp_numeric(119,{
+name="humidity_calibration",emit=c.excelluxDhtHumidityCalibration(),signed=true,converter=a.signed_number_pair(100)}),b.dp_numeric(120,{
+name="humidity_v0_set",emit=c.excelluxDhtHumidityV0(),converter=a.divide_by_pair(100)}),b.dp_numeric(121,{
+name="humidity_v1_set",emit=c.excelluxDhtHumidityV1(),converter=a.divide_by_pair(100)}),b.dp_enum(122,{
+name="humidity_warning",emit=c.excelluxDhtHumidityWarning(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="none",[1]="low",[2]="high"})})}d(af,{
+l.create_fingerprint("DHT0001","Excellux"),l.create_fingerprint("DHTA001","Excellux")})local P={
 profile="sensors-temp-humidity-probe-excellux-full",b.dp_numeric(1,{
-name="probe_temperature",emit=c.excelluxProbeTemperature(),converter=a.divide_by_pair(10),read_only=true,}),b.dp_battery(4,{emit=c.battery()}),b.dp_temperature(5,{emit=c.temperature("C"),scale=100}),b.dp_numeric(101,{
-name="sampling_interval",emit=c.excelluxProbeSamplingInterval(),}),b.dp_numeric(108,{
-name="probe_temperature_calibration",emit=c.excelluxProbeTempCalibration(),signed=true,converter=a.signed_number_pair(10),}),b.dp_numeric(109,{
-name="probe_temperature_v0_set",emit=c.excelluxProbeTemperatureV0(),signed=true,converter=a.signed_number_pair(10),}),b.dp_numeric(110,{
-name="probe_temperature_v1_set",emit=c.excelluxProbeTemperatureV1(),signed=true,converter=a.signed_number_pair(10),}),b.dp_enum(112,{
-name="probe_temperature_warning",emit=c.excelluxProbeTemperatureWarning(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="none",[1]="low",[2]="high",})),}),b.dp_numeric(114,{
-name="temperature_calibration",emit=c.excelluxProbeAirTempCalibration(),signed=true,converter=a.signed_number_pair(100),}),b.dp_numeric(115,{
-name="temperature_v0_set",emit=c.excelluxProbeAirTemperatureV0(),signed=true,converter=a.signed_number_pair(100),}),b.dp_numeric(116,{
-name="temperature_v1_set",emit=c.excelluxProbeAirTemperatureV1(),signed=true,converter=a.signed_number_pair(100),}),b.dp_enum(117,{
-name="temperature_warning",emit=c.excelluxProbeAirTempWarning(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="none",[1]="low",[2]="high",})),}),b.dp_humidity(118,{emit=c.humidity(),scale=100}),b.dp_numeric(119,{
-name="humidity_calibration",emit=c.excelluxProbeHumidityCalibration(),signed=true,converter=a.signed_number_pair(100),}),b.dp_numeric(120,{
-name="humidity_v0_set",emit=c.excelluxProbeHumidityV0(),converter=a.divide_by_pair(100),}),b.dp_numeric(121,{
-name="humidity_v1_set",emit=c.excelluxProbeHumidityV1(),converter=a.divide_by_pair(100),}),b.dp_enum(122,{
-name="humidity_warning",emit=c.excelluxProbeHumidityWarning(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="none",[1]="low",[2]="high",})),}),}d(P,{
-l.create_fingerprint("NTCHT01","Excellux"),l.create_fingerprint("NTCHT02","Excellux"),l.create_fingerprint("NTCHT03","Excellux"),})local F={
-profile="sensors-temp-battery",b.dp_temperature(1,{emit=c.temperature("C"),scale=10}),b.dp_battery(4,{emit=c.battery()}),}local A={
+name="probe_temperature",emit=c.excelluxProbeTemperature(),converter=a.divide_by_pair(10),read_only=true}),b.dp_battery(4,{emit=c.battery()}),b.dp_temperature(5,{emit=c.temperature"C",scale=100}),b.dp_numeric(101,{
+name="sampling_interval",emit=c.excelluxProbeSamplingInterval()}),b.dp_numeric(108,{
+name="probe_temperature_calibration",emit=c.excelluxProbeTempCalibration(),signed=true,converter=a.signed_number_pair(10)}),b.dp_numeric(109,{
+name="probe_temperature_v0_set",emit=c.excelluxProbeTemperatureV0(),signed=true,converter=a.signed_number_pair(10)}),b.dp_numeric(110,{
+name="probe_temperature_v1_set",emit=c.excelluxProbeTemperatureV1(),signed=true,converter=a.signed_number_pair(10)}),b.dp_enum(112,{
+name="probe_temperature_warning",emit=c.excelluxProbeTemperatureWarning(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="none",[1]="low",[2]="high"})}),b.dp_numeric(114,{
+name="temperature_calibration",emit=c.excelluxProbeAirTempCalibration(),signed=true,converter=a.signed_number_pair(100)}),b.dp_numeric(115,{
+name="temperature_v0_set",emit=c.excelluxProbeAirTemperatureV0(),signed=true,converter=a.signed_number_pair(100)}),b.dp_numeric(116,{
+name="temperature_v1_set",emit=c.excelluxProbeAirTemperatureV1(),signed=true,converter=a.signed_number_pair(100)}),b.dp_enum(117,{
+name="temperature_warning",emit=c.excelluxProbeAirTempWarning(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="none",[1]="low",[2]="high"})}),b.dp_humidity(118,{emit=c.humidity(),scale=100}),b.dp_numeric(119,{
+name="humidity_calibration",emit=c.excelluxProbeHumidityCalibration(),signed=true,converter=a.signed_number_pair(100)}),b.dp_numeric(120,{
+name="humidity_v0_set",emit=c.excelluxProbeHumidityV0(),converter=a.divide_by_pair(100)}),b.dp_numeric(121,{
+name="humidity_v1_set",emit=c.excelluxProbeHumidityV1(),converter=a.divide_by_pair(100)}),b.dp_enum(122,{
+name="humidity_warning",emit=c.excelluxProbeHumidityWarning(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="none",[1]="low",[2]="high"})})}d(P,{
+l.create_fingerprint("NTCHT01","Excellux"),l.create_fingerprint("NTCHT02","Excellux"),l.create_fingerprint("NTCHT03","Excellux")})local F={
+profile="sensors-temp-battery",b.dp_temperature(1,{emit=c.temperature"C",scale=10}),b.dp_battery(4,{emit=c.battery()})}local A={
 b.dp_numeric(1,{
-name="probe_temperature",emit=c.dts1xm9ProbeTemperature(),read_only=true,signed=true,converter=a.signed_number_pair(10),}),b.dp_battery(4,{emit=c.battery(),read_only=true}),b.dp_temperature(5,{
-emit=c.temperature("C"),read_only=true,signed=true,converter=a.signed_number_pair(100),}),b.dp_numeric(101,{name="sampling_interval",emit=c.dts1xm9SamplingInterval()}),b.dp_numeric(108,{
-name="probe_temperature_calibration",emit=c.dts1xm9ProbeTempCalibration(),signed=true,converter=a.signed_number_pair(10),}),b.dp_numeric(109,{
-name="probe_temperature_v0_set",emit=c.dts1xm9ProbeTemperatureV0(),signed=true,converter=a.signed_number_pair(10),}),b.dp_numeric(110,{
-name="probe_temperature_v1_set",emit=c.dts1xm9ProbeTemperatureV1(),signed=true,converter=a.signed_number_pair(10),}),b.dp_enum(112,{
-name="probe_temperature_warning",emit=c.dts1xm9ProbeTemperatureWarning(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="none",[1]="low",[2]="high",})),}),b.dp_numeric(114,{
-name="temperature_calibration",emit=c.dts1xm9AirTemperatureCalibration(),signed=true,converter=a.signed_number_pair(100),}),b.dp_numeric(115,{
-name="temperature_v0_set",emit=c.dts1xm9AirTemperatureV0(),signed=true,converter=a.signed_number_pair(100),}),b.dp_numeric(116,{
-name="temperature_v1_set",emit=c.dts1xm9AirTemperatureV1(),signed=true,converter=a.signed_number_pair(100),}),b.dp_enum(117,{
-name="temperature_warning",emit=c.dts1xm9AirTemperatureWarning(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="none",[1]="low",[2]="high",})),}),b.dp_humidity(118,{emit=c.humidity(),scale=100,read_only=true}),b.dp_numeric(119,{
-name="humidity_calibration",emit=c.dts1xm9HumidityCalibration(),signed=true,converter=a.signed_number_pair(100),}),b.dp_numeric(120,{
-name="humidity_v0_set",emit=c.dts1xm9HumidityV0(),converter=a.divide_by_pair(100),}),b.dp_numeric(121,{
-name="humidity_v1_set",emit=c.dts1xm9HumidityV1(),converter=a.divide_by_pair(100),}),b.dp_enum(122,{
-name="humidity_warning",emit=c.dts1xm9HumidityWarning(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="none",[1]="low",[2]="high",})),}),b.dp_numeric(124,{name="tds",emit=c.dts1xm9Tds(),read_only=true}),b.dp_numeric(125,{name="tds_warning_set",emit=c.dts1xm9TdsThreshold()}),b.dp_enum(126,{
-name="tds_warning",emit=c.dts1xm9TdsWarning(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="none",[1]="high",})),}),b.dp_numeric(127,{name="ec",emit=c.dts1xm9Ec(),read_only=true}),b.dp_numeric(128,{name="ec_v0_set",emit=c.dts1xm9EcV0()}),b.dp_numeric(129,{name="ec_v1_set",emit=c.dts1xm9EcV1()}),b.dp_enum(130,{
-name="ec_warning",emit=c.dts1xm9EcWarning(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="none",[1]="low",[2]="high",})),}),b.dp_numeric(131,{
-name="salinity",emit=c.dts1xm9Salinity(),read_only=true,converter=a.divide_by_pair(10),}),b.dp_numeric(132,{
-name="specific_gravity",read_only=true,converter=a.divide_by_pair(1000),}),b.dp_enum(133,{
-name="mode",emit=c.dts1xm9Mode(),converter=a.lookup_from_to({freshwater=0,seawater=1}),}),}g({
-profile="sensors-water-quality-excellux-dts1xm9",datapoints=A,query_on_configure=false,},{
-l.create_fingerprint("DTS1XM9","Excellux"),})d(F,l.create_fingerprints("TS0201",{
-"_TZE200_iq4ygaai","_TZE200_01fvxamo",}))local t={}for ao=1,18 do
+name="probe_temperature",emit=c.dts1xm9ProbeTemperature(),read_only=true,signed=true,converter=a.signed_number_pair(10)}),b.dp_battery(4,{emit=c.battery(),read_only=true}),b.dp_temperature(5,{
+emit=c.temperature"C",read_only=true,signed=true,converter=a.signed_number_pair(100)}),b.dp_numeric(101,{name="sampling_interval",emit=c.dts1xm9SamplingInterval()}),b.dp_numeric(108,{
+name="probe_temperature_calibration",emit=c.dts1xm9ProbeTempCalibration(),signed=true,converter=a.signed_number_pair(10)}),b.dp_numeric(109,{
+name="probe_temperature_v0_set",emit=c.dts1xm9ProbeTemperatureV0(),signed=true,converter=a.signed_number_pair(10)}),b.dp_numeric(110,{
+name="probe_temperature_v1_set",emit=c.dts1xm9ProbeTemperatureV1(),signed=true,converter=a.signed_number_pair(10)}),b.dp_enum(112,{
+name="probe_temperature_warning",emit=c.dts1xm9ProbeTemperatureWarning(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="none",[1]="low",[2]="high"})}),b.dp_numeric(114,{
+name="temperature_calibration",emit=c.dts1xm9AirTemperatureCalibration(),signed=true,converter=a.signed_number_pair(100)}),b.dp_numeric(115,{
+name="temperature_v0_set",emit=c.dts1xm9AirTemperatureV0(),signed=true,converter=a.signed_number_pair(100)}),b.dp_numeric(116,{
+name="temperature_v1_set",emit=c.dts1xm9AirTemperatureV1(),signed=true,converter=a.signed_number_pair(100)}),b.dp_enum(117,{
+name="temperature_warning",emit=c.dts1xm9AirTemperatureWarning(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="none",[1]="low",[2]="high"})}),b.dp_humidity(118,{emit=c.humidity(),scale=100,read_only=true}),b.dp_numeric(119,{
+name="humidity_calibration",emit=c.dts1xm9HumidityCalibration(),signed=true,converter=a.signed_number_pair(100)}),b.dp_numeric(120,{
+name="humidity_v0_set",emit=c.dts1xm9HumidityV0(),converter=a.divide_by_pair(100)}),b.dp_numeric(121,{
+name="humidity_v1_set",emit=c.dts1xm9HumidityV1(),converter=a.divide_by_pair(100)}),b.dp_enum(122,{
+name="humidity_warning",emit=c.dts1xm9HumidityWarning(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="none",[1]="low",[2]="high"})}),b.dp_numeric(124,{name="tds",emit=c.dts1xm9Tds(),read_only=true}),b.dp_numeric(125,{name="tds_warning_set",emit=c.dts1xm9TdsThreshold()}),b.dp_enum(126,{
+name="tds_warning",emit=c.dts1xm9TdsWarning(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="none",[1]="high"})}),b.dp_numeric(127,{name="ec",emit=c.dts1xm9Ec(),read_only=true}),b.dp_numeric(128,{name="ec_v0_set",emit=c.dts1xm9EcV0()}),b.dp_numeric(129,{name="ec_v1_set",emit=c.dts1xm9EcV1()}),b.dp_enum(130,{
+name="ec_warning",emit=c.dts1xm9EcWarning(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="none",[1]="low",[2]="high"})}),b.dp_numeric(131,{
+name="salinity",emit=c.dts1xm9Salinity(),read_only=true,converter=a.divide_by_pair(10)}),b.dp_numeric(132,{
+name="specific_gravity",read_only=true,converter=a.divide_by_pair(1000)}),b.dp_enum(133,{
+name="mode",emit=c.dts1xm9Mode(),converter=a.lookup_from_to{freshwater=0,seawater=1}})}g({
+profile="sensors-water-quality-excellux-dts1xm9",datapoints=A,query_on_configure=false},{
+l.create_fingerprint("DTS1XM9","Excellux")})d(F,l.create_fingerprints("TS0201",{
+"_TZE200_iq4ygaai","_TZE200_01fvxamo"}))local t={}for ao=1,18 do
 t[tostring(ao)]=ao
 end
 local function v()
@@ -273,35 +273,35 @@ end
 end
 local aa={
 profile="sensors-temp-humidity-alarm-neo-nas-ab02b0",query_on_configure=true,mcu_version_request_on_configure=true,b.dp_enum(101,{
-name="power_type",read_only=true,emit=c.all(c.neoNasAb02b0PowerType(),v()),converter=a.from_only(a.lookup_value({
-[0]="battery_full",[1]="battery_high",[2]="battery_medium",[3]="battery_low",[4]="usb",})),}),b.dp_enum(102,{
-name="melody",emit=c.neoNasAb02b0AlarmMelody(),converter=a.lookup_from_to(t),}),b.dp_numeric(103,{
-name="duration",emit=c.neoNasAb02b0AlarmDuration(),}),b.dp_alarm(104,{emit=c.alarm()}),b.dp_temperature(105,{
-emit=c.temperature("C"),read_only=true,signed=true,converter=a.signed_number_pair(10),}),b.dp_humidity(106,{emit=c.humidity(),scale=1,read_only=true}),b.dp_numeric(107,{
-name="temperature_min",emit=c.neoNasAb02b0TemperatureMinimum(),signed=true,converter=a.signed_number_pair(1),}),b.dp_numeric(108,{
-name="temperature_max",emit=c.neoNasAb02b0TemperatureMaximum(),signed=true,converter=a.signed_number_pair(1),}),b.dp_numeric(109,{
-name="humidity_min",emit=c.neoNasAb02b0HumidityMinimum(),}),b.dp_numeric(110,{
-name="humidity_max",emit=c.neoNasAb02b0HumidityMaximum(),}),b.dp_binary(112,{name="unknown_112",read_only=true}),b.dp_binary(113,{
-name="temperature_alarm",emit=c.neoNasAb02b0TemperatureAlarm(),converter=a.lookup_from_to({off=false,on=true}),}),b.dp_binary(114,{
-name="humidity_alarm",emit=c.neoNasAb02b0HumidityAlarm(),converter=a.lookup_from_to({off=false,on=true}),}),b.dp_enum(115,{name="unknown_115",read_only=true}),b.dp_enum(116,{
-name="volume",emit=c.neoNasAb02b0AlarmVolume(),converter=a.lookup_from_to({low=2,medium=1,high=0}),}),}d(aa,e.ts0601_fingerprints({
-"_TZE200_d0yu2xgi",}))local ap={
-profile="sensors-illuminance-temp-humidity-battery",b.dp_illuminance(7,{emit=c.illuminance()}),b.dp_temperature(8,{emit=c.temperature("C"),scale=10}),b.dp_humidity(9,{emit=c.humidity(),scale=1}),b.dp_battery(3,{emit=c.battery()}),}d(ap,e.ts0601_fingerprints({
-"_TZE200_vzqtvljm",}))local ab={
-profile="sensors-illuminance-temp-humidity",b.dp_illuminance(2,{emit=c.illuminance()}),b.dp_temperature(6,{emit=c.temperature("C"),scale=10}),b.dp_humidity(7,{emit=c.humidity(),scale=10}),}d(ab,e.ts0601_fingerprints({
-"_TZE200_rbbx5mfq","_TZE204_rbbx5mfq",}))
+name="power_type",read_only=true,emit=c.all(c.neoNasAb02b0PowerType(),v()),converter=a.from_only(a.lookup_value{
+[0]="battery_full",[1]="battery_high",[2]="battery_medium",[3]="battery_low",[4]="usb"})}),b.dp_enum(102,{
+name="melody",emit=c.neoNasAb02b0AlarmMelody(),converter=a.lookup_from_to(t)}),b.dp_numeric(103,{
+name="duration",emit=c.neoNasAb02b0AlarmDuration()}),b.dp_alarm(104,{emit=c.alarm()}),b.dp_temperature(105,{
+emit=c.temperature"C",read_only=true,signed=true,converter=a.signed_number_pair(10)}),b.dp_humidity(106,{emit=c.humidity(),scale=1,read_only=true}),b.dp_numeric(107,{
+name="temperature_min",emit=c.neoNasAb02b0TemperatureMinimum(),signed=true,converter=a.signed_number_pair(1)}),b.dp_numeric(108,{
+name="temperature_max",emit=c.neoNasAb02b0TemperatureMaximum(),signed=true,converter=a.signed_number_pair(1)}),b.dp_numeric(109,{
+name="humidity_min",emit=c.neoNasAb02b0HumidityMinimum()}),b.dp_numeric(110,{
+name="humidity_max",emit=c.neoNasAb02b0HumidityMaximum()}),b.dp_binary(112,{name="unknown_112",read_only=true}),b.dp_binary(113,{
+name="temperature_alarm",emit=c.neoNasAb02b0TemperatureAlarm(),converter=a.lookup_from_to{off=false,on=true}}),b.dp_binary(114,{
+name="humidity_alarm",emit=c.neoNasAb02b0HumidityAlarm(),converter=a.lookup_from_to{off=false,on=true}}),b.dp_enum(115,{name="unknown_115",read_only=true}),b.dp_enum(116,{
+name="volume",emit=c.neoNasAb02b0AlarmVolume(),converter=a.lookup_from_to{low=2,medium=1,high=0}})}d(aa,e.ts0601_fingerprints{
+"_TZE200_d0yu2xgi"})local ap={
+profile="sensors-illuminance-temp-humidity-battery",b.dp_illuminance(7,{emit=c.illuminance()}),b.dp_temperature(8,{emit=c.temperature"C",scale=10}),b.dp_humidity(9,{emit=c.humidity(),scale=1}),b.dp_battery(3,{emit=c.battery()})}d(ap,e.ts0601_fingerprints{
+"_TZE200_vzqtvljm"})local ab={
+profile="sensors-illuminance-temp-humidity",b.dp_illuminance(2,{emit=c.illuminance()}),b.dp_temperature(6,{emit=c.temperature"C",scale=10}),b.dp_humidity(7,{emit=c.humidity(),scale=10})}d(ab,e.ts0601_fingerprints{
+"_TZE200_rbbx5mfq","_TZE204_rbbx5mfq"})
 local function p(dp,H)
 return b.dp_numeric(dp,{
-name=dp==1 and"temperature"or"temperature_probe",emit=H,read_only=true,signed=true,converter=a.signed_number_pair(10),})
+name=dp==1 and"temperature"or"temperature_probe",emit=H,read_only=true,signed=true,converter=a.signed_number_pair(10)})
 end
 local function y(H)
 return b.dp_enum(3,{
-name="battery_state",emit=H,read_only=true,converter=a.lookup_from_to({low=0,medium=1,high=2}),})
+name="battery_state",emit=H,read_only=true,converter=a.lookup_from_to{low=0,medium=1,high=2}})
 end
 local au={
-p(1,c.temperature("C")),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),y(c.tzzt01BatteryState()),p(38,c.temperatureProbe2aaa()),}g({
-profile="sensors-temp-humidity-probe-battery-state-tzzt01",datapoints=au,query_on_configure=false,},e.ts0601_fingerprints({
-"_TZE284_8se38w3c",}))
+p(1,c.temperature"C"),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),y(c.tzzt01BatteryState()),p(38,c.temperatureProbe2aaa())}g({
+profile="sensors-temp-humidity-probe-battery-state-tzzt01",datapoints=au,query_on_configure=false},e.ts0601_fingerprints{
+"_TZE284_8se38w3c"})
 local function Q(h)
 local I=os.time()local ac=os.time(os.date("!*t",I))local aj=I+os.difftime(I,ac)local at=b.send_time(h,I,aj)if at then
 h.thread:call_with_delay(0.5,function()
@@ -311,9 +311,9 @@ end
 return at==true
 end
 local aw={
-p(1,c.temperature("C")),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),y(c.zt08BatteryState()),b.dp_enum(17,{
-name="time_format",emit=c.zt08TimeFormat(),read_only=true,converter=a.from_only(a.lookup_value({
-[0]="24h",[1]="12h",})),}),p(38,c.temperatureProbe2aaa()),}g({
-profile="sensors-temp-humidity-probe-battery-state-clock-zt08",datapoints=aw,query_on_configure=false,time_handler=Q,},e.ts0601_fingerprints({
-"_TZE284_hodyryli",}))return{
-id="ef00.sensors.temp_humidity",registrations=L,}
+p(1,c.temperature"C"),b.dp_humidity(2,{emit=c.humidity(),scale=1,read_only=true}),y(c.zt08BatteryState()),b.dp_enum(17,{
+name="time_format",emit=c.zt08TimeFormat(),read_only=true,converter=a.from_only(a.lookup_value{
+[0]="24h",[1]="12h"})}),p(38,c.temperatureProbe2aaa())}g({
+profile="sensors-temp-humidity-probe-battery-state-clock-zt08",datapoints=aw,query_on_configure=false,time_handler=Q},e.ts0601_fingerprints{
+"_TZE284_hodyryli"})return{
+id="ef00.sensors.temp_humidity",registrations=L}

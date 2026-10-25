@@ -103,7 +103,6 @@ local nas_ps_ten = {
   magic_packet = true,
   mcu_version_request_on_configure = true,
   time_start = "off",
-  initial_custom_states = false,
   refresh_state_query = false,
 }
 

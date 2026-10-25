@@ -50,9 +50,6 @@ local function build_mh(profile, capability_prefix, mapping_prefix, gangs)
   local definition = {
     profile = profile,
     package_group = "screen-switch",
-    transport_classification = "EF00_DP",
-    z2m_converter_source = "meta.tuyaDatapoints",
-    wire_cluster = "manuSpecificTuya",
     magic_packet = true,
     query_on_configure = false,
     respond_to_mcu_version_response = true,

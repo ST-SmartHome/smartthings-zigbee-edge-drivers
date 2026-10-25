@@ -76,6 +76,6 @@ end
 u(a,b)return z.temperature(unit)(a,f)
 end
 return{
-converter=F.converter.from_to(w,y),unit_emitter=v,temperature_emitter=p,}
+converter=F.converter.from_to(w,y),unit_emitter=v,temperature_emitter=p}
 end
 return M

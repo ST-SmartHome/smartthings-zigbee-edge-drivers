@@ -36,10 +36,10 @@ g(c,p)return c
 end
 local function j(n,m,k)
 return{
-minimum_interval=n,maximum_interval=m,reportable_change=k,read_on_configure=true,}
+minimum_interval=n,maximum_interval=m,reportable_change=k,read_on_configure=true}
 end
 local function o(...)
-local s={}for _,a in ipairs({...})do
+local s={}for _,a in ipairs{...}do
 f(s,a)
 end
 return s
@@ -61,7 +61,7 @@ end
 q("battery",z.power_configuration_battery,function()
 return o(
 {
-emit=A.battery(),scale=2,},j(300,21600,2))
+emit=A.battery(),scale=2},j(300,21600,2))
 end)
 end
 return i

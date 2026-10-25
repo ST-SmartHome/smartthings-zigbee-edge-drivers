@@ -109,9 +109,6 @@ end
 local mazda = {
   profile = "thermostats-wave9-mazda-tr-m2z",
   package_group = "trv-2",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   query_on_configure = false,
   time_start = "2000",
   tuya.dp_system_mode(2, {

@@ -105,17 +105,10 @@ function tuya.parse_phase_variant1(value, phase)
 
   local voltage = parse_uint(buffer, 14, 2) / 10
   local current = parse_uint(buffer, 12, 2) / 1000
-
-  if type_check(phase) == "string" and phase ~= "" then
-    return {
-      ["voltage_" .. phase] = voltage,
-      ["current_" .. phase] = current,
-    }
-  end
-
+  local suffix = type_check(phase) == "string" and phase ~= "" and "_" .. phase or ""
   return {
-    voltage = voltage,
-    current = current,
+    ["voltage" .. suffix] = voltage,
+    ["current" .. suffix] = current,
   }
 end
 
@@ -127,25 +120,23 @@ function tuya.parse_phase_variant2(value, phase, signed_power)
   end
 
   local voltage = parse_uint(buffer, 1, 2) / 10
-  local current = parse_uint(buffer, 4, 2) / 1000
-  local power = parse_uint(buffer, 7, 2)
+  local width = signed_power and 3 or 2
+  local current = parse_uint(buffer, 6 - width, width) / 1000
+  local power = parse_uint(buffer, 9 - width, width)
 
-  if signed_power and power > 0x7FFF then
-    power = (0x999A - power) * -1
+  if signed_power then
+    if power > 0x99999A then
+      power = power - 0x1000000
+    elseif power >= 0x800000 then
+      power = power - 0x99999A
+    end
   end
 
-  if type_check(phase) == "string" and phase ~= "" then
-    return {
-      ["voltage_" .. phase] = voltage,
-      ["current_" .. phase] = current,
-      ["power_" .. phase] = power,
-    }
-  end
-
+  local suffix = type_check(phase) == "string" and phase ~= "" and "_" .. phase or ""
   return {
-    voltage = voltage,
-    current = current,
-    power = power,
+    ["voltage" .. suffix] = voltage,
+    ["current" .. suffix] = current,
+    ["power" .. suffix] = power,
   }
 end
 
@@ -159,19 +150,11 @@ function tuya.parse_phase_variant3(value, phase)
   local voltage = parse_uint(buffer, 1, 2) / 10
   local current = parse_uint(buffer, 3, 3) / 1000
   local power = parse_uint(buffer, 6, 3)
-
-  if type_check(phase) == "string" and phase ~= "" then
-    return {
-      ["voltage_" .. phase] = voltage,
-      ["current_" .. phase] = current,
-      ["power_" .. phase] = power,
-    }
-  end
-
+  local suffix = type_check(phase) == "string" and phase ~= "" and "_" .. phase or ""
   return {
-    voltage = voltage,
-    current = current,
-    power = power,
+    ["voltage" .. suffix] = voltage,
+    ["current" .. suffix] = current,
+    ["power" .. suffix] = power,
   }
 end
 

@@ -37,9 +37,7 @@ local function build_switch(profile, count)
   }
 end
 
-local function append_option_clusters(clusters, ...)
-  return zcl_device_helpers.append_clusters(clusters, ...)
-end
+local append_option_clusters = zcl_device_helpers.append_clusters
 
 local function fixed_metering(mapping, scale)
   mapping.metering_kind = nil
@@ -682,11 +680,81 @@ register_device_definition(qs_s10_three, {
   device_helpers.create_fingerprint("_TZ3000_ly9apzky", "TS0003"),
 })
 
+local ewelink_switch_clusters = {
+  zcl.switch({endpoint=1,configure_reporting=false,read_on_configure=false,
+    suppress_optimistic_state=true,from_device=function(value,device,context)
+      local rx=context.zb_rx
+      if rx and zcl_device_helpers.duplicate_transaction(device,context.endpoint,
+          rx.body.zcl_header.seqno.value,"__ewelink_switch_transactions") then return end
+      return value==true or value==1
+    end}),
+}
+local ewelink_switch_writers = {
+  ewelink_toggle=function(device) return zcl.send_raw_cluster_command(device,6,2,"",1) end,
+}
+local ewelink_switch_commands = {
+  {capability_id="momentary",command_name="push",mapping_name="ewelink_toggle"},
+}
+local ewelink_sw01 = {
+  profile="switches-ewelink-sw01",zcl_clusters=ewelink_switch_clusters,
+  protocol_writers=ewelink_switch_writers,capability_commands=ewelink_switch_commands,
+}
+local ewelink_sa003 = {
+  profile="plugs-ewelink-sa003",zcl_clusters=ewelink_switch_clusters,
+  protocol_writers=ewelink_switch_writers,capability_commands=ewelink_switch_commands,
+  configure=bind_on_off_endpoints(1),
+}
+register_device_definition(ewelink_sw01,{device_helpers.create_fingerprint("eWeLink","ZB-SW01")})
+register_device_definition(ewelink_sa003,{device_helpers.create_fingerprint("eWeLink","SA-003-Zigbee")})
+
+
+local ewelink_power_from={[0]="off",[1]="on",[2]="toggle",[255]="previous"}
+local ewelink_power_to={off=0,on=1,toggle=2,previous=255}
+local ewelink_multi_writers={
+  ewelink_multi_toggle=function(device,_,command)
+    return zcl.send_raw_cluster_command(device,6,2,"",device:get_endpoint_for_component_id(command.component))
+  end,
+}
+local ewelink_multi_commands={
+  {capability_id="momentary",command_name="push",mapping_name="ewelink_multi_toggle"},
+}
+local function ewelink_multi(profile,powers)
+  local rows={}
+  for endpoint,item in ipairs(powers) do
+    local component=endpoint==1 and "main" or "switch"..endpoint
+    rows[#rows+1]=zcl.switch({endpoint=endpoint,component=component,configure_reporting=false,
+      read_on_configure=false,suppress_optimistic_state=true})
+    rows[#rows+1]=tuya_enum_mapping(item[1],6,0x4003,item[2],ewelink_power_from,ewelink_power_to,{
+      endpoint=endpoint,component=component,read_on_configure=false,prefer_plain_attribute_write=true})
+    rows[#rows].suppress_optimistic_state=true
+  end
+  return {profile=profile,zcl_clusters=rows,protocol_writers=ewelink_multi_writers,capability_commands=ewelink_multi_commands}
+end
+local ewelink_sw02=ewelink_multi("switches-ewelink-sw02",{
+  {"ewelink_sw02_power_one",emit.ewelinkSw02PowerOne()},
+  {"ewelink_sw02_power_two",emit.ewelinkSw02PowerTwo()},
+})
+local ewelink_sw03=ewelink_multi("switches-ewelink-sw03",{
+  {"ewelink_sw03_power_one",emit.ewelinkSw03PowerOne()},
+  {"ewelink_sw03_power_two",emit.ewelinkSw03PowerTwo()},
+  {"ewelink_sw03_power_three",emit.ewelinkSw03PowerThree()},
+})
+local ewelink_sw04=ewelink_multi("switches-ewelink-sw04",{
+  {"ewelink_sw04_power_one",emit.ewelinkSw04PowerOne()},
+  {"ewelink_sw04_power_two",emit.ewelinkSw04PowerTwo()},
+  {"ewelink_sw04_power_three",emit.ewelinkSw04PowerThree()},
+  {"ewelink_sw04_power_four",emit.ewelinkSw04PowerFour()},
+})
+register_device_definition(ewelink_sw02,{device_helpers.create_fingerprint("eWeLink","ZB-SW02")})
+register_device_definition(ewelink_sw03,{device_helpers.create_fingerprint("eWeLink","ZB-SW03")})
+register_device_definition(ewelink_sw04,{device_helpers.create_fingerprint("eWeLink","ZB-SW04")})
+
+
 -- ZCL REPORTING CAPABILITIES BEGIN
 zcl.attach_reporting_capabilities(device_definitions, {
-  {1, "rpt-tgv", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
-  {2, "rpt-tjh", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
-  {3, "rpt-aft", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo"}},
+  {1, "rpt-tgv", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree"}},
+  {2, "rpt-tjh", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {3, "rpt-aft", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
   {4, "rpt-tqs"},
   {5, "rpt-cbp"},
   {6, "rpt-tgk"},

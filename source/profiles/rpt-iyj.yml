@@ -1,0 +1,99 @@
+name: rpt-iyj
+components:
+- id: main
+  capabilities:
+  - id: temperatureMeasurement
+    version: 1
+  - id: relativeHumidityMeasurement
+    version: 1
+  - id: thermostatHeatingSetpoint
+    version: 1
+    config:
+      values:
+      - key: heatingSetpoint.value
+        range:
+        - 16
+        - 30
+        step: 0.5
+  - id: thermostatCoolingSetpoint
+    version: 1
+    config:
+      values:
+      - key: coolingSetpoint.value
+        range:
+        - 18
+        - 30
+        step: 0.5
+  - id: thermostatMode
+    version: 1
+    config:
+      values:
+      - key: thermostatMode.value
+        enabledValues:
+        - 'off'
+        - heat
+        - cool
+        - auto
+        - dryair
+        - fanonly
+  - id: airConditionerFanMode
+    version: 1
+    config:
+      values:
+      - key: fanMode.value
+        enabledValues:
+        - 'off'
+        - low
+        - medium
+        - high
+        - auto
+  - id: concertmirror08464.nodonIrbLouver
+    version: 1
+  - id: concertmirror08464.nodonIrbLocalCalibration
+    version: 1
+  - id: concertmirror08464.nodonIrbHolderCalibration
+    version: 1
+  - id: concertmirror08464.nodonIrbIdentify
+    version: 1
+  - id: refresh
+    version: 1
+  - id: signalStrength
+    version: 1
+  - id: concertmirror08464.zclHumidityReportMin
+    version: 1
+  - id: concertmirror08464.zclHumidityReportMax
+    version: 1
+  - id: concertmirror08464.zclHumidityReportChange21
+    version: 1
+  - id: concertmirror08464.zclLocalTempReportMin
+    version: 1
+  - id: concertmirror08464.zclLocalTempReportMax
+    version: 1
+  - id: concertmirror08464.zclLocalTempReportChange29
+    version: 1
+  - id: concertmirror08464.zclHeatSetReportMin
+    version: 1
+  - id: concertmirror08464.zclHeatSetReportMax
+    version: 1
+  - id: concertmirror08464.zclHeatSetReportChange29
+    version: 1
+  - id: concertmirror08464.zclCoolSetReportMin
+    version: 1
+  - id: concertmirror08464.zclCoolSetReportMax
+    version: 1
+  - id: concertmirror08464.zclCoolSetReportChange29
+    version: 1
+  - id: concertmirror08464.zclModeReportMin
+    version: 1
+  - id: concertmirror08464.zclModeReportMax
+    version: 1
+  - id: concertmirror08464.zclFanModeReportMin
+    version: 1
+  - id: concertmirror08464.zclFanModeReportMax
+    version: 1
+  - id: concertmirror08464.zclLouverReportMin
+    version: 1
+  - id: concertmirror08464.zclLouverReportMax
+    version: 1
+  categories:
+  - name: AirConditioner

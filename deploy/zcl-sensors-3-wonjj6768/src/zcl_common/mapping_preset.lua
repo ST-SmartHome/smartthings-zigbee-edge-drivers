@@ -1,258 +1,293 @@
-local function w(r)
-local n=require"capabilities.events.all"
+local function w(p)
+local m=require"capabilities.events.all"
 local M=require"st.zigbee.data_types"
-local f=require"st.zigbee.constants"
+local g=require"st.zigbee.constants"
 local L=require"st.utils.safe_xy_to_hsv"
-local function v(q,G)
-if type(q)~="table"then
-q={}
+local function v(r,G)
+if type(r)~="table"then
+r={}
 end
 if type(G)~="table"then
-return q
+return r
 end
-for K,e in pairs(G)do
-q[K]=e
+for K,f in pairs(G)do
+r[K]=f
 end
-return q
+return r
 end
-local function m(q,j)
-if type(q)~="table"or type(j)~="table"then
-return q
+local function n(r,j)
+if type(r)~="table"or type(j)~="table"then
+return r
 end
-for K,e in pairs(j)do
-if q[K]==nil then
-q[K]=e
+for K,f in pairs(j)do
+if r[K]==nil then
+r[K]=f
 end
 end
-return q
+return r
 end
 local function D(J,...)
-local y=n[J]
+local y=m[J]
 if type(y)=="function"then
 return y(...)
 end
 return nil
 end
-local function p(k,l)
-local h={}if type(k)=="string"then
-h.name=k
+local function q(l,k)
+local i={}if type(l)=="string"then
+i.name=l
 else
-v(h,k)
+v(i,l)
 end
-v(h,l)return h
+v(i,k)return i
 end
 local function o()
 return{
-from=function(e)
-if type(e)~="number"then
-return e
+from=function(f)
+if type(f)~="number"then
+return f
 end
-if e<=0 then
+if f<=0 then
 return 0
 end
-local N=10 ^((e-1)/10000)return math.floor(N+0.5)
+local N=10 ^((f-1)/10000)return math.floor(N+0.5)
 end,
-to=function(e)
-if type(e)~="number"then
-return e
+to=function(f)
+if type(f)~="number"then
+return f
 end
-if e<=0 then
+if f<=0 then
 return 0
 end
-local O=10000*(math.log(e)/math.log(10))+1
+local O=10000*(math.log(f)/math.log(10))+1
 return math.floor(O+0.5)
-end,
+end
 }
 end
-local function i(I)
+local function h(I)
 return{
-from=function(e)
-if type(e)=="table"then
+from=function(f)
+if type(f)=="table"then
 if I==1 then
-if type(e.is_alarm1_set)=="function"and e:is_alarm1_set()then
+if type(f.is_alarm1_set)=="function"and f:is_alarm1_set()then
 return true
 end
-if type(e.is_alarm2_set)=="function"and e:is_alarm2_set()then
+if type(f.is_alarm2_set)=="function"and f:is_alarm2_set()then
 return true
 end
-elseif I==4 and type(e.is_tamper_set)=="function"then
-return e:is_tamper_set()elseif e.value~=nil then
-e=e.value
+elseif I==4 and type(f.is_tamper_set)=="function"then
+return f:is_tamper_set()elseif f.value~=nil then
+f=f.value
 else
-return e
+return f
 end
 end
-if type(e)~="number"then
-return e
+if type(f)~="number"then
+return f
 end
-return bit32.band(e,I)~=0
-end,
+return bit32.band(f,I)~=0
+end
 }
 end
 local function t()
 return{
-from=function(e)
+from=function(f)
 local u
 local x
-if type(e)=="table"then
-if type(e.is_alarm1_set)=="function"then u=e:is_alarm1_set()end
-if type(e.is_alarm2_set)=="function"then x=e:is_alarm2_set()end
-if u==nil and e.value~=nil then e=e.value end
+if type(f)=="table"then
+if type(f.is_alarm1_set)=="function"then u=f:is_alarm1_set()end
+if type(f.is_alarm2_set)=="function"then x=f:is_alarm2_set()end
+if u==nil and f.value~=nil then f=f.value end
 end
-if type(e)=="number"then
-u=bit32.band(e,1)~=0
-x=bit32.band(e,2)~=0
+if type(f)=="number"then
+u=bit32.band(f,1)~=0
+x=bit32.band(f,2)~=0
 end
-if u==nil or x==nil then return e end
+if u==nil or x==nil then return f end
 if not u and not x then return"closed"end
 if u and not x then return"tilted"end
 return"open"
-end,
+end
 }
 end
-local function a(E)
+local function b(E)
 local s=E and E.body and E.body.zcl_body and E.body.zcl_body.zone_status or nil
 if s==nil then
 return nil
 end
 return{
-raw_value=s.value or s,typed_value=s,}
+raw_value=s.value or s,typed_value=s}
 end
-local function b(C,B,z)
+local function a(C,B,z)
 return{
-minimum_interval=C,maximum_interval=B,reportable_change=z,read_on_configure=true,}
+minimum_interval=C,maximum_interval=B,reportable_change=z,read_on_configure=true}
 end
 local function c(...)
-local F={}for _,j in ipairs({...})do
-m(F,j)
+local F={}for _,j in ipairs{...}do
+n(F,j)
 end
 return F
 end
 local function d(J,y,A)
-r[J]=function(k,l)
-local h=p(k,l)local g=h.configure_reporting
-local j=A(h)h.configure_reporting=nil
-if g==false then
+p[J]=function(l,k)
+local i=q(l,k)local e=i.configure_reporting
+local j=A(i)i.configure_reporting=nil
+if e==false then
 j.minimum_interval=nil
 j.maximum_interval=nil
 j.reportable_change=nil
 j.physical_reportable_change=nil
 j.reporting_defaults=nil
 end
-m(h,j)return y(h)
+n(i,j)return y(i)
 end
 end
-d("temperature",r.temperature_measurement,function()
+d("temperature",p.temperature_measurement,function()
 return c(
 {
-emit=n.temperature("C"),scale=100,},b(30,300,50))
+emit=m.temperature"C",scale=100},a(30,300,50))
 end)
-d("humidity",r.relative_humidity,function()
+d("humidity",p.relative_humidity,function()
 return c(
 {
-emit=n.humidity(),scale=100,},b(30,300,100))
+emit=m.humidity(),scale=100},a(30,300,100))
 end)
-d("battery",r.power_configuration_battery,function()
+d("battery",p.power_configuration_battery,function()
 return c(
 {
-emit=n.battery(),scale=2,},b(300,21600,2))
+emit=m.battery(),scale=2},a(300,21600,2))
 end)
-d("battery_voltage",r.power_configuration_battery_voltage,function()
+d("battery_voltage",p.power_configuration_battery_voltage,function()
 return c(
 {
-emit=n.voltage(),scale=10,},b(300,21600,1))
+emit=m.voltage(),scale=10},a(300,21600,1))
 end)
-d("illuminance",r.illuminance_measurement,function(l)
-local g=l.configure_reporting
-l.configure_reporting=nil
-if g==false then
+d("switch",p.on_off,function(k)
+local e=k.configure_reporting
+k.configure_reporting=nil
+if e==false then
 return{
-emit=n.illuminance(),converter=o(),read_on_configure=true,}
+emit=m.switch()}
 end
 return c(
 {
-emit=n.illuminance(),converter=o(),},b(30,300,100))
+emit=m.switch()},a(0,300,nil))
 end)
-d("pressure",r.pressure_measurement,function()
+d("illuminance",p.illuminance_measurement,function(k)
+local e=k.configure_reporting
+k.configure_reporting=nil
+if e==false then
+return{
+emit=m.illuminance(),converter=o(),read_on_configure=true}
+end
 return c(
 {
-emit=n.atmospheric_pressure(),scale=10,},b(30,300,1))
+emit=m.illuminance(),converter=o()},a(30,300,100))
 end)
-r.occupancy=function(k,l)
-local h=p(k,l)local H=h.ias_zone==true
-local g=h.configure_reporting
-h.ias_zone=nil
-h.configure_reporting=nil
+d("pressure",p.pressure_measurement,function()
+return c(
+{
+emit=m.atmospheric_pressure(),scale=10},a(30,300,1))
+end)
+p.occupancy=function(l,k)
+local i=q(l,k)local H=i.ias_zone==true
+local e=i.configure_reporting
+i.ias_zone=nil
+i.configure_reporting=nil
 if H then
-m(h,c(
+n(i,c(
 {
-name="occupancy",emit=n.occupancy(),converter=i(1),ias_configure_method=f.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=a,},b(30,300,nil)))return r.ias_zone(h)
+name="occupancy",emit=m.occupancy(),converter=h(1),ias_configure_method=g.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=b},a(30,300,nil)))return p.ias_zone(i)
 end
-if g==false then
-m(h,{
-emit=n.occupancy(),read_on_configure=true,})return r.occupancy_sensing(h)
+if e==false then
+n(i,{
+emit=m.occupancy(),read_on_configure=true})return p.occupancy_sensing(i)
 end
-m(h,c(
+n(i,c(
 {
-emit=n.occupancy(),},b(0,300,nil)))return r.occupancy_sensing(h)
+emit=m.occupancy()},a(0,300,nil)))return p.occupancy_sensing(i)
 end
-d("contact",r.ias_zone,function()
+d("power",p.electrical_measurement_power,function()
 return c(
 {
-name="contact",emit=n.contact(),converter=i(1),ias_configure_method=f.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=a,},b(30,300,nil))
+emit=m.power(),metering_kind="power",poll_interval=300},a(5,300,1))
 end)
-d("shelly_handle_position",r.ias_zone,function()
+d("current",p.electrical_measurement_current,function()
 return c(
 {
-name="shelly_handle_position",emit=n.shellyBluDoorHandlePosition(),converter=t(),ias_configure_method=f.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=a,},b(30,300,nil))
+emit=m.current(),scale=1000,metering_kind="current",poll_interval=300},a(5,300,1))
 end)
-d("water",r.ias_zone,function()
+d("voltage",p.electrical_measurement_voltage,function()
 return c(
 {
-name="water",emit=n.water(),converter=i(1),ias_configure_method=f.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=a,},b(0,300,nil))
+emit=m.voltage(),metering_kind="voltage",poll_interval=300},a(5,300,1))
 end)
-d("smoke",r.ias_zone,function()
+d("energy",p.simple_metering,function()
+return{
+emit=m.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900}
+end)
+d("contact",p.ias_zone,function()
 return c(
 {
-name="smoke",emit=n.smoke(),converter=i(1),ias_configure_method=f.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=a,},b(0,180,nil))
+name="contact",emit=m.contact(),converter=h(1),ias_configure_method=g.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=b},a(30,300,nil))
 end)
-d("gas",r.ias_zone,function()
+d("contact_alarm_1_or_2",p.ias_zone,function()
 return c(
 {
-name="gas",emit=n.gas(),converter=i(1),ias_configure_method=f.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=a,},b(0,300,nil))
+name="contact",emit=m.contact(),converter=h(3),ias_configure_method=g.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=b},a(30,300,nil))
 end)
-d("gas_alarm_2",r.ias_zone,function()
+d("shelly_handle_position",p.ias_zone,function(k)
 return c(
 {
-name="gas",emit=n.gas(),converter=i(2),ias_configure_method=f.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=a,},b(0,300,nil))
+name="shelly_handle_position",emit=k.emit or m.shellyBluDoorHandlePosition(),converter=t(),ias_configure_method=g.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=b},a(30,300,nil))
 end)
-d("carbon_monoxide",r.ias_zone,function()
+d("water",p.ias_zone,function()
 return c(
 {
-name="carbon_monoxide",emit=n.carbon_monoxide(),converter=i(1),ias_configure_method=f.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=a,},b(0,180,nil))
+name="water",emit=m.water(),converter=h(1),ias_configure_method=g.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=b},a(0,300,nil))
 end)
-d("motion",r.ias_zone,function(l)
-local g=l.configure_reporting
-l.configure_reporting=nil
+d("smoke",p.ias_zone,function()
+return c(
+{
+name="smoke",emit=m.smoke(),converter=h(1),ias_configure_method=g.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=b},a(0,180,nil))
+end)
+d("gas",p.ias_zone,function()
+return c(
+{
+name="gas",emit=m.gas(),converter=h(1),ias_configure_method=g.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=b},a(0,300,nil))
+end)
+d("gas_alarm_2",p.ias_zone,function()
+return c(
+{
+name="gas",emit=m.gas(),converter=h(2),ias_configure_method=g.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=b},a(0,300,nil))
+end)
+d("carbon_monoxide",p.ias_zone,function()
+return c(
+{
+name="carbon_monoxide",emit=m.carbon_monoxide(),converter=h(1),ias_configure_method=g.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=b},a(0,180,nil))
+end)
+d("motion",p.ias_zone,function(k)
+local e=k.configure_reporting
+k.configure_reporting=nil
 local j={
-name="motion",emit=n.motion(),converter=i(1),ias_configure_method=f.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=a,read_on_configure=true,}if g==false then
+name="motion",emit=m.motion(),converter=h(1),ias_configure_method=g.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=b,read_on_configure=true}if e==false then
 return j
 end
-return c(j,b(30,300,nil))
+return c(j,a(30,300,nil))
 end)
-d("tamper",r.ias_zone,function()
+d("tamper",p.ias_zone,function()
 return c(
 {
-name="tamper",emit=n.tamper(),converter=i(4),ias_configure_method=f.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=a,},b(0,300,nil))
+name="tamper",emit=m.tamper(),converter=h(4),ias_configure_method=g.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=b},a(0,300,nil))
 end)
-d("battery_low",r.ias_zone,function(l)
-local g=l.configure_reporting
-l.configure_reporting=nil
+d("battery_low",p.ias_zone,function(k)
+local e=k.configure_reporting
+k.configure_reporting=nil
 local j={
-name="battery_low",emit=D("battery_low"),converter=i(8),ias_configure_method=f.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=a,read_on_configure=true,}if g==false then
+name="battery_low",emit=D"battery_low",converter=h(8),ias_configure_method=g.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=b,read_on_configure=true}if e==false then
 return j
 end
-return c(j,b(0,300,nil))
+return c(j,a(0,300,nil))
 end)
 end
 return w

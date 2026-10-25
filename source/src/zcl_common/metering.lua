@@ -7,7 +7,6 @@ local function load_metering(zcl)
   local custom_capabilities = require "runtime.capability_metadata"
   local capability_support = require "runtime.capability_support"
   local zigbee_constants = require "st.zigbee.constants"
-  local device_management = require "st.zigbee.device_management"
 
   local POWER_POLL_INTERVAL_METADATA = custom_capabilities.by_emit_name.power_poll_interval
   local LAST_POWER_RESPONSE_TIME_METADATA = custom_capabilities.by_emit_name.last_power_response_time
@@ -25,6 +24,7 @@ local function load_metering(zcl)
   local OFF_STATE_CONFIRM_POLL_DELAYS = { 1, 3 }
 
   local metering_specs = {}
+  local simple_metering_kinds = { demand = "energy", summation = "energy" }
   local poll_timers = setmetatable({}, { __mode = "k" })
   local scaler_pair_reports = setmetatable({}, { __mode = "k" })
 
@@ -196,15 +196,6 @@ local function load_metering(zcl)
     end
 
     return default_power_poll_interval(device, zcl_clusters)
-  end
-
-  local function current_time_epoch()
-    local epoch = os.time()
-    if type(epoch) == "number" then
-      return epoch
-    end
-
-    return nil
   end
 
   local function normalize_switch_state(value)
@@ -655,7 +646,7 @@ local function load_metering(zcl)
       return raw_value
     end
 
-    local spec = meta.metering_kind and metering_specs[meta.metering_kind] or nil
+    local spec = meta.metering_kind and metering_specs[simple_metering_kinds[meta.metering_kind] or meta.metering_kind] or nil
     -- Some plugs report a SimpleMetering multiplier/divisor pair that is simply
     -- wrong (the Mercator Ikuu SPP02GIP reports a 0x200010 ratio, so 61.63 kWh
     -- became 12,924,846,384 kWh). Mappings flagged ignore_reported_scaler always
@@ -664,6 +655,12 @@ local function load_metering(zcl)
       local endpoint = mapping_context and mapping_context.endpoint or nil
       local reported_multiplier = get_scaler(device, spec, "multiplier", endpoint)
       local reported_divisor = get_scaler(device, spec, "divisor", endpoint)
+
+      if simple_metering_kinds[meta.metering_kind] then
+        local factor = reported_multiplier and reported_multiplier ~= 0 and
+          reported_divisor and reported_divisor ~= 0 and reported_multiplier / reported_divisor
+        return raw_value * (factor and factor * (meta.metering_kind == "demand" and 1000 or 1) or 1)
+      end
 
       local multiplier = reported_multiplier or 1
       local divisor = reported_divisor or 1
@@ -706,7 +703,7 @@ local function load_metering(zcl)
     for _, mapping in ipairs(zcl_clusters) do
       if type(mapping) == "table" then
         local meta = zcl.mapping_meta(mapping)
-        local spec = meta and meta.metering_kind and metering_specs[meta.metering_kind] or nil
+        local spec = meta and meta.metering_kind and metering_specs[simple_metering_kinds[meta.metering_kind] or meta.metering_kind] or nil
         if spec ~= nil and not meta.ignore_reported_scaler then
           local mapping_context = zcl.build_mapping_context(device, mapping, nil)
           local endpoint = normalize_endpoint(mapping_context.endpoint)

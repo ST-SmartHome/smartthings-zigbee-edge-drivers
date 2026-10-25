@@ -8,17 +8,11 @@ components:
     version: 1
   - id: refresh
     version: 1
-  - id: concertmirror08464.zclSwitchReportMin
+  - id: concertmirror08464.zclDeviceTmpReportMin
     version: 1
-  - id: concertmirror08464.zclSwitchReportMax
+  - id: concertmirror08464.zclDeviceTmpReportMax
     version: 1
-  - id: concertmirror08464.zclSwitchTwoReportMin
-    version: 1
-  - id: concertmirror08464.zclSwitchTwoReportMax
-    version: 1
-  - id: concertmirror08464.zclSwitchThreeReportMin
-    version: 1
-  - id: concertmirror08464.zclSwitchThreeReportMax
+  - id: concertmirror08464.zclDeviceTmpReportChange29
     version: 1
   categories:
   - name: Switch
@@ -68,17 +62,11 @@ deviceConfig:
     capability: switch
     version: 1
   - component: main
-    capability: concertmirror08464.zclSwitchReportMin
+    capability: concertmirror08464.zclDeviceTmpReportMin
   - component: main
-    capability: concertmirror08464.zclSwitchReportMax
+    capability: concertmirror08464.zclDeviceTmpReportMax
   - component: main
-    capability: concertmirror08464.zclSwitchTwoReportMin
-  - component: main
-    capability: concertmirror08464.zclSwitchTwoReportMax
-  - component: main
-    capability: concertmirror08464.zclSwitchThreeReportMin
-  - component: main
-    capability: concertmirror08464.zclSwitchThreeReportMax
+    capability: concertmirror08464.zclDeviceTmpReportChange29
   automation:
     conditions:
     - component: main
@@ -94,17 +82,11 @@ deviceConfig:
       capability: switch
       version: 1
     - component: main
-      capability: concertmirror08464.zclSwitchReportMin
+      capability: concertmirror08464.zclDeviceTmpReportMin
     - component: main
-      capability: concertmirror08464.zclSwitchReportMax
+      capability: concertmirror08464.zclDeviceTmpReportMax
     - component: main
-      capability: concertmirror08464.zclSwitchTwoReportMin
-    - component: main
-      capability: concertmirror08464.zclSwitchTwoReportMax
-    - component: main
-      capability: concertmirror08464.zclSwitchThreeReportMin
-    - component: main
-      capability: concertmirror08464.zclSwitchThreeReportMax
+      capability: concertmirror08464.zclDeviceTmpReportChange29
     actions:
     - component: main
       capability: switch
@@ -116,14 +98,8 @@ deviceConfig:
       capability: switch
       version: 1
     - component: main
-      capability: concertmirror08464.zclSwitchReportMin
+      capability: concertmirror08464.zclDeviceTmpReportMin
     - component: main
-      capability: concertmirror08464.zclSwitchReportMax
+      capability: concertmirror08464.zclDeviceTmpReportMax
     - component: main
-      capability: concertmirror08464.zclSwitchTwoReportMin
-    - component: main
-      capability: concertmirror08464.zclSwitchTwoReportMax
-    - component: main
-      capability: concertmirror08464.zclSwitchThreeReportMin
-    - component: main
-      capability: concertmirror08464.zclSwitchThreeReportMax
+      capability: concertmirror08464.zclDeviceTmpReportChange29

@@ -19,4 +19,14 @@ for _, entry in ipairs(registrations(catalog_1, "zcl.covers.z2m_absorption", "co
   entries[#entries + 1] = entry
 end
 
+local catalog_2 = require "contracts.families.zcl.covers.md_gate"
+for _, entry in ipairs(registrations(catalog_2, "zcl.covers.md_gate", "contracts.families.zcl.covers.md_gate")) do
+  entries[#entries + 1] = entry
+end
+
+local catalog_3 = require "contracts.families.zcl.covers.somfy_tilt_lift"
+for _, entry in ipairs(registrations(catalog_3, "zcl.covers.somfy_tilt_lift", "contracts.families.zcl.covers.somfy_tilt_lift")) do
+  entries[#entries + 1] = entry
+end
+
 return entries

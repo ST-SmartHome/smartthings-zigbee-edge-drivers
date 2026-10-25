@@ -13,9 +13,7 @@ local json = require "st.json"
 local device_definitions, register_device_definition = device_helpers.definition_registry()
 local CLUSTER_SCENES = 0x0005
 local CLUSTER_MULTI_STATE_INPUT = 0x0012
-local CLUSTER_NAMRON_PRIVATE_E004 = 0xE004
 local ATTR_PRESENT_VALUE = 0x0055
-local NAMRON_SIMPLIFY_PENDING_PRESS_FIELD = "__namron_simplify_pending_press"
 
 local BUTTON_EVENT_BUILDERS = {
   pushed = capabilities.button.button.pushed,
@@ -271,10 +269,6 @@ register_device_definition(linxura_aura_12, {
 register_device_definition(linxura_smart_4, {
   device_helpers.create_fingerprint("Linxura", "Smart Controller"),
 })
-
-local function component_for_button(button_number)
-  return button_number == 1 and "main" or ("button" .. tostring(button_number))
-end
 
 -- Exact v26.99.0 commandsOnOff/commandsLevelCtrl/commandsColorCtrl/
 -- commandsScenes action contract for the Slacky three-button definition.
@@ -1050,7 +1044,6 @@ end
 local sunricher_cct = {
   profile = "buttons-sunricher-cct",
   button_actions = {"pushed", "held"},
-  placeholder_custom_states = false,
   zcl_clusters = {
     zcl.cluster_attribute(0x0001, 0x0021, {
       name = "battery", endpoint = 1, read_only = true, data_type = data_types.Uint8,
@@ -1128,7 +1121,7 @@ local function airwick_attribute(attribute, name, emitter, data_type, options)
 end
 
 local airwick = {
-  profile="controllers-airwick",magic_packet=false,placeholder_custom_states=false,
+  profile="controllers-airwick",magic_packet=false,
   component_to_endpoint_map={main=10},
   configure=function(driver,device)
     zcl.bind_cluster(device,0xFC00,driver.environment_info.hub_zigbee_eui,10)
@@ -1286,7 +1279,7 @@ local function nimly_notification(programming)
   end
 end
 local nimly_code = {
-  profile="locks-nimly-code-pro",magic_packet=false,placeholder_custom_states=false,
+  profile="locks-nimly-code-pro",magic_packet=false,
   component_to_endpoint_map={main=11},
   capability_commands={
     {capability_id="lock",command_name="lock",value=1,mapping_name="nimly_lock"},
@@ -1341,6 +1334,116 @@ for _,command in ipairs({5,7,0x20,0x21}) do
 end
 register_device_definition(nimly_code,{device_helpers.create_fingerprint("Onesti Products AS","NimlyCodePRO")})
 
+local function button_battery_alarm(_,value)
+  return (value&0xF03C0F)~=0 and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
+end
+
+local function samjin_battery_value(value,_,context)
+  if context.raw_value~=255 then return value end
+end
+local samjin_button = {
+  profile="buttons-samjin-button",
+  button_actions={"pushed","double","held"},
+  zcl_clusters={
+    zcl.cluster_attribute(0x0500,nil,{name="samjin_button_action",endpoint=1,read_only=true,command_id=0,
+      command_extractor=function(rx,device)
+        local action=({[0]="off",[1]="single",[2]="double",[3]="hold"})[rx.body.zcl_body.zone_status.value]
+        if not action then return end
+        local event=emit.samjinButtonAction()(device,action)
+        event.state_change=true
+        device:emit_event(event)
+        local button=({single="pushed",double="double",hold="held"})[action]
+        if button then device:emit_event(capabilities.button.button(button,{state_change=true})) end
+      end,
+    }),
+    zcl.temperature({endpoint=1,data_type=data_types.Int16,read_only=true,
+      configure_reporting=false,read_on_configure=false,read_on_refresh=false,
+      reporting_defaults={minimum_interval=10,maximum_interval=3600,reportable_change=100}}),
+    zcl.battery({endpoint=1,data_type=data_types.Uint8,read_only=true,
+      configure_reporting=false,read_on_configure=false,read_on_refresh=false,from_device=samjin_battery_value}),
+    zcl.battery_voltage({endpoint=1,data_type=data_types.Uint8,read_only=true,
+      configure_reporting=false,read_on_configure=false,read_on_refresh=false,from_device=samjin_battery_value,
+      reporting_defaults={minimum_interval=3600,maximum_interval=65000,reportable_change=0}}),
+    zcl.cluster_attribute(1,0x3E,{name="samjin_button_alarm",endpoint=1,data_type=data_types.Bitmap32,
+      read_only=true,read_on_configure=false,read_on_refresh=false,
+      emit=button_battery_alarm,
+    }),
+  },
+}
+samjin_button.configure=function(driver,device)
+  for _,cluster in ipairs({0x0402,1}) do zcl.bind_cluster(device,cluster,driver.environment_info.hub_zigbee_eui,1) end
+  for _,mapping in ipairs(samjin_button.zcl_clusters) do
+    local defaults=mapping.reporting_defaults
+    if defaults then zcl.configure_reporting(device,{cluster=mapping.cluster_id,attribute=mapping.attribute_id,
+      data_type=mapping.data_type,minimum_interval=defaults.minimum_interval,maximum_interval=defaults.maximum_interval,
+      reportable_change=defaults.reportable_change},1,{defer_on_override=true}) end
+  end
+  zcl.read_attribute(device,1,0x20,1)
+end
+register_device_definition(samjin_button,{device_helpers.create_fingerprint("Samjin","button")})
+
+
+local function iris3460_action(rx,device)
+  if zcl_device_helpers.duplicate_transaction(device,1,rx.body.zcl_header.seqno.value,"__iris3460_transactions") then return end
+  local pressed=rx.body.zcl_header.cmd.value==1
+  local event=emit.iris3460Action()(device,pressed and "on" or "off")
+  event.state_change=true
+  device:emit_event(event)
+  local group=rx.address_header.dest_addr.value
+  if group>=1 and group<=0xFFF7 then
+    local group_event=emit.iris3460Group()(device,group)
+    group_event.state_change=true
+    device:emit_event(group_event)
+  end
+  local socket = require "cosock.socket"
+  local now=socket.gettime()
+  if pressed then device:set_field("__iris3460_pressed_at",now,{persist=false})
+  else
+    local start=device:get_field("__iris3460_pressed_at")
+    device:set_field("__iris3460_pressed_at",nil,{persist=false})
+    if start and now-start<10 then
+      device:emit_event(capabilities.button.button(now-start<1 and "pushed" or "held",{state_change=true}))
+    end
+  end
+end
+local iris3460={
+  profile="buttons-iris-3460l",button_actions={"pushed","held"},
+  zcl_clusters={
+    zcl.cluster_attribute(6,nil,{name="iris3460_on",endpoint=1,read_only=true,command_id=1,command_extractor=iris3460_action}),
+    zcl.cluster_attribute(6,nil,{name="iris3460_off",endpoint=1,read_only=true,command_id=0,command_extractor=iris3460_action}),
+    zcl.cluster_attribute(1,0x20,{name="iris3460_voltage",endpoint=1,data_type=data_types.Uint8,
+      read_only=true,configure_reporting=false,read_on_configure=false,read_on_refresh=false,
+      reporting_defaults={minimum_interval=3600,maximum_interval=65000,reportable_change=0},
+      emit=function(_,value)
+        if value==255 then return end
+        local percentage=math.floor(math.min(100,math.max(0,235-370000/(value*100+1)))+0.5)
+        return {capabilities.battery.battery(percentage),capabilities.voltageMeasurement.voltage({value=value/10,unit="V"})}
+      end,
+    }),
+    zcl.temperature({endpoint=1,data_type=data_types.Int16,read_only=true,
+      configure_reporting=false,read_on_configure=false,read_on_refresh=false,
+      reporting_defaults={minimum_interval=10,maximum_interval=3600,reportable_change=100}}),
+    zcl.cluster_attribute(1,0x3E,{name="iris3460_alarm",endpoint=1,data_type=data_types.Bitmap32,
+      read_only=true,read_on_configure=false,read_on_refresh=false,
+      emit=button_battery_alarm,
+    }),
+  },
+}
+iris3460.configure=function(driver,device)
+  for _,cluster in ipairs({6,1,0x0402}) do zcl.bind_cluster(device,cluster,driver.environment_info.hub_zigbee_eui,1) end
+  for _,mapping in ipairs(iris3460.zcl_clusters) do
+    local defaults=mapping.reporting_defaults
+    if defaults then
+      zcl.configure_reporting(device,{cluster=mapping.cluster_id,attribute=mapping.attribute_id,data_type=mapping.data_type,
+        minimum_interval=defaults.minimum_interval,maximum_interval=defaults.maximum_interval,
+        reportable_change=defaults.reportable_change},1,{defer_on_override=true})
+      if mapping.attribute_id==0x20 then zcl.read_attribute(device,1,0x20,1) end
+    end
+  end
+end
+register_device_definition(iris3460,{device_helpers.create_fingerprint("CentraLite","3460-L")})
+
+
 -- ZCL REPORTING CAPABILITIES BEGIN
 zcl.attach_reporting_capabilities(device_definitions, {
   {2, "rpt-aes"},
@@ -1349,11 +1452,13 @@ zcl.attach_reporting_capabilities(device_definitions, {
   {7, "rpt-brz"},
   {8, "rpt-bzx"},
   {11, "rpt-bic"},
-  {13, "rpt-sgys", {["zr000600003"] = "Switch", ["zr000600007"] = "SwitchTwo"}},
-  {14, "rpt-sbl", {["zr000600003"] = "Switch", ["zr000600007"] = "SwitchTwo"}},
+  {13, "rpt-sgys", {zr000600003 = "Switch", zr000600007 = "SwitchTwo"}},
+  {14, "rpt-sbl", {zr000600003 = "Switch", zr000600007 = "SwitchTwo"}},
   {15, "rpt-zjz"},
   {16, "rpt-zny"},
   {18, "rpt-nnm"},
+  {19, "rpt-bfn"},
+  {20, "rpt-zuf"},
 })
 -- ZCL REPORTING CAPABILITIES END
 

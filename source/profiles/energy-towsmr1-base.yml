@@ -1,0 +1,285 @@
+name: energy-towsmr1-base
+components:
+- id: main
+  capabilities:
+  - id: switch
+    version: 1
+  - id: powerMeter
+    version: 1
+  - id: energyMeter
+    version: 1
+  - id: voltageMeasurement
+    version: 1
+  - id: currentMeasurement
+    version: 1
+  - id: temperatureMeasurement
+    version: 1
+  - id: concertmirror08464.towsmr1BaseEvent
+    version: 1
+  - id: concertmirror08464.towsmr1BaseOverVoltageSetting
+    version: 1
+  - id: concertmirror08464.towsmr1BaseOverVoltageThreshold
+    version: 1
+  - id: concertmirror08464.towsmr1BaseUnderVoltageSetting
+    version: 1
+  - id: concertmirror08464.towsmr1BaseUnderVoltageThreshold
+    version: 1
+  - id: concertmirror08464.towsmr1BaseOverPowerSetting
+    version: 1
+  - id: concertmirror08464.towsmr1BaseOverPowerThreshold
+    version: 1
+  - id: concertmirror08464.towsmr1BaseTemperatureSetting
+    version: 1
+  - id: concertmirror08464.towsmr1BaseTemperatureThreshold
+    version: 1
+  - id: concertmirror08464.towsmr1BaseAutoReclosing
+    version: 1
+  - id: concertmirror08464.towsmr1BaseRestoreDefault
+    version: 1
+  - id: concertmirror08464.towsmr1BaseOvercurrentRecloser
+    version: 1
+  - id: concertmirror08464.towsmr1BaseLeakageRecloser
+    version: 1
+  - id: concertmirror08464.towsmr1BaseOverpowerRecloser
+    version: 1
+  - id: concertmirror08464.powerPollIntervalV2
+    version: 1
+  - id: concertmirror08464.lastPowerResponseTime
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.towsmr1BaseTimeStart
+    version: 1
+  - id: concertmirror08464.towsmr1BaseTimeZone
+    version: 1
+  categories:
+  - name: CurbPowerMeter
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: switch
+      version: 1
+      group: main
+      composite: true
+    - component: main
+      capability: powerMeter
+      version: 1
+      group: main
+      values:
+      - label: ' {{power.value}} {{power.unit}}'
+      composite: true
+    actions:
+    - component: main
+      capability: switch
+      version: 1
+      group: main
+      values:
+      - command: 'on'
+      - command: 'off'
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: switch
+    version: 1
+  - component: main
+    capability: powerMeter
+    version: 1
+  - component: main
+    capability: energyMeter
+    version: 1
+  - component: main
+    capability: voltageMeasurement
+    version: 1
+  - component: main
+    capability: currentMeasurement
+    version: 1
+  - component: main
+    capability: temperatureMeasurement
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseEvent
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseOverVoltageSetting
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseOverVoltageThreshold
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseUnderVoltageSetting
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseUnderVoltageThreshold
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseOverPowerSetting
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseOverPowerThreshold
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseTemperatureSetting
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseTemperatureThreshold
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseAutoReclosing
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseRestoreDefault
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseOvercurrentRecloser
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseLeakageRecloser
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseOverpowerRecloser
+    version: 1
+  - component: main
+    capability: concertmirror08464.powerPollIntervalV2
+    version: 1
+  - component: main
+    capability: concertmirror08464.lastPowerResponseTime
+    version: 1
+  - component: main
+    capability: refresh
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseTimeStart
+    version: 1
+  - component: main
+    capability: concertmirror08464.towsmr1BaseTimeZone
+    version: 1
+  automation:
+    conditions:
+    - component: main
+      capability: switch
+      version: 1
+    - component: main
+      capability: powerMeter
+      version: 1
+    - component: main
+      capability: energyMeter
+      version: 1
+    - component: main
+      capability: voltageMeasurement
+      version: 1
+    - component: main
+      capability: currentMeasurement
+      version: 1
+    - component: main
+      capability: temperatureMeasurement
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseEvent
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseOverVoltageSetting
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseOverVoltageThreshold
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseUnderVoltageSetting
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseUnderVoltageThreshold
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseOverPowerSetting
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseOverPowerThreshold
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseTemperatureSetting
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseTemperatureThreshold
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseAutoReclosing
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseRestoreDefault
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseOvercurrentRecloser
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseLeakageRecloser
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseOverpowerRecloser
+      version: 1
+    - component: main
+      capability: concertmirror08464.powerPollIntervalV2
+      version: 1
+    - component: main
+      capability: concertmirror08464.lastPowerResponseTime
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseTimeStart
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseTimeZone
+      version: 1
+    actions:
+    - component: main
+      capability: switch
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseOverVoltageSetting
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseOverVoltageThreshold
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseUnderVoltageSetting
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseUnderVoltageThreshold
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseOverPowerSetting
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseOverPowerThreshold
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseTemperatureSetting
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseTemperatureThreshold
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseAutoReclosing
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseRestoreDefault
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseOvercurrentRecloser
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseLeakageRecloser
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseOverpowerRecloser
+      version: 1
+    - component: main
+      capability: concertmirror08464.powerPollIntervalV2
+      version: 1
+    - component: main
+      capability: energyMeter
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseTimeStart
+      version: 1
+    - component: main
+      capability: concertmirror08464.towsmr1BaseTimeZone
+      version: 1

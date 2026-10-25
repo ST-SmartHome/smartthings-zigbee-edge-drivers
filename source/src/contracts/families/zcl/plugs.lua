@@ -3,6 +3,7 @@ local emit = require "capabilities.events.all"
 local device_helpers = require "contracts.helpers.family"
 local zcl_device_helpers = require "contracts.helpers.zcl"
 local data_types = require "st.zigbee.data_types"
+local cluster_base = require "st.zigbee.cluster_base"
 local device_management = require "st.zigbee.device_management"
 local OnOff = require("st.zigbee.zcl.clusters").OnOff
 local zigbee_constants = require "st.zigbee.constants"
@@ -293,6 +294,7 @@ local wp30_power_strip = build_metered_strip("plugs-wp30-power-strip", { 1, 2, 3
 
 local function lookup_from_device(values)
   return function(value)
+    if type(value) == "table" then value = value.value end
     return values[value]
   end
 end
@@ -349,6 +351,76 @@ end
 
 local ts011f_plug1 = build_ts011f_plug1("plugs-switch-power-energy-voltage-current-ts011f-plug1", true)
 local ts011f_plug1_no_button = build_ts011f_plug1("plugs-switch-power-energy-voltage-current-ts011f-plug1-no-button", false)
+
+local nous_a6z_button_type = a11z_enum_mapping("nous_a6z_button_type", 1, "main", 0xE001, 0xD030,
+  emit.nousA6zButtonType(), {[0]="release", [1]="press"}, {release=0, press=1})
+nous_a6z_button_type.sender = function(device, mapping, value, context)
+  local encoded = mapping.to_device(value)
+  if encoded == nil then return false end
+  local request = cluster_base.write_attribute(device, data_types.ClusterId(0xE001),
+    data_types.AttributeId(0xD030), data_types.Enum8(encoded))
+  request.body.zcl_header.frame_ctrl:set_disable_default_response()
+  device:send(request:to_endpoint(context.endpoint or 1))
+  return true
+end
+
+local nous_a6z = build_plug("plugs-nous-a6z", {
+  zcl.switch({endpoint=1, configure_reporting=false}),
+  zcl.power({endpoint=1, read_only=true, poll_interval=false,
+    minimum_interval=5, maximum_interval=3600, reportable_change=10}),
+  zcl.energy({endpoint=1, read_only=true, poll_interval=false, scale=100, ignore_reported_scaler=true,
+    minimum_interval=5, maximum_interval=3600, reportable_change=257}),
+  zcl.voltage({endpoint=1, read_only=true, poll_interval=false,
+    minimum_interval=5, maximum_interval=3600, reportable_change=5}),
+  zcl.current({endpoint=1, read_only=true, poll_interval=false, ignore_reported_scaler=true,
+    minimum_interval=5, maximum_interval=3600, reportable_change=50}),
+  zcl.tuya_magic_packet(),
+  a11z_enum_mapping("nous_a6z_power_memory", 1, "main", zcl.CLUSTER_ON_OFF, 0x8002,
+    emit.nousA6zPowerMemory(), {[0]="off", [1]="on", [2]="restore"}, {off=0, on=1, restore=2}),
+  a11z_enum_mapping("nous_a6z_indicator", 1, "main", zcl.CLUSTER_ON_OFF, 0x8001,
+    emit.nousA6zIndicator(), {[0]="off", [1]="off_on", [2]="on_off", [3]="on"}, {off=0, off_on=1, on_off=2, on=3}),
+  zcl.cluster_attribute(zcl.CLUSTER_ON_OFF, 0x8000, {
+    name="nous_a6z_child_lock", endpoint=1, emit=emit.nousA6zChildLock(),
+    data_type=data_types.Boolean, write_type=data_types.Boolean, read_on_configure=true,
+    from_device=function(value) return value and "on" or "off" end,
+    to_device=function(value) return value == "on" end,
+  }),
+  zcl.countdown_timer({name="nous_a6z_countdown", endpoint=1, emit=emit.nousA6zCountdown(),
+    from_device=function(value, _, context)
+      local rx = context.zb_rx
+      for _, record in ipairs(rx and rx.body.zcl_body.attr_records or {}) do
+        if record.attr_id.value == 0x4002 and (not record.status or record.status.value == 0)
+            and record.data_type and record.data_type.value == 0x21 and record.data then return nil end
+      end
+      return value
+    end,
+    to_device=function(value)
+      if type(value) ~= "number" or value % 1 ~= 0 or value < 0 or value > 43200 then return nil end
+      return string.pack("<BI2I2", 0, value, value)
+    end}),
+  zcl.cluster_attribute(zcl.CLUSTER_ON_OFF, 0x4002, {
+    name="nous_a6z_off_wait_time", endpoint=1, read_only=true,
+    data_type=data_types.Uint16, read_on_configure=true, emit=emit.nousA6zCountdown(),
+  }),
+  nous_a6z_button_type,
+  zcl.cluster_attribute(0x0003, 0, {
+    name="nous_a6z_identify", endpoint=1, write_only=true, tx_command_id=0,
+    to_device=function(value)
+      if type(value) ~= "number" or value % 1 ~= 0 or value < 1 or value > 30 then return nil end
+      return string.pack("<I2", value)
+    end,
+  }),
+})
+for _, mapping in ipairs(nous_a6z.zcl_clusters) do mapping.suppress_optimistic_state = true end
+nous_a6z.configure = tuya_metered_plug_core.configure
+nous_a6z.capability_commands = {
+  {capability_id="concertmirror08464.nousA6zCountdown", command_name="setCountdown",
+    mapping_name="nous_a6z_countdown", argument_name="countdown"},
+  {capability_id="concertmirror08464.nousA6zIdentify", command_name="identify",
+    mapping_name="nous_a6z_identify", value=3},
+  {capability_id="concertmirror08464.nousA6zIdentify", command_name="setIdentifyTime",
+    mapping_name="nous_a6z_identify", argument_name="identifyTime"},
+}
 
 local function a11z_identify_sender(device, _, value, context)
   if value ~= "identify" then
@@ -431,17 +503,12 @@ zcl_device_helpers.append_clusters(a11z_power_strip.zcl_clusters,
   })
 )
 
-local five_switch_plug = {
-  profile = "plugs-switch-5",
-  zcl_clusters = zcl.multi_switch({ 1, 2, 3, 4, 7 }),
-}
 
 register_device_definition(tuya_switch_only_plug, device_helpers.create_fingerprints("TS011F", {
   "_TZ3000_oiymh3qu",
 }))
 
 register_device_definition(tuya_switch_only_plug, device_helpers.create_fingerprints("TS0101", {
-  "_TZ3000_br3laukf",
   "_TZ3000_pnzfdr9y",
   "_TYZB01_ijihzffk",
 }))
@@ -682,18 +749,179 @@ register_device_definition(tuya_metered_plug_no_power_reporting, device_helpers.
   "_TZ3000_cicwjqth",
 }))
 
+local hg06620_countdown_emit = emit.hg06620Countdown()
+
+local function hg06620_countdown_frame(_, _, context)
+  local frame = context.zb_rx
+  if frame.__hg06620_countdown ~= nil then
+    return frame.__hg06620_countdown
+  end
+
+  local on_time, off_wait_time
+  for _, record in ipairs(frame.body.zcl_body.attr_records) do
+    local value = record.data and record.data.value
+    if (record.status == nil or record.status.value == 0) and
+        type(value) == "number" and value >= 0 and value <= 65535 and value % 1 == 0 then
+      if record.attr_id.value == 0x4001 then
+        on_time = value
+      elseif record.attr_id.value == 0x4002 then
+        off_wait_time = value
+      end
+    end
+  end
+
+  local result = { value = off_wait_time ~= nil and off_wait_time or on_time }
+  frame.__hg06620_countdown = result
+  return result
+end
+
+local function hg06620_emit_frame(device, frame)
+  if frame.value == nil or frame.emitted then
+    return nil
+  end
+  frame.emitted = true
+  return hg06620_countdown_emit(device, frame.value)
+end
+
+local function hg06620_countdown_to_device(value)
+  if type(value) ~= "number" or value < 0 or value > 43200 or value % 1 ~= 0 then
+    return nil
+  end
+  return { 0, value, value }
+end
+
+local function hg06620_switch_sender(device, _, value)
+  if type(value) ~= "boolean" then
+    return false
+  end
+  local command = value and OnOff.server.commands.On or OnOff.server.commands.Off
+  device:send(command(device):to_endpoint(1))
+  local event = hg06620_countdown_emit(device, 0)
+  if event ~= nil then
+    device:emit_event_for_endpoint(1, event)
+  end
+  return true
+end
+
+local lidl_hg06620_plug = build_plug("plugs-lidl-hg06620", {
+  zcl.switch({
+    endpoint = 1,
+    component = "main",
+    minimum_interval = 0,
+    maximum_interval = 3600,
+    reporting_defaults = { key = "zr00060000auto", minimum_interval = 0, maximum_interval = 3600 },
+    sender = hg06620_switch_sender,
+  }),
+  zcl.tuya_magic_packet(),
+  zcl.cluster_attribute(zcl.CLUSTER_ON_OFF, 0x4001, {
+    name = "hg06620_countdown",
+    endpoint = 1,
+    component = "main",
+    data_type = data_types.Uint16,
+    from_device = hg06620_countdown_frame,
+    emit = hg06620_emit_frame,
+    tx_command_id = 0x42,
+    to_device = hg06620_countdown_to_device,
+    suppress_optimistic_state = true,
+    read_on_configure = false,
+    read_on_refresh = true,
+  }),
+  zcl.cluster_attribute(zcl.CLUSTER_ON_OFF, 0x4002, {
+    name = "hg06620_countdown_offwait_rx",
+    endpoint = 1,
+    component = "main",
+    data_type = data_types.Uint16,
+    from_device = hg06620_countdown_frame,
+    emit = hg06620_emit_frame,
+    read_only = true,
+    read_on_configure = false,
+    read_on_refresh = false,
+  }),
+})
+-- Keep the legacy reporting key; this mapping's nested defaults skip generic bind/send.
+lidl_hg06620_plug.configure = function(driver, device)
+  bind_on_off_endpoints({ 1 })(driver, device)
+  zcl.configure_reporting(device, {
+    cluster = OnOff.ID,
+    attribute = OnOff.attributes.OnOff.ID,
+    data_type = OnOff.attributes.OnOff.base_type,
+    minimum_interval = 0,
+    maximum_interval = 3600,
+  }, 1, { auto_endpoint = true })
+end
+lidl_hg06620_plug.time_start = "off"
+register_device_definition(lidl_hg06620_plug, device_helpers.create_fingerprints("TS0101", {
+  "_TZ3000_br3laukf",
+}))
+
+register_device_definition(nous_a6z, device_helpers.create_fingerprints("TS011F", {"_TZ3008_avdpejns"}))
+
+local function somfy_metering_received(value,device)
+  if not device:get_field("__somfy_plug_duplicate") then return value end
+end
+local somfy_metered_plug = {
+  profile="plugs-somfy-metering",magic_packet=false,
+  initial_custom_state_query=false,
+  component_to_endpoint=function() return 12 end,
+  endpoint_to_component=function() return "main" end,
+  parent_refresh=function(device) zcl.read_attribute(device,6,0,12) end,
+  zcl_clusters={
+    zcl.switch({endpoint=12,component="main",read_on_configure=false,suppress_optimistic_state=true,
+      configure_reporting=false,reporting_defaults={minimum_interval=1,maximum_interval=3600}}),
+    zcl.cluster_attribute(0x0702,0x0400,{name="power",endpoint=12,component="main",read_only=true,
+      data_type=data_types.Int24,emit=emit.power(),metering_kind="demand",read_on_configure=false,from_device=somfy_metering_received,
+      reporting_defaults={minimum_interval=5,maximum_interval=3600,reportable_change=1}}),
+    zcl.cluster_attribute(0x0702,0,{name="energy",endpoint=12,component="main",read_only=true,
+      data_type=data_types.Uint48,emit=emit.energy(),metering_kind="summation",read_on_configure=false,from_device=somfy_metering_received,
+      reporting_defaults={minimum_interval=5,maximum_interval=3600,reportable_change=257}}),
+    zcl.cluster_attribute(0x0702,1,{name="produced_energy",endpoint=12,component="export",read_only=true,
+      data_type=data_types.Uint48,emit=emit.energy(),metering_kind="summation",read_on_configure=false,from_device=somfy_metering_received,
+      reporting_defaults={minimum_interval=5,maximum_interval=3600,reportable_change=257}}),
+  },
+}
+somfy_metered_plug.configure=function(driver,device)
+  for _,cluster in ipairs({0,3,6,0x0702}) do
+    zcl.bind_cluster(device,cluster,driver.environment_info.hub_zigbee_eui,12)
+  end
+  for _,mapping in ipairs(somfy_metered_plug.zcl_clusters) do
+    local meta=zcl.mapping_meta(mapping)
+    local defaults=meta.reporting_defaults
+    zcl.configure_reporting(device,{cluster=meta.cluster_id,attribute=meta.attribute_id,data_type=meta.data_type,
+      minimum_interval=defaults.minimum_interval,maximum_interval=defaults.maximum_interval,
+      reportable_change=defaults.reportable_change},12,{defer_on_override=true})
+  end
+end
+somfy_metered_plug.zigbee_message_handler=function(device,rx)
+  local header=rx.body.zcl_header
+  device:set_field("__somfy_plug_duplicate",false,{persist=false})
+  if rx.address_header.src_endpoint.value~=12 or rx.address_header.cluster.value~=0x0702
+    or header.frame_ctrl:is_cluster_specific_set() or header.frame_ctrl:is_mfg_specific_set()
+    or (header.cmd.value~=1 and header.cmd.value~=10) then return end
+  device:set_field("__somfy_plug_duplicate",zcl_device_helpers.duplicate_transaction(device,12,header.seqno.value,
+    "__somfy_plug_transactions"),{persist=false})
+  -- Herdsman updates all cluster attributes before fz.metering sees this frame.
+  for _,record in ipairs(rx.body.zcl_body.attr_records or {}) do
+    local id=record.attr_id.value
+    if (id==0x0301 or id==0x0302) and record.data and (not record.status or record.status.value==0) then
+      zcl.handle_internal_attribute(device,0x0702,id,record.data,{endpoint=12,zcl_clusters=somfy_metered_plug.zcl_clusters})
+    end
+  end
+end
+
+register_device_definition(somfy_metered_plug, {device_helpers.create_fingerprint("SOMFY", "1822647")})
+
 -- ZCL REPORTING CAPABILITIES BEGIN
 zcl.attach_reporting_capabilities(device_definitions, {
   {1, "rpt-zvs"},
   {2, "rpt-zvs"},
   {3, "rpt-zvs"},
-  {4, "rpt-zef", {["zr000600001"] = "Switch", ["zr000600007"] = "SwitchTwo"}},
+  {4, "rpt-zef", {zr000600001 = "Switch", zr000600007 = "SwitchTwo"}},
   {5, "rpt-tpg"},
   {6, "rpt-tct"},
   {7, "rpt-zvs"},
   {8, "rpt-tqr"},
   {9, "rpt-tcp"},
-  {10, "rpt-wzp", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour", ["zr000600005"] = "SwitchFive"}},
+  {10, "rpt-wzp", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour", zr000600005 = "SwitchFive"}},
   {11, "rpt-tcb"},
   {12, "rpt-txn"},
   {13, "rpt-trp"},
@@ -710,12 +938,15 @@ zcl.attach_reporting_capabilities(device_definitions, {
   {24, "rpt-zvs"},
   {25, "rpt-tcb"},
   {26, "rpt-zvs"},
-  {27, "rpt-txa", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
-  {28, "rpt-ttq", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {27, "rpt-txa", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree"}},
+  {28, "rpt-ttq", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree"}},
   {29, "rpt-lsu"},
   {30, "rpt-lsu"},
   {31, "rpt-tpp"},
   {32, "rpt-tzo"},
+  {33, "rpt-toma"},
+  {34, "rpt-txe"},
+  {35, "rpt-zay"},
 })
 -- ZCL REPORTING CAPABILITIES END
 

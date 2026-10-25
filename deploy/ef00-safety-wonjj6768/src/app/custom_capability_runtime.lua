@@ -13,8 +13,8 @@ local Q=r.enum
 local as=r.text
 local l=r.driver_message
 local au={
-{kind="numeric",definitions=H},{kind="enum",definitions=Q},{kind="text",definitions=as},}local aW={
-{kind="numeric",definitions=H},{kind="enum",definitions=Q},{kind="text",definitions=as},}
+{kind="numeric",definitions=H},{kind="enum",definitions=Q},{kind="text",definitions=as}}local aW={
+{kind="numeric",definitions=H},{kind="enum",definitions=Q},{kind="text",definitions=as}}
 local function u(b)
 if type(b)~="table"then
 return"device"
@@ -52,20 +52,20 @@ end
 local function N(q,bj,aD)
 local a=r.by_range_key[bj]if a==nil and type(aD)=="table"then
 a={
-range_key=bj,default_range=aD,}
+range_key=bj,default_range=aD}
 end
 return r.resolve_range(q,a)
 end
 local function Y(q,a)
 local p=N(q,a.range_key,{
-allowed_values=a.supported_values,})return type(p)=="table"and p.allowed_values or a.supported_values
+allowed_values=a.supported_values})return type(p)=="table"and p.allowed_values or a.supported_values
 end
 local function ba(i,w,aS)
 if type(aS)~="number"or aS<=0 then
 return i
 end
 local bs=type(w)=="number"and w or 0
-local br=math.floor(((i-bs)/aS)+0.5)local an=bs+(br*aS)local bc=tostring(aS):match("%.(%d+)")if bc~=nil then
+local br=math.floor(((i-bs)/aS)+0.5)local an=bs+(br*aS)local bc=tostring(aS):match"%.(%d+)"if bc~=nil then
 an=tonumber(string.format("%."..tostring(#bc).."f",an))
 end
 return an
@@ -74,8 +74,8 @@ local function ay(i,e)
 if type(e)~="table"or #e==0 then
 return i
 end
-local bk=nil
-local aI=nil
+local bk
+local aI
 for _,ab in ipairs(e)do
 if type(ab)=="number"then
 local bd=math.abs(ab-i)if bk==nil or bd<aI then
@@ -200,10 +200,10 @@ end
 return nil
 end
 local function U(b,q,a,c,aD)
-local aJ=nil
+local aJ
 local n=aE(b)if n~=nil and type(n.zcl_clusters)=="table"and type(a.mapping_name)=="string"and a.mapping_name~=""then
 local m=bx.find_mapping_by_name(n.zcl_clusters,a.mapping_name,b,{
-component_id=c or d,})if type(m)=="table"and type(m.numeric_range)=="table"then
+component_id=c or d})if type(m)=="table"and type(m.numeric_range)=="table"then
 aJ=m.numeric_range
 end
 end
@@ -219,7 +219,7 @@ m=bz.build_named_map(n.datapoints,"name")[v]
 end
 if m==nil and n and n.zcl_clusters then
 m=bx.find_mapping_by_name(n.zcl_clusters,v,b,{
-component_id=c or d,})
+component_id=c or d})
 end
 if m==nil and n and n.protocol_writers then
 m=n.protocol_writers[v]
@@ -247,7 +247,7 @@ local L=l.maximum_length or 512
 local s=aY.truncate(aX,L)if s==nil then
 return
 end
-aQ.info(string.format("[%s] Driver message emit requested: %s",u(b),s))K(b,d,f({value=s}))
+aQ.info(string.format("[%s] Driver message emit requested: %s",u(b),s))K(b,d,f{value=s})
 end
 local function ak(b,c,a,i,bv)
 if type(a)~="table"or type(a.attribute_name)~="string"or i==nil then
@@ -265,7 +265,7 @@ end
 local f=g(b,a,a.attribute_name,true)if f==nil then
 return
 end
-aQ.info(string.format("[%s] Custom enum emit requested: %s=%s",u(b),a.capability_id,tostring(i)))K(b,c,f({value=i}))
+aQ.info(string.format("[%s] Custom enum emit requested: %s=%s",u(b),a.capability_id,tostring(i)))K(b,c,f{value=i})
 end
 local function ax(b,c,a,i)
 if type(a)~="table"or type(a.attribute_name)~="string"
@@ -275,7 +275,7 @@ end
 local f=g(b,a,a.attribute_name,true)if f==nil then
 return
 end
-aQ.info(string.format("[%s] Custom text emit requested: %s=%s",u(b),a.capability_id,i))K(b,c,f({value=i}))
+aQ.info(string.format("[%s] Custom text emit requested: %s=%s",u(b),a.capability_id,i))K(b,c,f{value=i})
 end
 local function af(b)
 if type(b)~="table"then
@@ -316,7 +316,7 @@ E(b,H,d,function(a)
 local p=U(b,q,a,d)local av=g(b,a,a.range_attribute_name,false)if p~=nil and av~=nil then
 local aM={
 value={
-minimum=p.minimum,maximum=p.maximum,step=p.step,},}if p.unit~=nil then
+minimum=p.minimum,maximum=p.maximum,step=p.step}}if p.unit~=nil then
 aM.unit=p.unit
 end
 K(b,d,av(aM))
@@ -326,7 +326,7 @@ end
 local function aL(b,q)
 E(b,Q,d,function(a)
 local f=g(b,a,a.supported_attribute_name,false)local e=Y(q,a)if f~=nil and type(e)=="table"and e[1]~=nil then
-K(b,d,f({value=e}))
+K(b,d,f{value=e})
 end
 end)
 end
@@ -506,7 +506,7 @@ end
 end
 end
 return{
-diagnose_bindings=aN,emit_driver_message=h,emit_enum_metadata=aL,emit_numeric_metadata=az,maybe_request_initial_custom_state=M,refresh_definitions=af,register_handlers=aO,}
+diagnose_bindings=aN,emit_driver_message=h,emit_enum_metadata=aL,emit_numeric_metadata=az,maybe_request_initial_custom_state=M,refresh_definitions=af,register_handlers=aO}
 end
 return{
-create=bt,}
+create=bt}

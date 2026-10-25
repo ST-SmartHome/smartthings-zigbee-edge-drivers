@@ -15,7 +15,6 @@ local power_meter_model_zwpm16 = {
   mcu_version_request_on_configure = true,
   initial_custom_state_query = false,
   refresh_state_query = false,
-  placeholder_custom_states = false,
   tuya.dp_current(18, {
     emit = emit.current(), converter = converter.divide_by_pair(1000), read_only = true,
   }),
@@ -107,15 +106,11 @@ register_device_definition(power_meter_model_zwpm16_2, device_helpers.create_fin
 local three_channel_bidirectional_core = {
   profile = "meters-three-channel-bidirectional-core",
   package_group = "meters",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   mcu_version_request_on_configure = true,
   query_on_configure = false,
   named_datapoints = true,
   time_start = "off",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_energy(1, {
       name = "energy",
@@ -164,15 +159,11 @@ register_device_definition(three_channel_bidirectional_core, {
 local nous_d4z_m_core = {
   profile = "meters-nous-d4z-m-core",
   package_group = "meters",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   mcu_version_request_on_configure = true,
   query_on_configure = false,
   named_datapoints = true,
   time_start = "off",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_energy(1, {
       name = "energy",
@@ -181,18 +172,21 @@ local nous_d4z_m_core = {
       emit = emit.energy(),
     }),
     tuya.dp_phase_variant2(6, {
+      signed_power = true,
       phase = "a",
       component = "l1",
       read_only = true,
       emit = emit_metric_bundle({ voltage = true, current = true, power = true }),
     }),
     tuya.dp_phase_variant2(7, {
+      signed_power = true,
       phase = "b",
       component = "l2",
       read_only = true,
       emit = emit_metric_bundle({ voltage = true, current = true, power = true }),
     }),
     tuya.dp_phase_variant2(8, {
+      signed_power = true,
       phase = "c",
       component = "l3",
       read_only = true,

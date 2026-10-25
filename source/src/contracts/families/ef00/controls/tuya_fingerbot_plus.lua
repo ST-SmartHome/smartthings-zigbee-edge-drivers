@@ -19,28 +19,30 @@ end
 local definition = {
   profile = "controls-tuya-fingerbot-plus",
   package_group = "finger-robot",
-  transport_classification = "HYBRID_ZCL_EF00",
-  z2m_converter_source = "fz.on_off + tz.on_off + meta.tuyaDatapoints",
-  wire_cluster = "genOnOff+manuSpecificTuya",
   magic_packet = true,
   query_on_configure = false,
   time_start = "off",
+  -- Z2M seq=1 is 01 00; the common transaction encoder uses big-endian.
   datapoints = {
     tuya.dp_enum(101, {
       name = "tuya_fingerbot_mode",
+      command_id = tuya.SEND_DATA, transaction = 0x0100,
       converter = converter.lookup_from_to({ click = 0, switch = 1, program = 2 }),
       emit = custom("tuyaFingerbotMode"),
     }),
     tuya.dp_numeric(102, {
       name = "tuya_fingerbot_lower_limit",
+      command_id = tuya.SEND_DATA, transaction = 0x0100,
       emit = custom("tuyaFingerbotLowerLimit"),
     }),
     tuya.dp_numeric(103, {
       name = "tuya_fingerbot_delay",
+      command_id = tuya.SEND_DATA, transaction = 0x0100,
       emit = custom("tuyaFingerbotDelay"),
     }),
     tuya.dp_enum(104, {
       name = "tuya_fingerbot_reverse",
+      command_id = tuya.SEND_DATA, transaction = 0x0100,
       converter = converter.lookup_from_to({ ON = 1, OFF = 0 }),
       emit = custom("tuyaFingerbotReverse"),
     }),
@@ -51,10 +53,12 @@ local definition = {
     }),
     tuya.dp_numeric(106, {
       name = "tuya_fingerbot_upper_limit",
+      command_id = tuya.SEND_DATA, transaction = 0x0100,
       emit = custom("tuyaFingerbotUpperLimit"),
     }),
     tuya.dp_binary(107, {
       name = "tuya_fingerbot_touch",
+      command_id = tuya.SEND_DATA, transaction = 0x0100,
       converter = converter.lookup_from_to({ ON = true, OFF = false }),
       emit = custom("tuyaFingerbotTouch"),
     }),

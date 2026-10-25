@@ -49,14 +49,14 @@ from=function(value)
 if type(value)~="number"then
 return value
 end
-return math.floor((N(value,0,254)*100/254)+0.5)
+return math.floor(N(value,0,254)*100/254+0.5)
 end,
 to=function(value)
 if type(value)~="number"then
 return value
 end
-return math.floor((N(value,0,100)*254/100)+0.5)
-end,
+return math.floor(N(value,0,100)*254/100+0.5)
+end
 }
 end
 local function j()
@@ -65,14 +65,14 @@ from=function(value)
 if type(value)~="number"then
 return value
 end
-return math.floor((N(value,0,254)*100/254)+0.5)
+return math.floor(N(value,0,254)*100/254+0.5)
 end,
 to=function(value)
 if type(value)~="number"then
 return value
 end
-return math.floor((N(value,0,100)*254/100)+0.5)
-end,
+return math.floor(N(value,0,100)*254/100+0.5)
+end
 }
 end
 local function u()
@@ -82,22 +82,22 @@ from=function(value)
 if type(value)~="number"or value<=0 then
 return value
 end
-return math.floor((p/value)+0.5)
+return math.floor(p/value+0.5)
 end,
 to=function(value)
 if type(value)~="number"or value<=0 then
 return value
 end
-return math.floor((p/value)+0.5)
-end,
+return math.floor(p/value+0.5)
+end
 }
 end
 local function f(E,D,z)
 return{
-minimum_interval=E,maximum_interval=D,reportable_change=z,read_on_configure=true,}
+minimum_interval=E,maximum_interval=D,reportable_change=z,read_on_configure=true}
 end
 local function i(...)
-local R={}for _,d in ipairs({...})do
+local R={}for _,d in ipairs{...}do
 o(R,d)
 end
 return R
@@ -121,48 +121,48 @@ local b=e.configure_reporting
 e.configure_reporting=nil
 if b==false then
 return{
-emit=q.switch(),}
+emit=q.switch()}
 end
 return i(
 {
-emit=q.switch(),},f(0,300,nil))
+emit=q.switch()},f(0,300,nil))
 end)
 m.tuya_magic_packet=function(g,e)
 local c=l(g,e)o(c,{
-name="tuya_magic_packet",read_only=true,read_on_configure=true,})return m.cluster_attribute(0,65534,c)
+name="tuya_magic_packet",read_only=true,read_on_configure=true})return m.cluster_attribute(0,65534,c)
 end
 h("level",m.level_control,function(e)
 local b=e.configure_reporting
 e.configure_reporting=nil
 local d={
-name="brightness",emit=q.level(),converter=w(),}
+name="brightness",emit=q.level(),converter=w()}
 if b==false then return d end
 return i(d,f(1,3600,1))
 end)
 h("power",m.electrical_measurement_power,function()
 return i(
 {
-emit=q.power(),metering_kind="power",poll_interval=300,},f(5,300,1))
+emit=q.power(),metering_kind="power",poll_interval=300},f(5,300,1))
 end)
 h("current",m.electrical_measurement_current,function()
 return i(
 {
-emit=q.current(),scale=1000,metering_kind="current",poll_interval=300,},f(5,300,1))
+emit=q.current(),scale=1000,metering_kind="current",poll_interval=300},f(5,300,1))
 end)
 h("voltage",m.electrical_measurement_voltage,function()
 return i(
 {
-emit=q.voltage(),metering_kind="voltage",poll_interval=300,},f(5,300,1))
+emit=q.voltage(),metering_kind="voltage",poll_interval=300},f(5,300,1))
 end)
 h("energy",m.simple_metering,function()
 return{
-emit=q.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900,}
+emit=q.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900}
 end)
 h("color_temperature",m.color_control_temperature,function(e)
 local b=e.configure_reporting
 e.configure_reporting=nil
 local d={
-name="color_temperature",emit=q.color_temperature(),converter=u(),tx_command_id=10,}
+name="color_temperature",emit=q.color_temperature(),converter=u(),tx_command_id=10}
 if b==false then return d end
 return i(d,f(1,300,1))
 end)
@@ -173,7 +173,7 @@ local d={
 name="color_hue",emit=q.color_hue(),converter=j(),tx_command_id=0,
 to_device=function(value)
 local H=j().to(value)return{H,0,0,0,0}
-end,
+end
 }
 if b==false then return d end
 return i(d,f(1,300,1))
@@ -185,7 +185,7 @@ local d={
 name="color_saturation",emit=q.color_saturation(),converter=j(),tx_command_id=3,
 to_device=function(value)
 local H=j().to(value)return{H,0,0,0}
-end,
+end
 }
 if b==false then return d end
 return i(d,f(1,300,1))
@@ -201,7 +201,7 @@ local V=j().to(value.hue)local s=j().to(value.saturation)if type(V)~="number"or 
 return nil
 end
 return{V,s,0,0,0}
-end,
+end
 })return m.cluster_attribute(c.cluster_id,c.attribute_id,c)
 end
 function m.color_xy(e)
@@ -212,7 +212,7 @@ k:set_field(G..mapping.name,value)local x,y=k:get_field(G.."color_x"),k:get_fiel
 local V,s=J(x,y)local K=t.component or{id=t.component_id or"main"}k:emit_component_event(K,q.color_hue()(k,V))k:emit_component_event(K,q.color_saturation()(k,s))
 end
 end
-local C={}for _,T in ipairs({{"color_x",3},{"color_y",4},{"color_mode",8}})do
+local C={}for _,T in ipairs{{"color_x",3},{"color_y",4},{"color_mode",8}}do
 local c=r({},e)c.name,c.read_only,c.from_device=T[1],true,Z
 c.data_type=T[2]==8 and F.Enum8 or F.Uint16
 C[#C+1]=m.cluster_attribute(m.CLUSTER_COLOR_CONTROL,T[2],c)

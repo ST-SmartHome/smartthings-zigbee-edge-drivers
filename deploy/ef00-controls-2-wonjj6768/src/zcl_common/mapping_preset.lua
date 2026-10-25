@@ -36,10 +36,10 @@ i(c,f)return c
 end
 local function k(o,n,l)
 return{
-minimum_interval=o,maximum_interval=n,reportable_change=l,read_on_configure=true,}
+minimum_interval=o,maximum_interval=n,reportable_change=l,read_on_configure=true}
 end
 local function p(...)
-local s={}for _,a in ipairs({...})do
+local s={}for _,a in ipairs{...}do
 h(s,a)
 end
 return s
@@ -63,11 +63,11 @@ local d=f.configure_reporting
 f.configure_reporting=nil
 if d==false then
 return{
-emit=y.switch(),}
+emit=y.switch()}
 end
 return p(
 {
-emit=y.switch(),},k(0,300,nil))
+emit=y.switch()},k(0,300,nil))
 end)
 end
 return j

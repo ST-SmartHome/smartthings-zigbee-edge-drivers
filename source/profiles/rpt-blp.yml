@@ -6,17 +6,19 @@ components:
     version: 1
   - id: concertmirror08464.shellyBluMotionLightLevel
     version: 1
-  - id: concertmirror08464.shellyBluMotionDarkThreshold
+  - id: concertmirror08464.shellyMotionDarkThresholdV2
     version: 1
-  - id: concertmirror08464.shellyBluMotionBrightThreshold
+  - id: concertmirror08464.shellyMotionBrightThresholdV2
     version: 1
-  - id: concertmirror08464.batteryLow
+  - id: concertmirror08464.shellyMotionBatteryLow
     version: 1
   - id: battery
     version: 1
   - id: concertmirror08464.shellyBluSensitivity
     version: 1
   - id: refresh
+    version: 1
+  - id: concertmirror08464.shellyMotionIdentify
     version: 1
   - id: signalStrength
     version: 1
@@ -44,17 +46,19 @@ deviceConfig:
   - component: main
     capability: concertmirror08464.shellyBluMotionLightLevel
   - component: main
-    capability: concertmirror08464.shellyBluMotionDarkThreshold
+    capability: concertmirror08464.shellyMotionDarkThresholdV2
   - component: main
-    capability: concertmirror08464.shellyBluMotionBrightThreshold
+    capability: concertmirror08464.shellyMotionBrightThresholdV2
   - component: main
-    capability: concertmirror08464.batteryLow
+    capability: concertmirror08464.shellyMotionBatteryLow
   - component: main
     capability: battery
   - component: main
     capability: refresh
   - component: main
     capability: signalStrength
+  - component: main
+    capability: concertmirror08464.shellyMotionIdentify
   - component: main
     capability: concertmirror08464.zclBatteryReportMin
   - component: main
@@ -70,11 +74,11 @@ deviceConfig:
     - component: main
       capability: concertmirror08464.shellyBluMotionLightLevel
     - component: main
-      capability: concertmirror08464.shellyBluMotionDarkThreshold
+      capability: concertmirror08464.shellyMotionDarkThresholdV2
     - component: main
-      capability: concertmirror08464.shellyBluMotionBrightThreshold
+      capability: concertmirror08464.shellyMotionBrightThresholdV2
     - component: main
-      capability: concertmirror08464.batteryLow
+      capability: concertmirror08464.shellyMotionBatteryLow
     - component: main
       capability: battery
     - component: main
@@ -89,9 +93,11 @@ deviceConfig:
     - component: main
       capability: concertmirror08464.shellyBluSensitivity
     - component: main
-      capability: concertmirror08464.shellyBluMotionDarkThreshold
+      capability: concertmirror08464.shellyMotionDarkThresholdV2
     - component: main
-      capability: concertmirror08464.shellyBluMotionBrightThreshold
+      capability: concertmirror08464.shellyMotionBrightThresholdV2
+    - component: main
+      capability: concertmirror08464.shellyMotionIdentify
     - component: main
       capability: concertmirror08464.zclBatteryReportMin
     - component: main

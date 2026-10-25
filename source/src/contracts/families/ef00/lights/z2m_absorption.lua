@@ -427,7 +427,6 @@ register_device_definition(avatto_zdms16_1, device_helpers.create_fingerprints("
     mcu_version_request_on_configure = true,
     query_on_configure = false,
     query_on_announce = false,
-    initial_custom_states = false,
     refresh_state_query = false,
     time_start = "off",
     tuya.dp_on_off(1, { name = "switch", emit = emit.switch(), skip = tuya.skip.state_on_and_brightness_present() }),
@@ -569,7 +568,7 @@ local function sp107_color_write(device, value, context)
 end
 
 local sp107e = {
-  profile = "lights-sp107e", named_datapoints = true, placeholder_custom_states = false,
+  profile = "lights-sp107e", named_datapoints = true,
   magic_packet = true, query_on_configure = true, auto_on_before_light_command = false,
   datapoints = {
     tuya.dp_on_off(1, { name = "switch", emit = emit.switch() }),

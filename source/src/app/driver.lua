@@ -107,7 +107,7 @@ local function handle_device_announce(_, device)
 end
 
 battery_refresh.set_requester(function(device)
-  return zcl.read_attribute(device, 0x0001, 0x0020, 1)
+  return zcl.read_attribute(device, 0x0001, 0x0020, device:get_endpoint(0x0001))
 end, function(device)
   local preset = get_preset(device)
   return preset ~= nil and preset.zcl_clusters ~= nil and
@@ -169,9 +169,10 @@ local function supports_ef00_power_polling(device, preset)
     and profile_supports_main_capability(device, power_poll_interval_metadata.capability_id)
 end
 
-local function resolved_ef00_power_poll_interval(device)
+local function resolved_ef00_power_poll_interval(device, preset)
   local override = clamp_ef00_power_poll_interval(device:get_field(EF00_POWER_POLL_INTERVAL_FIELD))
-  return override or EF00_DEFAULT_POWER_POLL_INTERVAL
+  local family_default = clamp_ef00_power_poll_interval(preset and preset.default_power_poll_interval_seconds)
+  return override or family_default or EF00_DEFAULT_POWER_POLL_INTERVAL
 end
 
 local function emit_ef00_power_polling_state(device, preset)
@@ -204,7 +205,7 @@ local function emit_ef00_power_polling_state(device, preset)
   end
 
   device:emit_event(attribute({
-    value = resolved_ef00_power_poll_interval(device),
+    value = resolved_ef00_power_poll_interval(device, preset),
     unit = EF00_POWER_POLL_INTERVAL_UNIT,
   }))
 
@@ -216,7 +217,7 @@ local function start_ef00_power_polling(device, preset)
     return false
   end
 
-  preset:start_query_timer(device, resolved_ef00_power_poll_interval(device))
+  preset:start_query_timer(device, resolved_ef00_power_poll_interval(device, preset))
   emit_ef00_power_polling_state(device, preset)
   return true
 end
@@ -678,6 +679,9 @@ end
 local function after_ef00_switch_command(device, command, value)
   local component_id = command and command.component or "main"
   local preset = get_preset(device)
+  if preset == nil or preset.datapoints == nil then
+    return
+  end
   local named = preset and preset.named_mappings_by_name
   if named == nil and preset and preset.datapoints then
     named = tuya.build_named_map(preset.datapoints, "name")
@@ -686,8 +690,10 @@ local function after_ef00_switch_command(device, command, value)
   if mapping == nil or mapping.suppress_optimistic_state ~= true then
     emit_ef00_switch_state(device, component_id, value)
   end
-  schedule_ef00_state_request(device, 1, "ef00 switch state read 1s")
-  schedule_ef00_state_request(device, 3, "ef00 switch state read 3s")
+  if preset.post_switch_state_query ~= false then
+    schedule_ef00_state_request(device, 1, "ef00 switch state read 1s")
+    schedule_ef00_state_request(device, 3, "ef00 switch state read 3s")
+  end
 end
 
 local function clamp_switch_level(value)
@@ -832,10 +838,10 @@ local function build_capability_handlers()
     end
   end
 
-  -- Some device contracts expose command-only custom capabilities (for
-  -- example a text payload or an explicit apply button).  Keep those commands
-  -- with the family that owns their wire mapping instead of growing another
-  -- global capability catalog.
+  custom_capability_runtime.register_handlers(handlers)
+
+  -- Shared commands can have different family writers and arguments.
+  -- Select the current device's contract when the command is invoked.
   local registered_family_commands = {}
   for _, definitions_by_model in pairs(registry.all()) do
     for _, definition in pairs(definitions_by_model) do
@@ -845,16 +851,20 @@ local function build_capability_handlers()
         local registration_key = capability_id .. ":" .. command_name
         if not registered_family_commands[registration_key] then
           registered_family_commands[registration_key] = true
-          local mapping_name = family_command.mapping_name
-          local argument_name = family_command.argument_name
-          local fixed_value = family_command.value
           handlers[capability_id] = handlers[capability_id] or {}
-          handlers[capability_id][command_name] = function(_, device, command)
-            local value = fixed_value
-            if argument_name ~= nil then
-              value = command.args and command.args[argument_name] or nil
+          local fallback = handlers[capability_id][command_name]
+          handlers[capability_id][command_name] = function(driver, device, command)
+            local preset = get_preset(device)
+            for _, own_command in ipairs(preset and preset.capability_commands or {}) do
+              if own_command.capability_id == capability_id and own_command.command_name == command_name then
+                local value = own_command.value
+                if own_command.argument_name ~= nil then
+                  value = command.args and command.args[own_command.argument_name] or nil
+                end
+                return send(device, command, own_command.mapping_name, value)
+              end
             end
-            send(device, command, mapping_name, value)
+            if fallback ~= nil then return fallback(driver, device, command) end
           end
         end
       end
@@ -1007,8 +1017,6 @@ local function build_capability_handlers()
     end,
   }
 
-  custom_capability_runtime.register_handlers(handlers)
-
   if power_poll_interval_metadata ~= nil then
     handlers[power_poll_interval_metadata.capability_id] = handlers[power_poll_interval_metadata.capability_id] or {}
     handlers[power_poll_interval_metadata.capability_id][power_poll_interval_metadata.command_name] = function(_, device, command)
@@ -1110,6 +1118,7 @@ local driver_template = {
       local definition = resolve_definition(device)
       local valid_parent_profiles = definition and definition.valid_parent_profiles
       if definition and definition.profile and device.profile.id ~= definition.profile and
+          not (type(definition.parent_profile_matches) == "function" and definition.parent_profile_matches(device)) and
           (type(valid_parent_profiles) ~= "table" or valid_parent_profiles[device.profile.id] ~= true) then
         device:try_update_metadata({ profile = definition.profile })
       end
@@ -1167,6 +1176,9 @@ local driver_template = {
       end
 
       local preset = get_preset(device)
+      if definition ~= nil and type(definition.preferences_changed) == "function" then
+        definition.preferences_changed(device, args.old_st_store.preferences)
+      end
       if preset then
         preset:apply_preferences_changed(device, args.old_st_store.preferences)
         if preset.zcl_clusters then
@@ -1192,6 +1204,10 @@ local driver = ZigbeeDriver("tuya-universal", driver_template)
 local dispatcher = driver.zigbee_message_dispatcher
 local dispatch = dispatcher.dispatch
 function dispatcher:dispatch(driver, device, zb_rx, ...)
+  local preset = get_preset(device)
+  if preset and preset.zigbee_message_handler then
+    preset.zigbee_message_handler(device, zb_rx)
+  end
   if device:supports_capability_by_id(capabilities.signalStrength.ID, "main") then
     local options = { visibility = { displayed = false } }
     device:emit_event(capabilities.signalStrength.lqi(zb_rx.lqi.value, options))

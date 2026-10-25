@@ -1,5 +1,5 @@
 local i=require"generated.package_registry"
-local f={}local a=nil
+local f={}local a
 local function c(g)
 local j={}if type(g)~="table"then
 return j

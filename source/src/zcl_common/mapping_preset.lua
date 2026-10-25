@@ -120,14 +120,14 @@ local function load_mapping_preset(zcl)
           return value
         end
 
-        return math.floor((clamp(value, 0, 254) * 100 / 254) + 0.5)
+        return math.floor(clamp(value, 0, 254) * 100 / 254 + 0.5)
       end,
       to = function(value)
         if type(value) ~= "number" then
           return value
         end
 
-        return math.floor((clamp(value, 0, 100) * 254 / 100) + 0.5)
+        return math.floor(clamp(value, 0, 100) * 254 / 100 + 0.5)
       end,
     }
   end
@@ -139,14 +139,14 @@ local function load_mapping_preset(zcl)
           return value
         end
 
-        return math.floor((clamp(value, 0, 254) * 100 / 254) + 0.5)
+        return math.floor(clamp(value, 0, 254) * 100 / 254 + 0.5)
       end,
       to = function(value)
         if type(value) ~= "number" then
           return value
         end
 
-        return math.floor((clamp(value, 0, 100) * 254 / 100) + 0.5)
+        return math.floor(clamp(value, 0, 100) * 254 / 100 + 0.5)
       end,
     }
   end
@@ -319,14 +319,14 @@ local function load_mapping_preset(zcl)
           return value
         end
 
-        return math.floor(((clamp(value, 0, 1000) * 254) / 1000) + 1 + 0.5)
+        return math.floor(clamp(value, 0, 1000) * 254 / 1000 + 1 + 0.5)
       end,
       to = function(value)
         if type(value) ~= "number" then
           return value
         end
 
-        return math.floor((((clamp(value, 1, 255) - 1) * 1000) / 254) + 0.5)
+        return math.floor((clamp(value, 1, 255) - 1) * 1000 / 254 + 0.5)
       end,
     }
   end
@@ -427,7 +427,7 @@ local function load_mapping_preset(zcl)
       ((string.byte(body_bytes, 10) or 0) * 0x10000) +
       ((string.byte(body_bytes, 11) or 0) * 0x100) +
       (string.byte(body_bytes, 12) or 0)
-    return math.floor((seconds / 60) + 0.5)
+    return math.floor(seconds / 60 + 0.5)
   end
 
   local function build_threshold_payload(key, state_value, threshold_value)
@@ -514,14 +514,14 @@ local function load_mapping_preset(zcl)
           return value
         end
 
-        return math.floor((conversion_constant / value) + 0.5)
+        return math.floor(conversion_constant / value + 0.5)
       end,
       to = function(value)
         if type(value) ~= "number" or value <= 0 then
           return value
         end
 
-        return math.floor((conversion_constant / value) + 0.5)
+        return math.floor(conversion_constant / value + 0.5)
       end,
     }
   end
@@ -1037,7 +1037,7 @@ local function load_mapping_preset(zcl)
         end
 
         local clamped = clamp(value, 10, 1000)
-        return math.floor((((clamped - 10) * 100) / 990) + 0.5)
+        return math.floor((clamped - 10) * 100 / 990 + 0.5)
       end,
       to_device = function(value)
         if type(value) ~= "number" then
@@ -1045,7 +1045,7 @@ local function load_mapping_preset(zcl)
         end
 
         local percent = clamp(value, 0, 100)
-        return math.floor((10 + ((percent * 990) / 100)) + 0.5)
+        return math.floor(10 + percent * 990 / 100 + 0.5)
       end,
       read_on_configure = true,
     })
@@ -1527,11 +1527,11 @@ local function load_mapping_preset(zcl)
     )
   end)
 
-  define_preset("shelly_handle_position", zcl.ias_zone, function()
+  define_preset("shelly_handle_position", zcl.ias_zone, function(options)
     return merge_defaults(
       {
         name = "shelly_handle_position",
-        emit = emit.shellyBluDoorHandlePosition(),
+        emit = options.emit or emit.shellyBluDoorHandlePosition(),
         converter = shelly_handle_position_pair(),
         ias_configure_method = zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,
         command_id = 0x00,

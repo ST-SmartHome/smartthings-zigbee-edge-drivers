@@ -30,21 +30,21 @@ if e==nil then
 return nil
 end
 return{
-raw_value=e.value or e,typed_value=e,}
+raw_value=e.value or e,typed_value=e}
 end
 local function o(_,a)
 if a==true then
-return n.button.button.pushed({state_change=true})
+return n.button.button.pushed{state_change=true}
 end
 end
 local function d(j)
 return{
 profile="buttons-doorbell-battery-tamper-low",button_actions={"pushed"},button_count=1,zcl_clusters={
-q.ias_zone({
-name="doorbell_button",emit=o,from_device=j,prefer_typed_value=true,ias_configure_method=k.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=i,}),q.tamper(),q.battery_low(),q.battery(),},}
+q.ias_zone{
+name="doorbell_button",emit=o,from_device=j,prefer_typed_value=true,ias_configure_method=k.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=i},q.tamper(),q.battery_low(),q.battery()}}
 end
 local h=d(p)local g=d(l)b(h,c.create_fingerprints("TS0211",{
-"_TZ1800_akzvkzqq","_TZ1800_ladpngdx",}))b(g,{
-c.create_fingerprint("HEIMAN","DoorBell-EF-3.0"),c.create_fingerprint("HEIMAN","DoorBell-EM"),})q.attach_reporting_capabilities(f,{
-{1,"rpt-tgx"},{2,"rpt-tgx"},})return{
-id="zcl.controls.doorbell",registrations=f,}
+"_TZ1800_akzvkzqq","_TZ1800_ladpngdx"}))b(g,{
+c.create_fingerprint("HEIMAN","DoorBell-EF-3.0"),c.create_fingerprint("HEIMAN","DoorBell-EM")})q.attach_reporting_capabilities(f,{
+{1,"rpt-tgx"},{2,"rpt-tgx"}})return{
+id="zcl.controls.doorbell",registrations=f}

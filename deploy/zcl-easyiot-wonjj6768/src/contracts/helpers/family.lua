@@ -110,7 +110,7 @@ end
 function t.definition_registry()
 local k={}
 local function p(b,E)
-local a=nil
+local a
 if G(b)then
 a=o(b)else
 local L=n(b,"device definition",true)local e,d,l=h(L,"device definition")if #l>0 then

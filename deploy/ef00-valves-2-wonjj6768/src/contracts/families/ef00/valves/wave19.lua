@@ -13,31 +13,31 @@ am.datapoints[#am.datapoints+1]=aM
 end
 local function B(dp,aa,capability_id,M)
 return n.dp_numeric(dp,{
-name=aa,emit=F(capability_id),read_only=M==true,transaction=1,})
+name=aa,emit=F(capability_id),read_only=M==true,transaction=1})
 end
 local function aD(dp,aa,capability_id,aR,M,aH,Q)
 return n.dp_enum(dp,{
-name=aa,emit=F(capability_id),converter=m.lookup_from_to(aR),read_only=M==true,write_only=aH==true,suppress_optimistic_state=Q==true,transaction=1,})
+name=aa,emit=F(capability_id),converter=m.lookup_from_to(aR),read_only=M==true,write_only=aH==true,suppress_optimistic_state=Q==true,transaction=1})
 end
 local function X(dp,aa,capability_id,M)
 return n.dp_binary(dp,{
-name=aa,emit=F(capability_id),converter=m.lookup_from_to({ON=true,OFF=false}),read_only=M==true,transaction=1,})
+name=aa,emit=F(capability_id),converter=m.lookup_from_to{ON=true,OFF=false},read_only=M==true,transaction=1})
 end
 local d={
-profile="valves-wave19-frankever-fk-bv05",package_group="wave19-valve",transport_classification="EF00_DP",z2m_converter_source="meta.tuyaDatapoints",wire_cluster="manuSpecificTuya",magic_packet=true,query_on_configure=false,time_start="off",datapoints={},}o(d,n.dp_on_off(1,{name="switch",emit=Z.switch(),transaction=1}))o(d,B(2,"frank_bv_five_threshold","frankBvFiveThreshold",false))o(d,B(3,"frank_bv_five_position","frankBvFivePosition",true))o(d,n.dp_numeric(5,{
-name="frank_bv_last_volume",emit=Z.frankBvLastVolume("L"),
+profile="valves-wave19-frankever-fk-bv05",package_group="wave19-valve",magic_packet=true,query_on_configure=false,time_start="off",datapoints={}}o(d,n.dp_on_off(1,{name="switch",emit=Z.switch(),transaction=1}))o(d,B(2,"frank_bv_five_threshold","frankBvFiveThreshold",false))o(d,B(3,"frank_bv_five_position","frankBvFivePosition",true))o(d,n.dp_numeric(5,{
+name="frank_bv_last_volume",emit=Z.frankBvLastVolume"L",
 converter=m.from_only(function(b)return b/10 end),
-read_only=true,transaction=1,}))o(d,n.dp_bitmap(4,{
+read_only=true,transaction=1}))o(d,n.dp_bitmap(4,{
 name="frank_bv_fault",emit=Z.frankBvFault(),read_only=true,
-converter=m.from_only(function(b)return b==0 and"clear"or"detected"end),
+converter=m.from_only(function(b)return b==0 and"clear"or"detected"end)
 }))o(d,n.dp_binary(114,{
-name="frank_bv_temp_alarm",emit=Z.frankBvTempAlarm(),read_only=true,converter=m.lookup_from_to({clear=false,detected=true}),}))o(d,n.dp_binary(115,{
-name="frank_bv_water_alarm",emit=Z.frankBvWaterAlarm(),read_only=true,converter=m.lookup_from_to({clear=false,detected=true}),}))o(d,B(6,"frank_bv_five_water_total","frankBvFiveWaterTotal",true))o(d,aD(10,"frank_bv_five_weather_delay","frankBvFiveWeatherDelay",{
-cancel=0,["24h"]=1,["48h"]=2,["72h"]=3,},false))o(d,B(11,"frank_bv_five_countdown","frankBvFiveCountdown",false))o(d,n.dp_numeric(22,{
-name="water_temperature",emit=Z.temperature("C"),read_only=true,transaction=1,}))o(d,aD(101,"frank_bv_five_leak_state","frankBvFiveLeakState",{
-water_leakage_yes=0,water_leakage_no=1,},true))o(d,X(102,"frank_bv_five_single_limit_enabled","frankBvFiveSingleLimitEnabled",false))o(d,B(103,"frank_bv_five_single_limit_volume","frankBvFiveSingleLimitVolume",false))o(d,X(104,"frank_bv_five_daily_limit_enabled","frankBvFiveDailyLimitEnabled",false))o(d,B(105,"frank_bv_five_daily_limit_volume","frankBvFiveDailyLimitVolume",false))o(d,X(106,"frank_bv_five_volume_alarm_enabled","frankBvFiveVolumeAlarmEnabled",false))o(d,B(107,"frank_bv_five_volume_alarm","frankBvFiveVolumeAlarm",false))o(d,X(108,"frank_bv_five_temp_alarm_enabled","frankBvFiveTempAlarmEnabled",false))o(d,B(109,"frank_bv_five_temp_alarm_max","frankBvFiveTempAlarmMax",false))o(d,aD(110,"frank_bv_five_power_off_state","frankBvFivePowerOffState",{
-off=0,on=1,maintain=2,},false))o(d,X(112,"frank_bv_five_creep_enabled","frankBvFiveCreepEnabled",false))o(d,B(113,"frank_bv_five_temp_alarm_min","frankBvFiveTempAlarmMin",false))A(d,{
-J.create_fingerprint("_TZE200_nbqnmkee","TS0601"),})
+name="frank_bv_temp_alarm",emit=Z.frankBvTempAlarm(),read_only=true,converter=m.lookup_from_to{clear=false,detected=true}}))o(d,n.dp_binary(115,{
+name="frank_bv_water_alarm",emit=Z.frankBvWaterAlarm(),read_only=true,converter=m.lookup_from_to{clear=false,detected=true}}))o(d,B(6,"frank_bv_five_water_total","frankBvFiveWaterTotal",true))o(d,aD(10,"frank_bv_five_weather_delay","frankBvFiveWeatherDelay",{
+cancel=0,["24h"]=1,["48h"]=2,["72h"]=3},false))o(d,B(11,"frank_bv_five_countdown","frankBvFiveCountdown",false))o(d,n.dp_numeric(22,{
+name="water_temperature",emit=Z.temperature"C",read_only=true,transaction=1}))o(d,aD(101,"frank_bv_five_leak_state","frankBvFiveLeakState",{
+water_leakage_yes=0,water_leakage_no=1},true))o(d,X(102,"frank_bv_five_single_limit_enabled","frankBvFiveSingleLimitEnabled",false))o(d,B(103,"frank_bv_five_single_limit_volume","frankBvFiveSingleLimitVolume",false))o(d,X(104,"frank_bv_five_daily_limit_enabled","frankBvFiveDailyLimitEnabled",false))o(d,B(105,"frank_bv_five_daily_limit_volume","frankBvFiveDailyLimitVolume",false))o(d,X(106,"frank_bv_five_volume_alarm_enabled","frankBvFiveVolumeAlarmEnabled",false))o(d,B(107,"frank_bv_five_volume_alarm","frankBvFiveVolumeAlarm",false))o(d,X(108,"frank_bv_five_temp_alarm_enabled","frankBvFiveTempAlarmEnabled",false))o(d,B(109,"frank_bv_five_temp_alarm_max","frankBvFiveTempAlarmMax",false))o(d,aD(110,"frank_bv_five_power_off_state","frankBvFivePowerOffState",{
+off=0,on=1,maintain=2},false))o(d,X(112,"frank_bv_five_creep_enabled","frankBvFiveCreepEnabled",false))o(d,B(113,"frank_bv_five_temp_alarm_min","frankBvFiveTempAlarmMin",false))A(d,{
+J.create_fingerprint("_TZE200_nbqnmkee","TS0601")})
 local function ai(a)
 if type(a)~="table"then return nil end
 a.__wave19_lidl_fields=a.__wave19_lidl_fields or{}return a.__wave19_lidl_fields
@@ -92,7 +92,7 @@ c(a,i,nil,false)
 end
 local function Y(a,b)
 if type(a)~="table"or type(a.emit_event)~="function"then return end
-local aL=F("lidlPsbzsTimeLeft")(a,b)
+local aL=F"lidlPsbzsTimeLeft"(a,b)
 if aL~=nil then a:emit_event(aL)end
 end
 local function U(a,R)
@@ -110,7 +110,7 @@ local t=a.thread:call_with_delay(60,aQ,"Lidl watering schedule time left")c(a,i,
 end
 local function ag(a)
 if g(a,l)=="OFF"then return nil end
-local aS=os.date("*t")for k=1,6 do
+local aS=os.date"*t"for k=1,6 do
 if g(a,f(k,"enabled"))=="ON"
 and g(a,f(k,"start_hour"))==aS.hour
 and g(a,f(k,"start_minute"))==aS.min then
@@ -119,7 +119,7 @@ end
 end
 return nil
 end
-local av=Z.switch()local I=F("lidlPsbzsTimeLeft")
+local av=Z.switch()local I=F"lidlPsbzsTimeLeft"
 local function ad(a,b,aq,ap)
 local x=b==true or tonumber(b)==1
 local aK=g(a,S)c(a,S,x,false)local L={}local aj=av(a,x,aq,ap)
@@ -138,18 +138,18 @@ end
 return L[1]~=nil and L or nil
 end
 local D={
-profile="valves-wave19-lidl-psbzs-a-one",package_group="wave19-valve",transport_classification="CUSTOM_PAYLOAD",z2m_converter_source="meta.tuyaDatapoints+valueConverterLocal.watering*",wire_cluster="manuSpecificTuya + genOnOff configure-only",magic_packet=true,query_on_configure=false,force_time_updates=true,time_start="1970",datapoints={},}o(D,n.dp_binary(1,{
-name="switch",emit=ad,suppress_optimistic_state=true,transaction=1,}))o(D,B(5,"lidl_psbzs_timer","lidlPsbzsTimer",false))o(D,n.dp_numeric(6,{
+profile="valves-wave19-lidl-psbzs-a-one",package_group="wave19-valve",magic_packet=true,query_on_configure=false,force_time_updates=true,time_start="1970",datapoints={}}o(D,n.dp_binary(1,{
+name="switch",emit=ad,suppress_optimistic_state=true,transaction=1}))o(D,B(5,"lidl_psbzs_timer","lidlPsbzsTimer",false))o(D,n.dp_numeric(6,{
 name="lidl_psbzs_time_left",read_only=true,transaction=1,
 converter=m.from_only(function(b,a)
 local e=tonumber(b)
 if e~=nil then c(a,j,e,false)end
 return e
 end),
-emit=I,}))o(D,n.dp_numeric(11,{
-name="battery",read_only=true,transaction=1,emit=Z.battery(),}))o(D,X(108,"lidl_psbzs_frost_lock","lidlPsbzsFrostLock",true))o(D,aD(109,"lidl_psbzs_reset_frost_lock","lidlPsbzsResetFrostLock",{
-RESET=0,},false,true,true))o(D,n.dp_binary(108,{
-name="lidl_psbzs_frost_reset_internal",write_only=true,converter=m.lookup_from_to({OFF=false}),transaction=1,}))
+emit=I}))o(D,n.dp_numeric(11,{
+name="battery",read_only=true,transaction=1,emit=Z.battery()}))o(D,X(108,"lidl_psbzs_frost_lock","lidlPsbzsFrostLock",true))o(D,aD(109,"lidl_psbzs_reset_frost_lock","lidlPsbzsResetFrostLock",{
+RESET=0},false,true,true))o(D,n.dp_binary(108,{
+name="lidl_psbzs_frost_reset_internal",write_only=true,converter=m.lookup_from_to{OFF=false},transaction=1}))
 local function G(b,a)
 local aF,y=v(b,1),v(b,2)
 if aF==nil or y==nil then return nil end
@@ -165,12 +165,12 @@ name="lidl_psbzs_schedule_mode",read_only=true,
 converter=m.from_only(function(b,a)
 local w=G(b,a)return w~=nil and w.mode or nil
 end),
-emit=F("lidlPsbzsScheduleMode"),}))o(D,n.dp_raw(107,{
+emit=F"lidlPsbzsScheduleMode"}))o(D,n.dp_raw(107,{
 name="lidl_psbzs_schedule_periodic",
 converter=m.from_only(function(b,a)
 local w=G(b,a)return w~=nil and w.periodic or nil
 end),
-emit=F("lidlPsbzsSchedulePeriodic"),}))for W,day in ipairs(V)do
+emit=F"lidlPsbzsSchedulePeriodic"}))for W,day in ipairs(V)do
 local current_day=day
 local capability_id="lidlPsbzs"..day_capability_suffix[W]o(D,n.dp_raw(107,{
 name="lidl_psbzs_"..current_day,
@@ -178,14 +178,14 @@ converter=m.from_only(function(b,a)
 if G(b,a)==nil then return nil end
 return g(a,C(current_day))
 end),
-emit=F(capability_id),}))
+emit=F(capability_id)}))
 end
 local an={
-{field="enabled",capability="Enabled",kind="enum"},{field="start_hour",capability="StartHour",kind="numeric"},{field="start_minute",capability="StartMinute",kind="numeric"},{field="timer",capability="Timer",kind="numeric"},{field="pause",capability="Pause",kind="numeric"},{field="iterations",capability="Iterations",kind="numeric"},}
+{field="enabled",capability="Enabled",kind="enum"},{field="start_hour",capability="StartHour",kind="numeric"},{field="start_minute",capability="StartMinute",kind="numeric"},{field="timer",capability="Timer",kind="numeric"},{field="pause",capability="Pause",kind="numeric"},{field="iterations",capability="Iterations",kind="numeric"}}
 local function ay(b,a,k)
 if v(b,10)==nil then return nil end
 local w={
-enabled=v(b,1)==1 and"ON"or"OFF",start_hour=al(v(b,2),0,23),start_minute=al(v(b,3),0,59),timer=al((v(b,4)or 0)*60+(v(b,5)or 0),1,599),pause=al((v(b,7)or 0)*60+(v(b,8)or 0),0,599),iterations=al(v(b,10),1,9),}
+enabled=v(b,1)==1 and"ON"or"OFF",start_hour=al(v(b,2),0,23),start_minute=al(v(b,3),0,59),timer=al((v(b,4)or 0)*60+(v(b,5)or 0),1,599),pause=al((v(b,7)or 0)*60+(v(b,8)or 0),0,599),iterations=al(v(b,10),1,9)}
 for aE,ak in pairs(w)do c(a,f(k,aE),ak,false)end
 return w
 end
@@ -199,7 +199,7 @@ name=au,
 converter=m.from_only(function(b,a)
 local w=ay(b,a,E)return w~=nil and w[ab]or nil
 end),
-emit=F(capability_id),}))
+emit=F(capability_id)}))
 end
 end
 local function T(a,b)
@@ -237,7 +237,7 @@ or iterations==nil or iterations<1 or iterations>9
 or(iterations>1 and K==0)then return nil end
 s,start_minute=math.floor(s),math.floor(start_minute)t,K,iterations=math.floor(t),math.floor(K),math.floor(iterations)c(a,f(k,"enabled"),x,false)c(a,f(k,"start_hour"),s,false)c(a,f(k,"start_minute"),start_minute,false)c(a,f(k,"timer"),t,false)c(a,f(k,"pause"),K,false)c(a,f(k,"iterations"),iterations,false)return{{
 dp=100+k,datatype=n.DP_TYPE_RAW,value=string.char(
-x=="ON"and 1 or 0,s,start_minute,math.floor(t/60),t%60,0,math.floor(K/60),K%60,0,iterations),}}
+x=="ON"and 1 or 0,s,start_minute,math.floor(t/60),t%60,0,math.floor(K/60),K%60,0,iterations)}}
 end
 end
 local H=n.build_named_map(D.datapoints,"name")H.lidl_psbzs_schedule_periodic=T
@@ -259,5 +259,5 @@ end,"Lidl frost state initialization")
 end
 end
 A(D,{
-J.create_fingerprint("_TZE200_htnnfasr","TS0601"),})return{
-id="ef00.valves.wave19",registrations=ae,}
+J.create_fingerprint("_TZE200_htnnfasr","TS0601")})return{
+id="ef00.valves.wave19",registrations=ae}

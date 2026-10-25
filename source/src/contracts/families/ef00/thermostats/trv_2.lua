@@ -663,10 +663,61 @@ register_device_definition(thermostat_trv602, ef00_helpers.ts0601_fingerprints( 
 }))
 -- Z2M lists Moes TRV801 as a whiteLabel of _TZE204_9mjy74mp and _TZE200_9mjy74mp
 -- (tuya.ts:9842).
+local function trv602z_schedule(day)
+  return {
+    from = function(value)
+      if type(value) ~= "string" or #value ~= 25 or value:byte(1) ~= day then return nil end
+      local periods = {}
+      for offset = 2, 22, 4 do
+        local time, mode = string.unpack(">I2B", value, offset)
+        local minutes = time & 0x0FFF
+        mode = mode >> 4
+        local preset = mode == 2 and "eco" or mode == 3 and "comfort"
+        if time & 0xF000 ~= 0xC000 or minutes > 1440 or not preset then return nil end
+        periods[#periods + 1] = string.format("%02d:%02d/%s", minutes // 60, minutes % 60, preset)
+      end
+      return table.concat(periods, " ")
+    end,
+    to = function(value)
+      local periods = {string.char(day)}
+      for period in value:gmatch("%S+") do
+        local hour, minute, preset = period:match("^(%d%d):(%d%d)/(%a+)$")
+        hour, minute = tonumber(hour), tonumber(minute)
+        if not hour or not minute or hour > 24 or minute > 59 or (hour == 24 and minute ~= 0) then return nil end
+        local mode = preset == "eco" and 0x20 or preset == "comfort" and 0x30
+        if not mode then return nil end
+        -- Factory bytes: the TRV uses its stored eco/comfort temperatures, not this final byte.
+        periods[#periods + 1] = string.pack(">I2BB", 0xC000 | (hour * 60 + minute), mode, preset == "eco" and 150 or 200)
+      end
+      if #periods ~= 7 then return nil end
+      return table.concat(periods)
+    end,
+  }
+end
+
+local TRV602Z_TIME_ZONE_FIELD = "_trv602z_time_zone_hours"
+local function trv602z_send_time(device, hours)
+  local utc_time = os.time()
+  return tuya.send_time(device, utc_time, utc_time + hours * 3600)
+end
+
 local thermostat_trv602z = {
   profile = "thermostats-thermostat-trv602z",
   package_group = "trv-2",
-  time_start = "2000",
+  time_start = "1970",
+  time_handler = function(device)
+    return trv602z_send_time(device, device:get_field(TRV602Z_TIME_ZONE_FIELD) or 0)
+  end,
+  protocol_writers = {
+    trv602z_time_zone = function(device, hours)
+      if not trv602z_send_time(device, hours) then return false end
+      device:set_field(TRV602Z_TIME_ZONE_FIELD, hours, {persist = true})
+      return true
+    end,
+  },
+  runtime_start = function(device)
+    device:emit_component_event({id = "main"}, emit.trv602zTimeZone()(device, device:get_field(TRV602Z_TIME_ZONE_FIELD) or 0))
+  end,
   tuya.dp_system_mode(2, {
     from_device = function(value)
       local lookup = {
@@ -758,6 +809,13 @@ local thermostat_trv602z = {
     converter = converter.lookup_from_to({ comfort = 0, eco = 1 }),
   }),
 }
+for day, factory in ipairs({emit.trv602zMonSchedule, emit.trv602zTueSchedule, emit.trv602zWedSchedule,
+  emit.trv602zThuSchedule, emit.trv602zFriSchedule, emit.trv602zSatSchedule, emit.trv602zSunSchedule}) do
+  thermostat_trv602z[#thermostat_trv602z + 1] = tuya.dp_raw(101 + day, {
+    name = "trv602z_schedule_" .. day, converter = trv602z_schedule(day), emit = factory(),
+    suppress_optimistic_state = true,
+  })
+end
 register_device_definition(thermostat_trv602z, ef00_helpers.ts0601_fingerprints( {
   "_TZE204_qyr2m29i",
   "_TZE204_ltwbm23f",

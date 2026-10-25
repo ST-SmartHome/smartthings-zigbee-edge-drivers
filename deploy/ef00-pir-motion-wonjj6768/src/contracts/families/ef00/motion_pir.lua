@@ -7,4 +7,4 @@ end
 a[#a+1]=b.definition
 a[#a+1]=c.definition
 return{
-id="ef00.motion_pir",registrations=a,}
+id="ef00.motion_pir",registrations=a}

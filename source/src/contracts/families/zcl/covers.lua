@@ -132,40 +132,6 @@ register_device_definition(standard_cover_battery, {
   device_helpers.create_fingerprint("IKEA of Sweden", "TREDANSEN block-out cellul blind"),
 })
 
-local function standard_cover_position_converter()
-  return {
-    from = function(value)
-      if type(value) ~= "number" then
-        return value
-      end
-      return 100 - math.max(0, math.min(100, value))
-    end,
-    to = function(value)
-      if type(value) ~= "number" then
-        return value
-      end
-      return 100 - math.max(0, math.min(100, value))
-    end,
-  }
-end
-
-local function standard_window_shade_state_converter()
-  return {
-    from = function(value)
-      if type(value) ~= "number" then
-        return value
-      end
-      if value <= 0 then
-        return "open"
-      end
-      if value >= 100 then
-        return "closed"
-      end
-      return "partially open"
-    end,
-  }
-end
-
 local cover = {
   profile = "covers-cover",
   zcl_clusters = {
@@ -217,7 +183,7 @@ zcl.attach_reporting_capabilities(device_definitions, {
   {1, "rpt-tci"},
   {2, "rpt-tci"},
   {3, "rpt-tci"},
-  {4, "rpt-tuv", {["zr010200081"] = "Position", ["zr010200082"] = "PositionTwo"}},
+  {4, "rpt-tuv", {zr010200081 = "Position", zr010200082 = "PositionTwo"}},
   {5, "rpt-txq"},
   {6, "rpt-txq"},
   {7, "rpt-txq"},

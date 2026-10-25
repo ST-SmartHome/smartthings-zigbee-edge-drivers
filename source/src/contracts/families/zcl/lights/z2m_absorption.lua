@@ -5,18 +5,16 @@ local zcl_device_helpers = require "contracts.helpers.zcl"
 local device_management = require "st.zigbee.device_management"
 local capabilities = require "st.capabilities"
 local data_types = require "st.zigbee.data_types"
+local cluster_base = require "st.zigbee.cluster_base"
+local read_attribute = require "st.zigbee.zcl.global_commands.read_attribute"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 local ADUROSMART_MANUFACTURERS = {
   "AduroSmart ERIA",
   "ERIA",
   "AduroSmart Eria",
 }
-
-local function register_aliases(definition, aliases)
-  register_device_definition(definition, aliases)
-end
 
 local function adurosmart_fingerprints(models)
   local fingerprints = {}
@@ -445,7 +443,6 @@ local function build_tuya_hs_light(profile, prefix, color_temperature)
   local definition = {
     profile = profile,
     auto_on_before_light_command = false,
-    placeholder_custom_states = false,
     initial_custom_state_query = false,
     zcl_clusters = {
       zcl.switch({endpoint = 1, configure_reporting = false}),
@@ -498,19 +495,114 @@ end
 local tuya_ts0505b_hs = build_tuya_hs_light("lights-tuya-ts0505b-hs", "ts0505bHs", true)
 local tuya_ts0503b_hs = build_tuya_hs_light("lights-tuya-ts0503b-hs", "ts0503bHs", false)
 
-register_aliases(candeo_rd1p_dpm, {
+local function ecodo_indicator_endpoint(device)
+  return device:get_endpoint(0x0008)
+end
+
+local function ecodo_level_percent(value, device)
+  device:set_field("_ecodo_brightness", value)
+  return math.floor(math.max(0, math.min(254, value)) * 100 / 254 + 0.5)
+end
+
+local ecodo_repeater = {
+  profile = "lights-ecodo-repeater",
+  component_to_endpoint = ecodo_indicator_endpoint,
+  auto_on_before_light_command = false,
+  initial_custom_state_query = false,
+  capability_commands = {},
+  protocol_writers = {
+    brightness = function(device, value, command)
+      if type(value) ~= "number" or value % 1 ~= 0 or value < 0 or value > 100 then return false end
+      local level = math.floor(value * 254 / 100 + 0.5)
+      local rate = math.max(0, math.min(65535, math.floor(tonumber(command.args.rate) or 0)))
+      local sent = zcl.send_raw_cluster_command(device, 0x0008, 0x04,
+        string.pack("<BI2BB", level, rate, 0, 0), ecodo_indicator_endpoint(device))
+      if sent ~= false then
+        device:emit_component_event({id = command.component or "main"}, emit.level()(device, value))
+        device:emit_component_event({id = command.component or "main"}, emit.switch()(device, value > 0))
+      end
+      return sent ~= false
+    end,
+  },
+  zcl_clusters = {
+    zcl.switch({endpoint = ecodo_indicator_endpoint, configure_reporting = false, read_on_configure = false}),
+    zcl.cluster_attribute(0x0008, 0x0000, {
+      name = "ecodo_standard_brightness", endpoint = ecodo_indicator_endpoint,
+      data_type = data_types.Uint8, read_only = true, read_on_configure = false,
+      emit = emit.level(), from_device = ecodo_level_percent,
+    }),
+    zcl.cluster_attribute(0x0008, 0xF000, {
+      name = "ecodo_tuya_brightness", endpoint = ecodo_indicator_endpoint,
+      data_type = data_types.Uint16, read_only = true, read_on_configure = false, read_on_refresh = false,
+      emit = emit.level(),
+      from_device = function(value, device)
+        return ecodo_level_percent(math.floor(value * 255 / 1000 + 0.5), device)
+      end,
+    }),
+    {
+      name = "ecodo_do_not_disturb", cluster_id = 0x0300, endpoint = ecodo_indicator_endpoint,
+      write_only = true, emit = emit.ecodoRepeaterDoNotDisturb(),
+      sender = function(device, _, value, context)
+        if value ~= "enabled" and value ~= "disabled" then return false end
+        return zcl.send_raw_cluster_command(device, 0x0300, 0xFA,
+          string.char(value == "enabled" and 1 or 0), context.endpoint)
+      end,
+    },
+    {
+      name = "ecodo_effect", cluster_id = 0x0003, endpoint = ecodo_indicator_endpoint,
+      write_only = true, suppress_optimistic_state = true,
+      sender = function(device, _, value, context)
+        local effect = ({blink = 0, breathe = 1, okay = 2, channel_change = 11,
+                         finish_effect = 254, stop_effect = 255})[value]
+        if effect == nil then return false end
+        return zcl.send_raw_cluster_command(device, 0x0003, 0x40, string.char(effect, 0), context.endpoint)
+      end,
+    },
+    zcl.cluster_attribute(0x0300, 0x400A, {
+      name = "ecodo_color_capabilities", data_type = data_types.Bitmap16,
+      read_only = true, read_on_configure = false, read_on_refresh = false,
+      handler = function(device, _, context)
+        local header = context.zb_rx and context.zb_rx.body and context.zb_rx.body.zcl_header
+        if header and header.cmd.value == 0x01 then
+          local request = cluster_base.read_attribute(device,
+            data_types.ClusterId(0x0300), data_types.AttributeId(0x400B))
+          request.body.zcl_body = read_attribute.ReadAttribute({data_types.AttributeId(0x400B), data_types.AttributeId(0x400C)})
+          device:send(request:to_endpoint(context.endpoint))
+        end
+      end,
+    }),
+  },
+  configure = function(_, device)
+    for _, endpoint in pairs(device.zigbee_endpoints) do
+      if device:supports_server_cluster(0x0300, endpoint.id) then
+        zcl.read_attribute(device, 0x0300, 0x400A, endpoint.id)
+      end
+    end
+  end,
+}
+
+for _, effect in ipairs({{"blink", "blink"}, {"breathe", "breathe"}, {"okay", "okay"},
+                        {"channelChange", "channel_change"}, {"finishEffect", "finish_effect"},
+                        {"stopEffect", "stop_effect"}}) do
+  ecodo_repeater.capability_commands[#ecodo_repeater.capability_commands + 1] = {
+    capability_id = "concertmirror08464.ecodoRepeaterEffect", command_name = effect[1],
+    mapping_name = "ecodo_effect", value = effect[2],
+  }
+end
+
+register(candeo_rd1p_dpm, {
   device_helpers.create_fingerprint("Candeo", "C-ZB-RD1Pv2-DPM"),
 })
 
-register_aliases(paulmann_rgbww, {
+register(paulmann_rgbww, {
   device_helpers.create_fingerprint("Paulmann Licht GmbH", "RGBWW"),
 })
 
-register_aliases(hejhome_z26, {
+register(hejhome_z26, {
   device_helpers.create_fingerprint("_TZ3210_cnicaghm", "TS0505B"),
 })
 
-register_aliases(adurosmart_tunable_white, adurosmart_fingerprints({
+register(adurosmart_tunable_white, adurosmart_fingerprints({
   "AD-DL4CT3001",
   "AD-DL4CTW3001",
   "AD-DL6CT3001",
@@ -518,24 +610,28 @@ register_aliases(adurosmart_tunable_white, adurosmart_fingerprints({
   "AD-FLMCT3001",
 }))
 
-register_aliases(adurosmart_color_light, adurosmart_fingerprints({
+register(adurosmart_color_light, adurosmart_fingerprints({
   "AD-DL4RGBW3001",
   "AD-DL6RGBW3001",
   "AD-GU10RGB3001",
   "AD-GU10RGBW3001",
 }))
 
-register_aliases(luumr_g9, {
+register(luumr_g9, {
   device_helpers.create_fingerprint("_TZ3210_tqwyiitv", "TS0502B"),
 })
 
-register_aliases(tuya_ts0505b_hs, {
+register(tuya_ts0505b_hs, {
   device_helpers.create_fingerprint("_TZ3210_ffuna0nr", "TS0505B"),
 })
 
-register_aliases(tuya_ts0503b_hs, {
+register(tuya_ts0503b_hs, {
   device_helpers.create_fingerprint("_TZ3210_rbixajyp", "TS0503B"),
   device_helpers.create_fingerprint("_TZ3210_w7ge4ldo", "TS0503B"),
+})
+
+register(ecodo_repeater, {
+  device_helpers.create_fingerprint("_TZ3210_cmnwaylf", "TS0501B"),
 })
 
 -- ZCL REPORTING CAPABILITIES BEGIN

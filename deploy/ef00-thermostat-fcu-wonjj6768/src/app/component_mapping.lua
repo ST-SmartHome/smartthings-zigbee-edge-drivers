@@ -102,11 +102,11 @@ end
 end
 w(f,z,a,d)y(f,B,a,d)local n={}for _,b in ipairs(i(f))do
 if d[b]==nil then
-local c=nil
+local c
 if b=="main"then
 c=a[1]==nil and 1 or nil
 else
-c=g(tonumber(b:match("(%d+)$")))if c~=nil and a[c]~=nil then
+c=g(tonumber(b:match"(%d+)$"))if c~=nil and a[c]~=nil then
 c=nil
 end
 end

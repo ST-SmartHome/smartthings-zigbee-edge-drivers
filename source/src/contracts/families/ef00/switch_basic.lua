@@ -214,28 +214,6 @@ register_device_definition(switch_model_mg_gpo04zslp, device_helpers.create_fing
 }))
 
 -- ══════════════════════════════════════════════════════════════
--- 1-1b. switch_1gang_battery: battery-powered single-gang ZCL switch
--- NOTE:
---   - Currently registered to no fingerprint, so it is inert at runtime. The
---     definition is kept because whether this project should claim Fingerbot
---     hardware at all is still an open decision.
---   - Switch/battery are standard ZCL.
---   - Fingerbot pairs (_TZ3210_dse8ogfy, _TZ3210_j4pdtz9v, _TZ3210_cm9mbpr1,
---     _TZ3210_a04acm9s, _TZ3210_7vgttna6) remain excluded from this generic
---     switch registration. They are owned by the separately audited
---     ef00.controls.tuya_fingerbot_plus catalog, which implements their ZCL
---     actuator and full public EF00 setting surface without a competing alias.
--- ══════════════════════════════════════════════════════════════
-local switch_1gang_battery = {
-  profile = "switches-switch-1-battery",
-  package_group = "switch-basic",
-  zcl_clusters = {
-    zcl.switch(),
-    zcl.battery(),
-  },
-}
-
--- ══════════════════════════════════════════════════════════════
 -- 1-1c. switch_1gang_temperature_humidity: 1구 + 온습도
 -- Z2M: TYZGTH1CH-D1RF
 -- NOTE:
@@ -626,35 +604,6 @@ register_device_definition(switch_1gang_model_mg_zg01w, device_helpers.create_fi
 }))
 
 -- ══════════════════════════════════════════════════════════════
--- 1-17. switch_7gang: 기본 7구
--- 현재 등록된 제조사 없음
--- ══════════════════════════════════════════════════════════════
-local switch_7gang = {
-  tuya.dp_on_off(1, { name = "switch", component = "main" }),
-  tuya.dp_on_off(2, { name = "switch", component = "switch2" }),
-  tuya.dp_on_off(3, { name = "switch", component = "switch3" }),
-  tuya.dp_on_off(4, { name = "switch", component = "switch4" }),
-  tuya.dp_on_off(5, { name = "switch", component = "switch5" }),
-  tuya.dp_on_off(6, { name = "switch", component = "switch6" }),
-  tuya.dp_on_off(7, { name = "switch", component = "switch7" }),
-}
-
--- ══════════════════════════════════════════════════════════════
--- 1-18. switch_8gang: 기본 8구
--- 현재 등록된 제조사 없음
--- ══════════════════════════════════════════════════════════════
-local switch_8gang = {
-  tuya.dp_on_off(1, { name = "switch", component = "main" }),
-  tuya.dp_on_off(2, { name = "switch", component = "switch2" }),
-  tuya.dp_on_off(3, { name = "switch", component = "switch3" }),
-  tuya.dp_on_off(4, { name = "switch", component = "switch4" }),
-  tuya.dp_on_off(5, { name = "switch", component = "switch5" }),
-  tuya.dp_on_off(6, { name = "switch", component = "switch6" }),
-  tuya.dp_on_off(7, { name = "switch", component = "switch7" }),
-  tuya.dp_on_off(8, { name = "switch", component = "switch8" }),
-}
-
--- ══════════════════════════════════════════════════════════════
 -- 1-19. switch_10gang: 기본 10구 (7~10채널이 DP 101~104)
 -- Z2M: TS0601_switch_10
 -- ══════════════════════════════════════════════════════════════
@@ -791,7 +740,7 @@ register_device_definition(switch_four_tuya_base, device_helpers.create_fingerpr
 -- ZCL REPORTING CAPABILITIES BEGIN
 zcl.attach_reporting_capabilities(device_definitions, {
   {7, "rpt-tmk"},
-  {8, "rpt-tcts", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree", ["zr000600004"] = "SwitchFour"}},
+  {8, "rpt-tcts", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour"}},
 })
 -- ZCL REPORTING CAPABILITIES END
 

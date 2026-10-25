@@ -16,7 +16,6 @@ local device_definitions, register_device_definition = device_helpers.definition
 local NAMESPACE = "concertmirror08464."
 local CLUSTER_ON_OFF = 0x0006
 local ATTR_ON_OFF = 0x0000
-local CLUSTER_POWER_CONFIGURATION = 0x0001
 local CLUSTER_HEIMAN_IR = 0xFC82
 local HEIMAN_MFG_CODE = 0x120B
 
@@ -130,10 +129,6 @@ end
 local candeo_rf_hub = {
   profile = "bridges-wave19-candeo-rf-hub",
   package_group = "wave19-bridge",
-  transport_classification = "CUSTOM_ZCL",
-  z2m_converter_source = "fzLocal.kinetic_rf_button_multi_press",
-  wire_cluster = "genOnOff attribute 0x0000 endpoints 1..10",
-  placeholder_custom_states = false,
   zcl_clusters = {
     zcl.cluster_attribute(CLUSTER_ON_OFF, ATTR_ON_OFF, {
       name = "candeo_rf_hub_press",
@@ -382,10 +377,6 @@ local function build_heiman_definition(options)
   return {
     profile = options.profile,
     package_group = "wave19-bridge",
-    transport_classification = "CUSTOM_ZCL",
-    z2m_converter_source = "fzLocal/tzLocal.heiman_ir_remote",
-    wire_cluster = "0xFC82 commands F0/F1/F3/F4/F6 responses F2/F5/F7 endpoint 1",
-    placeholder_custom_states = false,
     zcl_clusters = mappings,
     configure = configure_heiman_ir,
     capability_commands = {
@@ -451,7 +442,6 @@ register_device_definition(ti_router, { device_helpers.create_fingerprint("Texas
 local slzb07mg26 = {
   profile = "bridges-slzb07mg26",
   magic_packet = false,
-  placeholder_custom_states = false,
   zcl_clusters = {
     zcl.cluster_attribute(0, 0, {
       name="slzb07_link_quality", endpoint=1, read_only=true, data_type=data_types.Uint8,
@@ -474,11 +464,95 @@ local slzb07mg26 = {
 }
 register_device_definition(slzb07mg26, {device_helpers.create_fingerprint("SMLIGHT","SLZB-07MG26")})
 
+local EGONY_VERSION = "__egony_v6_application_version"
+local function egony_endpoint(device)
+  local endpoint = device:get_endpoint(0)
+  if device:supports_server_cluster(0, endpoint) then return endpoint end
+end
+local function egony_qualified(device)
+  return device:get_field(EGONY_VERSION) == 200 and egony_endpoint(device) ~= nil
+end
+local function egony_query(device)
+  device:set_field(EGONY_VERSION, nil)
+  zcl.discard_unsupported_reporting(device)
+  local endpoint = egony_endpoint(device)
+  if endpoint then return zcl.read_attribute(device, 0, 1, endpoint) end
+  return false
+end
+local egony_v6 = {
+  profile = "bridges-egony-v6",
+  magic_packet = false,
+  initial_custom_state_query = false,
+  runtime_start = egony_query,
+  configure = function(_, device) return egony_query(device) end,
+  parent_refresh = function(device)
+    if not egony_qualified(device) then return egony_query(device) end
+    for _, endpoint in pairs(device.zigbee_endpoints or {}) do
+      if device:supports_server_cluster(0, endpoint.id) then zcl.read_attribute(device, 0, 0, endpoint.id) end
+    end
+  end,
+  zcl_clusters = {
+    zcl.cluster_attribute(0, 1, {name="egony_v6_application_version", data_type=data_types.Uint8,
+      read_only=true, read_on_configure=false, read_on_refresh=false}),
+    zcl.cluster_attribute(0, 0, {name="egony_v6_heartbeat", data_type=data_types.Uint8,
+      read_only=true, read_on_configure=false, read_on_refresh=false,
+      reporting_defaults={minimum_interval=3600, maximum_interval=14400, reportable_change=0,
+        supported=egony_qualified, all_endpoints=true}}),
+    zcl.cluster_attribute(0, nil, {name="egony_v6_reset", write_only=true,
+      sender=function(device, _, value)
+        if value ~= true or not egony_qualified(device) then return false end
+        local sent = zcl.send_raw_cluster_command(device, 0, 0, "", egony_endpoint(device), nil, nil, true)
+        if sent ~= false then
+          device:set_field(EGONY_VERSION, nil)
+          zcl.discard_unsupported_reporting(device)
+        end
+        return sent
+      end}),
+  },
+  capability_commands = {
+    {capability_id=NAMESPACE.."egonyV6Reset", command_name="reset", mapping_name="egony_v6_reset", value=true},
+  },
+}
+egony_v6.zigbee_message_handler = function(device, rx)
+  local header, body = rx.body.zcl_header, rx.body.zcl_body
+  if header == nil or rx.address_header.cluster.value ~= 0 or rx.address_header.src_endpoint.value ~= egony_endpoint(device)
+      or header.frame_ctrl:is_mfg_specific_set() or (header.cmd.value ~= 1 and header.cmd.value ~= 0x0A) then return end
+  local version, count = nil, 0
+  for _, record in ipairs(body.attr_records or {}) do
+    if record.attr_id.value == 1 then
+      count = count + 1
+      if (not record.status or record.status.value == 0) and record.data_type
+          and record.data_type.value == 0x20 and record.data then version = record.data.value end
+    end
+  end
+  if count == 0 then return end
+  local previous = egony_qualified(device)
+  device:set_field(EGONY_VERSION, count == 1 and version == 200 and 200 or nil)
+  zcl.discard_unsupported_reporting(device)
+  if not previous and egony_qualified(device) then
+    for _, endpoint in pairs(device.zigbee_endpoints or {}) do
+      if device:supports_server_cluster(0, endpoint.id) then
+        zcl.bind_cluster(device, 0, device.driver.environment_info.hub_zigbee_eui, endpoint.id)
+        zcl.configure_reporting(device, {cluster=0, attribute=0, data_type=data_types.Uint8,
+          minimum_interval=3600, maximum_interval=14400, reportable_change=0}, endpoint.id, {auto_endpoint=true})
+        pcall(zcl.read_attribute, device, 0, 0, endpoint.id)
+      end
+    end
+    egony_v6.zcl_refresh_before_read_all(device)
+  end
+end
+register_device_definition(egony_v6, {device_helpers.create_fingerprint("EGONY", "V6")})
+egony_v6 = device_definitions[#device_definitions]
+
+local aeotec_wg001 = {profile="bridges-aeotec-wg001",magic_packet=false,zcl_clusters={}}
+register_device_definition(aeotec_wg001,{device_helpers.create_fingerprint("AL001","WG001-Z01")})
+
 -- ZCL REPORTING CAPABILITIES BEGIN
 zcl.attach_reporting_capabilities(device_definitions, {
   {2, "rpt-itx"},
   {4, "rpt-tcea"},
   {5, "rpt-snc"},
+  {6, "rpt-vwa"},
 })
 -- ZCL REPORTING CAPABILITIES END
 

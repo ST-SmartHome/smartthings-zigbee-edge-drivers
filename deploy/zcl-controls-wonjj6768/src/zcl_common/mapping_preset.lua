@@ -70,21 +70,21 @@ if J~=nil then
 return J
 end
 return d
-end,
+end
 }
 end
 local function u()
 return n({
-[0]="off",[1]="on",[2]="previous",},nil,nil,{
-restore="previous",})
+[0]="off",[1]="on",[2]="previous"},nil,nil,{
+restore="previous"})
 end
 local function I()
-return n({
-[0]="switch",[1]="scene",})
+return n{
+[0]="switch",[1]="scene"}
 end
 local function A()
-return n({
-[0]="command",[1]="event",})
+return n{
+[0]="command",[1]="event"}
 end
 local function p(P,M,b)
 return function(a,j)
@@ -93,7 +93,7 @@ name=b.name,emit=b.emit,converter=K,
 to_device=function(d)
 return K.to(d)
 end,
-data_type=w.Enum8,write_type=w.Enum8,attribute_name=b.attribute_name,mfg_code=b.mfg_code,read_on_configure=true,})return q.cluster_attribute(P,M,c)
+data_type=w.Enum8,write_type=w.Enum8,attribute_name=b.attribute_name,mfg_code=b.mfg_code,read_on_configure=true})return q.cluster_attribute(P,M,c)
 end
 end
 local function t(S)
@@ -118,7 +118,7 @@ if type(d)~="number"then
 return d
 end
 return bit32.band(d,S)~=0
-end,
+end
 }
 end
 local function k(L)
@@ -127,14 +127,14 @@ if r==nil then
 return nil
 end
 return{
-raw_value=r.value or r,typed_value=r,}
+raw_value=r.value or r,typed_value=r}
 end
 local function e(H,G,E)
 return{
-minimum_interval=H,maximum_interval=G,reportable_change=E,read_on_configure=true,}
+minimum_interval=H,maximum_interval=G,reportable_change=E,read_on_configure=true}
 end
 local function i(...)
-local Q={}for _,b in ipairs({...})do
+local Q={}for _,b in ipairs{...}do
 m(Q,b)
 end
 return Q
@@ -156,60 +156,60 @@ end
 g("battery",q.power_configuration_battery,function()
 return i(
 {
-emit=x.battery(),scale=2,},e(300,21600,2))
+emit=x.battery(),scale=2},e(300,21600,2))
 end)
 g("switch",q.on_off,function(j)
 local h=j.configure_reporting
 j.configure_reporting=nil
 if h==false then
 return{
-emit=x.switch(),}
+emit=x.switch()}
 end
 return i(
 {
-emit=x.switch(),},e(0,300,nil))
+emit=x.switch()},e(0,300,nil))
 end)
 q.power_on_behavior=p(q.CLUSTER_ON_OFF,32770,{
-name="power_on_behavior",emit=o("power_on_behavior"),attribute_name="tuyaPowerOnBehavior",converter_factory=u,})
+name="power_on_behavior",emit=o"power_on_behavior",attribute_name="tuyaPowerOnBehavior",converter_factory=u})
 q.tuya_magic_packet=function(a,j)
 local c=f(a,j)m(c,{
-name="tuya_magic_packet",read_only=true,read_on_configure=true,})return q.cluster_attribute(0,65534,c)
+name="tuya_magic_packet",read_only=true,read_on_configure=true})return q.cluster_attribute(0,65534,c)
 end
 q.operation_mode=function(a,j)
 local c=f(a,j)m(c,{
-name="operation_mode",emit=o("operation_mode"),converter=A(),data_type=w.Enum8,attribute_name="tuyaOperationMode",read_on_configure=true,})return q.cluster_attribute(q.CLUSTER_ON_OFF,32772,c)
+name="operation_mode",emit=o"operation_mode",converter=A(),data_type=w.Enum8,attribute_name="tuyaOperationMode",read_on_configure=true})return q.cluster_attribute(q.CLUSTER_ON_OFF,32772,c)
 end
 q.switch_mode=p(57345,53248,{
-name="switch_mode",emit=o("switch_mode"),attribute_name="tuyaSwitchMode",mfg_code=4417,converter_factory=I,})
+name="switch_mode",emit=o"switch_mode",attribute_name="tuyaSwitchMode",mfg_code=4417,converter_factory=I})
 g("power",q.electrical_measurement_power,function()
 return i(
 {
-emit=x.power(),metering_kind="power",poll_interval=300,},e(5,300,1))
+emit=x.power(),metering_kind="power",poll_interval=300},e(5,300,1))
 end)
 g("current",q.electrical_measurement_current,function()
 return i(
 {
-emit=x.current(),scale=1000,metering_kind="current",poll_interval=300,},e(5,300,1))
+emit=x.current(),scale=1000,metering_kind="current",poll_interval=300},e(5,300,1))
 end)
 g("voltage",q.electrical_measurement_voltage,function()
 return i(
 {
-emit=x.voltage(),metering_kind="voltage",poll_interval=300,},e(5,300,1))
+emit=x.voltage(),metering_kind="voltage",poll_interval=300},e(5,300,1))
 end)
 g("energy",q.simple_metering,function()
 return{
-emit=x.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900,}
+emit=x.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900}
 end)
 g("tamper",q.ias_zone,function()
 return i(
 {
-name="tamper",emit=x.tamper(),converter=t(4),ias_configure_method=s.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=k,},e(0,300,nil))
+name="tamper",emit=x.tamper(),converter=t(4),ias_configure_method=s.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=k},e(0,300,nil))
 end)
 g("battery_low",q.ias_zone,function(j)
 local h=j.configure_reporting
 j.configure_reporting=nil
 local b={
-name="battery_low",emit=o("battery_low"),converter=t(8),ias_configure_method=s.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=k,read_on_configure=true,}if h==false then
+name="battery_low",emit=o"battery_low",converter=t(8),ias_configure_method=s.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=k,read_on_configure=true}if h==false then
 return b
 end
 return i(b,e(0,300,nil))

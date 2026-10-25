@@ -20,7 +20,7 @@ a.read_attribute=k
 a.cluster_base=J
 a.utils=ab
 a.REPORT_COMMANDS={
-[a.GET_DATA]=true,[a.SET_DATA_RESPONSE]=true,[a.REPORT_STATUS]=true,[a.ACTIVE_STATUS_REPORT]=true,}local m=a.BASIC_CLUSTER
+[a.GET_DATA]=true,[a.SET_DATA_RESPONSE]=true,[a.REPORT_STATUS]=true,[a.ACTIVE_STATUS_REPORT]=true}local m=a.BASIC_CLUSTER
 local r=a.PACKET_ID_FIELD
 local n=a.PERSIST_FALSE
 local w=a.BASIC_ENDPOINT_FIELD
@@ -85,11 +85,11 @@ local function i(j,V)
 local g=h(j,m,w)if not g then
 ad.warn(string.format("Cluster 0x%04X endpoint not found",m))return nil
 end
-local S=p.ZclHeader({
-cmd=E.ZCLCommandId(k.ReadAttribute.ID)})local G=D.AddressHeader(
-s.HUB.ADDR,s.HUB.ENDPOINT,j:get_short_address(),g,s.HA_PROFILE_ID,m)local L=p.ZclMessageBody({
-zcl_header=S,zcl_body=k.ReadAttribute(V)})return D.ZigbeeMessageTx({
-address_header=G,body=L})
+local S=p.ZclHeader{
+cmd=E.ZCLCommandId(k.ReadAttribute.ID)}local G=D.AddressHeader(
+s.HUB.ADDR,s.HUB.ENDPOINT,j:get_short_address(),g,s.HA_PROFILE_ID,m)local L=p.ZclMessageBody{
+zcl_header=S,zcl_body=k.ReadAttribute(V)}return D.ZigbeeMessageTx{
+address_header=G,body=L}
 end
 local function C(Z)
 local X={}for aa,W in ipairs(Z or{})do

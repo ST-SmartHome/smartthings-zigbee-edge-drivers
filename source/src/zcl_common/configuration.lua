@@ -13,6 +13,10 @@ local function load_configuration(zcl)
     return reporting.attach(zcl, registrations, bindings)
   end
 
+  function zcl.discard_unsupported_reporting(device)
+    return reporting.discard_unsupported(zcl, device)
+  end
+
   function zcl.bind_cluster(device, cluster_id, hub_eui, endpoint)
     device:send(device_management.build_bind_request(
       device,
@@ -36,7 +40,9 @@ local function load_configuration(zcl)
     if options.auto_endpoint then mapping.endpoint = nil end
     local resolved, overridden = reporting.configuration(zcl, device, mapping)
     if options.defer_on_override and overridden then return false end
-    device:send(device_management.attr_config(device, resolved or config):to_endpoint(endpoint))
+    local request = device_management.attr_config(device, resolved or config):to_endpoint(endpoint)
+    if options.disable_default_response then request.body.zcl_header.frame_ctrl:set_disable_default_response() end
+    device:send(request)
     return true
   end
 

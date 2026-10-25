@@ -2,8 +2,8 @@ local e=require"protocol.zcl"
 local c=require"contracts.helpers.family"
 local d,b=c.definition_registry()local a={
 profile="safety-water-leak-tamper-battery-low-battery",zcl_clusters={
-e.water(),e.tamper(),e.battery_low(),e.battery(),},}b(a,{
+e.water(),e.tamper(),e.battery_low(),e.battery()}}b(a,{
 c.create_fingerprint(
-"_TZ3000_eit7p838"..string.char(32),"TS0207"),})e.attach_reporting_capabilities(d,{
-{1,"rpt-tej"},})return{
-id="zcl.sensors.wave19_exact_aliases",registrations=d,}
+"_TZ3000_eit7p838"..string.char(32),"TS0207")})e.attach_reporting_capabilities(d,{
+{1,"rpt-tej"}})return{
+id="zcl.sensors.wave19_exact_aliases",registrations=d}

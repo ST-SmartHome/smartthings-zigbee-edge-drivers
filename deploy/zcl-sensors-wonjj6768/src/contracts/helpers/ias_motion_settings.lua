@@ -14,18 +14,18 @@ local l={endpoint=1,read_only=true,minimum_interval=3600,maximum_interval=65000,
 from_device=function(c,_,e)
 if e.raw_value==255 then return nil end
 return c
-end,
+end
 }
 if o then return q.battery(l)end
 return M.passive(q.battery(l))
 end
 function M.voltage()
-return q.battery_voltage({endpoint=1,read_only=true,minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true,
+return q.battery_voltage{endpoint=1,read_only=true,minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true,
 from_device=function(c,_,e)
 if e.raw_value==255 then return nil end
 return c
-end,
-})
+end
+}
 end
 function M.battery_alarm(b)
 return q.cluster_attribute(1,62,{
@@ -33,7 +33,7 @@ name="battery_alarm_state",endpoint=1,data_type=d.Bitmap32,read_only=true,read_o
 from_device=function(c)
 if type(c)=="table"then c=c.value end
 return bit32.band(c,15744015)~=0
-end,
+end
 })
 end
 function M.keep_alive(b)
@@ -55,7 +55,7 @@ for u,c in pairs(p)do k[c]=u end
 return q.cluster_attribute(1280,n,{
 name=j,endpoint=1,data_type=d.Uint8,write_type=d.Uint8,emit=b,read_on_configure=false,
 from_device=function(u)return p[u]end,
-to_device=function(c)return k[c]end,
+to_device=function(c)return k[c]end
 })
 end
 function M.vibration_timeout(b)
@@ -82,7 +82,7 @@ function M.refresh(a)
 local s=h.read_attribute(a,d.ClusterId(1280),d.AttributeId(19))s.body.zcl_body.attr_ids={d.AttributeId(19),d.AttributeId(61441),d.AttributeId(2)}a:send(s:to_endpoint(1))
 end
 function M.magic_packet(a)
-local s=h.read_attribute(a,d.ClusterId(0),d.AttributeId(4))s.body.zcl_body.attr_ids={}for _,w in ipairs({4,0,1,5,7,65534})do
+local s=h.read_attribute(a,d.ClusterId(0),d.AttributeId(4))s.body.zcl_body.attr_ids={}for _,w in ipairs{4,0,1,5,7,65534}do
 s.body.zcl_body.attr_ids[#s.body.zcl_body.attr_ids+1]=d.AttributeId(w)
 end
 a:send(s:to_endpoint(1))

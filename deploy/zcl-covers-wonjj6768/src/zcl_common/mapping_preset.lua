@@ -56,15 +56,15 @@ if w>=100 then
 return"open"
 end
 return"partially open"
-end,
+end
 }
 end
 local function e(s,r,p)
 return{
-minimum_interval=s,maximum_interval=r,reportable_change=p,read_on_configure=true,}
+minimum_interval=s,maximum_interval=r,reportable_change=p,read_on_configure=true}
 end
 local function k(...)
-local x={}for _,c in ipairs({...})do
+local x={}for _,c in ipairs{...}do
 j(x,c)
 end
 return x
@@ -86,25 +86,25 @@ end
 g("battery",v.power_configuration_battery,function()
 return k(
 {
-emit=z.battery(),scale=2,},e(300,21600,2))
+emit=z.battery(),scale=2},e(300,21600,2))
 end)
 v.tuya_magic_packet=function(a,l)
 local b=d(a,l)j(b,{
-name="tuya_magic_packet",read_only=true,read_on_configure=true,})return v.cluster_attribute(0,65534,b)
+name="tuya_magic_packet",read_only=true,read_on_configure=true})return v.cluster_attribute(0,65534,b)
 end
 g("cover_position",v.window_covering_position,function()
 return k(
 {
-emit=z.shade_level(),},e(0,600,1))
+emit=z.shade_level()},e(0,600,1))
 end)
 g("cover_state",v.window_covering_position,function()
 return{
-name="cover_state",write_only=true,}
+name="cover_state",write_only=true}
 end)
 g("window_shade_state",v.window_covering_position,function()
 return k(
 {
-name="window_shade_state",emit=z.shade_state(),converter=h(),},e(0,600,1))
+name="window_shade_state",emit=z.shade_state(),converter=h()},e(0,600,1))
 end)
 end
 return o

@@ -36,10 +36,10 @@ j(c,q)return c
 end
 local function d(p,o,m)
 return{
-minimum_interval=p,maximum_interval=o,reportable_change=m,read_on_configure=true,}
+minimum_interval=p,maximum_interval=o,reportable_change=m,read_on_configure=true}
 end
 local function g(...)
-local t={}for _,a in ipairs({...})do
+local t={}for _,a in ipairs{...}do
 i(t,a)
 end
 return t
@@ -61,21 +61,21 @@ end
 f("power",v.electrical_measurement_power,function()
 return g(
 {
-emit=r.power(),metering_kind="power",poll_interval=300,},d(5,300,1))
+emit=r.power(),metering_kind="power",poll_interval=300},d(5,300,1))
 end)
 f("current",v.electrical_measurement_current,function()
 return g(
 {
-emit=r.current(),scale=1000,metering_kind="current",poll_interval=300,},d(5,300,1))
+emit=r.current(),scale=1000,metering_kind="current",poll_interval=300},d(5,300,1))
 end)
 f("voltage",v.electrical_measurement_voltage,function()
 return g(
 {
-emit=r.voltage(),metering_kind="voltage",poll_interval=300,},d(5,300,1))
+emit=r.voltage(),metering_kind="voltage",poll_interval=300},d(5,300,1))
 end)
 f("energy",v.simple_metering,function()
 return{
-emit=r.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900,}
+emit=r.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900}
 end)
 end
 return l

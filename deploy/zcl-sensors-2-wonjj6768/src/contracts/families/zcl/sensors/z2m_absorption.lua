@@ -9,4 +9,4 @@ a[#a+1]=d
 end
 end
 return{
-id="zcl.sensors.z2m_absorption",registrations=a,}
+id="zcl.sensors.z2m_absorption",registrations=a}

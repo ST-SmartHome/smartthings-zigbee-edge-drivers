@@ -32,10 +32,6 @@ local function bool(value)
   return value == true or value == 1
 end
 
-local function on_off(value)
-  return bool(value) and "ON" or "OFF"
-end
-
 local function comma_bytes(value)
   if type(value) ~= "string" then return nil end
   local fields = {}
@@ -52,14 +48,10 @@ end
 local function lifecycle(profile, datapoints)
   datapoints.profile = profile
   datapoints.package_group = "wave19-thermostat"
-  datapoints.transport_classification = "CUSTOM_PAYLOAD"
-  datapoints.z2m_converter_source = "frozen legacy thermostat converter"
-  datapoints.wire_cluster = "manuSpecificTuya"
   datapoints.magic_packet = true
   datapoints.query_on_configure = true
   datapoints.named_datapoints = true
   datapoints.time_start = "2000"
-  datapoints.placeholder_custom_states = false
   return datapoints
 end
 

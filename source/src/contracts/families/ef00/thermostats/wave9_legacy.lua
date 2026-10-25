@@ -201,9 +201,6 @@ end
 local moes = {
   profile = "thermostats-wave9-moes-brt100",
   package_group = "trv",
-  transport_classification = "CUSTOM_PAYLOAD",
-  z2m_converter_source = "legacy.moesS_thermostat",
-  wire_cluster = "manuSpecificTuya",
   query_on_configure = false,
   time_start = "1970",
   force_time_updates = true,
@@ -592,9 +589,6 @@ end
 local lidl = {
   profile = "thermostats-wave9-lidl-368308",
   package_group = "trv",
-  transport_classification = "CUSTOM_PAYLOAD",
-  z2m_converter_source = "legacy.zs_thermostat",
-  wire_cluster = "manuSpecificTuya",
   query_on_configure = false,
   time_start = "1970",
   force_time_updates = true,
@@ -719,9 +713,6 @@ register_device_definition(lidl, ts0601_fingerprints({
 local evanell = {
   profile = "thermostats-wave9-evanell-ez200",
   package_group = "trv",
-  transport_classification = "CUSTOM_PAYLOAD",
-  z2m_converter_source = "legacy.evanell_thermostat",
-  wire_cluster = "manuSpecificTuya",
   query_on_configure = false,
   time_start = "2000",
   bind_basic_on_configure = true,

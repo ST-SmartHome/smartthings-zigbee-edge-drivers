@@ -22,7 +22,7 @@ local q="__easyiot_24gms02_motion_coefficient"
 local t="__easyiot_24gms02_hold_coefficient"
 local r="__easyiot_24gms02_micro_coefficient"
 local as={
-easyiot24gAutoCalibrationProgress=Y.easyiot24gAutoCalibrationProgress(),easyiot24gPirDelay=Y.easyiot24gPirDelay(),easyiot24gUltrasonicOccupiedDelay=Y.easyiot24gUltrasonicOccupiedDelay(),easyiot24gUsUnoccupiedDelay=Y.easyiot24gUsUnoccupiedDelay(),easyiot24gWorkMode=Y.easyiot24gWorkMode(),easyiotIr01LastReceivedCommand=Y.easyiotIr01LastReceivedCommand(),easyiotRs232LastReceivedCommand=Y.easyiotRs232LastReceivedCommand(),easyiotRs485LastReceivedCommand=Y.easyiotRs485LastReceivedCommand(),easyiotTts01LastReceivedStatus=Y.easyiotTts01LastReceivedStatus(),}
+easyiot24gAutoCalibrationProgress=Y.easyiot24gAutoCalibrationProgress(),easyiot24gPirDelay=Y.easyiot24gPirDelay(),easyiot24gUltrasonicOccupiedDelay=Y.easyiot24gUltrasonicOccupiedDelay(),easyiot24gUsUnoccupiedDelay=Y.easyiot24gUsUnoccupiedDelay(),easyiot24gWorkMode=Y.easyiot24gWorkMode(),easyiotIr01LastReceivedCommand=Y.easyiotIr01LastReceivedCommand(),easyiotRs232LastReceivedCommand=Y.easyiotRs232LastReceivedCommand(),easyiotRs485LastReceivedCommand=Y.easyiotRs485LastReceivedCommand(),easyiotTts01LastReceivedStatus=Y.easyiotTts01LastReceivedStatus()}
 local function o(aT)
 return assert(as[aT],"missing EasyIoT emitter: "..tostring(aT))
 end
@@ -126,7 +126,7 @@ local aQ=math.floor(tonumber(value))return i(c,0,I(134,1,2,aQ-16),e)
 end
 local function aA(c,_,value,e)
 local encoded=({
-auto=0,cooling=1,dehumidification=2,air_supply=3,heating=4,})[value]
+auto=0,cooling=1,dehumidification=2,air_supply=3,heating=4})[value]
 if encoded==nil then return false end
 return i(c,0,I(134,1,1,encoded),e)
 end
@@ -147,7 +147,7 @@ return i(c,0,aC,e)
 end
 local function ae(c,_,value,e)
 local bj=({
-["1200"]=1200,["2400"]=2400,["4800"]=4800,["9600"]=9600,["19200"]=19200,["38400"]=38400,["57600"]=57600,["115200"]=115200,["230400"]=230400,["460800"]=460800,["921600"]=921600,})[tostring(value)]
+["1200"]=1200,["2400"]=2400,["4800"]=4800,["9600"]=9600,["19200"]=19200,["38400"]=38400,["57600"]=57600,["115200"]=115200,["230400"]=230400,["460800"]=460800,["921600"]=921600})[tostring(value)]
 if bj==nil then return false end
 return i(c,1,string.char(1,2,4,35)..uint32_le(bj),e)
 end
@@ -175,7 +175,7 @@ end
 end
 local function x(at,bg,bf)
 return function(c,_,value)
-if type(value)~="string"or #value<1 or #value>10 or value:match("^[0-9]+$")==nil then
+if type(value)~="string"or #value<1 or #value>10 or value:match"^[0-9]+$"==nil then
 return false
 end
 local ao=tonumber(value)
@@ -220,7 +220,7 @@ local encoded=math.floor((tonumber(value)*10)+0.5)return i(c,1,string.char(7,6,1
 end
 local function Z(c,_,value,e)
 local encoded=({
-pirOnly=1,radarOnly=2,pirRadarAnd=3,occupied_first=4,unoccupied_first=5,})[value]
+pirOnly=1,radarOnly=2,pirRadarAnd=3,occupied_first=4,unoccupied_first=5})[value]
 if encoded==nil then return false end
 return m(c,65025,encoded,j.Enum8,e)
 end
@@ -242,7 +242,7 @@ if type(aj)~="string"or #aj<5 then return false end
 if string.byte(aj,1)~=3 or string.byte(aj,2)~=6 then return false end
 local aM=string.byte(aj,5)
 if aM>100 then return false end
-aD(c,o("easyiot24gAutoCalibrationProgress")(c,aM))return true
+aD(c,o"easyiot24gAutoCalibrationProgress"(c,aM))return true
 end
 local function a(aS,aT,bn,T)
 T=T or{}T.name=aT
@@ -251,75 +251,75 @@ T.sender=bn
 return al.cluster_attribute(aS,nil,T)
 end
 local bw={
-profile="controllers-easyiot-ir01",refresh_state_query=false,easyiot_tunnel_receiver=s(o("easyiotIr01LastReceivedCommand")),zcl_clusters={
+profile="controllers-easyiot-ir01",refresh_state_query=false,easyiot_tunnel_receiver=s(o"easyiotIr01LastReceivedCommand"),zcl_clusters={
 a(d,"easyiot_ir01_send_command",y(0)),a(d,"switch",au),a(d,"easyiot_ir01_ac_temperature",ac,{
-numeric_range={minimum=16,maximum=32,step=1,unit="C"},}),a(d,"easyiot_ir01_ac_mode",aA),a(d,"easyiot_ir01_ac_wind_speed",ah),a(d,"easyiot_ir01_ac_kfid",az,{
-numeric_range={minimum=0,maximum=1354,step=1},}),},capability_commands={
+numeric_range={minimum=16,maximum=32,step=1,unit="C"}}),a(d,"easyiot_ir01_ac_mode",aA),a(d,"easyiot_ir01_ac_wind_speed",ah),a(d,"easyiot_ir01_ac_kfid",az,{
+numeric_range={minimum=0,maximum=1354,step=1}})},capability_commands={
 {
-capability_id=f .."easyiotIr01SendCommand",command_name="sendCommand",argument_name="command",mapping_name="easyiot_ir01_send_command",},},}local bs={
-profile="controllers-easyiot-tts01",refresh_state_query=false,easyiot_tunnel_receiver=s(o("easyiotTts01LastReceivedStatus")),zcl_clusters={
-a(d,"easyiot_tts01_send_tts",aW),},capability_commands={
+capability_id=f .."easyiotIr01SendCommand",command_name="sendCommand",argument_name="command",mapping_name="easyiot_ir01_send_command"}}}local bs={
+profile="controllers-easyiot-tts01",refresh_state_query=false,easyiot_tunnel_receiver=s(o"easyiotTts01LastReceivedStatus"),zcl_clusters={
+a(d,"easyiot_tts01_send_tts",aW)},capability_commands={
 {
-capability_id=f .."easyiotTts01SendTts",command_name="sendTts",argument_name="text",mapping_name="easyiot_tts01_send_tts",},},}local br={
-profile="controllers-easyiot-rs485",refresh_state_query=false,easyiot_tunnel_receiver=s(o("easyiotRs485LastReceivedCommand")),zcl_clusters={
-a(d,"easyiot_rs485_send_command",y(0)),a(d,"easyiot_rs485_baud_rate",ae),a(d,"easyiot_rs485_parity",X),a(d,"easyiot_rs485_stop_bits",L),},capability_commands={
+capability_id=f .."easyiotTts01SendTts",command_name="sendTts",argument_name="text",mapping_name="easyiot_tts01_send_tts"}}}local br={
+profile="controllers-easyiot-rs485",refresh_state_query=false,easyiot_tunnel_receiver=s(o"easyiotRs485LastReceivedCommand"),zcl_clusters={
+a(d,"easyiot_rs485_send_command",y(0)),a(d,"easyiot_rs485_baud_rate",ae),a(d,"easyiot_rs485_parity",X),a(d,"easyiot_rs485_stop_bits",L)},capability_commands={
 {
-capability_id=f .."easyiotRs485SendCommand",command_name="sendCommand",argument_name="command",mapping_name="easyiot_rs485_send_command",},},}local bq={
-profile="controllers-easyiot-rs232",refresh_state_query=false,easyiot_tunnel_receiver=s(o("easyiotRs232LastReceivedCommand")),zcl_clusters={
-a(d,"easyiot_rs232_send_command",y(0)),a(d,"easyiot_rs232_baud_rate",ae),a(d,"easyiot_rs232_parity",X),a(d,"easyiot_rs232_stop_bits",L),},capability_commands={
+capability_id=f .."easyiotRs485SendCommand",command_name="sendCommand",argument_name="command",mapping_name="easyiot_rs485_send_command"}}}local bq={
+profile="controllers-easyiot-rs232",refresh_state_query=false,easyiot_tunnel_receiver=s(o"easyiotRs232LastReceivedCommand"),zcl_clusters={
+a(d,"easyiot_rs232_send_command",y(0)),a(d,"easyiot_rs232_baud_rate",ae),a(d,"easyiot_rs232_parity",X),a(d,"easyiot_rs232_stop_bits",L)},capability_commands={
 {
-capability_id=f .."easyiotRs232SendCommand",command_name="sendCommand",argument_name="command",mapping_name="easyiot_rs232_send_command",},},}local bx={
+capability_id=f .."easyiotRs232SendCommand",command_name="sendCommand",argument_name="command",mapping_name="easyiot_rs232_send_command"}}}local bx={
 profile="locks-easyiot-zl01",refresh_state_query=false,zcl_clusters={
-al.battery({minimum_interval=30,maximum_interval=1800,reportable_change=1}),a(g,"easyiot_zl01_unlock_pin",am),a(
+al.battery{minimum_interval=30,maximum_interval=1800,reportable_change=1},a(g,"easyiot_zl01_unlock_pin",am),a(
 g,"easyiot_zl01_timeout_seconds",x(O,0,4294967295)),a(g,"easyiot_zl01_timeout_pin",aw(z,254)),a(g,"easyiot_zl01_unlock_timeout",S),a(
 g,"easyiot_zl01_temp_start",x(B,946684800,5241652095)),a(
 g,"easyiot_zl01_temp_end",x(J,946684800,5241652095)),a(g,"easyiot_zl01_temp_user",v(H),{
-numeric_range={minimum=1,maximum=20,step=1},}),a(g,"easyiot_zl01_temp_valid",v(C),{
-numeric_range={minimum=0,maximum=255,step=1},}),a(g,"easyiot_zl01_temp_pin",aw(K,255)),a(g,"easyiot_zl01_temp_apply",aa),a(g,"easyiot_zl01_temp_clear_user",Q,{
-numeric_range={minimum=1,maximum=20,step=1},}),a(g,"easyiot_zl01_temp_clear_all",R),},capability_commands={
+numeric_range={minimum=1,maximum=20,step=1}}),a(g,"easyiot_zl01_temp_valid",v(C),{
+numeric_range={minimum=0,maximum=255,step=1}}),a(g,"easyiot_zl01_temp_pin",aw(K,255)),a(g,"easyiot_zl01_temp_apply",aa),a(g,"easyiot_zl01_temp_clear_user",Q,{
+numeric_range={minimum=1,maximum=20,step=1}}),a(g,"easyiot_zl01_temp_clear_all",R)},capability_commands={
 {
-capability_id=f .."easyiotZl01UnlockPin",command_name="unlockDoor",argument_name="pin",mapping_name="easyiot_zl01_unlock_pin",},{
-capability_id=f .."easyiotZl01TimeoutDecimal",command_name="setTimeoutDecimal",argument_name="timeoutSeconds",mapping_name="easyiot_zl01_timeout_seconds",},{
-capability_id=f .."easyiotZl01TimeoutPin",command_name="setTimeoutPin",argument_name="pin",mapping_name="easyiot_zl01_timeout_pin",},{
-capability_id=f .."easyiotZl01UnlockTimeout",command_name="unlockWithTimeout",value=true,mapping_name="easyiot_zl01_unlock_timeout",},{
-capability_id=f .."easyiotZl01TempStartDecimal",command_name="setTempStartDecimal",argument_name="unixSeconds",mapping_name="easyiot_zl01_temp_start",},{
-capability_id=f .."easyiotZl01TempEndDecimal",command_name="setTempEndDecimal",argument_name="unixSeconds",mapping_name="easyiot_zl01_temp_end",},{
-capability_id=f .."easyiotZl01TempPin",command_name="setTemporaryPin",argument_name="pin",mapping_name="easyiot_zl01_temp_pin",},{
-capability_id=f .."easyiotZl01TempApply",command_name="applyTemporaryPin",value=true,mapping_name="easyiot_zl01_temp_apply",},{
-capability_id=f .."easyiotZl01TempClearAll",command_name="clearAllTemporaryPins",value=true,mapping_name="easyiot_zl01_temp_clear_all",},},}local bo={
+capability_id=f .."easyiotZl01UnlockPin",command_name="unlockDoor",argument_name="pin",mapping_name="easyiot_zl01_unlock_pin"},{
+capability_id=f .."easyiotZl01TimeoutDecimal",command_name="setTimeoutDecimal",argument_name="timeoutSeconds",mapping_name="easyiot_zl01_timeout_seconds"},{
+capability_id=f .."easyiotZl01TimeoutPin",command_name="setTimeoutPin",argument_name="pin",mapping_name="easyiot_zl01_timeout_pin"},{
+capability_id=f .."easyiotZl01UnlockTimeout",command_name="unlockWithTimeout",value=true,mapping_name="easyiot_zl01_unlock_timeout"},{
+capability_id=f .."easyiotZl01TempStartDecimal",command_name="setTempStartDecimal",argument_name="unixSeconds",mapping_name="easyiot_zl01_temp_start"},{
+capability_id=f .."easyiotZl01TempEndDecimal",command_name="setTempEndDecimal",argument_name="unixSeconds",mapping_name="easyiot_zl01_temp_end"},{
+capability_id=f .."easyiotZl01TempPin",command_name="setTemporaryPin",argument_name="pin",mapping_name="easyiot_zl01_temp_pin"},{
+capability_id=f .."easyiotZl01TempApply",command_name="applyTemporaryPin",value=true,mapping_name="easyiot_zl01_temp_apply"},{
+capability_id=f .."easyiotZl01TempClearAll",command_name="clearAllTemporaryPins",value=true,mapping_name="easyiot_zl01_temp_clear_all"}}}local bo={
 profile="safety-occupancy-easyiot-24gms02",easyiot_tunnel_receiver=ab,zcl_clusters={
 (function()
-local aB=al.occupancy_sensing({
+local aB=al.occupancy_sensing{
 name="occupancy",emit=Y.occupancy(),data_type=j.Bitmap8,configure_reporting=false,read_on_configure=false,
 from_device=function(value)
 if type(value)=="table"then value=value.value end
 return type(value)=="number"and value%2==1 or value==true
-end,
-})aB.configure_reporting=false
+end
+}aB.configure_reporting=false
 aB.read_on_configure=false
 return aB
 end)(),
 a(d,"easyiot_24g_detection_range",M,{
-numeric_range={minimum=0.7,maximum=10,step=0.1},}),al.cluster_attribute(p,65025,{
-name="easyiot_24g_work_mode",emit=o("easyiot24gWorkMode"),
+numeric_range={minimum=0.7,maximum=10,step=0.1}}),al.cluster_attribute(p,65025,{
+name="easyiot_24g_work_mode",emit=o"easyiot24gWorkMode",
 from_device=function(value)
 return({
-[1]="pirOnly",[2]="radarOnly",[3]="pirRadarAnd",[4]="occupied_first",[5]="unoccupied_first",})[value]
+[1]="pirOnly",[2]="radarOnly",[3]="pirRadarAnd",[4]="occupied_first",[5]="unoccupied_first"})[value]
 end,
-data_type=j.Enum8,write_type=j.Enum8,sender=Z,}),al.cluster_attribute(p,17,{
-name="easyiot_24g_pir_delay",emit=o("easyiot24gPirDelay"),data_type=j.Uint16,write_type=j.Uint16,numeric_range={minimum=0,maximum=65534,step=1},sender=w(17),}),al.cluster_attribute(p,32,{
-name="easyiot_24g_ultrasonic_occupied_delay",emit=o("easyiot24gUltrasonicOccupiedDelay"),data_type=j.Uint16,write_type=j.Uint16,numeric_range={minimum=0,maximum=65534,step=1},sender=w(32),}),al.cluster_attribute(p,33,{
-name="easyiot_24g_ultrasonic_unoccupied_delay",emit=o("easyiot24gUsUnoccupiedDelay"),data_type=j.Uint16,write_type=j.Uint16,numeric_range={minimum=0,maximum=65534,step=1},sender=w(33),}),a(
+data_type=j.Enum8,write_type=j.Enum8,sender=Z}),al.cluster_attribute(p,17,{
+name="easyiot_24g_pir_delay",emit=o"easyiot24gPirDelay",data_type=j.Uint16,write_type=j.Uint16,numeric_range={minimum=0,maximum=65534,step=1},sender=w(17)}),al.cluster_attribute(p,32,{
+name="easyiot_24g_ultrasonic_occupied_delay",emit=o"easyiot24gUltrasonicOccupiedDelay",data_type=j.Uint16,write_type=j.Uint16,numeric_range={minimum=0,maximum=65534,step=1},sender=w(32)}),al.cluster_attribute(p,33,{
+name="easyiot_24g_ultrasonic_unoccupied_delay",emit=o"easyiot24gUsUnoccupiedDelay",data_type=j.Uint16,write_type=j.Uint16,numeric_range={minimum=0,maximum=65534,step=1},sender=w(33)}),a(
 d,"easyiot_24g_motion_coefficient",v(q),{numeric_range={minimum=10,maximum=200,step=1}}),a(
 d,"easyiot_24g_hold_coefficient",v(t),{numeric_range={minimum=10,maximum=200,step=1}}),a(
-d,"easyiot_24g_micro_coefficient",v(r),{numeric_range={minimum=10,maximum=200,step=1}}),a(d,"easyiot_24g_auto_calibration",V),},capability_commands={
+d,"easyiot_24g_micro_coefficient",v(r),{numeric_range={minimum=10,maximum=200,step=1}}),a(d,"easyiot_24g_auto_calibration",V)},capability_commands={
 {
-capability_id=f .."easyiot24gAutoCalibration",command_name="startAutoCalibration",value=true,mapping_name="easyiot_24g_auto_calibration",},},}h(bw,{
-n.create_fingerprint("easyiot","ZB-IR01"),})h(bs,{
-n.create_fingerprint("easyiot","ZB-TTS01"),})h(br,{
-n.create_fingerprint("easyiot","ZB-RS485"),})h(bq,{
-n.create_fingerprint("easyiot","ZB-RS232"),})h(bx,{
-n.create_fingerprint("easyiot","ZB-ZL01"),})h(bo,{
-n.create_fingerprint("easyiot","ZB-24GMS02"),})al.attach_reporting_capabilities(P,{
-{5,"rpt-zcr"},})return{
-id="zcl.easyiot.absorption",registrations=P,}
+capability_id=f .."easyiot24gAutoCalibration",command_name="startAutoCalibration",value=true,mapping_name="easyiot_24g_auto_calibration"}}}h(bw,{
+n.create_fingerprint("easyiot","ZB-IR01")})h(bs,{
+n.create_fingerprint("easyiot","ZB-TTS01")})h(br,{
+n.create_fingerprint("easyiot","ZB-RS485")})h(bq,{
+n.create_fingerprint("easyiot","ZB-RS232")})h(bx,{
+n.create_fingerprint("easyiot","ZB-ZL01")})h(bo,{
+n.create_fingerprint("easyiot","ZB-24GMS02")})al.attach_reporting_capabilities(P,{
+{5,"rpt-zcr"}})return{
+id="zcl.easyiot.absorption",registrations=P}

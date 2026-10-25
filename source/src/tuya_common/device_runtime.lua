@@ -2,19 +2,15 @@ local function load_runtime(tuya, shared)
   local log = shared.log
 
   local BASIC_CLUSTER = shared.BASIC_CLUSTER
-  local EPOCH_2000_OFFSET = shared.EPOCH_2000_OFFSET
   local PERSIST_FALSE = shared.PERSIST_FALSE
   local CONFIG_QUEUE_FIELD = shared.CONFIG_QUEUE_FIELD
   local CONFIG_QUEUE_CALLBACK_FIELD = shared.CONFIG_QUEUE_CALLBACK_FIELD
   local QUERY_INTERVAL_TIMER_FIELD = shared.QUERY_INTERVAL_TIMER_FIELD
-  local QUERY_DATA = shared.QUERY_DATA
   local SET_TIME = shared.SET_TIME
   local CONNECTION_STATUS = shared.CONNECTION_STATUS
   local REPORT_COMMANDS = shared.REPORT_COMMANDS
   local device_management = require "st.zigbee.device_management"
 
-  local string_byte = shared.string_byte
-  local string_len = shared.string_len
   local type_check = shared.type_check
   local table_insert = shared.table_insert
   local table_remove = shared.table_remove
@@ -223,7 +219,7 @@ function tuya.stop_query_timer(device)
   return true
 end
 
-function tuya.start_query_timer(device, interval_seconds, command_id)
+function tuya.start_query_timer(device, interval_seconds, command_id, request)
   local seconds = normalize_positive_interval(interval_seconds, nil, "query_interval_seconds")
   if seconds == nil then
     return false
@@ -233,8 +229,8 @@ function tuya.start_query_timer(device, interval_seconds, command_id)
 
   local timer = nil
   timer = device.thread:call_with_delay(seconds, function()
-    tuya.send_state_request(device, command_id)
-    tuya.start_query_timer(device, seconds, command_id)
+    if request ~= nil then request(device) else tuya.send_state_request(device, command_id) end
+    tuya.start_query_timer(device, seconds, command_id, request)
   end)
 
   device:set_field(QUERY_INTERVAL_TIMER_FIELD, timer, PERSIST_FALSE)

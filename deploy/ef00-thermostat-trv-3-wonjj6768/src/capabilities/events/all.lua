@@ -7,7 +7,7 @@ local ak=require"log"
 local i={}local v=k.by_emit_name.last_power_response_time
 local r="_tuya_last_power_response_at"
 local x="waiting"
-local p=require("runtime.capability_support").is_callable
+local p=require"runtime.capability_support".is_callable
 local function h(w,M)
 local f=b[w]local m=f and f[M]or nil
 if not p(m)and f and type(f.attributes)=="table"then
@@ -64,8 +64,8 @@ end
 local T=os.time()if type(T)=="number"then
 e:set_field(r,T,{persist=false})
 end
-return m({
-value=E(e:get_field(r)),})
+return m{
+value=E(e:get_field(r))}
 end
 local function d(e,c,ag)
 if type(e)~="table"or type(c)~="table"then
@@ -166,14 +166,14 @@ function i.temperature(q)
 q=q or"C"
 return function(_,a)
 if a~=nil then
-return b.temperatureMeasurement.temperature({value=a,unit=q})
+return b.temperatureMeasurement.temperature{value=a,unit=q}
 end
 end
 end
 function i.humidity()
 return function(_,a)
 if a~=nil then
-return b.relativeHumidityMeasurement.humidity({value=a})
+return b.relativeHumidityMeasurement.humidity{value=a}
 end
 end
 end
@@ -187,14 +187,14 @@ end
 function i.illuminance()
 return function(_,a)
 if a~=nil then
-return b.illuminanceMeasurement.illuminance({value=a})
+return b.illuminanceMeasurement.illuminance{value=a}
 end
 end
 end
 function i.co2()
 return function(_,a)
 if a~=nil then
-return b.carbonDioxideMeasurement.carbonDioxide({value=a,unit="ppm"})
+return b.carbonDioxideMeasurement.carbonDioxide{value=a,unit="ppm"}
 end
 end
 end
@@ -202,7 +202,7 @@ function i.voc(q)
 q=q or"ppb"
 return function(_,a)
 if a~=nil then
-return b.tvocMeasurement.tvocLevel({value=a,unit=q})
+return b.tvocMeasurement.tvocLevel{value=a,unit=q}
 end
 end
 end
@@ -210,14 +210,14 @@ function i.formaldehyde(q)
 q=q or"mg/m^3"
 return function(_,a)
 if a~=nil then
-return b.formaldehydeMeasurement.formaldehydeLevel({value=a,unit=q})
+return b.formaldehydeMeasurement.formaldehydeLevel{value=a,unit=q}
 end
 end
 end
 function i.pm25()
 return function(_,a)
 if a~=nil then
-return b.fineDustSensor.fineDustLevel({value=a})
+return b.fineDustSensor.fineDustLevel{value=a}
 end
 end
 end
@@ -244,7 +244,7 @@ end
 function i.power()
 return function(e,a,u,s)
 if a~=nil then
-local L=b.powerMeter.power({value=a,unit="W"})local B=F(e)if B~=nil then
+local L=b.powerMeter.power{value=a,unit="W"}local B=F(e)if B~=nil then
 local y=l(s)or l(u)or o(s)or o(u)if y~=nil and y~="main"then
 e:emit_event(B)return L
 end
@@ -257,22 +257,22 @@ end
 function i.energy()
 return function(e,a,u,s)
 if a~=nil then
-local y=l(s)or l(u)or o(s)or o(u)return b.energyMeter.energy({
-value=ab.apply_report(e,a,y),unit="kWh",})
+local y=l(s)or l(u)or o(s)or o(u)return b.energyMeter.energy{
+value=ab.apply_report(e,a,y),unit="kWh"}
 end
 end
 end
 function i.voltage()
 return function(_,a)
 if a~=nil then
-return b.voltageMeasurement.voltage({value=a,unit="V"})
+return b.voltageMeasurement.voltage{value=a,unit="V"}
 end
 end
 end
 function i.current()
 return function(_,a)
 if a~=nil then
-return b.currentMeasurement.current({value=a,unit="A"})
+return b.currentMeasurement.current{value=a,unit="A"}
 end
 end
 end
@@ -287,14 +287,14 @@ function i.heating_setpoint(q)
 q=q or"C"
 return function(_,a)
 if a~=nil then
-return b.thermostatHeatingSetpoint.heatingSetpoint({value=a,unit=q})
+return b.thermostatHeatingSetpoint.heatingSetpoint{value=a,unit=q}
 end
 end
 end
 function i.soil_moisture()
 return function(_,a)
 if a~=nil then
-local j=a<0 and 0 or(a>100 and 100 or a)return b["concertmirror08464.soilMoisture"].soilMoisture({value=j,unit="%"})
+local j=a<0 and 0 or(a>100 and 100 or a)return b["concertmirror08464.soilMoisture"].soilMoisture{value=j,unit="%"}
 end
 end
 end
@@ -331,9 +331,9 @@ end
 return
 end
 local q=c.event_unit or(c.default_range and c.default_range.unit or nil)if q~=nil then
-return g({value=j,unit=q})
+return g{value=j,unit=q}
 end
-return g({value=j})
+return g{value=j}
 end
 end
 local function V(c)
@@ -372,7 +372,7 @@ d(e,c,"attribute")
 end
 return
 end
-return g({value=a})
+return g{value=a}
 end
 end
 local function W(c,U)
@@ -390,7 +390,7 @@ end
 local A=c.maximum_length or R.length(a)local N=R.truncate(a,A)if N==nil then
 return
 end
-return g({value=N})
+return g{value=N}
 end
 end
 for _,c in ipairs(k.numeric)do
@@ -423,7 +423,7 @@ local A=c.maximum_length or 512
 local N=R.truncate(a,A)if N==nil then
 return
 end
-return g({value=N})
+return g{value=N}
 end
 end
 end
@@ -473,7 +473,7 @@ function i.value(I,q)
 return function(_,a)
 if a~=nil then
 if q then
-return I({value=a,unit=q})else
+return I{value=a,unit=q}else
 return I(a)
 end
 end

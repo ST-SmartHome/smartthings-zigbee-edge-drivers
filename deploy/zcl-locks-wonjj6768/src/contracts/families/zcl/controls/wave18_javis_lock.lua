@@ -10,7 +10,7 @@ local p="__wave18_javis_action_source"
 local h="__wave18_javis_action_source_name"
 local e="__javis_recent_reports"
 local C={
-[0]="pairing",[1]="keypad",[2]="rfid_card_unlock",[3]="touch_unlock",}local g=assert(J.javisSlkAction,"missing Wave18 JAVIS action emitter")()
+[0]="pairing",[1]="keypad",[2]="rfid_card_unlock",[3]="touch_unlock"}local g=assert(J.javisSlkAction,"missing Wave18 JAVIS action emitter")()
 local function d(...)
 local F=g(...)
 if F~=nil then F.state_change=true end
@@ -58,9 +58,9 @@ b[x]=G
 a:set_field(l,b,{persist=false})
 end
 local L={
-profile="locks-wave18-javis-js-slk2-zb",package_group="wave18-javis-lock",transport_classification="ZCL_BASIC_CUSTOM_ATTRIBUTE_RX",z2m_converter_source="local fzLocal.javis_lock_report + fz.battery",wire_cluster="genBasic(0x0000) + genPowerCfg(0x0001)",zcl_clusters={
+profile="locks-wave18-javis-js-slk2-zb",package_group="wave18-javis-lock",zcl_clusters={
 N.cluster_attribute(B,k,{
-name="javis_unlock_report",read_only=true,from_device=i,handler=n,emit=d,}),N.cluster_attribute(1,33,{
-name="battery",component="main",data_type=E.Uint8,read_only=true,scale=2,emit=J.battery(),}),},}f(L,{
-{manufacturer="Lmiot",model="doorlock_5001"},{manufacturer="Vensi",model="E321V000A03"},})return{
-id="zcl.controls.wave18_javis_lock",registrations=s,}
+name="javis_unlock_report",read_only=true,from_device=i,handler=n,emit=d}),N.cluster_attribute(1,33,{
+name="battery",component="main",data_type=E.Uint8,read_only=true,scale=2,emit=J.battery()})}}f(L,{
+{manufacturer="Lmiot",model="doorlock_5001"},{manufacturer="Vensi",model="E321V000A03"}})return{
+id="zcl.controls.wave18_javis_lock",registrations=s}

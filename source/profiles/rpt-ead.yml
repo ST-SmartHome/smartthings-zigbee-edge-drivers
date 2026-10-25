@@ -34,6 +34,24 @@ components:
     version: 1
   - id: signalStrength
     version: 1
+  - id: concertmirror08464.shellyWs90DewPoint
+    version: 1
+  - id: concertmirror08464.shellyWs90WindChill
+    version: 1
+  - id: concertmirror08464.shellyWs90Humidex
+    version: 1
+  - id: concertmirror08464.shellyWs90ApparentTemp
+    version: 1
+  - id: concertmirror08464.shellyWs90HeatStress
+    version: 1
+  - id: concertmirror08464.shellyWs90RainRate
+    version: 1
+  - id: concertmirror08464.shellyWs90PressureTrend
+    version: 1
+  - id: concertmirror08464.shellyWs90WeatherCondition
+    version: 1
+  - id: concertmirror08464.shellyWs90Identify
+    version: 1
   - id: concertmirror08464.zclTempReportMin
     version: 1
   - id: concertmirror08464.zclTempReportMax
@@ -132,6 +150,25 @@ deviceConfig:
   - component: main
     capability: signalStrength
   - component: main
+    capability: concertmirror08464.shellyWs90DewPoint
+  - component: main
+    capability: concertmirror08464.shellyWs90WindChill
+  - component: main
+    capability: concertmirror08464.shellyWs90Humidex
+  - component: main
+    capability: concertmirror08464.shellyWs90ApparentTemp
+  - component: main
+    capability: concertmirror08464.shellyWs90HeatStress
+  - component: main
+    capability: concertmirror08464.shellyWs90RainRate
+  - component: main
+    capability: concertmirror08464.shellyWs90PressureTrend
+  - component: main
+    capability: concertmirror08464.shellyWs90WeatherCondition
+  - component: main
+    capability: concertmirror08464.shellyWs90Identify
+    version: 1
+  - component: main
     capability: concertmirror08464.zclTempReportMin
   - component: main
     capability: concertmirror08464.zclTempReportMax
@@ -202,6 +239,22 @@ deviceConfig:
     - component: main
       capability: signalStrength
     - component: main
+      capability: concertmirror08464.shellyWs90DewPoint
+    - component: main
+      capability: concertmirror08464.shellyWs90WindChill
+    - component: main
+      capability: concertmirror08464.shellyWs90Humidex
+    - component: main
+      capability: concertmirror08464.shellyWs90ApparentTemp
+    - component: main
+      capability: concertmirror08464.shellyWs90HeatStress
+    - component: main
+      capability: concertmirror08464.shellyWs90RainRate
+    - component: main
+      capability: concertmirror08464.shellyWs90PressureTrend
+    - component: main
+      capability: concertmirror08464.shellyWs90WeatherCondition
+    - component: main
       capability: concertmirror08464.zclTempReportMin
     - component: main
       capability: concertmirror08464.zclTempReportMax
@@ -244,6 +297,9 @@ deviceConfig:
     - component: main
       capability: concertmirror08464.zclBattTwoReportChange20
     actions:
+    - component: main
+      capability: concertmirror08464.shellyWs90Identify
+      version: 1
     - component: main
       capability: concertmirror08464.zclTempReportMin
     - component: main

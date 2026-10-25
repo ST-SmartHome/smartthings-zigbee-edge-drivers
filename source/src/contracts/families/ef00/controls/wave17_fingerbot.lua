@@ -39,9 +39,6 @@ end
 local czf_zero_two = {
   profile = "controls-wave17-lincukoo-czf02",
   package_group = "finger-robot",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = true,
   time_start = "off",

@@ -49,22 +49,22 @@ from=function(e)
 if type(e)~="number"then
 return e
 end
-return math.floor((z(e,0,254)*100/254)+0.5)
+return math.floor(z(e,0,254)*100/254+0.5)
 end,
 to=function(e)
 if type(e)~="number"then
 return e
 end
-return math.floor((z(e,0,100)*254/100)+0.5)
-end,
+return math.floor(z(e,0,100)*254/100+0.5)
+end
 }
 end
 local function h(s,r,p)
 return{
-minimum_interval=s,maximum_interval=r,reportable_change=p,read_on_configure=true,}
+minimum_interval=s,maximum_interval=r,reportable_change=p,read_on_configure=true}
 end
 local function k(...)
-local v={}for _,a in ipairs({...})do
+local v={}for _,a in ipairs{...}do
 j(v,a)
 end
 return v
@@ -88,17 +88,17 @@ local b=g.configure_reporting
 g.configure_reporting=nil
 if b==false then
 return{
-emit=x.switch(),}
+emit=x.switch()}
 end
 return k(
 {
-emit=x.switch(),},h(0,300,nil))
+emit=x.switch()},h(0,300,nil))
 end)
 l("level",D.level_control,function(g)
 local b=g.configure_reporting
 g.configure_reporting=nil
 local a={
-name="brightness",emit=x.level(),converter=o(),}
+name="brightness",emit=x.level(),converter=o()}
 if b==false then return a end
 return k(a,h(1,3600,1))
 end)

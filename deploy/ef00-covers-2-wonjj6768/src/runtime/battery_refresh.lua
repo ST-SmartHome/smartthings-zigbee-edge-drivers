@@ -3,8 +3,8 @@ local b={}local e=24*60*60
 local f="__battery_refresh_last_report_at"
 local d="__battery_refresh_last_request_at"
 local c="__battery_refresh_timer"
-local i=nil
-local g=nil
+local i
+local g
 local function w()
 return os.time()
 end

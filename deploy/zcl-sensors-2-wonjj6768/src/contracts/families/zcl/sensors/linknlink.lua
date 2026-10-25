@@ -32,21 +32,21 @@ return nil,nil,false
 end
 local j={
 profile="sensors-linknlink-emotion-air",advanced_remote=true,unprefixed_remote_actions=true,remote_action_emit_name="linknLinkEmotionAirAction",standard_action_metadata_emit_names={
-action_group="linknLinkEmotionAirActionGroup",action_level="linknLinkEmotionAirActionLevel",action_transition_time="linknAirActionTransition",action_rate="linknLinkEmotionAirActionRate",action_step_size="linknAirActionStepSize",},standard_command_action_resolver=i,zcl_clusters={
-h.temperature({
-minimum_interval=10,maximum_interval=3600,reportable_change=100,}),h.humidity({
-minimum_interval=10,maximum_interval=3600,reportable_change=100,}),h.illuminance({
-minimum_interval=10,maximum_interval=3600,reportable_change=5,read_on_configure=true,}),h.occupancy({
-minimum_interval=0,maximum_interval=3600,reportable_change=0,read_on_configure=true,}),h.battery({
-minimum_interval=3600,maximum_interval=65000,reportable_change=10,}),},
+action_group="linknLinkEmotionAirActionGroup",action_level="linknLinkEmotionAirActionLevel",action_transition_time="linknAirActionTransition",action_rate="linknLinkEmotionAirActionRate",action_step_size="linknAirActionStepSize"},standard_command_action_resolver=i,zcl_clusters={
+h.temperature{
+minimum_interval=10,maximum_interval=3600,reportable_change=100},h.humidity{
+minimum_interval=10,maximum_interval=3600,reportable_change=100},h.illuminance{
+minimum_interval=10,maximum_interval=3600,reportable_change=5,read_on_configure=true},h.occupancy{
+minimum_interval=0,maximum_interval=3600,reportable_change=0,read_on_configure=true},h.battery{
+minimum_interval=3600,maximum_interval=65000,reportable_change=10}},
 configure=function(o,m)
-for _,d in ipairs({
-h.CLUSTER_ON_OFF,h.CLUSTER_LEVEL_CONTROL,})do
+for _,d in ipairs{
+h.CLUSTER_ON_OFF,h.CLUSTER_LEVEL_CONTROL}do
 m:send(g.build_bind_request(
 m,d,o.environment_info.hub_zigbee_eui,1))
 end
-end,
+end
 }n(j,{
-e.create_fingerprint("LinknLink","eMotion Air"),})h.attach_reporting_capabilities(c,{
-{1,"rpt-enc"},})return{
-id="zcl.sensors.linknlink",registrations=c,}
+e.create_fingerprint("LinknLink","eMotion Air")})h.attach_reporting_capabilities(c,{
+{1,"rpt-enc"}})return{
+id="zcl.sensors.linknlink",registrations=c}

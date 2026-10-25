@@ -2,6 +2,37 @@ local zcl = require "protocol.zcl"
 
 local zcl_device_helpers = {}
 
+function zcl_device_helpers.duplicate_transaction(device, endpoint, sequence, field)
+  if sequence == nil then return false end
+  local now = require("cosock.socket").gettime() * 1000
+  local endpoints = device:get_field(field) or {}
+  local entries, oldest, expiry = {}, nil, math.huge
+  for _, entry in ipairs(endpoints[endpoint] or {}) do
+    if entry[1] == sequence and entry[2] > now then return true end
+    if entry[2] > now then
+      entries[#entries + 1] = entry
+      if entry[2] < expiry then oldest, expiry = #entries, entry[2] end
+    end
+  end
+  if #entries > 4 then table.remove(entries, oldest) end
+  entries[#entries + 1], endpoints[endpoint] = {sequence, now + 10000}, entries
+  device:set_field(field, endpoints, {persist=false})
+  return false
+end
+
+function zcl_device_helpers.passive(mapping)
+  mapping.minimum_interval=nil
+  mapping.maximum_interval=nil
+  mapping.reportable_change=nil
+  mapping.read_on_configure=false
+  return mapping
+end
+
+function zcl_device_helpers.identify(device, value)
+  if type(value) ~= "number" or value % 1 ~= 0 or value < 1 or value > 30 then return false end
+  return zcl.send_raw_cluster_command(device, 3, 0, string.pack("<I2", value), device:get_endpoint(3))
+end
+
 local function append_cluster(clusters, cluster)
   if cluster ~= nil then
     clusters[#clusters + 1] = cluster

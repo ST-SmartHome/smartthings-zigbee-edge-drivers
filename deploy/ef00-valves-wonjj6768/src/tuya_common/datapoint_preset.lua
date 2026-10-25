@@ -1,18 +1,18 @@
-local function as(z,aB,bs)
-bs=bs or{switch=function()return nil end}
-local d=aB.type_check
-local M=aB.table_insert
-local aR=aB.tonumber_check
-local j=aB.merge_options
-local bm=aB.copy_keys
-local q=z.converter
-local function ap(Y,J)
+local function ar(A,aA,br)
+br=br or{switch=function()return nil end}
+local d=aA.type_check
+local M=aA.table_insert
+local aQ=aA.tonumber_check
+local j=aA.merge_options
+local bl=aA.copy_keys
+local r=A.converter
+local function ao(Y,J)
 if d(Y)~="table"or d(J)~="table"then
 return Y
 end
-for ar,Q in pairs(J)do
-if Y[ar]==nil then
-Y[ar]=Q
+for aq,Q in pairs(J)do
+if Y[aq]==nil then
+Y[aq]=Q
 end
 end
 return Y
@@ -28,97 +28,86 @@ a.name=g
 end
 return a
 end
-local am={
-"send_policy","command_id","transaction","batch_key","match_transaction","response_dp","response_dps","match_response",}
-local function al(b)
+local al={
+"send_policy","command_id","transaction","batch_key","match_transaction","response_dp","response_dps","match_response"}
+local function ak(b)
 if d(b)~="table"then
 return false
 end
-for _,ar in ipairs(am)do
-if b[ar]~=nil then
+for _,aq in ipairs(al)do
+if b[aq]~=nil then
 return true
 end
 end
 return false
 end
-local function aG(bh,b)
-if al(b)then
-return bh
+local function aF(bg,b)
+if ak(b)then
+return bg
 end
-return z.apply_fixed_send_policy(bh)
+return A.apply_fixed_send_policy(bg)
 end
-local function ab(A,g,c,b)
-local a=e(c,b,g)local u=a.scale
-if u==nil then
-u=10
+local function v(B,g,y,c,b)
+local a=e(c,b,g)local z=a.scale
+if z==nil then
+z=y
 end
-if a.converter==nil and a.from_device==nil and a.to_device==nil and u~=1 then
-a.converter=q.divide_by_pair(u)
-end
-a.scale=nil
-return z.dp_numeric(A,a)
-end
-local function D(A,g,y,c,b)
-local a=e(c,b,g)local u=a.scale
-if u==nil then
-u=y
-end
-if a.converter==nil and a.from_device==nil and a.to_device==nil and u~=1 then
-a.converter=q.divide_by_pair(u)
+if a.converter==nil and a.from_device==nil and a.to_device==nil and z~=1 then
+a.converter=r.divide_by_pair(z)
 end
 a.scale=nil
-return z.dp_numeric(A,a)
+return A.dp_numeric(B,a)
 end
-local function aW(A,g,y,c,b)
-local a=e(c,b,g)local u=a.scale
-if u==nil then
-u=y
+local function aV(B,g,y,c,b)
+local a=e(c,b,g)local z=a.scale
+if z==nil then
+z=y
 end
 if a.converter==nil and a.from_device==nil and a.to_device==nil then
-local ao=q.power()local bf=ao.from
-if u~=1 then
-a.from_device=q.pipe(
-bf,q.divide_by(u))else
-a.converter=ao
+local an=r.power()local be=an.from
+if z~=1 then
+a.from_device=r.pipe(
+be,r.divide_by(z))else
+a.converter=an
 end
 end
 a.scale=nil
-return z.dp_numeric(A,a)
+return A.dp_numeric(B,a)
 end
-local function aU(A,g,y,c,b)
-local a=e(c,b,g)local u=a.scale
-if u==nil then
-u=y
+local function aT(B,g,y,c,b)
+local a=e(c,b,g)local z=a.scale
+if z==nil then
+z=y
 end
 if a.converter==nil and a.from_device==nil and a.to_device==nil then
-a.converter=q.signed_number_pair(u)
+a.converter=r.signed_number_pair(z)
 end
 if a.signed==nil then
 a.signed=true
 end
 a.scale=nil
-return z.dp_numeric(A,a)
+return A.dp_numeric(B,a)
 end
-local function o(A,g,y,bc,c,b)
-local a=e(c,b,g)local u=a.scale
-if u==nil then
-u=y
+local function o(B,g,y,bb,c,b)
+local a=e(c,b,g)local z=a.scale
+if z==nil then
+z=y
 end
-local br=
-a.datatype==z.DP_TYPE_RAW or
+local bq=
+a.datatype==A.DP_TYPE_RAW or
 a.raw==true or
 a.raw_bytes~=nil or
 a.raw_length~=nil or
 a.raw_from_tail~=nil or
 a.raw_start~=nil or
 a.raw_offset~=nil
-if br and a.converter==nil and a.from_device==nil and a.to_device==nil then
-local aE={
-bytes=a.raw_bytes or a.raw_length,length=a.raw_length,from_tail=a.raw_from_tail,start=a.raw_start,offset=a.raw_offset,}ap(aE,bc)a.converter=q.raw_uint_be(u,aE)if a.datatype==nil then
-a.datatype=z.DP_TYPE_RAW
+if bq and a.converter==nil and a.from_device==nil and a.to_device==nil then
+local aD={
+bytes=a.raw_bytes or a.raw_length,length=a.raw_length,from_tail=a.raw_from_tail,start=a.raw_start,offset=a.raw_offset}ao(aD,bb)a.converter=r.raw_uint_be(z,aD)if a.datatype==nil then
+a.datatype=A.DP_TYPE_RAW
 end
-elseif a.converter==nil and a.from_device==nil and a.to_device==nil and u~=1 then
-a.converter=q.divide_by_pair(u)
+elseif a.converter==nil and a.from_device==nil and a.to_device==nil and z~=1 then
+a.converter=r.divide_by_pair(z)
 end
 a.scale=nil
 a.raw=nil
@@ -127,22 +116,22 @@ a.raw_length=nil
 a.raw_from_tail=nil
 a.raw_start=nil
 a.raw_offset=nil
-return z.dp_numeric(A,a)
+return A.dp_numeric(B,a)
 end
-local function V(Q,bp,bo)
-local aA=aR(Q)if aA==nil then
+local function V(Q,bo,bn)
+local az=aQ(Q)if az==nil then
 return nil
 end
-return bp+bo-aA
+return bo+bn-az
 end
-local function aT(A,g,J,c,b)
-local a=e(c,b,g)local af=a.raw_min
-if af==nil then
-af=J.raw_min
-end
-local ae=a.raw_max
+local function aS(B,g,J,c,b)
+local a=e(c,b,g)local ae=a.raw_min
 if ae==nil then
-ae=J.raw_max
+ae=J.raw_min
+end
+local ad=a.raw_max
+if ad==nil then
+ad=J.raw_max
 end
 local H=a.value_min
 if H==nil then
@@ -152,24 +141,24 @@ local G=a.value_max
 if G==nil then
 G=J.value_max
 end
-local bv=a.invert==true or a.invert_position==true
+local bu=a.invert==true or a.invert_position==true
 if a.converter==nil and a.from_device==nil and a.to_device==nil then
-if bv then
-local bj=q.scale(af,ae,H,G)local bt=q.scale(H,G,af,ae)a.converter=q.from_to(
-function(Q,aY,aO)
-local bq=bj(Q,aY,aO)if bq==nil then
+if bu then
+local bi=r.scale(ae,ad,H,G)local bs=r.scale(H,G,ae,ad)a.converter=r.from_to(
+function(Q,aX,aN)
+local bp=bi(Q,aX,aN)if bp==nil then
 return nil
 end
-return V(bq,H,G)
+return V(bp,H,G)
 end,
-function(Q,aY,aO)
-local ba=V(Q,H,G)if ba==nil then
+function(Q,aX,aN)
+local aZ=V(Q,H,G)if aZ==nil then
 return nil
 end
-return bt(ba,aY,aO)
+return bs(aZ,aX,aN)
 end
-)elseif af~=H or ae~=G then
-a.converter=q.scale_pair(af,ae,H,G)
+)elseif ae~=H or ad~=G then
+a.converter=r.scale_pair(ae,ad,H,G)
 end
 end
 a.raw_min=nil
@@ -178,69 +167,69 @@ a.value_min=nil
 a.value_max=nil
 a.invert=nil
 a.invert_position=nil
-return z.dp_numeric(A,a)
+return A.dp_numeric(B,a)
 end
-local function bk(phase,aZ)
+local function bj(phase,aY)
 if d(phase)=="string"and phase~=""then
-return(aZ or"phase").."_"..phase
+return(aY or"phase").."_"..phase
 end
-return aZ or"phase"
+return aY or"phase"
 end
-local function bb(bx,phase)
-local bn={}for _,ar in ipairs(bx or{})do
-local aH=ar
+local function ba(bw,phase)
+local bm={}for _,aq in ipairs(bw or{})do
+local aG=aq
 if d(phase)=="string"and phase~=""then
-aH=ar.."_"..phase
+aG=aq.."_"..phase
 end
-bn[aH]=true
+bm[aG]=true
 end
-return bn
+return bm
 end
-local function bd(A,g,aQ,bi,c,b)
-local aX=
+local function bc(B,g,aP,bh,c,b)
+local aW=
 d(c)=="string"or
 (d(c)=="table"and c.name~=nil)or
 (d(b)=="table"and b.name~=nil)local a=e(c,b,g)local phase=a.phase
-if not aX and a.name==g then
-a.name=bk(phase,g)
+if not aW and a.name==g then
+a.name=bj(phase,g)
 end
 if a.read_only==nil then
 a.read_only=true
 end
 if a.converter==nil and a.from_device==nil and a.to_device==nil then
-a.converter=aQ(a)
+a.converter=aP(a)
 end
 if a.field==nil and a.fields==nil then
-a.fields=bb(bi,phase)
+a.fields=ba(bh,phase)
 end
-return z.dp_raw(A,a)
+return A.dp_raw(B,a)
 end
-local function be(A,c,b)
+local function bd(B,c,b)
 local a=e(c,b,"threshold")if a.read_only==nil then
 a.read_only=true
 end
 if a.converter==nil and a.from_device==nil and a.to_device==nil then
-a.converter=q.threshold_parser()
+a.converter=r.threshold_parser()
 end
 if a.field==nil and a.fields==nil then
 a.fields={
-threshold_1=true,threshold_1_protection=true,threshold_1_value=true,threshold_2=true,threshold_2_protection=true,threshold_2_value=true,}
+threshold_1=true,threshold_1_protection=true,threshold_1_value=true,threshold_2=true,threshold_2_protection=true,threshold_2_value=true}
 end
-return z.dp_raw(A,a)
+return A.dp_raw(B,a)
 end
-local function an(m)
+local function am(m)
 if d(m)=="number"and m%1==0 and m>=0 then
 return{m}
 end
 if d(m)~="table"then
 return{}
 end
-local aI={}for _,A in ipairs(m)do
-if d(A)=="number"and A%1==0 and A>=0 then
-M(aI,A)
+local aH={}for _,B in ipairs(m)do
+if d(B)=="number"and B%1==0 and B>=0 then
+M(aH,B)
 end
 end
-return aI
+return aH
 end
 local function Z(b)
 if d(b)~="table"then
@@ -255,7 +244,7 @@ m=b
 end
 return m
 end
-local function ad(b)
+local function ac(b)
 local m=Z(b)if m~=nil then
 return m
 end
@@ -264,12 +253,12 @@ return b
 end
 return b.dp
 end
-local function aJ(x,b)
-b=b or{}local aK=b.phases
-if d(aK)~="table"then
-aK=b.phase_names
+local function aI(x,b)
+b=b or{}local aJ=b.phases
+if d(aJ)~="table"then
+aJ=b.phase_names
 end
-local phase=d(aK)=="table"and aK[x]or nil
+local phase=d(aJ)=="table"and aJ[x]or nil
 if d(phase)=="string"and phase~=""then
 return phase
 end
@@ -285,7 +274,7 @@ return E..tostring(x)
 end
 return tostring(x)
 end
-local function ah(x,b)
+local function ag(x,b)
 b=b or{}local K=b.first_is_main~=false
 local I=b.component_prefix
 if d(I)~="string"or I==""then
@@ -295,80 +284,80 @@ local P=b.main_component
 if d(P)~="string"or P==""then
 P="main"
 end
-local r=b.index_offset
-if d(r)~="number"or r%1~=0 then
-r=0
+local q=b.index_offset
+if d(q)~="number"or q%1~=0 then
+q=0
 end
 if x==1 and K then
 return P
 end
-local aC=K and(x-1+r)or(x+r)if aC<1 then
+local aB=K and(x-1+q)or(x+q)if aB<1 then
 return b.default_component
 end
-return I..tostring(aC)
+return I..tostring(aB)
 end
-local function ay(x,b,aP)
+local function ax(x,b,aO)
 b=b or{}local K=b.first_is_main~=false
 local W=b.key_prefix
 if d(W)~="string"or W==""then
-W=aP or"switch"
+W=aO or"switch"
 end
-local au=b.main_key
-if d(au)~="string"or au==""then
-au=W
+local at=b.main_key
+if d(at)~="string"or at==""then
+at=W
 end
-local r=b.index_offset
-if d(r)~="number"or r%1~=0 then
-r=0
+local q=b.index_offset
+if d(q)~="number"or q%1~=0 then
+q=0
 end
 if x==1 and K then
-return au
+return at
 end
-local aC=K and(x-1+r)or(x+r)if aC<1 then
+local aB=K and(x-1+q)or(x+q)if aB<1 then
 return b.default_key
 end
-return W..tostring(aC)
+return W..tostring(aB)
 end
-local function R(h,A,w,b)
-if d(A)~="number"or A%1~=0 or A<0 then
+local function R(h,B,w,b)
+if d(B)~="number"or B%1~=0 or B<0 then
 return
 end
-M(h,w(A,b))
+M(h,w(B,b))
 end
-local function aa(Y,bu)
-if d(bu)~="table"then
+local function aa(Y,bt)
+if d(bt)~="table"then
 return Y
 end
-for _,bw in ipairs(bu)do
-M(Y,bw)
+for _,bv in ipairs(bt)do
+M(Y,bv)
 end
 return Y
 end
-local ak={
-"first_is_main","main_component","component_prefix","index_offset","default_component","key_prefix","main_key","default_key",}
-local function ax(Q)
+local aj={
+"first_is_main","main_component","component_prefix","index_offset","default_component","key_prefix","main_key","default_key"}
+local function aw(Q)
 return d(Q)=="number"and Q%1==0 and Q>0
 end
 local function p(b,i)
 local a={}if d(b)~="table"then
 return a
 end
-for ar,Q in pairs(b)do
-local aF=true
+for aq,Q in pairs(b)do
+local aE=true
 if not i then
-if ar=="dp"or ar=="dps"or ar=="dp_list"then
-aF=false
-elseif ax(ar)then
-aF=false
+if aq=="dp"or aq=="dps"or aq=="dp_list"then
+aE=false
+elseif aw(aq)then
+aE=false
 end
 end
-if aF then
-a[ar]=Q
+if aE then
+a[aq]=Q
 end
 end
 return a
 end
-local function ac(b)
+local function ab(b)
 if d(b)~="table"then
 return false
 end
@@ -404,7 +393,7 @@ a.dp=s
 end
 return a
 end
-local function v(s)
+local function u(s)
 if s==nil then
 return nil
 end
@@ -417,24 +406,24 @@ local function U(b,n)
 if d(b)~="table"then
 return nil
 end
-return v(b[n])
+return u(b[n])
 end
-local function av(at,f)
-local L=d(at)=="table"and at.item_options or nil
-local C=d(f)=="table"and f.item_options or nil
+local function au(as,f)
+local L=d(as)=="table"and as.item_options or nil
+local D=d(f)=="table"and f.item_options or nil
 if d(L)~="table"then
-return d(C)=="table"and C or nil
+return d(D)=="table"and D or nil
 end
-if d(C)~="table"then
+if d(D)~="table"then
 return L
 end
-local a={}j(a,L)j(a,C)return a
+local a={}j(a,L)j(a,D)return a
 end
-local function ag(b,n,B,i)
-local a={}local s=nil
+local function af(b,n,C,i)
+local a={}local s
 if d(b)=="table"then
-bm(a,b,ak)s=b[n]if d(s)=="table"then
-j(a,p(b,i))if i and ac(s)then
+bl(a,b,aj)s=b[n]if d(s)=="table"then
+j(a,p(b,i))if i and ab(s)then
 F(a)
 end
 j(a,s)elseif s~=nil then
@@ -446,16 +435,16 @@ else
 j(a,p(b,i))
 end
 end
-if a.key_prefix==nil and B~=nil then
-a.key_prefix=B
+if a.key_prefix==nil and C~=nil then
+a.key_prefix=C
 end
-a.item_options=av(b,s)return a
+a.item_options=au(b,s)return a
 end
 local function N(b,l)
-local k={}local aq=U(b,"config")j(k,aq)local aw=v(k[l])if aw~=nil then
-k[l]=aw
+local k={}local ap=U(b,"config")j(k,ap)local av=u(k[l])if av~=nil then
+k[l]=av
 else
-local X=v(k.switch_type)if X==nil then
+local X=u(k.switch_type)if X==nil then
 X=U(b,"switch_type")
 end
 if d(X)=="table"then
@@ -480,7 +469,7 @@ end
 a.switch_type=nil
 return a
 end
-local function aV(b,l)
+local function aU(b,l)
 local a={}if d(b)=="table"then
 j(a,b)
 end
@@ -490,97 +479,97 @@ a.switch_module=T
 end
 return a
 end
-local function bl(h,b,n,w)
+local function bk(h,b,n,w)
 local f=t(b,n)R(h,f.dp,w,f)
 end
-local function aD(h,b,n,w,J)
-local f=t(b,n)ap(f,J)R(h,f.dp,w,f)
+local function aC(h,b,n,w,J)
+local f=t(b,n)ao(f,J)R(h,f.dp,w,f)
 end
-local function aS(h,b,n,w,az)
-local f=t(b,n)local m=Z(f)if m~=nil and az~=nil then
-aa(h,az(m,f))return
+local function aR(h,b,n,w,ay)
+local f=t(b,n)local m=Z(f)if m~=nil and ay~=nil then
+aa(h,ay(m,f))return
 end
 R(h,f.dp,w,f)
 end
-local function aL(h,b,n,B,w)
-local f=ag(b,n,B)aa(h,w(ad(f),f))
+local function aK(h,b,n,C,w)
+local f=af(b,n,C)aa(h,w(ac(f),f))
 end
-local function bg(m,w,g,b)
-local h={}local aj=an(m)local ai=d(b)=="table"and b.item_options or nil
-for x,A in ipairs(aj)do
-local a=e(ai,nil,g)if a.component==nil then
-a.component=ah(x,b)
+local function bf(m,w,g,b)
+local h={}local ai=am(m)local ah=d(b)=="table"and b.item_options or nil
+for x,B in ipairs(ai)do
+local a=e(ah,nil,g)if a.component==nil then
+a.component=ag(x,b)
 end
 if a.key==nil and a.preference==nil then
-a.key=ay(x,b,g)
+a.key=ax(x,b,g)
 end
 if a.field==nil and a.fields==nil and a.key~=nil then
 a.field=a.key
 end
-M(h,w(A,a))
+M(h,w(B,a))
 end
 return h
 end
-local function aN(m,w,b)
-local h={}local aj=an(m)local ai=d(b)=="table"and b.item_options or nil
-for x,A in ipairs(aj)do
-local a=e(ai,nil,nil)if a.phase==nil then
-a.phase=aJ(x,b)
+local function aM(m,w,b)
+local h={}local ai=am(m)local ah=d(b)=="table"and b.item_options or nil
+for x,B in ipairs(ai)do
+local a=e(ah,nil,nil)if a.phase==nil then
+a.phase=aI(x,b)
 end
-M(h,w(A,a))
+M(h,w(B,a))
 end
 return h
 end
-local function aM(b,n,w)
-local f=nil
+local function aL(b,n,w)
+local f
 if d(b)=="table"then
 f=t(b,n,true)else
 f={dp=b}
 end
 local h={}R(h,f.dp,w,f)return h
 end
-function z.dp_on_off(A,c,b)
+function A.dp_on_off(B,c,b)
 local a=e(c,b,"switch")if a.name=="switch"and a.emit==nil then
-a.emit=bs.switch()
+a.emit=br.switch()
 end
-return z.dp_binary(A,a)
+return A.dp_binary(B,a)
 end
-function z.dp_temperature(A,c,b)
-return ab(A,"temperature",c,b)
+function A.dp_temperature(B,c,b)
+return v(B,"temperature",10,c,b)
 end
-function z.dp_battery(A,c,b)
-return D(A,"battery",1,c,b)
+function A.dp_battery(B,c,b)
+return v(B,"battery",1,c,b)
 end
-function z.dp_reverse_water_consumed(A,c,b)
+function A.dp_reverse_water_consumed(B,c,b)
 return o(
-A,"reverse_water_consumed",1000,{bytes=4},c,b)
+B,"reverse_water_consumed",1000,{bytes=4},c,b)
 end
-function z.dp_month_consumption(A,c,b)
+function A.dp_month_consumption(B,c,b)
 return o(
-A,"month_consumption",1000,{bytes=4,from_tail=true},c,b)
+B,"month_consumption",1000,{bytes=4,from_tail=true},c,b)
 end
-function z.dp_daily_consumption(A,c,b)
+function A.dp_daily_consumption(B,c,b)
 return o(
-A,"daily_consumption",1000,{bytes=4,from_tail=true},c,b)
+B,"daily_consumption",1000,{bytes=4,from_tail=true},c,b)
 end
-function z.dp_flow_rate(A,c,b)
+function A.dp_flow_rate(B,c,b)
 return o(
-A,"flow_rate",1000,{bytes=4},c,b)
+B,"flow_rate",1000,{bytes=4},c,b)
 end
-function z.dp_battery_voltage(A,c,b)
-return D(A,"battery_voltage",100,c,b)
+function A.dp_battery_voltage(B,c,b)
+return v(B,"battery_voltage",100,c,b)
 end
-function z.dp_meter_id(A,c,b)
+function A.dp_meter_id(B,c,b)
 local a=e(c,b,"meter_id")if a.converter==nil and a.from_device==nil and a.to_device==nil then
-a.converter=q.raw_identifier()
+a.converter=r.raw_identifier()
 end
-return z.dp_raw(A,a)
+return A.dp_raw(B,a)
 end
-function z.dp_water_meter_faults(A,c,b)
+function A.dp_water_meter_faults(B,c,b)
 local a=e(c,b,"faults")if a.converter==nil and a.from_device==nil and a.to_device==nil then
-a.converter=q.water_meter_faults()
+a.converter=r.water_meter_faults()
 end
-return z.dp_numeric(A,a)
+return A.dp_numeric(B,a)
 end
 end
-return as
+return ar

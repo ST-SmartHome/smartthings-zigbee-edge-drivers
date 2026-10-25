@@ -54,6 +54,12 @@ components:
     version: 1
   - id: concertmirror08464.zclEnergyReportChange25
     version: 1
+  - id: concertmirror08464.zclExportReportMin
+    version: 1
+  - id: concertmirror08464.zclExportReportMax
+    version: 1
+  - id: concertmirror08464.zclExportReportChange25
+    version: 1
   - id: concertmirror08464.zclFrequencyReportMin
     version: 1
   - id: concertmirror08464.zclFrequencyReportMax
@@ -83,6 +89,12 @@ components:
   - id: concertmirror08464.zclEnergyTwoReportMax
     version: 1
   - id: concertmirror08464.zclEnergyTwoReportChange25
+    version: 1
+  - id: concertmirror08464.zclExportTwoReportMin
+    version: 1
+  - id: concertmirror08464.zclExportTwoReportMax
+    version: 1
+  - id: concertmirror08464.zclExportTwoReportChange25
     version: 1
   - id: concertmirror08464.zclFrequencyTwoReportMin
     version: 1

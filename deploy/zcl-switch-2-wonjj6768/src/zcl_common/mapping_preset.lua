@@ -70,7 +70,7 @@ if E~=nil then
 return E
 end
 return c
-end,
+end
 }
 end
 local function T(c,I,H)
@@ -84,12 +84,12 @@ return c
 end
 local function r()
 return q({
-[0]="off",[1]="on",[2]="previous",},nil,nil,{
-restore="previous",})
+[0]="off",[1]="on",[2]="previous"},nil,nil,{
+restore="previous"})
 end
 local function D()
-return q({
-[0]="toggle",[1]="state",[2]="momentary",})
+return q{
+[0]="toggle",[1]="state",[2]="momentary"}
 end
 local function encode_uint16_le(c)
 local M=math.floor(T(tonumber(c)or 0,0,65535)+0.5)return string.char(bit32.band(M,255))..
@@ -102,15 +102,15 @@ name=d.name,emit=d.emit,converter=F,
 to_device=function(c)
 return F.to(c)
 end,
-data_type=l.Enum8,write_type=l.Enum8,attribute_name=d.attribute_name,mfg_code=d.mfg_code,read_on_configure=true,})return p.cluster_attribute(N,J,b)
+data_type=l.Enum8,write_type=l.Enum8,attribute_name=d.attribute_name,mfg_code=d.mfg_code,read_on_configure=true})return p.cluster_attribute(N,J,b)
 end
 end
 local function h(C,B,y)
 return{
-minimum_interval=C,maximum_interval=B,reportable_change=y,read_on_configure=true,}
+minimum_interval=C,maximum_interval=B,reportable_change=y,read_on_configure=true}
 end
 local function m(...)
-local O={}for _,d in ipairs({...})do
+local O={}for _,d in ipairs{...}do
 g(O,d)
 end
 return O
@@ -134,31 +134,31 @@ local k=f.configure_reporting
 f.configure_reporting=nil
 if k==false then
 return{
-emit=A.switch(),}
+emit=A.switch()}
 end
 return m(
 {
-emit=A.switch(),},h(0,300,nil))
+emit=A.switch()},h(0,300,nil))
 end)
 p.power_on_behavior=o(p.CLUSTER_ON_OFF,32770,{
-name="power_on_behavior",emit=n("power_on_behavior"),attribute_name="tuyaPowerOnBehavior",converter_factory=r,})
+name="power_on_behavior",emit=n"power_on_behavior",attribute_name="tuyaPowerOnBehavior",converter_factory=r})
 p.child_lock=function(a,f)
 local b=e(a,f)g(b,{
-name="child_lock",emit=n("childLock"),
+name="child_lock",emit=n"childLock",
 from_device=function(c)
 return c and"on"or"off"
 end,
 to_device=function(c)
 return c==true or c=="on"or c=="lock"or c=="LOCK"
 end,
-data_type=l.Boolean,write_type=l.Boolean,attribute_name="tuyaChildLock",read_on_configure=true,})return p.cluster_attribute(p.CLUSTER_ON_OFF,32768,b)
+data_type=l.Boolean,write_type=l.Boolean,attribute_name="tuyaChildLock",read_on_configure=true})return p.cluster_attribute(p.CLUSTER_ON_OFF,32768,b)
 end
 p.tuya_magic_packet=function(a,f)
 local b=e(a,f)g(b,{
-name="tuya_magic_packet",read_only=true,read_on_configure=true,})return p.cluster_attribute(0,65534,b)
+name="tuya_magic_packet",read_only=true,read_on_configure=true})return p.cluster_attribute(0,65534,b)
 end
 p.switch_type=o(57345,53296,{
-name="switch_type",emit=n("switch_type"),attribute_name="tuyaExternalSwitchType",mfg_code=4417,converter_factory=D,})
+name="switch_type",emit=n"switch_type",attribute_name="tuyaExternalSwitchType",mfg_code=4417,converter_factory=D})
 p.countdown_timer=function(a,f)
 local b=e(a,f)g(b,{
 name="countdown_timer",emit=n("countdownTimerZclTwelveHours","s"),data_type=l.Uint16,write_type=l.Uint16,tx_command_id=66,
@@ -166,26 +166,26 @@ to_device=function(c)
 local G=T(tonumber(c)or 0,0,43200)return string.char(0)..encode_uint16_le(G)..encode_uint16_le(G)
 end,
 numeric_range={
-minimum=0,maximum=43200,step=1,unit="s",},attribute_name="onTime",read_on_configure=true,})return p.cluster_attribute(p.CLUSTER_ON_OFF,16385,b)
+minimum=0,maximum=43200,step=1,unit="s"},attribute_name="onTime",read_on_configure=true})return p.cluster_attribute(p.CLUSTER_ON_OFF,16385,b)
 end
 j("power",p.electrical_measurement_power,function()
 return m(
 {
-emit=A.power(),metering_kind="power",poll_interval=300,},h(5,300,1))
+emit=A.power(),metering_kind="power",poll_interval=300},h(5,300,1))
 end)
 j("current",p.electrical_measurement_current,function()
 return m(
 {
-emit=A.current(),scale=1000,metering_kind="current",poll_interval=300,},h(5,300,1))
+emit=A.current(),scale=1000,metering_kind="current",poll_interval=300},h(5,300,1))
 end)
 j("voltage",p.electrical_measurement_voltage,function()
 return m(
 {
-emit=A.voltage(),metering_kind="voltage",poll_interval=300,},h(5,300,1))
+emit=A.voltage(),metering_kind="voltage",poll_interval=300},h(5,300,1))
 end)
 j("energy",p.simple_metering,function()
 return{
-emit=A.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900,}
+emit=A.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900}
 end)
 end
 return u

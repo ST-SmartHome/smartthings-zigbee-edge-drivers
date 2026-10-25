@@ -1,110 +1,145 @@
-local function o(v)
-local z=require"capabilities.events.all"
+local function q(o)
+local n=require"capabilities.events.all"
 local F=require"st.zigbee.data_types"
 local A=require"st.zigbee.constants"
 local D=require"st.utils.safe_xy_to_hsv"
-local function m(f,y)
-if type(f)~="table"then
-f={}
+local function p(i,z)
+if type(i)~="table"then
+i={}
 end
-if type(y)~="table"then
-return f
+if type(z)~="table"then
+return i
 end
-for B,i in pairs(y)do
-f[B]=i
+for B,l in pairs(z)do
+i[B]=l
 end
-return f
+return i
 end
-local function j(f,c)
-if type(f)~="table"or type(c)~="table"then
-return f
+local function m(i,f)
+if type(i)~="table"or type(f)~="table"then
+return i
 end
-for B,i in pairs(c)do
-if f[B]==nil then
-f[B]=i
+for B,l in pairs(f)do
+if i[B]==nil then
+i[B]=l
 end
 end
-return f
+return i
 end
-local function d(a,l)
-local b={}if type(a)=="string"then
-b.name=a
+local function h(d,k)
+local e={}if type(d)=="string"then
+e.name=d
 else
-m(b,a)
+p(e,d)
 end
-m(b,l)return b
+p(e,k)return e
 end
-local function E(i,u,t)
-if i<u then
-return u
+local function E(l,w,v)
+if l<w then
+return w
 end
-if i>t then
-return t
+if l>v then
+return v
 end
-return i
+return l
 end
-local function h()
+local function j()
 return{
-from=function(i)
-if type(i)~="number"then
-return i
+from=function(l)
+if type(l)~="number"then
+return l
 end
-local w=E(i,0,100)if w<=0 then
+local x=E(l,0,100)if x<=0 then
 return"closed"
 end
-if w>=100 then
+if x>=100 then
 return"open"
 end
 return"partially open"
-end,
+end
 }
 end
-local function e(s,r,p)
+local function a(u,t,r)
 return{
-minimum_interval=s,maximum_interval=r,reportable_change=p,read_on_configure=true,}
+minimum_interval=u,maximum_interval=t,reportable_change=r,read_on_configure=true}
 end
-local function k(...)
-local x={}for _,c in ipairs({...})do
-j(x,c)
+local function c(...)
+local y={}for _,f in ipairs{...}do
+m(y,f)
 end
-return x
+return y
 end
-local function g(G,C,q)
-v[G]=function(a,l)
-local b=d(a,l)local n=b.configure_reporting
-local c=q(b)b.configure_reporting=nil
-if n==false then
-c.minimum_interval=nil
-c.maximum_interval=nil
-c.reportable_change=nil
-c.physical_reportable_change=nil
-c.reporting_defaults=nil
+local function b(G,C,s)
+o[G]=function(d,k)
+local e=h(d,k)local g=e.configure_reporting
+local f=s(e)e.configure_reporting=nil
+if g==false then
+f.minimum_interval=nil
+f.maximum_interval=nil
+f.reportable_change=nil
+f.physical_reportable_change=nil
+f.reporting_defaults=nil
 end
-j(b,c)return C(b)
+m(e,f)return C(e)
 end
 end
-g("battery",v.power_configuration_battery,function()
-return k(
+b("battery",o.power_configuration_battery,function()
+return c(
 {
-emit=z.battery(),scale=2,},e(300,21600,2))
+emit=n.battery(),scale=2},a(300,21600,2))
 end)
-v.tuya_magic_packet=function(a,l)
-local b=d(a,l)j(b,{
-name="tuya_magic_packet",read_only=true,read_on_configure=true,})return v.cluster_attribute(0,65534,b)
-end
-g("cover_position",v.window_covering_position,function()
-return k(
-{
-emit=z.shade_level(),},e(0,600,1))
-end)
-g("cover_state",v.window_covering_position,function()
+b("switch",o.on_off,function(k)
+local g=k.configure_reporting
+k.configure_reporting=nil
+if g==false then
 return{
-name="cover_state",write_only=true,}
-end)
-g("window_shade_state",v.window_covering_position,function()
-return k(
+emit=n.switch()}
+end
+return c(
 {
-name="window_shade_state",emit=z.shade_state(),converter=h(),},e(0,600,1))
+emit=n.switch()},a(0,300,nil))
+end)
+o.tuya_magic_packet=function(d,k)
+local e=h(d,k)m(e,{
+name="tuya_magic_packet",read_only=true,read_on_configure=true})return o.cluster_attribute(0,65534,e)
+end
+b("power",o.electrical_measurement_power,function()
+return c(
+{
+emit=n.power(),metering_kind="power",poll_interval=300},a(5,300,1))
+end)
+b("current",o.electrical_measurement_current,function()
+return c(
+{
+emit=n.current(),scale=1000,metering_kind="current",poll_interval=300},a(5,300,1))
+end)
+b("voltage",o.electrical_measurement_voltage,function()
+return c(
+{
+emit=n.voltage(),metering_kind="voltage",poll_interval=300},a(5,300,1))
+end)
+b("energy",o.simple_metering,function()
+return{
+emit=n.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900}
+end)
+b("cover_position",o.window_covering_position,function()
+return c(
+{
+emit=n.shade_level()},a(0,600,1))
+end)
+b("cover_state",o.window_covering_position,function()
+return{
+name="cover_state",write_only=true}
+end)
+b("cover_tilt",o.window_covering_tilt,function()
+return c(
+{
+name="cover_tilt",emit=n.shade_tilt_level(),tx_command_id=8},a(0,600,1))
+end)
+b("window_shade_state",o.window_covering_position,function()
+return c(
+{
+name="window_shade_state",emit=n.shade_state(),converter=j()},a(0,600,1))
 end)
 end
-return o
+return q

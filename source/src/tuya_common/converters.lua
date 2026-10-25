@@ -22,13 +22,6 @@ local function resolve_converter_arg(arg, device, context)
   return arg
 end
 
-local function resolve_lookup_default(default_value, device, context)
-  if type_check(default_value) == "function" then
-    return default_value(device, context)
-  end
-  return default_value
-end
-
 local function resolve_numeric_arg(arg, device, context)
   local resolved = resolve_converter_arg(arg, device, context)
   if resolved == nil then
@@ -271,7 +264,7 @@ function converter.lookup_from_to(map, default_value)
         return mapped
       end
 
-      local fallback = resolve_lookup_default(default_value, device, context)
+      local fallback = resolve_converter_arg(default_value, device, context)
       if fallback ~= nil then
         return fallback
       end
@@ -293,7 +286,7 @@ function converter.lookup_value(map, default_value)
       return mapped
     end
 
-    local fallback = resolve_lookup_default(default_value, device, context)
+    local fallback = resolve_converter_arg(default_value, device, context)
     if fallback ~= nil then
       return fallback
     end
@@ -395,7 +388,7 @@ function converter.bitmap_flags(map, empty_value, separator)
     end
 
     if #labels == 0 then
-      return resolve_lookup_default(empty_value, device, context)
+      return resolve_converter_arg(empty_value, device, context)
     end
 
     local resolved_separator = resolve_converter_arg(separator, device, context)

@@ -34,13 +34,13 @@ return g[1]~=nil and g or nil
 end
 local function m(v)
 local o=j()return{
-profile=v,package_group="wave19-cover",transport_classification="CUSTOM_PAYLOAD",z2m_converter_source="legacy.fz.tuya_cover+legacy.tz.tuya_cover_control",wire_cluster="manuSpecificTuya",magic_packet=false,query_on_configure=false,time_start="off",datapoints={
+profile=v,package_group="wave19-cover",magic_packet=false,query_on_configure=false,time_start="off",datapoints={
 p.dp_enum(1,{
-name="cover_state",write_only=true,converter=n.lookup_from_to({open=0,stop=1,close=2}),}),p.dp_numeric(2,{
-name="cover_position",converter=o,emit=h,}),p.dp_numeric(3,{
-name="cover_arrived",read_only=true,converter=o,emit=h,}),p.dp_numeric(105,{name="motor_speed_unexposed",read_only=true}),},}
+name="cover_state",write_only=true,converter=n.lookup_from_to{open=0,stop=1,close=2}}),p.dp_numeric(2,{
+name="cover_position",converter=o,emit=h}),p.dp_numeric(3,{
+name="cover_arrived",read_only=true,converter=o,emit=h}),p.dp_numeric(105,{name="motor_speed_unexposed",read_only=true})}}
 end
-b(m("covers-wave19-legacy-tuya"),{
-d.create_fingerprint("_TZE200_swhwv3k3","TS0601"),})b(m("covers-wave19-legacy-tuya"),{
-d.create_fingerprint("_TZE200_sbordckq","TS0601"),})return{
-id="ef00.covers.wave19_legacy",registrations=i,}
+b(m"covers-wave19-legacy-tuya",{
+d.create_fingerprint("_TZE200_swhwv3k3","TS0601")})b(m"covers-wave19-legacy-tuya",{
+d.create_fingerprint("_TZE200_sbordckq","TS0601")})return{
+id="ef00.covers.wave19_legacy",registrations=i}

@@ -80,10 +80,6 @@ local function lux(minimum, maximum, step)
   return range(minimum, maximum, step, "lux")
 end
 
-local function minutes(minimum, maximum, step)
-  return range(minimum, maximum, step, "min")
-end
-
 local function make_numeric_capability(options)
   local attribute_name = assert(options.attribute_name, "numeric capability requires attribute_name")
   local read_only = options.read_only == true

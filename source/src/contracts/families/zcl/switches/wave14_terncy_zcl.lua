@@ -222,14 +222,10 @@ end
 local terncy_ws07 = {
   profile = "switches-wave14-terncy-ws07-d3",
   package_group = "wave14-switch",
-  transport_classification = "ZCL_CUSTOM_COMMAND_RAW_ACTION",
-  z2m_converter_source = "fzLocal.ws07_action + tzLocal.ws07_*",
-  wire_cluster = "0xFCCC/0x1228 + genOnOff endpoints 1..3",
   terncy_ws07 = true,
   zcl_clusters = mappings,
   component_to_endpoint_map = { main = 1, switch2 = 2, switch3 = 3 },
   endpoint_to_component_map = { [1] = "main", [2] = "switch2", [3] = "switch3" },
-  placeholder_custom_states = false,
   configure = configure,
 }
 
@@ -239,7 +235,7 @@ register_device_definition(terncy_ws07, {
 
 -- ZCL REPORTING CAPABILITIES BEGIN
 zcl.attach_reporting_capabilities(device_definitions, {
-  {1, "rpt-tbh", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000600003"] = "SwitchThree"}},
+  {1, "rpt-tbh", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree"}},
 })
 -- ZCL REPORTING CAPABILITIES END
 

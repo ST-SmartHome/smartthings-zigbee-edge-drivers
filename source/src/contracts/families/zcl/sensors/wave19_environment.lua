@@ -12,6 +12,7 @@ local data_types = require "st.zigbee.data_types"
 local caps = require "st.capabilities"
 local device_management = require "st.zigbee.device_management"
 local cluster_base = require "st.zigbee.cluster_base"
+local clusters = require "st.zigbee.zcl.clusters"
 local buf = require "st.buf"
 
 local device_definitions, register = device_helpers.definition_registry()
@@ -84,9 +85,6 @@ end
 local heiman = {
   profile = "sensors-wave19-heiman-hs2aq-ef-three",
   package_group = "wave19-environment",
-  transport_classification = "CUSTOM_PAYLOAD",
-  z2m_converter_source = "standard ZCL + heimanSpecificAirQuality short cluster",
-  wire_cluster = "0x0001/0x000A/0x0402/0x0405/0x042A/0x042B/0xFC81",
   zcl_clusters = {
     temp_report(10,3600,100,nil,nil),
     hum_report(10,3600,100,nil,nil),
@@ -191,9 +189,6 @@ end
 local plaid = {
   profile = "sensors-wave19-plaid-spruce",
   package_group = "wave19-environment",
-  transport_classification = "CUSTOM_PAYLOAD",
-  z2m_converter_source = "fz.temperature+fz.humidity+fzLocal.plaid_battery",
-  wire_cluster = "0x0402/0x0405/0x0001 attr 0x0000",
   zcl_clusters = {
     temp_report(10,3600,100,nil,nil),
     hum_report(10,3600,100,nil,nil),
@@ -342,10 +337,14 @@ local function battery_2500_3000_mapping(name,endpoint,read_on_configure)
   })
 end
 
-local function linear_voltage_events(_,value)
-  if value==255 then return end
-  return {caps.battery.battery(battery_2500_3000_percent(value)),caps.voltageMeasurement.voltage({value=value/10,unit="V"})}
+local function voltage_battery_events(minimum,maximum)
+  return function(_,value)
+    if value==255 then return end
+    return {caps.battery.battery(math.floor(math.max(0,math.min(100,(value-minimum)*100/(maximum-minimum)))+0.5)),
+      caps.voltageMeasurement.voltage({value=value/10,unit="V"})}
+  end
 end
+local linear_voltage_events=voltage_battery_events(25,30)
 
 local function core_battery_alarm(_,value)
   return (value & 0xF03C0F)~=0 and caps.batteryLevel.battery.critical() or caps.batteryLevel.battery.normal()
@@ -404,14 +403,7 @@ register(bosch_radion_core, {
   fp("BOSCH", "RFPR-ZB-MS"),
 })
 
-local function hmszb_battery_events(_, value)
-  if value == 0xFF then return nil end
-  local percent = math.floor(math.max(0,math.min(100,(value-25)*100/7))+0.5)
-  return {
-    caps.battery.battery(percent),
-    caps.voltageMeasurement.voltage({value=value/10, unit="V"}),
-  }
-end
+local hmszb_battery_events=voltage_battery_events(25,32)
 
 local develco_hmszb_core = {
   profile = "sensors-hmszb-core",
@@ -521,13 +513,7 @@ local function centralite_motion_mapping()
   return mapping
 end
 
-local function centralite_battery_events(_, value)
-  if value == 0xFF then return nil end
-  return {
-    caps.battery.battery(math.floor(math.max(0,math.min(100,(value-21)*100/9))+0.5)),
-    caps.voltageMeasurement.voltage({value=value/10, unit="V"}),
-  }
-end
+local centralite_battery_events=voltage_battery_events(21,30)
 
 local centralite_motion_a_core = {
   profile = "safety-motion-centralite-a-core",
@@ -720,6 +706,7 @@ register(salus_ss909zb_core, {
 })
 
 
+do
 local centralite_3310_core = {
   profile = "sensors-centralite-3310-core",
   parent_refresh=function() end,
@@ -771,6 +758,7 @@ local centralite_3328_core = {
 register(centralite_3328_core, {
   fp("CentraLite", "3328-G"),
 })
+end
 
 local function iris_3326_battery(value)
   if value == 0xFF then return nil end
@@ -782,6 +770,11 @@ local function iris_3326_battery(value)
   elseif voltage < 2900 then percent = 42 - (2900-voltage)*24/160
   elseif voltage < 3000 then percent = 100 - (3000-voltage)*58/100 end
   return math.floor(percent+0.5)
+end
+
+local function iris_voltage_events(_,value)
+  if value==255 then return end
+  return {caps.battery.battery(iris_3326_battery(value)),caps.voltageMeasurement.voltage({value=value/10,unit="V"})}
 end
 
 local function iris_motion_clusters(battery_name,alarm_name)
@@ -796,10 +789,7 @@ local function iris_motion_clusters(battery_name,alarm_name)
     zcl.cluster_attribute(1,0x20,{
       name=battery_name,endpoint=1,data_type=data_types.Uint8,read_only=true,
       minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true,
-      emit=function(_,value)
-        if value==255 then return end
-        return {caps.battery.battery(iris_3326_battery(value)),caps.voltageMeasurement.voltage({value=value/10,unit="V"})}
-      end,
+      emit=iris_voltage_events,
     }),
     zcl.cluster_attribute(1,0x3E,{name=alarm_name,endpoint=1,data_type=data_types.Bitmap32,
       read_only=true,read_on_configure=false,emit=core_battery_alarm}),
@@ -823,12 +813,7 @@ local sihas_tsm300_core = {
     zcl.cluster_attribute(1,0x20,{
       name="sihas_tsm_battery_voltage",endpoint=1,data_type=data_types.Uint8,read_only=true,read_on_configure=true,
       minimum_interval=30,maximum_interval=21600,reportable_change=1,
-      emit=function(_,value)
-        -- Z2M 3V_2100 uses the same piecewise curve as Iris; device percentage is ignored.
-        local percent=iris_3326_battery(value)
-        if percent==nil then return nil end
-        return {caps.battery.battery(percent),caps.voltageMeasurement.voltage({value=value/10,unit="V"})}
-      end,
+      emit=iris_voltage_events,
     }),
   },
 }
@@ -1170,6 +1155,7 @@ local trust_zpir_core = {
 register(trust_zpir_core, {
   fp("ADUROLIGHT","VMS_ADUROLIGHT"),
   fp("Trust International B.V.","VMS_ADUROLIGHT"),
+  fp("Trust International B.V.\0","VMS_ADUROLIGHT"),
   fp("AduroSmart Eria","VMS_ADUROLIGHT"),
 })
 
@@ -2038,6 +2024,13 @@ register(visonic_mp840_core, {
   fp("Visonic","MP-840"),
 })
 
+local function universal_voltage_events(_,value)
+  if type(value)=="table" then value=value.value end
+  if value==255 then return end
+  return {caps.battery.battery(iris_3326_battery(value)),
+    caps.voltageMeasurement.voltage({value=value/10,unit="V"})}
+end
+
 local universal_xhs1_core = {
   profile="safety-motion-universal-xhs1-core",magic_packet=false,
   zcl_clusters={
@@ -2048,12 +2041,7 @@ local universal_xhs1_core = {
     zcl.cluster_attribute(1,0x20,{
       name="universal_xhs1_battery",endpoint=1,data_type=data_types.Uint8,read_only=true,
       minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true,
-      emit=function(_,value)
-        if type(value)=="table" then value=value.value end
-        if value==255 then return end
-        return {caps.battery.battery(iris_3326_battery(value)),
-          caps.voltageMeasurement.voltage({value=value/10,unit="V"})}
-      end,
+      emit=universal_voltage_events,
     }),
   },
 }
@@ -2102,12 +2090,7 @@ local universal_xhs2_core = {
     zcl.cluster_attribute(1,0x20,{
       name="universal_xhs2_battery",endpoint=1,data_type=data_types.Uint8,read_only=true,
       minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true,
-      emit=function(_,value)
-        if type(value)=="table" then value=value.value end
-        if value==255 then return end
-        return {caps.battery.battery(iris_3326_battery(value)),
-          caps.voltageMeasurement.voltage({value=value/10,unit="V"})}
-      end,
+      emit=universal_voltage_events,
     }),
   },
 }
@@ -2493,7 +2476,7 @@ zcl.attach_reporting_capabilities(device_definitions, {
   {69, "rpt-lrf"},
   {70, "rpt-tjc"},
   {71, "rpt-sxh"},
-  {72, "rpt-eoa", {["zr040200001"] = "Temp", ["zr040200002"] = "TempTwo", ["zr040500001"] = "Humidity", ["zr040500002"] = "HumidityTwo"}},
+  {72, "rpt-eoa", {zr040200001 = "Temp", zr040200002 = "TempTwo", zr040500001 = "Humidity", zr040500002 = "HumidityTwo"}},
   {74, "rpt-esn"},
   {75, "rpt-tjc"},
   {77, "rpt-sxh"},

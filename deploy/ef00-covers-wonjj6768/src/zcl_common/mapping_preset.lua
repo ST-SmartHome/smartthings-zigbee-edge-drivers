@@ -36,10 +36,10 @@ j(c,q)return c
 end
 local function e(p,o,m)
 return{
-minimum_interval=p,maximum_interval=o,reportable_change=m,read_on_configure=true,}
+minimum_interval=p,maximum_interval=o,reportable_change=m,read_on_configure=true}
 end
 local function i(...)
-local s={}for _,a in ipairs({...})do
+local s={}for _,a in ipairs{...}do
 h(s,a)
 end
 return s
@@ -61,16 +61,16 @@ end
 f("battery",w.power_configuration_battery,function()
 return i(
 {
-emit=z.battery(),scale=2,},e(300,21600,2))
+emit=z.battery(),scale=2},e(300,21600,2))
 end)
 f("cover_position",w.window_covering_position,function()
 return i(
 {
-emit=z.shade_level(),},e(0,600,1))
+emit=z.shade_level()},e(0,600,1))
 end)
 f("cover_state",w.window_covering_position,function()
 return{
-name="cover_state",write_only=true,}
+name="cover_state",write_only=true}
 end)
 end
 return l

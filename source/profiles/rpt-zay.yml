@@ -1,0 +1,154 @@
+name: rpt-zay
+components:
+- id: main
+  capabilities:
+  - id: switch
+    version: 1
+  - id: powerMeter
+    version: 1
+  - id: energyMeter
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMax
+    version: 1
+  - id: concertmirror08464.zclPowerReportMin
+    version: 1
+  - id: concertmirror08464.zclPowerReportMax
+    version: 1
+  - id: concertmirror08464.zclPowerReportChange2a
+    version: 1
+  - id: concertmirror08464.zclEnergyReportMin
+    version: 1
+  - id: concertmirror08464.zclEnergyReportMax
+    version: 1
+  - id: concertmirror08464.zclEnergyReportChange25
+    version: 1
+  - id: concertmirror08464.zclExportReportMin
+    version: 1
+  - id: concertmirror08464.zclExportReportMax
+    version: 1
+  - id: concertmirror08464.zclExportReportChange25
+    version: 1
+  categories:
+  - name: SmartPlug
+- id: export
+  label: Produced energy
+  capabilities:
+  - id: energyMeter
+    version: 1
+  categories:
+  - name: SmartPlug
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: switch
+      group: main
+      composite: true
+    - component: main
+      capability: powerMeter
+      group: main
+      composite: true
+      values:
+      - label: ' {{power.value}}{{power.unit}}'
+    actions:
+    - component: main
+      capability: switch
+      group: main
+      values:
+      - command: 'on'
+      - command: 'off'
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: switch
+  - component: main
+    capability: powerMeter
+  - component: main
+    capability: energyMeter
+  - component: main
+    capability: refresh
+  - component: export
+    capability: energyMeter
+  - component: main
+    capability: concertmirror08464.zclSwitchReportMin
+  - component: main
+    capability: concertmirror08464.zclSwitchReportMax
+  - component: main
+    capability: concertmirror08464.zclPowerReportMin
+  - component: main
+    capability: concertmirror08464.zclPowerReportMax
+  - component: main
+    capability: concertmirror08464.zclPowerReportChange2a
+  - component: main
+    capability: concertmirror08464.zclEnergyReportMin
+  - component: main
+    capability: concertmirror08464.zclEnergyReportMax
+  - component: main
+    capability: concertmirror08464.zclEnergyReportChange25
+  - component: main
+    capability: concertmirror08464.zclExportReportMin
+  - component: main
+    capability: concertmirror08464.zclExportReportMax
+  - component: main
+    capability: concertmirror08464.zclExportReportChange25
+  automation:
+    conditions:
+    - component: main
+      capability: switch
+    - component: main
+      capability: powerMeter
+    - component: main
+      capability: energyMeter
+    - component: export
+      capability: energyMeter
+    - component: main
+      capability: concertmirror08464.zclSwitchReportMin
+    - component: main
+      capability: concertmirror08464.zclSwitchReportMax
+    - component: main
+      capability: concertmirror08464.zclPowerReportMin
+    - component: main
+      capability: concertmirror08464.zclPowerReportMax
+    - component: main
+      capability: concertmirror08464.zclPowerReportChange2a
+    - component: main
+      capability: concertmirror08464.zclEnergyReportMin
+    - component: main
+      capability: concertmirror08464.zclEnergyReportMax
+    - component: main
+      capability: concertmirror08464.zclEnergyReportChange25
+    - component: main
+      capability: concertmirror08464.zclExportReportMin
+    - component: main
+      capability: concertmirror08464.zclExportReportMax
+    - component: main
+      capability: concertmirror08464.zclExportReportChange25
+    actions:
+    - component: main
+      capability: switch
+    - component: main
+      capability: concertmirror08464.zclSwitchReportMin
+    - component: main
+      capability: concertmirror08464.zclSwitchReportMax
+    - component: main
+      capability: concertmirror08464.zclPowerReportMin
+    - component: main
+      capability: concertmirror08464.zclPowerReportMax
+    - component: main
+      capability: concertmirror08464.zclPowerReportChange2a
+    - component: main
+      capability: concertmirror08464.zclEnergyReportMin
+    - component: main
+      capability: concertmirror08464.zclEnergyReportMax
+    - component: main
+      capability: concertmirror08464.zclEnergyReportChange25
+    - component: main
+      capability: concertmirror08464.zclExportReportMin
+    - component: main
+      capability: concertmirror08464.zclExportReportMax
+    - component: main
+      capability: concertmirror08464.zclExportReportChange25

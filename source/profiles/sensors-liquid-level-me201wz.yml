@@ -2,21 +2,21 @@ name: sensors-liquid-level-me201wz
 components:
 - id: main
   capabilities:
-  - id: concertmirror08464.liquidLevelPercent
+  - id: concertmirror08464.me201LevelPercent
     version: 1
-  - id: concertmirror08464.me201LiquidDepth
+  - id: concertmirror08464.me201DepthV2
     version: 1
-  - id: concertmirror08464.liquidState
+  - id: concertmirror08464.me201LiquidState
     version: 1
   - id: voltageMeasurement
     version: 1
-  - id: concertmirror08464.me201MaximumPercent
+  - id: concertmirror08464.me201MaximumPercentV2
     version: 1
-  - id: concertmirror08464.me201MinimumPercent
+  - id: concertmirror08464.me201MinimumPercentV2
     version: 1
-  - id: concertmirror08464.me201MaximumDepth
+  - id: concertmirror08464.me201MaximumDepthV2
     version: 1
-  - id: concertmirror08464.me201InstallationHeight
+  - id: concertmirror08464.me201InstallationHeightV2
     version: 1
   - id: concertmirror08464.me201RelaySwitch
     version: 1

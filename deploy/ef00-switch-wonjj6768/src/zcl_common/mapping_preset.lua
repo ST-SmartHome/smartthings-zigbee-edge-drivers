@@ -1,53 +1,53 @@
-local function m(z)
-local u=require"capabilities.events.all"
-local A=require"st.zigbee.data_types"
-local v=require"st.zigbee.constants"
-local y=require"st.utils.safe_xy_to_hsv"
-local function l(e,t)
+local function j(A)
+local y=require"capabilities.events.all"
+local z=require"st.zigbee.data_types"
+local u=require"st.zigbee.constants"
+local x=require"st.utils.safe_xy_to_hsv"
+local function i(e,t)
 if type(e)~="table"then
 e={}
 end
 if type(t)~="table"then
 return e
 end
-for w,r in pairs(t)do
-e[w]=r
+for v,r in pairs(t)do
+e[v]=r
 end
 return e
 end
-local function i(e,a)
+local function h(e,a)
 if type(e)~="table"or type(a)~="table"then
 return e
 end
-for w,r in pairs(a)do
-if e[w]==nil then
-e[w]=r
+for v,r in pairs(a)do
+if e[v]==nil then
+e[v]=r
 end
 end
 return e
 end
-local function h(b,g)
+local function g(b,f)
 local c={}if type(b)=="string"then
 c.name=b
 else
-l(c,b)
+i(c,b)
 end
-l(c,g)return c
+i(c,f)return c
 end
-local function f(q,p,n)
+local function k(o,n,l)
 return{
-minimum_interval=q,maximum_interval=p,reportable_change=n,read_on_configure=true,}
+minimum_interval=o,maximum_interval=n,reportable_change=l,read_on_configure=true}
 end
-local function j(...)
-local s={}for _,a in ipairs({...})do
-i(s,a)
+local function p(...)
+local s={}for _,a in ipairs{...}do
+h(s,a)
 end
 return s
 end
-local function k(B,x,o)
-z[B]=function(b,g)
-local c=h(b,g)local d=c.configure_reporting
-local a=o(c)c.configure_reporting=nil
+local function q(B,w,m)
+A[B]=function(b,f)
+local c=g(b,f)local d=c.configure_reporting
+local a=m(c)c.configure_reporting=nil
 if d==false then
 a.minimum_interval=nil
 a.maximum_interval=nil
@@ -55,24 +55,19 @@ a.reportable_change=nil
 a.physical_reportable_change=nil
 a.reporting_defaults=nil
 end
-i(c,a)return x(c)
+h(c,a)return w(c)
 end
 end
-k("battery",z.power_configuration_battery,function()
-return j(
-{
-emit=u.battery(),scale=2,},f(300,21600,2))
-end)
-k("switch",z.on_off,function(g)
-local d=g.configure_reporting
-g.configure_reporting=nil
+q("switch",A.on_off,function(f)
+local d=f.configure_reporting
+f.configure_reporting=nil
 if d==false then
 return{
-emit=u.switch(),}
+emit=y.switch()}
 end
-return j(
+return p(
 {
-emit=u.switch(),},f(0,300,nil))
+emit=y.switch()},k(0,300,nil))
 end)
 end
-return m
+return j

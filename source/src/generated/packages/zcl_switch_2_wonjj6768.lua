@@ -34,4 +34,9 @@ for _, entry in ipairs(registrations(catalog_4, "wave14.terncy.zcl_switch", "con
   entries[#entries + 1] = entry
 end
 
+local catalog_5 = require "contracts.families.zcl.switches.emizb132"
+for _, entry in ipairs(registrations(catalog_5, "zcl.switches.emizb132", "contracts.families.zcl.switches.emizb132")) do
+  entries[#entries + 1] = entry
+end
+
 return entries

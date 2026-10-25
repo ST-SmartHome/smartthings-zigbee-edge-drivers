@@ -15,9 +15,6 @@ end
 local erc_two = {
   profile = "switches-wave15-box-erc2202z",
   package_group = "rf-dual-controller",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "modernExtend.dp*",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = false,
   time_start = "off",

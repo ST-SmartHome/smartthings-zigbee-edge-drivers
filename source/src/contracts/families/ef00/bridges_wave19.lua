@@ -36,14 +36,10 @@ end
 local weten_pci = {
   profile = "bridges-wave19-weten-pci-e",
   package_group = "wave19-bridge",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya DP1/101..106",
   magic_packet = true,
   query_on_configure = false,
   named_datapoints = true,
   time_start = "off",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_on_off(1, { name = "switch", emit = emit.switch(), transaction = 1 }),
     enum(101, "weten_pci_restart_mode", "wetenPciRestartMode", {

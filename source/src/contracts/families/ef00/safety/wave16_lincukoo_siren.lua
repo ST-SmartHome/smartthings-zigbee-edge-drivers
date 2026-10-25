@@ -34,9 +34,6 @@ end
 local a_zero_eight = {
   profile = "safety-wave16-lincukoo-a08-z10t",
   package_group = "siren",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = false,
   time_start = "off",

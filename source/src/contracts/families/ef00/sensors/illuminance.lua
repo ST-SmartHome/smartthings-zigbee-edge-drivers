@@ -51,26 +51,6 @@ local aaeasoll_report_interval_converter = converter.lookup_from_to({
   ["1h"] = 5,
 })
 
-local function register_sensor_definition(definitions_or_table, fingerprint_list)
-  if type(definitions_or_table) == "table" then
-    local entry = {}
-    for key, value in pairs(definitions_or_table) do
-      entry[key] = value
-    end
-    if entry.query_on_configure == nil then
-      entry.query_on_configure = true
-    end
-    register_device_definition(entry, fingerprint_list)
-    return
-  end
-
-  register_device_definition({
-    datapoints = definitions_or_table,
-    query_on_configure = true,
-  }, fingerprint_list)
-end
-
-
 -- ══════════════════════════════════════════════════════════════
 -- 4-1. illum_standalone: 독립 조도 (배터리 없음)
 -- Z2M: _TZE200_yi4jtqq1 (XFY-CGQ-ZIGB)

@@ -31,38 +31,92 @@ local function light_threshold(name, attribute_id, event_factory)
     write_type = data_types.Uint24,
     mfg_code = 0x1490,
     read_on_configure = true,
-    numeric_range = { minimum = 0, maximum = 65535, step = 1, unit = "lx" },
     emit = event_factory,
+    to_device = function(value)
+      if type(value) ~= "number" or value % 1 ~= 0 or value < 0 or value > 65535 then return nil end
+      return value
+    end,
   })
+end
+
+local function battery(endpoint)
+  return zcl.battery({endpoint=endpoint, read_only=true, read_on_configure=true,
+    minimum_interval=3600, maximum_interval=65000, reportable_change=10,
+    from_device=function(value, _, context)
+      if context.raw_value ~= 255 then return value end
+    end})
+end
+
+local function battery_low(name, event_factory, endpoint)
+  return zcl.battery_low({name=name, endpoint=endpoint, emit=event_factory,
+    read_only=true, read_on_configure=true, configure_reporting=false,
+    converter={from=function(value)
+      if type(value) == "table" then value = value.value end
+      return (value & 8) ~= 0 and "low" or "normal"
+    end}})
+end
+
+local function identify(name)
+  return zcl.cluster_attribute(0x0003, 0, {name=name, endpoint=1,
+    write_only=true, suppress_optimistic_state=true, tx_command_id=0,
+    to_device=function(value)
+      if type(value) ~= "number" or value % 1 ~= 0 or value < 1 or value > 30 then return nil end
+      return string.pack("<I2", value)
+    end})
 end
 
 local display = {
   profile = "sensors-illuminance-temp-humidity-battery-shelly-display",
+  capability_commands = {
+    {capability_id="concertmirror08464.shellyDisplayIdentify", command_name="identify",
+      mapping_name="shelly_display_identify", value=3},
+    {capability_id="concertmirror08464.shellyDisplayIdentify", command_name="setIdentifyTime",
+      argument_name="identifyTime", mapping_name="shelly_display_identify"},
+  },
   zcl_clusters = {
-    zcl.temperature(),
-    zcl.humidity(),
+    zcl.temperature({minimum_interval=10, maximum_interval=3600, reportable_change=100}),
+    zcl.humidity({minimum_interval=10, maximum_interval=3600, reportable_change=100,
+      from_device=function(value, _, context)
+        if context.raw_value ~= 0xFFFF then return value end
+      end}),
     light_level("shelly_blu_display_light_level", emit.shellyBluDisplayLightLevel()),
-    light_threshold("shelly_blu_display_dark_threshold", 0x0001, emit.shellyBluDisplayDarkThreshold()),
-    light_threshold("shelly_blu_display_bright_threshold", 0x0002, emit.shellyBluDisplayBrightThreshold()),
-    zcl.battery(),
+    light_threshold("shelly_blu_display_dark_threshold", 0x0001, emit.shellyDisplayDarkThresholdV2()),
+    light_threshold("shelly_blu_display_bright_threshold", 0x0002, emit.shellyDisplayBrightThresholdV2()),
+    battery(),
+    identify("shelly_display_identify"),
   },
 }
 
 local door = {
   profile = "safety-contact-illuminance-battery-low-handle-shelly",
+  initial_custom_state_query = false,
+  configure = function(driver, device)
+    zcl.bind_cluster(device, 0x0500, driver.environment_info.hub_zigbee_eui, 1)
+  end,
+  capability_commands = {
+    {capability_id="concertmirror08464.shellyDoorIdentify", command_name="setIdentifyTime",
+      argument_name="identifyTime", mapping_name="shelly_door_identify"},
+  },
   zcl_clusters = {
-    zcl.contact(),
-    zcl.shelly_handle_position(),
-    zcl.battery_low(),
+    zcl.contact_alarm_1_or_2({endpoint=1, read_only=true, read_on_configure=true, configure_reporting=false}),
+    zcl.shelly_handle_position({endpoint=1, read_only=true, read_on_configure=true, configure_reporting=false}),
+    battery_low("shelly_door_battery_low", emit.shellyDoorBatteryLow(), 1),
     light_level("shelly_blu_door_light_level", emit.shellyBluDoorLightLevel()),
-    light_threshold("shelly_blu_door_dark_threshold", 0x0001, emit.shellyBluDoorDarkThreshold()),
-    light_threshold("shelly_blu_door_bright_threshold", 0x0002, emit.shellyBluDoorBrightThreshold()),
-    zcl.battery(),
+    light_threshold("shelly_blu_door_dark_threshold", 0x0001, emit.shellyDoorDarkThreshold()),
+    light_threshold("shelly_blu_door_bright_threshold", 0x0002, emit.shellyDoorBrightThreshold()),
+    battery(1),
+    identify("shelly_door_identify"),
   },
 }
 
 local motion = {
   profile = "safety-motion-illuminance-battery-low-battery",
+  capability_commands = {
+    {capability_id="concertmirror08464.shellyMotionIdentify", command_name="identify",
+      mapping_name="shelly_motion_identify", value=3},
+    {capability_id="concertmirror08464.shellyMotionIdentify", command_name="setIdentifyTime",
+      argument_name="identifyTime", mapping_name="shelly_motion_identify"},
+  },
   configure = function(driver, device)
     device:remove_configured_attribute(0x0500, 0x0002)
     zcl.bind_cluster(device, 0x0500, driver.environment_info.hub_zigbee_eui, 1)
@@ -70,10 +124,10 @@ local motion = {
   zcl_clusters = {
     zcl.motion({ configure_reporting = false }),
     light_level("shelly_blu_motion_light_level", emit.shellyBluMotionLightLevel()),
-    light_threshold("shelly_blu_motion_dark_threshold", 0x0001, emit.shellyBluMotionDarkThreshold()),
-    light_threshold("shelly_blu_motion_bright_threshold", 0x0002, emit.shellyBluMotionBrightThreshold()),
-    zcl.battery_low({ configure_reporting = false }),
-    zcl.battery(),
+    light_threshold("shelly_blu_motion_dark_threshold", 0x0001, emit.shellyMotionDarkThresholdV2()),
+    light_threshold("shelly_blu_motion_bright_threshold", 0x0002, emit.shellyMotionBrightThresholdV2()),
+    battery_low("shelly_motion_battery_low", emit.shellyMotionBatteryLow()),
+    battery(),
     zcl.cluster_attribute(0x0500, 0x0013, {
       name = "shelly_blu_motion_sensitivity",
       endpoint = 1,
@@ -88,6 +142,7 @@ local motion = {
         return ({ low = 1, medium = 2, high = 3 })[value]
       end,
     }),
+    identify("shelly_motion_identify"),
   },
 }
 
@@ -96,6 +151,7 @@ register_device_definition(display, {
 })
 register_device_definition(door, {
   device_helpers.create_fingerprint("Shelly", "BLU DoorWindow ZB"),
+  device_helpers.create_fingerprint("Shelly", "BLU DoorWindow Mini ZB"),
 })
 register_device_definition(motion, {
   device_helpers.create_fingerprint("Shelly", "BLU Motion ZB"),

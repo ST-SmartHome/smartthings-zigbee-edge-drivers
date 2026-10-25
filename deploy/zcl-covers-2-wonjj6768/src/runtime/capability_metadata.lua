@@ -1,4 +1,4 @@
-local a={}local H={"OFF","ON","s","zm108mCalibrationTime","zm108mMoving","UP","STOP","DOWN","zm108mMotorReversal","zm108mCalibration","zm108mIndicatorMode","off","off/on","on/off","on","zm108mBacklightMode","zm108mSwitchType","flip-switch","sync-switch","button-switch","button2-switch","lastPowerResponseTime"}
+local a={}local H={"OFF","ON","zm108mCalibrationTime","ms","mdGatePulseDuration","zm108mMoving","UP","STOP","DOWN","zm108mMotorReversal","zm108mCalibration","zm108mIndicatorMode","off/on","on/off","zm108mBacklightMode","zm108mSwitchType","flip-switch","sync-switch","button-switch","button2-switch","mdGateState","open","closed","intermediate","sensor_error","unknown","lastPowerResponseTime"}
 local function b(g)
 if type(g)=="number"then return H[g]end
 return g
@@ -50,7 +50,7 @@ local n={}
 for _,f in ipairs(L)do n[#n+1]=F(f)end
 return n
 end
-a.numeric=z({{4,nil,4,"calibrationTime",nil,0,0,"zm108m_calibration_time","Zm108m Calibration Time",{0,6553.5,0.1,3,nil,1},nil,nil,3}},G)a.enum=z({{5,nil,5,"moving",nil,0,0,"zm108m_moving","Zm108m Moving",{6,7,8},{6,7,8},2,3,2},{9,nil,9,"motorReversal",nil,nil,nil,"zm108m_motor_reversal","Zm108m Motor Reversal",{1,2},{1,2},4,5,4},{10,nil,10,"calibration",nil,nil,nil,"zm108m_calibration","Zm108m Calibration",{2,1},{2,1},6,7,6},{11,nil,11,"indicatorMode",nil,nil,nil,"zm108m_indicator_mode","Zm108m Indicator Mode",{12,13,14,15},{12,13,14,15},8,9,8},{16,nil,16,"backlightMode",nil,nil,nil,"zm108m_backlight_mode","Zm108m Backlight Mode",{1,2},{1,2},10,11,10},{17,nil,17,"switchType",nil,nil,nil,"zm108m_switch_type","Zm108m Switch Type",{18,19,20,21},{18,19,20,21},12,13,12}},K)a.text=z({{"last_power_response_time",22,22,0,0,nil,"Last power response time",64}},M)a.driver_message={["attribute_name"]="driverMessage",["capability_id"]="concertmirror08464.driverMessage",["emit_name"]="driver_message",["label"]="Driver message",["maximum_length"]=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
+a.numeric=z({{3,nil,3,"calibrationTime",nil,0,0,"zm108m_calibration_time","Zm108m Calibration Time",{0,6553.5,0.1,"s",nil,1},nil,nil,"s"},{5,nil,5,"pulseDuration",nil,nil,nil,"md_gate_pulse_duration","Md Gate Pulse Duration",{nil,nil,nil,4,nil,2},nil,nil,4}},G)a.enum=z({{6,nil,6,"moving",nil,0,0,"zm108m_moving","Zm108m Moving",{7,8,9},{7,8,9},3,4,3},{10,nil,10,"motorReversal",nil,nil,nil,"zm108m_motor_reversal","Zm108m Motor Reversal",{1,2},{1,2},5,6,5},{11,nil,11,"calibration",nil,nil,nil,"zm108m_calibration","Zm108m Calibration",{2,1},{2,1},7,8,7},{12,nil,12,"indicatorMode",nil,nil,nil,"zm108m_indicator_mode","Zm108m Indicator Mode",{"off",13,14,"on"},{"off",13,14,"on"},9,10,9},{15,nil,15,"backlightMode",nil,nil,nil,"zm108m_backlight_mode","Zm108m Backlight Mode",{1,2},{1,2},11,12,11},{16,nil,16,"switchType",nil,nil,nil,"zm108m_switch_type","Zm108m Switch Type",{17,18,19,20},{17,18,19,20},13,14,13},{21,nil,21,"gateState",nil,0,0,"md_gate_state","Md Gate State",{22,23,24,25,26},{22,23,24,25,26},15,16,15}},K)a.text=z({{"last_power_response_time",27,27,0,0,nil,"Last power response time",64}},M)a.driver_message={attribute_name="driverMessage",capability_id="concertmirror08464.driverMessage",emit_name="driver_message",label="Driver message",maximum_length=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
 local function o(y)
 for _,e in ipairs(y)do
 a.by_emit_name[e.emit_name]=e
@@ -74,6 +74,6 @@ local h=type(C)=="table"and C[e.range_key]or nil
 if type(h)~="table"then h=d end
 if type(h)~="table"then return nil end
 return{
-minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil),}
+minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil)}
 end
 return a

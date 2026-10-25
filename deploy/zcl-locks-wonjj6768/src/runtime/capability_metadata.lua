@@ -1,4 +1,4 @@
-local a={}local H={"javisSlkAction","unlock","lock","javisSlkState","LOCK","lastPowerResponseTime"}
+local a={}local H={"unlock","lock","yrd410RelockTime","yrd410ActionUser","yrd410ActionSource","yrd410BatteryPercent","javisSlkAction","action","javisSlkState","LOCK","yrd410SoundVolume","silent_mode","low_volume","high_volume","yrd410Action","unknown","lock_failure_invalid_pin_or_id","lock_failure_invalid_schedule","unlock_failure_invalid_pin_or_id","unlock_failure_invalid_schedule","one_touch_lock","key_lock","key_unlock","auto_lock","schedule_lock","schedule_unlock","manual_lock","manual_unlock","non_access_user_operational_event","master_code_changed","pin_code_added","pin_code_deleted","pin_code_changed","rfid_code_added","rfid_code_deleted","yrd410ActionSourceName","keypad","manual","rfid","fingerprint","yrd410LockState","not_fully_locked","locked","unlocked","yrd410DoorState","open","closed","error_jammed","error_forced_open","error_unspecified","undefined","lastPowerResponseTime"}
 local function b(g)
 if type(g)=="number"then return H[g]end
 return g
@@ -50,7 +50,7 @@ local n={}
 for _,f in ipairs(L)do n[#n+1]=F(f)end
 return n
 end
-a.numeric=z({},G)a.enum=z({{1,nil,1,"action",nil,0,0,"javis_unlock_report","Javis Slk Action",{2,3},{2,3},1,2,1},{4,nil,4,"state",nil,0,0,"javis_lock_state","Javis Slk State",{5},{5},3,4,3}},K)a.text=z({{"last_power_response_time",6,6,0,0,nil,"Last power response time",64}},M)a.driver_message={["attribute_name"]="driverMessage",["capability_id"]="concertmirror08464.driverMessage",["emit_name"]="driver_message",["label"]="Driver message",["maximum_length"]=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
+a.numeric=z({{3,nil,3,"relockTime",nil,nil,nil,"yrd410_relock","Yrd410Relock Time",{nil,nil,nil,"s",nil,1},nil,nil,"s"},{4,nil,4,"actionUser",nil,0,0,"yrd410_action_user","Yrd410Action User",{0,65535,1,nil,nil,2}},{5,nil,5,"actionSource",nil,0,0,"yrd410_action_source","Yrd410Action Source",{0,255,1,nil,nil,3}},{6,nil,6,"batteryPercent",nil,0,0,"yrd410_battery_percent","Yrd410Battery Percent",{0,127,0.5,"%",nil,4},nil,nil,"%"}},G)a.enum=z({{7,nil,7,8,nil,0,0,"javis_unlock_report","Javis Slk Action",{1,2},{1,2},5,6,5},{9,nil,9,"state",nil,0,0,"javis_lock_state","Javis Slk State",{10},{10},7,8,7},{11,nil,11,"soundVolume",nil,nil,nil,"yrd410_volume","Yrd410Sound Volume",{12,13,14},{12,13,14},9,10,9},{15,nil,15,8,nil,0,0,"yrd410_action","Yrd410Action",{16,2,1,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35},{16,2,1,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35},11,12,11},{36,nil,36,"actionSourceName",nil,0,0,"yrd410_action_source_name","Yrd410Action Source Name",{37,"rf",38,39,40},{37,"rf",38,39,40},13,14,13},{41,nil,41,"lockState",nil,0,0,"yrd410_lock_state","Yrd410Lock State",{42,43,44},{42,43,44},15,16,15},{45,nil,45,"doorState",nil,0,0,"yrd410_door_state","Yrd410Door State",{46,47,48,49,50,51},{46,47,48,49,50,51},17,18,17}},K)a.text=z({{"last_power_response_time",52,52,0,0,nil,"Last power response time",64}},M)a.driver_message={attribute_name="driverMessage",capability_id="concertmirror08464.driverMessage",emit_name="driver_message",label="Driver message",maximum_length=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
 local function o(y)
 for _,e in ipairs(y)do
 a.by_emit_name[e.emit_name]=e
@@ -74,6 +74,6 @@ local h=type(C)=="table"and C[e.range_key]or nil
 if type(h)~="table"then h=d end
 if type(h)~="table"then return nil end
 return{
-minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil),}
+minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil)}
 end
 return a

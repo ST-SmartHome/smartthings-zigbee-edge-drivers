@@ -119,7 +119,6 @@ local frankever_valve = {
   mcu_version_request_on_configure = true,
   query_on_configure = false,
   query_on_announce = false,
-  initial_custom_states = false,
   refresh_state_query = false,
   time_start = "off",
   tuya.dp_on_off(1, {

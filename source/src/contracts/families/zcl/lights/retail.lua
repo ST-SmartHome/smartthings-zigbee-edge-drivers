@@ -6,11 +6,7 @@ local device_management = require "st.zigbee.device_management"
 local capabilities = require "st.capabilities"
 local data_types = require "st.zigbee.data_types"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
-
-local function register_aliases(definition, aliases)
-  register_device_definition(definition, aliases)
-end
+local device_definitions, register = device_helpers.definition_registry()
 
 local function create_model_fingerprints(manufacturer, models)
   local fingerprints = {}
@@ -414,65 +410,65 @@ zcl_device_helpers.append_clusters(ledvance_a60.zcl_clusters, zcl.color_xy({ end
 
 
 
-register_aliases(dimmer_light, {
+register(dimmer_light, {
   device_helpers.create_fingerprint("Candeo", "C203"),
   device_helpers.create_fingerprint("Candeo", "C204"),
   device_helpers.create_fingerprint("Candeo", "C210"),
   device_helpers.create_fingerprint("Candeo", "HK-LN-DIM-A"),
 })
 
-register_aliases(dimmer_light, {
+register(dimmer_light, {
   device_helpers.create_fingerprint("Philips", "929003822801"),
   device_helpers.create_fingerprint("Philips", "929003845801"),
   device_helpers.create_fingerprint("Philips", "929003845901"),
 })
 
-register_aliases(dimmer_light, {
+register(dimmer_light, {
   device_helpers.create_fingerprint("MLI", "ZBT-DimmableLight"),
 })
 
-register_aliases(dimmer_light, {
+register(dimmer_light, {
   device_helpers.create_fingerprint("Paulmann Licht GmbH", "Dimmable"),
   device_helpers.create_fingerprint("Paulmann lamp", "Dimmable Light"),
 })
 
-register_aliases(dimmer_light, {
+register(dimmer_light, {
   device_helpers.create_fingerprint("Sunricher", "HK-SL-DIM-A"),
 })
 
-register_aliases(dimmer_light, {
+register(dimmer_light, {
   device_helpers.create_fingerprint("Namron", "4512751"),
   device_helpers.create_fingerprint("Sunricher", "SR-ZG9040A-S"),
 })
 
-register_aliases(dimmer_light, {
+register(dimmer_light, {
   device_helpers.create_fingerprint("CTM Lyng", "CTM_DimmerPille"),
   device_helpers.create_fingerprint("Paulmann", "984.43"),
   device_helpers.create_fingerprint("Philips", "929003711301"),
   device_helpers.create_fingerprint("Philips", "929003711401"),
 })
 
-register_aliases(candeo_rd1p_dpm, {
+register(candeo_rd1p_dpm, {
   device_helpers.create_fingerprint("Candeo", "C-ZB-RD1P-DPM"),
 
 })
 
-register_aliases(dual_dimmer, {
+register(dual_dimmer, {
   device_helpers.create_fingerprint("Sunricher", "DIM"),
 })
 
-register_aliases(cct_light, {
+register(cct_light, {
   device_helpers.create_fingerprint("TERNCY", "DL001"),
   device_helpers.create_fingerprint("TERNCY", "CL001"),
 })
 
-register_aliases(cct_light, {
+register(cct_light, {
   device_helpers.create_fingerprint("Philips", "5633030P9"),
   device_helpers.create_fingerprint("Philips", "929003099302"),
   device_helpers.create_fingerprint("Philips", "929003777201"),
 })
 
-register_aliases(cct_light, {
+register(cct_light, {
   device_helpers.create_fingerprint("Philips", "929003823001"),
   device_helpers.create_fingerprint("Philips", "929003823101"),
   device_helpers.create_fingerprint("Philips", "929003823201"),
@@ -484,30 +480,30 @@ register_aliases(cct_light, {
   device_helpers.create_fingerprint("Philips", "929003846501"),
 })
 
-register_aliases(cct_light, {
+register(cct_light, {
   device_helpers.create_fingerprint("MLI", "Bulb white"),
 })
 
-register_aliases(cct_light, {
+register(cct_light, {
   device_helpers.create_fingerprint("DOMRAEM", "WW/CW"),
   device_helpers.create_fingerprint("LDS", "ZBT-CCTLight-GU100904"),
   device_helpers.create_fingerprint("_TZ3210_6pwpez2j", "TS0502C"),
 })
 
-register_aliases(cct_light, {
+register(cct_light, {
   device_helpers.create_fingerprint("Paulmann Licht GmbH", "CCT"),
 })
 
-register_aliases(color_cct_light, {
+register(color_cct_light, {
   device_helpers.create_fingerprint("Third Reality", "3RCB02070Z"),
 })
 
-register_aliases(cct_light, {
+register(cct_light, {
   device_helpers.create_fingerprint("Third Reality, Inc", "3RSL011Z"),
   device_helpers.create_fingerprint("Third Reality, Inc", "3RSL012Z"),
 })
 
-register_aliases(color_cct_light, {
+register(color_cct_light, {
   device_helpers.create_fingerprint("Philips", "8720169264212"),
   device_helpers.create_fingerprint("Philips", "8720169264274"),
   device_helpers.create_fingerprint("Philips", "9290012574"),
@@ -516,7 +512,7 @@ register_aliases(color_cct_light, {
   device_helpers.create_fingerprint("Philips", "929003853701"),
 })
 
-register_aliases(color_cct_light, {
+register(color_cct_light, {
   device_helpers.create_fingerprint("Philips", "929003823601"),
   device_helpers.create_fingerprint("Philips", "929003823701"),
   device_helpers.create_fingerprint("Philips", "929003823801"),
@@ -528,7 +524,7 @@ register_aliases(color_cct_light, {
   device_helpers.create_fingerprint("Philips", "929003846701"),
 })
 
-register_aliases(color_cct_light, {
+register(color_cct_light, {
   device_helpers.create_fingerprint("Philips", "929004608003"),
   device_helpers.create_fingerprint("Philips", "929004608004"),
   device_helpers.create_fingerprint("Philips", "929004608101"),
@@ -536,7 +532,7 @@ register_aliases(color_cct_light, {
   device_helpers.create_fingerprint("Philips", "929004608201"),
 })
 
-register_aliases(color_cct_light, {
+register(color_cct_light, {
   device_helpers.create_fingerprint("MLI", "Bulb white+color"),
   device_helpers.create_fingerprint("MLI", "Candle white+color"),
   device_helpers.create_fingerprint("MLI", "Ceiling light"),
@@ -544,20 +540,20 @@ register_aliases(color_cct_light, {
   device_helpers.create_fingerprint("MLI", "GU10 white+color"),
 })
 
-register_aliases(color_cct_light, {
+register(color_cct_light, {
   device_helpers.create_fingerprint("MLI", "Garden light"),
   device_helpers.create_fingerprint("MLI", "LED Strip"),
 })
 
-register_aliases(cct_light, {
+register(cct_light, {
   device_helpers.create_fingerprint("HEIMAN", "TemperLight"),
 })
 
-register_aliases(color_cct_light, {
+register(color_cct_light, {
   device_helpers.create_fingerprint("HEIMAN", "ColorLight"),
 })
 
-register_aliases(metered_dimmer_light, create_model_fingerprints("Sunricher", {
+register(metered_dimmer_light, create_model_fingerprints("Sunricher", {
   "HK-SL-DIM-UK",
   "ZG2837RAC-K4",
   "HK-SL-DIM-AU-K-A",
@@ -569,25 +565,25 @@ register_aliases(metered_dimmer_light, create_model_fingerprints("Sunricher", {
   "HK-SL-DIM-AU-R-A",
 }))
 
-register_aliases(metered_dimmer_light, {
+register(metered_dimmer_light, {
   device_helpers.create_fingerprint("Candeo", "C-ZB-DM204V2"),
   device_helpers.create_fingerprint("Candeo", "C-ZB-DM204v2"),
 })
 
-register_aliases(dimmer_light, create_model_fingerprints("Sunricher", {
+register(dimmer_light, create_model_fingerprints("Sunricher", {
   "HK-SL-DIM-CLN",
   "ZG9101SAC-HP",
   "HK-ZD-DIM-A",
   "HK-DIM",
 }))
 
-register_aliases(cct_light, create_model_fingerprints("Sunricher", {
+register(cct_light, create_model_fingerprints("Sunricher", {
   "HK-ZD-CCT-A",
   "CCT Lighting",
   "3986",
 }))
 
-register_aliases(dimmer_light, create_model_fingerprints("LEDVANCE", {
+register(dimmer_light, create_model_fingerprints("LEDVANCE", {
   "LEDVANCE DIM",
   "A60 DIM T",
   "B40 DIM T",
@@ -600,7 +596,7 @@ register_aliases(dimmer_light, create_model_fingerprints("LEDVANCE", {
   "Connected Tube Value II",
 }))
 
-register_aliases(cct_light, create_model_fingerprints("LEDVANCE", {
+register(cct_light, create_model_fingerprints("LEDVANCE", {
   "A60S TW",
   "Panel TW Z3",
   "PL HCL300x1200 01",
@@ -620,7 +616,7 @@ register_aliases(cct_light, create_model_fingerprints("LEDVANCE", {
   "B40 TW T",
 }))
 
-register_aliases(color_cct_light, create_model_fingerprints("LEDVANCE", {
+register(color_cct_light, create_model_fingerprints("LEDVANCE", {
   "Panel Light 2x2 TW",
   "Panel TW 620 UGR19",
   "A60 RGBW Value II",
@@ -638,13 +634,13 @@ register_aliases(color_cct_light, create_model_fingerprints("LEDVANCE", {
   "OUTDOOR FLEX RGBW T",
 }))
 
-register_aliases(ledvance_a60, create_model_fingerprints("LEDVANCE", { "A60 RGBW T" }))
+register(ledvance_a60, create_model_fingerprints("LEDVANCE", { "A60 RGBW T" }))
 
-register_aliases(color_light, create_model_fingerprints("OSRAM", {
+register(color_light, create_model_fingerprints("OSRAM", {
   "Gardenspot RGB",
 }))
 
-register_aliases(dimmer_light, create_model_fingerprints("OSRAM", {
+register(dimmer_light, create_model_fingerprints("OSRAM", {
   "PAR16 DIM Z3",
   "A60 DIM Z3",
   "Classic A60 W clear - LIGHTIFY",
@@ -655,7 +651,7 @@ register_aliases(dimmer_light, create_model_fingerprints("OSRAM", {
   "Connected Tube Z3",
 }))
 
-register_aliases(cct_light, create_model_fingerprints("OSRAM", {
+register(cct_light, create_model_fingerprints("OSRAM", {
   "A60 TW Z3",
   "CLA60 TW OSRAM",
   "LIGHTIFY A19 Tunable White",
@@ -673,7 +669,7 @@ register_aliases(cct_light, create_model_fingerprints("OSRAM", {
   "LIGHTIFY Under Cabinet TW",
 }))
 
-register_aliases(color_cct_light, create_model_fingerprints("OSRAM", {
+register(color_cct_light, create_model_fingerprints("OSRAM", {
   "Outdoor Lantern W RGBW OSRAM",
   "Outdoor Lantern B50 RGBW OSRAM",
   "LIGHTIFY RT RGBW",
@@ -694,7 +690,7 @@ register_aliases(color_cct_light, create_model_fingerprints("OSRAM", {
   "PAR16 RGBW Z3",
 }))
 
-register_aliases(color_cct_light, {
+register(color_cct_light, {
   device_helpers.create_fingerprint("DOMRAEM", "RGBWC"),
   device_helpers.create_fingerprint("Letsleds China", "RGBW Down Light"),
   device_helpers.create_fingerprint("Light", "01F"),
@@ -703,7 +699,7 @@ register_aliases(color_cct_light, {
   device_helpers.create_fingerprint("eWeLink", "Z102LG03-1"),
 })
 
-register_aliases(color_cct_light, {
+register(color_cct_light, {
   device_helpers.create_fingerprint("Paulmann Licht", "RGBW Controller"),
 })
 
@@ -713,18 +709,18 @@ register_aliases(color_cct_light, {
 
 
 
-register_aliases(color_cct_light, {
+register(color_cct_light, {
   device_helpers.create_fingerprint("Iluminize", "RGBW-CCT"),
   device_helpers.create_fingerprint("Iluminize", "RGBWW Lighting"),
 })
 
-register_aliases(cct_light, {
+register(cct_light, {
   device_helpers.create_fingerprint("GLEDOPTO", "GL-B-002P"),
   device_helpers.create_fingerprint("GLEDOPTO", "GL-B-004P"),
   device_helpers.create_fingerprint("GLEDOPTO", "GL-C-004P"),
 })
 
-register_aliases(cct_light, {
+register(cct_light, {
   device_helpers.create_fingerprint("Innr", "AE 270 T"),
   device_helpers.create_fingerprint("Innr", "AE 270 T-2"),
   device_helpers.create_fingerprint("Innr", "RB 178 T"),
@@ -737,7 +733,7 @@ register_aliases(cct_light, {
   device_helpers.create_fingerprint("Innr", "RF 274 T"),
 })
 
-register_aliases(color_cct_light, {
+register(color_cct_light, {
   device_helpers.create_fingerprint("GLEDOPTO", "GL-B-001P"),
   device_helpers.create_fingerprint("GLEDOPTO", "GL-B-001Z"),
   device_helpers.create_fingerprint("GLEDOPTO", "GL-B-001ZS"),
@@ -796,7 +792,7 @@ register_aliases(color_cct_light, {
   device_helpers.create_fingerprint("GLEDOPTO", "GL-S-014P"),
 })
 
-register_aliases(color_cct_light, {
+register(color_cct_light, {
   device_helpers.create_fingerprint("Innr", "AE 280 C"),
   device_helpers.create_fingerprint("Innr", "AE 282 C"),
   device_helpers.create_fingerprint("Innr", "AE 287 C"),
@@ -830,11 +826,11 @@ register_aliases(color_cct_light, {
   device_helpers.create_fingerprint("Innr", "RCL 232 C"),
 })
 
-register_aliases(color_light, {
+register(color_light, {
   device_helpers.create_fingerprint("GLEDOPTO", "GL-S-003Z"),
 })
 
-register_aliases(dimmer_light, {
+register(dimmer_light, {
   device_helpers.create_fingerprint("Innr", "AE 260"),
   device_helpers.create_fingerprint("Innr", "AE 262"),
   device_helpers.create_fingerprint("Innr", "AE 264"),
@@ -878,7 +874,7 @@ zcl.attach_reporting_capabilities(device_definitions, {
   {6, "rpt-tmf"},
   {7, "rpt-tmf"},
   {8, "rpt-cxt"},
-  {9, "rpt-tww", {["zr000600001"] = "Switch", ["zr000600002"] = "SwitchTwo", ["zr000800001"] = "Level", ["zr000800002"] = "LevelTwo"}},
+  {9, "rpt-tww", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000800001 = "Level", zr000800002 = "LevelTwo"}},
   {10, "rpt-txx"},
   {11, "rpt-txx"},
   {12, "rpt-txx"},

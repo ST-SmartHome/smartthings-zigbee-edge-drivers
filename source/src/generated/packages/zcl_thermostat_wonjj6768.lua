@@ -34,4 +34,24 @@ for _, entry in ipairs(registrations(catalog_4, "zcl.thermostats.namron_edge", "
   entries[#entries + 1] = entry
 end
 
+local catalog_5 = require "contracts.families.zcl.thermostats.meg5779"
+for _, entry in ipairs(registrations(catalog_5, "zcl.thermostats.meg5779", "contracts.families.zcl.thermostats.meg5779")) do
+  entries[#entries + 1] = entry
+end
+
+local catalog_6 = require "contracts.families.zcl.thermostats.owon_ac221"
+for _, entry in ipairs(registrations(catalog_6, "zcl.thermostats.owon_ac221", "contracts.families.zcl.thermostats.owon_ac221")) do
+  entries[#entries + 1] = entry
+end
+
+local catalog_7 = require "contracts.families.zcl.thermostats.owon_ac201"
+for _, entry in ipairs(registrations(catalog_7, "zcl.thermostats.owon_ac201", "contracts.families.zcl.thermostats.owon_ac201")) do
+  entries[#entries + 1] = entry
+end
+
+local catalog_8 = require "contracts.families.zcl.thermostats.nodon_irb"
+for _, entry in ipairs(registrations(catalog_8, "zcl.thermostats.nodon_irb", "contracts.families.zcl.thermostats.nodon_irb")) do
+  entries[#entries + 1] = entry
+end
+
 return entries

@@ -26,13 +26,13 @@ local items = {
   [0x0002] = {[0] = "DeviceTmp"}, [0x0006] = {[0] = "Switch", [0x4003] = "PowerOn"},
   [0x0008] = {[0] = "Level"}, [0x000D] = {[0x55] = "Analog"}, [0x000F] = {[0x55] = "Binary"},
   [0x0101] = {[0] = "Lock"}, [0x0102] = {[8] = "Position", [9] = "Tilt"},
-  [0x0201] = {[0] = "LocalTemp", [8] = "Demand", [0x10] = "TempCal", [0x11] = "CoolSet", [0x12] = "HeatSet", [0x1C] = "Mode", [0x29] = "State"},
+  [0x0201] = {[0] = "LocalTemp", [8] = "Demand", [0x10] = "TempCal", [0x11] = "CoolSet", [0x12] = "HeatSet", [0x13] = "CoolSet", [0x14] = "HeatSet", [0x1C] = "Mode", [0x29] = "State", [0x45] = "Louver"},
   [0x0202] = {[0] = "FanMode"}, [0x0300] = {[0] = "Hue", [1] = "Sat", [7] = "ColorTemp"},
   [0x0400] = {[0] = "Light"}, [0x0402] = {[0] = "Temp"}, [0x0403] = {[0] = "Pressure", [4] = "ScalePres"},
   [0x0405] = {[0] = "Humidity"}, [0x0406] = {[0] = "Occupancy"}, [0x0408] = {[0] = "Soil"},
-  [0x040D] = {[0] = "CoTwo"}, [0x042A] = {[0] = "PmFine"}, [0x042B] = {[0] = "Hcho"},
+  [0x040C] = {[0] = "Co"}, [0x040D] = {[0] = "CoTwo"}, [0x042A] = {[0] = "PmFine"}, [0x042B] = {[0] = "Hcho"},
   [0x0500] = {[2] = "Ias"}, [0x0702] = {[0] = "Energy", [1] = "Export", [0x0400] = "Power"},
-  [0x0B04] = {[0x0300] = "Frequency", [0x0304] = "TotalPwr", [0x0505] = "Voltage", [0x0508] = "Current", [0x050B] = "Power", [0x0905] = "VoltageB", [0x0A05] = "VoltageC", [0x0908] = "CurrentB", [0x0A08] = "CurrentC"},
+  [0x0B04] = {[0x0300] = "Frequency", [0x0304] = "TotalPwr", [0x0305] = "ReactivePwr", [0x0505] = "Voltage", [0x0508] = "Current", [0x050B] = "Power", [0x0905] = "VoltageB", [0x0A05] = "VoltageC", [0x0908] = "CurrentB", [0x0A08] = "CurrentC"},
 }
 local fields = {
   {"minimum_interval", "Min", "minimumInterval"},
@@ -49,7 +49,8 @@ function reporting.describe(zcl, mapping, device, cache)
        defaults.reportable_change == nil and meta.physical_reportable_change == nil) or
       (device ~= nil and defaults.supported ~= nil and not defaults.supported(device)) or
       (zcl.get_generated_attribute(meta.cluster_id, meta.attribute_id) == nil and
-       not (measurement_clusters[meta.cluster_id] and meta.attribute_id == 0)) then
+       not (measurement_clusters[meta.cluster_id] and meta.attribute_id == 0) and
+       not (meta.cluster_id == 0x0702 and meta.attribute_id == 1 and meta.data_type.ID == 0x25)) then
     return nil
   end
   local endpoint = type(meta.endpoint) == "number" and tostring(meta.endpoint) or "auto"
@@ -91,10 +92,11 @@ function reporting.configuration(zcl, device, mapping, scaled_change)
   local defaults = descriptor.defaults
   local selected = overrides(device, descriptor, true)
   if scaled_change ~= nil then
-    device:set_field("zcl_reporting_default:" .. descriptor.key, scaled_change)
+    local raw_change = type(scaled_change) == "table" and scaled_change.value or scaled_change
+    device:set_field("zcl_reporting_default:" .. descriptor.key, raw_change)
     local control = device:get_field("zcl_reporting_change:" .. descriptor.key)
     if control and (selected == nil or selected.reportable_change == nil) then
-      emit_value(device, control, "reportableChange", scaled_change)
+      emit_value(device, control, "reportableChange", raw_change)
     end
   end
   local values = selected or {}
@@ -137,6 +139,14 @@ local function active_descriptor(zcl, device, entry, mapping_index)
   end
 end
 
+function reporting.discard_unsupported(zcl, device)
+  for key, request in pairs(pending_by_device[device] or {}) do
+    if not active_descriptor(zcl, device, request.entry, request.mapping_index) then
+      pending_by_device[device][key] = nil
+    end
+  end
+end
+
 local function emit_settings(zcl, device, entry)
   for _, item in ipairs(entry.reporting_settings) do
     local descriptor = active_descriptor(zcl, device, entry, item.mapping_index)
@@ -146,10 +156,10 @@ local function emit_settings(zcl, device, entry)
         local capability_id = item.capabilities[index]
         if capability_id then
           local value = selected[field[1]] or descriptor.defaults[field[1]]
-          if type(value) == "table" then value = value.value end
           if value == nil and index == 3 then
             value = device:get_field("zcl_reporting_default:" .. descriptor.key)
           end
+          if type(value) == "table" then value = value.value end
           if index == 3 then device:set_field("zcl_reporting_change:" .. descriptor.key, capability_id) end
           emit_value(device, capability_id, field[3], value, index < 3 and "s")
         end
@@ -178,9 +188,15 @@ function reporting.set(zcl, device, entry, mapping_index, field, value)
   if max_interval ~= 0 and max_interval ~= 65535 and minimum > max_interval then return false end
   if field == "reportable_change" and max_interval == 65535 then return false end
   pending_by_device[device] = pending_by_device[device] or {}
-  pending_by_device[device][descriptor.key] = {selected = selected, entry = entry, targets = {}, expires = os.time() + 30}
+  pending_by_device[device][descriptor.key] = {selected = selected, entry = entry, mapping_index = mapping_index,
+    targets = {}, expires = os.time() + 30}
   local groups = {[descriptor.group] = {[descriptor.key] = true}}
-  if reporting.send(zcl, device, entry.zcl_clusters, groups, false) and zcl.read_metering_scalers then
+  local sent, needs_scaler = pcall(reporting.send, zcl, device, entry.zcl_clusters, groups, false)
+  if not sent then
+    pending_by_device[device][descriptor.key] = nil
+    return false
+  end
+  if needs_scaler and zcl.read_metering_scalers then
     zcl.read_metering_scalers(device, entry.zcl_clusters)
   end
   return true
@@ -200,6 +216,7 @@ function reporting.global_handlers(zcl, handlers)
     local cluster, endpoint = rx.address_header.cluster.value, rx.address_header.src_endpoint.value
     local command, body = rx.body.zcl_header.cmd.value, rx.body.zcl_body
     local address = cluster .. ":" .. endpoint
+    reporting.discard_unsupported(zcl, device)
     for key in pairs(pending_by_device[device] or {}) do
       local request = pending(device, key)
       local target = request and request.targets[address]
@@ -210,7 +227,9 @@ function reporting.global_handlers(zcl, handlers)
           local tx = device_management.attr_refresh(device, cluster, attribute):to_endpoint(endpoint)
           tx.body.zcl_body = read.ReadReportingConfiguration({read.ReadReportingConfigurationAttributeRecord(0, attribute)})
           tx.body.zcl_header.cmd.value = 8
-          device:send(tx)
+          if not pcall(device.send, device, tx) then
+            pending_by_device[device][key] = nil
+          end
         elseif command == 11 then
           if (body.cmd.value == 6 or body.cmd.value == 8) and body.status.value ~= 0 then request.failed = true end
         else
@@ -317,7 +336,12 @@ function reporting.send(zcl, device, mappings, groups, bind)
       local meta = descriptor.meta
       local context = zcl.build_mapping_context(device, mapping)
       local endpoints = {}
-      if context.endpoint ~= nil then
+      if meta.reporting_defaults and meta.reporting_defaults.all_endpoints then
+        for _, endpoint in pairs(device.zigbee_endpoints or {}) do
+          if device:supports_server_cluster(meta.cluster_id, endpoint.id) then endpoints[#endpoints + 1] = endpoint.id end
+        end
+        table.sort(endpoints)
+      elseif context.endpoint ~= nil then
         endpoints[1] = context.endpoint
       elseif meta.reporting_defaults ~= nil then
         endpoints[1] = device:get_endpoint(meta.cluster_id)

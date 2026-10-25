@@ -1,0 +1,36 @@
+name: safety-water-waxman-8840100h
+components:
+- id: main
+  capabilities:
+  - {id: waterSensor, version: 1}
+  - {id: temperatureMeasurement, version: 1}
+  - {id: battery, version: 1}
+  - {id: voltageMeasurement, version: 1}
+  - {id: batteryLevel, version: 1}
+  - {id: signalStrength, version: 1}
+  - {id: refresh, version: 1}
+  categories:
+  - name: LeakSensor
+deviceConfig:
+  dashboard:
+    states:
+    - {component: main, capability: waterSensor, group: main, composite: true}
+    actions: []
+    basicPlus: []
+  detailView:
+  - {component: main, capability: waterSensor}
+  - {component: main, capability: temperatureMeasurement}
+  - {component: main, capability: battery}
+  - {component: main, capability: voltageMeasurement}
+  - {component: main, capability: batteryLevel}
+  - {component: main, capability: signalStrength}
+  - {component: main, capability: refresh}
+  automation:
+    conditions:
+    - {component: main, capability: waterSensor}
+    - {component: main, capability: temperatureMeasurement}
+    - {component: main, capability: battery}
+    - {component: main, capability: voltageMeasurement}
+    - {component: main, capability: batteryLevel}
+    - {component: main, capability: signalStrength}
+    actions: []

@@ -1,0 +1,415 @@
+name: switches-m9pro
+components:
+- id: main
+  label: Switch 1 / Scene 1
+  capabilities:
+  - id: switch
+    version: 1
+  - id: button
+    version: 1
+  - id: concertmirror08464.m9proModeOne
+    version: 1
+  - id: concertmirror08464.m9proModeTwo
+    version: 1
+  - id: concertmirror08464.m9proModeThree
+    version: 1
+  - id: concertmirror08464.m9proModeFour
+    version: 1
+  - id: concertmirror08464.m9proShowWeather
+    version: 1
+  - id: concertmirror08464.m9proScreen
+    version: 1
+  - id: concertmirror08464.m9proPowerMemory
+    version: 1
+  - id: concertmirror08464.m9proPowerOne
+    version: 1
+  - id: concertmirror08464.m9proPowerTwo
+    version: 1
+  - id: concertmirror08464.m9proPowerThree
+    version: 1
+  - id: concertmirror08464.m9proPowerFour
+    version: 1
+  - id: concertmirror08464.m9proBacklight
+    version: 1
+  - id: concertmirror08464.m9proScene
+    version: 1
+  - id: concertmirror08464.m9proSwitchOneName
+    version: 1
+  - id: concertmirror08464.m9proSwitchTwoName
+    version: 1
+  - id: concertmirror08464.m9proSwitchThreeName
+    version: 1
+  - id: concertmirror08464.m9proSwitchFourName
+    version: 1
+  - id: concertmirror08464.m9proSceneOneName
+    version: 1
+  - id: concertmirror08464.m9proSceneTwoName
+    version: 1
+  - id: concertmirror08464.m9proSceneThreeName
+    version: 1
+  - id: concertmirror08464.m9proSceneFourName
+    version: 1
+  - id: concertmirror08464.m9proDimmerOneName
+    version: 1
+  - id: concertmirror08464.m9proDimmerTwoName
+    version: 1
+  - id: concertmirror08464.m9proDimmerThreeName
+    version: 1
+  - id: concertmirror08464.m9proDimmerFourName
+    version: 1
+  - id: concertmirror08464.m9proCurtainOneName
+    version: 1
+  - id: concertmirror08464.m9proCurtainTwoName
+    version: 1
+  - id: concertmirror08464.m9proCurtainThreeName
+    version: 1
+  - id: concertmirror08464.m9proCurtainFourName
+    version: 1
+  - id: concertmirror08464.m9proCurtainOne
+    version: 1
+  - id: concertmirror08464.m9proCurtainTwo
+    version: 1
+  - id: concertmirror08464.m9proCurtainThree
+    version: 1
+  - id: concertmirror08464.m9proCurtainFour
+    version: 1
+  - id: concertmirror08464.m9proDimmerOne
+    version: 1
+  - id: concertmirror08464.m9proDimmerTwo
+    version: 1
+  - id: concertmirror08464.m9proDimmerThree
+    version: 1
+  - id: concertmirror08464.m9proDimmerFour
+    version: 1
+  - id: concertmirror08464.m9proThermostat
+    version: 1
+  - id: concertmirror08464.m9proThermostatName
+    version: 1
+  - id: concertmirror08464.m9proGroupOne
+    version: 1
+  - id: concertmirror08464.m9proBrightnessOne
+    version: 1
+  - id: concertmirror08464.m9proColorTempOne
+    version: 1
+  - id: concertmirror08464.m9proGroupTwo
+    version: 1
+  - id: concertmirror08464.m9proBrightnessTwo
+    version: 1
+  - id: concertmirror08464.m9proColorTempTwo
+    version: 1
+  - id: concertmirror08464.m9proGroupThree
+    version: 1
+  - id: concertmirror08464.m9proBrightnessThree
+    version: 1
+  - id: concertmirror08464.m9proColorTempThree
+    version: 1
+  - id: concertmirror08464.m9proGroupFour
+    version: 1
+  - id: concertmirror08464.m9proBrightnessFour
+    version: 1
+  - id: concertmirror08464.m9proColorTempFour
+    version: 1
+  - id: concertmirror08464.m9proSetpoint
+    version: 1
+  - id: concertmirror08464.m9proFan
+    version: 1
+  - id: concertmirror08464.m9proWeatherTemp
+    version: 1
+  - id: concertmirror08464.m9proWeatherCondition
+    version: 1
+  categories:
+  - name: Switch
+- id: switch2
+  label: Switch 2
+  capabilities:
+  - id: switch
+    version: 1
+  categories:
+  - name: Switch
+- id: switch3
+  label: Switch 3
+  capabilities:
+  - id: switch
+    version: 1
+  categories:
+  - name: Switch
+- id: switch4
+  label: Switch 4
+  capabilities:
+  - id: switch
+    version: 1
+  categories:
+  - name: Switch
+- id: button2
+  label: Scene 2
+  capabilities:
+  - id: button
+    version: 1
+  categories:
+  - name: RemoteController
+- id: button3
+  label: Scene 3
+  capabilities:
+  - id: button
+    version: 1
+  categories:
+  - name: RemoteController
+- id: button4
+  label: Scene 4
+  capabilities:
+  - id: button
+    version: 1
+  categories:
+  - name: RemoteController
+- id: button5
+  label: Scene 0
+  capabilities:
+  - id: button
+    version: 1
+  categories:
+  - name: RemoteController
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: switch
+      group: main
+      composite: true
+    actions:
+    - component: main
+      capability: switch
+      group: main
+      values:
+      - command: 'on'
+      - command: 'off'
+    basicPlus: []
+  detailView: &id001
+  - &id002
+    component: main
+    capability: switch
+  - component: main
+    capability: button
+  - &id003
+    component: main
+    capability: concertmirror08464.m9proModeOne
+  - &id004
+    component: main
+    capability: concertmirror08464.m9proModeTwo
+  - &id005
+    component: main
+    capability: concertmirror08464.m9proModeThree
+  - &id006
+    component: main
+    capability: concertmirror08464.m9proModeFour
+  - &id007
+    component: main
+    capability: concertmirror08464.m9proShowWeather
+  - &id008
+    component: main
+    capability: concertmirror08464.m9proScreen
+  - &id009
+    component: main
+    capability: concertmirror08464.m9proPowerMemory
+  - &id010
+    component: main
+    capability: concertmirror08464.m9proPowerOne
+  - &id011
+    component: main
+    capability: concertmirror08464.m9proPowerTwo
+  - &id012
+    component: main
+    capability: concertmirror08464.m9proPowerThree
+  - &id013
+    component: main
+    capability: concertmirror08464.m9proPowerFour
+  - &id014
+    component: main
+    capability: concertmirror08464.m9proBacklight
+  - &id015
+    component: main
+    capability: concertmirror08464.m9proScene
+  - &id016
+    component: main
+    capability: concertmirror08464.m9proSwitchOneName
+  - &id017
+    component: main
+    capability: concertmirror08464.m9proSwitchTwoName
+  - &id018
+    component: main
+    capability: concertmirror08464.m9proSwitchThreeName
+  - &id019
+    component: main
+    capability: concertmirror08464.m9proSwitchFourName
+  - &id020
+    component: main
+    capability: concertmirror08464.m9proSceneOneName
+  - &id021
+    component: main
+    capability: concertmirror08464.m9proSceneTwoName
+  - &id022
+    component: main
+    capability: concertmirror08464.m9proSceneThreeName
+  - &id023
+    component: main
+    capability: concertmirror08464.m9proSceneFourName
+  - &id024
+    component: main
+    capability: concertmirror08464.m9proDimmerOneName
+  - &id025
+    component: main
+    capability: concertmirror08464.m9proDimmerTwoName
+  - &id026
+    component: main
+    capability: concertmirror08464.m9proDimmerThreeName
+  - &id027
+    component: main
+    capability: concertmirror08464.m9proDimmerFourName
+  - &id028
+    component: main
+    capability: concertmirror08464.m9proCurtainOneName
+  - &id029
+    component: main
+    capability: concertmirror08464.m9proCurtainTwoName
+  - &id030
+    component: main
+    capability: concertmirror08464.m9proCurtainThreeName
+  - &id031
+    component: main
+    capability: concertmirror08464.m9proCurtainFourName
+  - &id032
+    component: main
+    capability: concertmirror08464.m9proCurtainOne
+  - &id033
+    component: main
+    capability: concertmirror08464.m9proCurtainTwo
+  - &id034
+    component: main
+    capability: concertmirror08464.m9proCurtainThree
+  - &id035
+    component: main
+    capability: concertmirror08464.m9proCurtainFour
+  - &id036
+    component: main
+    capability: concertmirror08464.m9proDimmerOne
+  - &id037
+    component: main
+    capability: concertmirror08464.m9proDimmerTwo
+  - &id038
+    component: main
+    capability: concertmirror08464.m9proDimmerThree
+  - &id039
+    component: main
+    capability: concertmirror08464.m9proDimmerFour
+  - &id040
+    component: main
+    capability: concertmirror08464.m9proThermostat
+  - &id041
+    component: main
+    capability: concertmirror08464.m9proThermostatName
+  - &id042
+    component: main
+    capability: concertmirror08464.m9proGroupOne
+  - component: main
+    capability: concertmirror08464.m9proBrightnessOne
+  - component: main
+    capability: concertmirror08464.m9proColorTempOne
+  - &id043
+    component: main
+    capability: concertmirror08464.m9proGroupTwo
+  - component: main
+    capability: concertmirror08464.m9proBrightnessTwo
+  - component: main
+    capability: concertmirror08464.m9proColorTempTwo
+  - &id044
+    component: main
+    capability: concertmirror08464.m9proGroupThree
+  - component: main
+    capability: concertmirror08464.m9proBrightnessThree
+  - component: main
+    capability: concertmirror08464.m9proColorTempThree
+  - &id045
+    component: main
+    capability: concertmirror08464.m9proGroupFour
+  - component: main
+    capability: concertmirror08464.m9proBrightnessFour
+  - component: main
+    capability: concertmirror08464.m9proColorTempFour
+  - component: main
+    capability: concertmirror08464.m9proSetpoint
+  - component: main
+    capability: concertmirror08464.m9proFan
+  - &id046
+    component: main
+    capability: concertmirror08464.m9proWeatherTemp
+  - &id047
+    component: main
+    capability: concertmirror08464.m9proWeatherCondition
+  - &id048
+    component: switch2
+    capability: switch
+  - &id049
+    component: switch3
+    capability: switch
+  - &id050
+    component: switch4
+    capability: switch
+  - component: button2
+    capability: button
+  - component: button3
+    capability: button
+  - component: button4
+    capability: button
+  - component: button5
+    capability: button
+  automation:
+    conditions: *id001
+    actions:
+    - *id002
+    - *id003
+    - *id004
+    - *id005
+    - *id006
+    - *id007
+    - *id008
+    - *id009
+    - *id010
+    - *id011
+    - *id012
+    - *id013
+    - *id014
+    - *id015
+    - *id016
+    - *id017
+    - *id018
+    - *id019
+    - *id020
+    - *id021
+    - *id022
+    - *id023
+    - *id024
+    - *id025
+    - *id026
+    - *id027
+    - *id028
+    - *id029
+    - *id030
+    - *id031
+    - *id032
+    - *id033
+    - *id034
+    - *id035
+    - *id036
+    - *id037
+    - *id038
+    - *id039
+    - *id040
+    - *id041
+    - *id042
+    - *id043
+    - *id044
+    - *id045
+    - *id046
+    - *id047
+    - *id048
+    - *id049
+    - *id050

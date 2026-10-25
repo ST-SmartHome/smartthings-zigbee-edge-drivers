@@ -519,6 +519,12 @@
       "newOwner": "zcl-sensors-3-wonjj6768"
     },
     {
+      "catalogId": "zcl.sensors.somfy_opening",
+      "catalogModule": "contracts.families.zcl.sensors.somfy_opening",
+      "oldOwner": "zcl-sensors-3-wonjj6768",
+      "newOwner": "zcl-sensors-4-wonjj6768"
+    },
+    {
       "catalogId": "zcl.sensors.shelly_environment",
       "catalogModule": "contracts.families.zcl.sensors.shelly_environment",
       "oldOwner": "zcl-sensors-wonjj6768",
@@ -537,6 +543,12 @@
       "newOwner": "ef00-thermostat-hvac-2-wonjj6768"
     },
     {
+      "catalogId": "ef00.switch.panel.m9pro",
+      "catalogModule": "contracts.families.ef00.switch_panel_m9pro",
+      "oldOwner": "ef00-switch-panel-wonjj6768",
+      "newOwner": "ef00-switch-panel-2-wonjj6768"
+    },
+    {
       "catalogId": "ef00.controls.tuya_fingerbot_plus",
       "catalogModule": "contracts.families.ef00.controls.tuya_fingerbot_plus",
       "oldOwner": "ef00-controls-2-wonjj6768",
@@ -545,6 +557,12 @@
     {
       "catalogId": "zcl.covers.z2m_absorption",
       "catalogModule": "contracts.families.zcl.covers.z2m_absorption",
+      "oldOwner": "zcl-covers-2-wonjj6768",
+      "newOwner": "zcl-covers-2-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.covers.somfy_tilt_lift",
+      "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift",
       "oldOwner": "zcl-covers-2-wonjj6768",
       "newOwner": "zcl-covers-2-wonjj6768"
     },
@@ -577,6 +595,96 @@
       "catalogModule": "contracts.families.zcl.lights.philips_flux",
       "oldOwner": "zcl-lights-2-wonjj6768",
       "newOwner": "zcl-lights-2-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.switches.emizb132",
+      "catalogModule": "contracts.families.zcl.switches.emizb132",
+      "oldOwner": "zcl-switch-2-wonjj6768",
+      "newOwner": "zcl-switch-2-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.sensors.zigbeetlc_dual",
+      "catalogModule": "contracts.families.zcl.sensors.zigbeetlc_dual",
+      "oldOwner": "zcl-sensors-2-wonjj6768",
+      "newOwner": "zcl-sensors-4-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.covers.md_gate",
+      "catalogModule": "contracts.families.zcl.covers.md_gate",
+      "oldOwner": "zcl-covers-2-wonjj6768",
+      "newOwner": "zcl-covers-2-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.sensors.heiman_m_safety",
+      "catalogModule": "contracts.families.zcl.sensors.heiman_m_safety",
+      "oldOwner": "zcl-sensors-3-wonjj6768",
+      "newOwner": "zcl-sensors-4-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.controls.yale_yrd410",
+      "catalogModule": "contracts.families.zcl.controls.yale_yrd410",
+      "oldOwner": "zcl-locks-wonjj6768",
+      "newOwner": "zcl-locks-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.sensors.multir_mirsr100",
+      "catalogModule": "contracts.families.zcl.sensors.multir_mirsr100",
+      "oldOwner": "zcl-sensors-2-wonjj6768",
+      "newOwner": "zcl-sensors-4-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.thermostats.meg5779",
+      "catalogModule": "contracts.families.zcl.thermostats.meg5779",
+      "oldOwner": "zcl-thermostat-wonjj6768",
+      "newOwner": "zcl-thermostat-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.thermostats.owon_ac221",
+      "catalogModule": "contracts.families.zcl.thermostats.owon_ac221",
+      "oldOwner": "zcl-thermostat-wonjj6768",
+      "newOwner": "zcl-thermostat-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.thermostats.owon_ac201",
+      "catalogModule": "contracts.families.zcl.thermostats.owon_ac201",
+      "oldOwner": "zcl-thermostat-wonjj6768",
+      "newOwner": "zcl-thermostat-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.thermostats.nodon_irb",
+      "catalogModule": "contracts.families.zcl.thermostats.nodon_irb",
+      "oldOwner": "zcl-thermostat-wonjj6768",
+      "newOwner": "zcl-thermostat-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.switches.sonoff_legacy_additions",
+      "catalogModule": "contracts.families.zcl.switches.sonoff_legacy_additions",
+      "oldOwner": "zcl-switch-wonjj6768",
+      "newOwner": "zcl-switch-3-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.sensors.shelly_outdoor",
+      "catalogModule": "contracts.families.zcl.sensors.shelly_outdoor",
+      "oldOwner": "zcl-sensors-3-wonjj6768",
+      "newOwner": "zcl-sensors-4-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.sensors.zigbeetlc_zgzv_additions",
+      "catalogModule": "contracts.families.zcl.sensors.zigbeetlc_zgzv_additions",
+      "oldOwner": "zcl-sensors-2-wonjj6768",
+      "newOwner": "zcl-sensors-4-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.sensors.contact_water_additions",
+      "catalogModule": "contracts.families.zcl.sensors.contact_water_additions",
+      "oldOwner": "zcl-sensors-2-wonjj6768",
+      "newOwner": "zcl-sensors-4-wonjj6768"
+    },
+    {
+      "catalogId": "zcl.sensors.passive_alarm_additions",
+      "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions",
+      "oldOwner": "zcl-sensors-2-wonjj6768",
+      "newOwner": "zcl-sensors-4-wonjj6768"
     }
   ],
   "approvedFingerprintOnlyAliases": [
@@ -1646,20 +1754,324 @@
       "catalogModule": "contracts.families.ef00.switch_panel",
       "profile": "switches-switch-1-touch-panel",
       "auditEvidence": "analysis/z2m_catchup_20261015.md#touch-panel-exact-alias"
-    }
-  ],
-  "approvedFailClosedExacts": [
+    },
     {
-      "manufacturer": "_TZE284_iwyqtclw",
-      "manufacturerUtf8Hex": "5f545a453238345f6977797174636c77",
+      "manufacturer": "_TZE284_hkdl5fmv",
+      "manufacturerUtf8Hex": "5f545a453238345f686b646c35666d76",
       "model": "TS0601",
       "modelUtf8Hex": "545330363031",
-      "formerOwner": "ef00-switch-panel-wonjj6768",
-      "formerProfile": "switches-switch-4-lcd-panel",
-      "reason": "Z2M M9Pro is not an exact alias of the switch_4gang_lcd_panel M8Pro contract.",
-      "auditEvidence": "analysis/z2m_absorption_internal_audit/named_route_debt_switch_panel_lane.md#M9PRO_FAIL_CLOSED_TOMBSTONE"
+      "owner": "ef00-energy-wonjj6768",
+      "catalogId": "ef00.din_rail.energy",
+      "catalogModule": "contracts.families.ef00.din_rail.energy",
+      "profile": "din-rail-switch-power-energy-voltage-current-rcbo",
+      "auditEvidence": "analysis/z2m_rcbo_20261021.md#범위와-원문"
+    },
+    {
+      "manufacturer": "Shelly",
+      "manufacturerUtf8Hex": "5368656c6c79",
+      "model": "BLU DoorWindow Mini ZB",
+      "modelUtf8Hex": "424c5520446f6f7257696e646f77204d696e69205a42",
+      "owner": "zcl-sensors-3-wonjj6768",
+      "catalogId": "zcl.sensors.shelly_environment",
+      "catalogModule": "contracts.families.zcl.sensors.shelly_environment",
+      "profile": "safety-contact-illuminance-battery-low-handle-shelly",
+      "auditEvidence": "analysis/z2m_shelly_mini_20261021.md#fingerprint-only-판정"
+    },
+    {
+      "manufacturer": "IKEA of Sweden",
+      "manufacturerUtf8Hex": "494b4541206f662053776564656e",
+      "model": "TRADFRI bulb E17 CWS opal 600lm",
+      "modelUtf8Hex": "545241444652492062756c622045313720435753206f70616c203630306c6d",
+      "owner": "zcl-lights-wonjj6768",
+      "catalogId": "zcl.lights",
+      "catalogModule": "contracts.families.zcl.lights",
+      "profile": "lights-ikea-led1624g9",
+      "auditEvidence": "analysis/z2m_ikea_led1624g9_20261022.md#fingerprint-only-판정"
+    },
+    {
+      "manufacturer": "SOMFY",
+      "manufacturerUtf8Hex": "534f4d4659",
+      "model": "Situo 1 Zigbee",
+      "modelUtf8Hex": "536974756f2031205a6967626565",
+      "owner": "zcl-controls-wonjj6768",
+      "catalogId": "zcl.controls",
+      "catalogModule": "contracts.families.zcl.controls",
+      "profile": "buttons-ysia-one",
+      "auditEvidence": "analysis/z2m_somfy_situo_integration_20261023.md#fingerprint-only-판정"
+    },
+    {
+      "manufacturer": "SOMFY",
+      "manufacturerUtf8Hex": "534f4d4659",
+      "model": "Ysia 1 HP Zigbee",
+      "modelUtf8Hex": "597369612031204850205a6967626565",
+      "owner": "zcl-controls-wonjj6768",
+      "catalogId": "zcl.controls",
+      "catalogModule": "contracts.families.zcl.controls",
+      "profile": "buttons-ysia-one",
+      "auditEvidence": "analysis/z2m_somfy_followup_20261023.md#ysia-1-hp--fa-zc-6256e383bd-등록-전-alias-감사"
+    },
+    {
+      "manufacturer": "SOMFY",
+      "manufacturerUtf8Hex": "534f4d4659",
+      "model": "Sonesse 28 WF Li-Ion Zebra",
+      "modelUtf8Hex": "536f6e65737365203238205746204c692d496f6e205a65627261",
+      "owner": "zcl-covers-2-wonjj6768",
+      "catalogId": "zcl.covers.somfy_tilt_lift",
+      "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift",
+      "profile": "covers-somfy-lift-battery",
+      "auditEvidence": "analysis/z2m_somfy_zebra_integration_20261023.md#두-family의-독립-판정"
+    },
+    {
+      "manufacturer": "SOMFY",
+      "manufacturerUtf8Hex": "534f4d4659",
+      "model": "Sonesse 28 WF Zebra",
+      "modelUtf8Hex": "536f6e65737365203238205746205a65627261",
+      "owner": "zcl-covers-2-wonjj6768",
+      "catalogId": "zcl.covers.somfy_tilt_lift",
+      "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift",
+      "profile": "covers-somfy-lift-battery",
+      "auditEvidence": "analysis/z2m_somfy_zebra_integration_20261023.md#두-family의-독립-판정"
+    },
+    {
+      "manufacturer": "Trust International B.V.\u0000",
+      "manufacturerUtf8Hex": "547275737420496e7465726e6174696f6e616c20422e562e00",
+      "model": "VMS_ADUROLIGHT",
+      "modelUtf8Hex": "564d535f414455524f4c49474854",
+      "owner": "zcl-sensors-2-wonjj6768",
+      "catalogId": "zcl.sensors.wave19_environment",
+      "catalogModule": "contracts.families.zcl.sensors.wave19_environment",
+      "profile": "safety-motion-trust-zpir-core",
+      "auditEvidence": "analysis/z2m_trust_zpir_nul_alias_20261023.md#fingerprint-only-판정"
+    },
+    {
+      "manufacturer": "eWeLink",
+      "manufacturerUtf8Hex": "6557654c696e6b",
+      "model": "DS01",
+      "modelUtf8Hex": "44533031",
+      "owner": "zcl-sensors-2-wonjj6768",
+      "catalogId": "zcl.sensors.sonoff",
+      "catalogModule": "contracts.families.zcl.sensors.sonoff",
+      "profile": "sonoff-snzb04-classic-contact",
+      "auditEvidence": "analysis/z2m_official_contact_aliases_20261023.md#fa-zs2-bed0d7a023--ewelink-ds01-등록-전-alias-감사"
+    },
+    {
+      "manufacturer": "CentraLite",
+      "manufacturerUtf8Hex": "43656e7472614c697465",
+      "model": "3320-L",
+      "modelUtf8Hex": "333332302d4c",
+      "owner": "zcl-sensors-3-wonjj6768",
+      "catalogId": "zcl.sensors.simple_sensors",
+      "catalogModule": "contracts.families.zcl.sensors.simple_sensors",
+      "profile": "sensors-iris-3320-core",
+      "auditEvidence": "analysis/z2m_official_contact_aliases_20261023.md#fa-zs3-b3a967e8ae--centralite3320-l-등록-전-alias-감사"
+    },
+    {
+      "manufacturer": "THIRDREALITY",
+      "manufacturerUtf8Hex": "54484952445245414c495459",
+      "model": "3RWS18BZ",
+      "modelUtf8Hex": "335257533138425a",
+      "owner": "zcl-sensors-wonjj6768",
+      "catalogId": "zcl.sensors",
+      "catalogModule": "contracts.families.zcl.sensors",
+      "profile": "safety-water-leak-battery-low-battery-3rws18bz-pending",
+      "auditEvidence": "analysis/z2m_third_ws_completion_20261023.md#등록-전-exact-alias-판정"
+    },
+    {
+      "manufacturer": "CentraLite",
+      "manufacturerUtf8Hex": "43656e7472614c697465",
+      "model": "3315-S",
+      "modelUtf8Hex": "333331352d53",
+      "owner": "zcl-sensors-4-wonjj6768",
+      "catalogId": "zcl.sensors.contact_water_additions",
+      "catalogModule": "contracts.families.zcl.sensors.contact_water_additions",
+      "profile": "safety-water-iris-3315l",
+      "auditEvidence": "analysis/z2m_3315_aliases_dead_functions_20261023.md#등록-전-alias별-직접-감사"
+    },
+    {
+      "manufacturer": "CentraLite",
+      "manufacturerUtf8Hex": "43656e7472614c697465",
+      "model": "3315-Seu",
+      "modelUtf8Hex": "333331352d536575",
+      "owner": "zcl-sensors-4-wonjj6768",
+      "catalogId": "zcl.sensors.contact_water_additions",
+      "catalogModule": "contracts.families.zcl.sensors.contact_water_additions",
+      "profile": "safety-water-iris-3315l",
+      "auditEvidence": "analysis/z2m_3315_aliases_dead_functions_20261023.md#등록-전-alias별-직접-감사"
+    },
+    {
+      "manufacturer": "CentraLite",
+      "manufacturerUtf8Hex": "43656e7472614c697465",
+      "model": "3315-G",
+      "modelUtf8Hex": "333331352d47",
+      "owner": "zcl-sensors-4-wonjj6768",
+      "catalogId": "zcl.sensors.contact_water_additions",
+      "catalogModule": "contracts.families.zcl.sensors.contact_water_additions",
+      "profile": "safety-water-iris-3315l",
+      "auditEvidence": "analysis/z2m_3315_aliases_dead_functions_20261023.md#등록-전-alias별-직접-감사"
+    },
+    {
+      "manufacturer": "eWeLink",
+      "model": "WB01",
+      "manufacturerUtf8Hex": "6557654c696e6b",
+      "modelUtf8Hex": "57423031",
+      "owner": "zcl-controls-wonjj6768",
+      "catalogId": "zcl.controls",
+      "catalogModule": "contracts.families.zcl.controls",
+      "profile": "buttons-ewelink-button-1-battery-voltage-remote-action",
+      "auditEvidence": "analysis/z2m_wb01_pir_cleanup_20261023.md#wb01-등록-전-exact-alias-감사"
+    },
+    {
+      "manufacturer": "Ecolink",
+      "model": "4655BC0-R",
+      "manufacturerUtf8Hex": "45636f6c696e6b",
+      "modelUtf8Hex": "343635354243302d52",
+      "owner": "zcl-sensors-4-wonjj6768",
+      "catalogId": "zcl.sensors.contact_water_additions",
+      "catalogModule": "contracts.families.zcl.sensors.contact_water_additions",
+      "profile": "safety-contact-centralite-3323g",
+      "auditEvidence": "analysis/z2m_contact_exact_aliases_20261024.md#ecolink-4655bc0-r-등록-전-exact-alias-감사"
+    },
+    {
+      "manufacturer": "Sercomm Corp.",
+      "model": "SZ-DWS04",
+      "manufacturerUtf8Hex": "536572636f6d6d20436f72702e",
+      "modelUtf8Hex": "535a2d4457533034",
+      "owner": "zcl-sensors-4-wonjj6768",
+      "catalogId": "zcl.sensors.contact_water_additions",
+      "catalogModule": "contracts.families.zcl.sensors.contact_water_additions",
+      "profile": "safety-contact-visonic-mct340",
+      "auditEvidence": "analysis/z2m_contact_exact_aliases_20261024.md#sercomm-sz-dws04-등록-전-exact-alias-감사"
+    },
+    {
+      "manufacturer": "HEIMAN",
+      "model": "HS2SW1L-EFR-3.0",
+      "manufacturerUtf8Hex": "4845494d414e",
+      "modelUtf8Hex": "4853325357314c2d4546522d332e30",
+      "owner": "zcl-switch-wonjj6768",
+      "catalogId": "zcl.switches",
+      "catalogModule": "contracts.families.zcl.switches",
+      "profile": "switches-heiman-one",
+      "auditEvidence": "analysis/z2m_heiman_switches_20261023.md#exact-alias별-직접-감사"
+    },
+    {
+      "manufacturer": "HEIMAN",
+      "model": "HS6SW1A-W-EF-3.0",
+      "manufacturerUtf8Hex": "4845494d414e",
+      "modelUtf8Hex": "485336535731412d572d45462d332e30",
+      "owner": "zcl-switch-wonjj6768",
+      "catalogId": "zcl.switches",
+      "catalogModule": "contracts.families.zcl.switches",
+      "profile": "switches-heiman-one",
+      "auditEvidence": "analysis/z2m_heiman_switches_20261023.md#exact-alias별-직접-감사"
+    },
+    {
+      "manufacturer": "HEIMAN",
+      "model": "HS2SW2L-EFR-3.0",
+      "manufacturerUtf8Hex": "4845494d414e",
+      "modelUtf8Hex": "4853325357324c2d4546522d332e30",
+      "owner": "zcl-switch-wonjj6768",
+      "catalogId": "zcl.switches",
+      "catalogModule": "contracts.families.zcl.switches",
+      "profile": "switches-heiman-two",
+      "auditEvidence": "analysis/z2m_heiman_switches_20261023.md#exact-alias별-직접-감사"
+    },
+    {
+      "manufacturer": "HEIMAN",
+      "model": "HS6SW2A-W-EF-3.0",
+      "manufacturerUtf8Hex": "4845494d414e",
+      "modelUtf8Hex": "485336535732412d572d45462d332e30",
+      "owner": "zcl-switch-wonjj6768",
+      "catalogId": "zcl.switches",
+      "catalogModule": "contracts.families.zcl.switches",
+      "profile": "switches-heiman-two",
+      "auditEvidence": "analysis/z2m_heiman_switches_20261023.md#exact-alias별-직접-감사"
+    },
+    {
+      "manufacturer": "HEIMAN",
+      "model": "HS2SW3L-EFR-3.0",
+      "manufacturerUtf8Hex": "4845494d414e",
+      "modelUtf8Hex": "4853325357334c2d4546522d332e30",
+      "owner": "zcl-switch-wonjj6768",
+      "catalogId": "zcl.switches",
+      "catalogModule": "contracts.families.zcl.switches",
+      "profile": "switches-switch-3-device-temperature",
+      "auditEvidence": "analysis/z2m_heiman_switches_20261023.md#exact-alias별-직접-감사"
+    },
+    {
+      "manufacturer": "HEIMAN",
+      "model": "HS6SW3A-W-EF-3.0",
+      "manufacturerUtf8Hex": "4845494d414e",
+      "modelUtf8Hex": "485336535733412d572d45462d332e30",
+      "owner": "zcl-switch-wonjj6768",
+      "catalogId": "zcl.switches",
+      "catalogModule": "contracts.families.zcl.switches",
+      "profile": "switches-switch-3-device-temperature",
+      "auditEvidence": "analysis/z2m_heiman_switches_20261023.md#exact-alias별-직접-감사"
     }
   ],
+  "approvedNewFamilyExacts": [
+    {
+      "manufacturer": "_TZ3008_avdpejns",
+      "model": "TS011F",
+      "manufacturerUtf8Hex": "5f545a333030385f61766470656a6e73",
+      "modelUtf8Hex": "545330313146",
+      "owner": "zcl-plugs-wonjj6768",
+      "catalogId": "zcl.plugs",
+      "catalogModule": "contracts.families.zcl.plugs",
+      "baseProfile": "plugs-nous-a6z",
+      "auditEvidence": "analysis/z2m_nous_a6z_20261023.md",
+      "profile": "rpt-txe"
+    },
+    {
+      "manufacturer": "SOMFY",
+      "model": "Ysia 1 Zigbee Europe",
+      "manufacturerUtf8Hex": "534f4d4659",
+      "modelUtf8Hex": "597369612031205a6967626565204575726f7065",
+      "owner": "zcl-controls-wonjj6768",
+      "catalogId": "zcl.controls",
+      "catalogModule": "contracts.families.zcl.controls",
+      "baseProfile": "buttons-ysia-one",
+      "auditEvidence": "analysis/z2m_somfy_ysia_integration_20261023.md",
+      "profile": "rpt-ybg"
+    },
+    {
+      "manufacturer": "SOMFY",
+      "model": "Ysia 5 HP Zigbee",
+      "manufacturerUtf8Hex": "534f4d4659",
+      "modelUtf8Hex": "597369612035204850205a6967626565",
+      "owner": "zcl-controls-wonjj6768",
+      "catalogId": "zcl.controls",
+      "catalogModule": "contracts.families.zcl.controls",
+      "baseProfile": "buttons-ysia-five",
+      "auditEvidence": "analysis/z2m_somfy_ysia_integration_20261023.md",
+      "profile": "rpt-yab"
+    },
+    {
+      "manufacturer": "SOMFY",
+      "model": "1822647",
+      "manufacturerUtf8Hex": "534f4d4659",
+      "modelUtf8Hex": "31383232363437",
+      "owner": "zcl-plugs-wonjj6768",
+      "catalogId": "zcl.plugs",
+      "catalogModule": "contracts.families.zcl.plugs",
+      "baseProfile": "plugs-somfy-metering",
+      "auditEvidence": "analysis/z2m_somfy_plug_integration_20261023.md",
+      "profile": "rpt-zay"
+    },
+    {
+      "manufacturer": "SOMFY",
+      "model": "Situo 4 Zigbee",
+      "manufacturerUtf8Hex": "534f4d4659",
+      "modelUtf8Hex": "536974756f2034205a6967626565",
+      "owner": "zcl-controls-wonjj6768",
+      "catalogId": "zcl.controls",
+      "catalogModule": "contracts.families.zcl.controls",
+      "baseProfile": "buttons-situo-four",
+      "auditEvidence": "analysis/z2m_somfy_situo_integration_20261023.md",
+      "profile": "rpt-snl"
+    }
+  ],
+  "approvedFailClosedExacts": [],
   "approvedRestoredLegacyExacts": [
     {
       "manufacturer": "Shelly",
@@ -1716,6 +2128,20 @@
       "catalogModule": "contracts.families.ef00.thermostats.z2m_absorption_wall",
       "reason": "HD-T1000 now has a dedicated current-Z2M core contract.",
       "auditEvidence": "analysis/latest_z2m_sensor_additions_20260920.md#wave268--heat-decor-hd-t1000-core"
+    },
+    {
+      "manufacturer": "_TZE284_iwyqtclw",
+      "manufacturerUtf8Hex": "5f545a453238345f6977797174636c77",
+      "model": "TS0601",
+      "modelUtf8Hex": "545330363031",
+      "formerOwner": "ef00-switch-panel-wonjj6768",
+      "formerProfile": "switches-switch-4-lcd-panel",
+      "newOwner": "ef00-switch-panel-2-wonjj6768",
+      "newProfile": "switches-m9pro",
+      "catalogId": "ef00.switch.panel.m9pro",
+      "catalogModule": "contracts.families.ef00.switch_panel_m9pro",
+      "reason": "Unreleased M9Pro family assigned to a new driver after deployed fingerprint and 70% capacity audit.",
+      "auditEvidence": "analysis/driver_family_routing_20261026.md#m9pro"
     }
   ],
   "baseline": {
@@ -1741,7 +2167,7 @@
           "id": "zcl.switches.shelly_em"
         }
       ],
-      "exactCount": 13
+      "exactCount": 18
     },
     {
       "sourcePackage": "zcl-lights-wonjj6768",
@@ -1759,7 +2185,7 @@
           "id": "zcl.lights.shelly_dimmer"
         }
       ],
-      "exactCount": 35
+      "exactCount": 36
     },
     {
       "sourcePackage": "zcl-sensors-wonjj6768",
@@ -1791,7 +2217,7 @@
           "id": "zcl.controls.jethome"
         }
       ],
-      "exactCount": 24
+      "exactCount": 26
     },
     {
       "sourcePackage": "ef00-covers-wonjj6768",
@@ -1809,7 +2235,7 @@
           "id": "ef00.covers.wave10"
         }
       ],
-      "exactCount": 20
+      "exactCount": 21
     },
     {
       "sourcePackage": "ef00-lights-wonjj6768",
@@ -2135,9 +2561,13 @@
         {
           "module": "contracts.families.zcl.switches.wave14_terncy_zcl",
           "id": "wave14.terncy.zcl_switch"
+        },
+        {
+          "module": "contracts.families.zcl.switches.emizb132",
+          "id": "zcl.switches.emizb132"
         }
       ],
-      "exactCount": 19,
+      "exactCount": 26,
       "catalogMigrations": [
         {
           "catalogId": "zcl.switches.z2m_absorption",
@@ -2145,7 +2575,7 @@
           "oldOwner": "z2m-zcl-switch-wonjj6768",
           "newOwner": "zcl-switch-2-wonjj6768",
           "moved": false,
-          "exactCount": 12,
+          "exactCount": 17,
           "exacts": [
             {
               "manufacturer": "AOYAN",
@@ -2278,6 +2708,61 @@
               "newOwner": "zcl-switch-2-wonjj6768",
               "catalogId": "zcl.switches.z2m_absorption",
               "catalogModule": "contracts.families.zcl.switches.z2m_absorption"
+            },
+            {
+              "manufacturer": "eWeLink",
+              "manufacturerUtf8Hex": "6557654c696e6b",
+              "model": "SA-003-Zigbee",
+              "modelUtf8Hex": "53412d3030332d5a6967626565",
+              "profile": "plugs-ewelink-sa003",
+              "oldOwner": "z2m-zcl-switch-wonjj6768",
+              "newOwner": "zcl-switch-2-wonjj6768",
+              "catalogId": "zcl.switches.z2m_absorption",
+              "catalogModule": "contracts.families.zcl.switches.z2m_absorption"
+            },
+            {
+              "manufacturer": "eWeLink",
+              "manufacturerUtf8Hex": "6557654c696e6b",
+              "model": "ZB-SW01",
+              "modelUtf8Hex": "5a422d53573031",
+              "profile": "switches-ewelink-sw01",
+              "oldOwner": "z2m-zcl-switch-wonjj6768",
+              "newOwner": "zcl-switch-2-wonjj6768",
+              "catalogId": "zcl.switches.z2m_absorption",
+              "catalogModule": "contracts.families.zcl.switches.z2m_absorption"
+            },
+            {
+              "manufacturer": "eWeLink",
+              "manufacturerUtf8Hex": "6557654c696e6b",
+              "model": "ZB-SW02",
+              "modelUtf8Hex": "5a422d53573032",
+              "profile": "switches-ewelink-sw02",
+              "oldOwner": "z2m-zcl-switch-wonjj6768",
+              "newOwner": "zcl-switch-2-wonjj6768",
+              "catalogId": "zcl.switches.z2m_absorption",
+              "catalogModule": "contracts.families.zcl.switches.z2m_absorption"
+            },
+            {
+              "manufacturer": "eWeLink",
+              "manufacturerUtf8Hex": "6557654c696e6b",
+              "model": "ZB-SW03",
+              "modelUtf8Hex": "5a422d53573033",
+              "profile": "switches-ewelink-sw03",
+              "oldOwner": "z2m-zcl-switch-wonjj6768",
+              "newOwner": "zcl-switch-2-wonjj6768",
+              "catalogId": "zcl.switches.z2m_absorption",
+              "catalogModule": "contracts.families.zcl.switches.z2m_absorption"
+            },
+            {
+              "manufacturer": "eWeLink",
+              "manufacturerUtf8Hex": "6557654c696e6b",
+              "model": "ZB-SW04",
+              "modelUtf8Hex": "5a422d53573034",
+              "profile": "switches-ewelink-sw04",
+              "oldOwner": "z2m-zcl-switch-wonjj6768",
+              "newOwner": "zcl-switch-2-wonjj6768",
+              "catalogId": "zcl.switches.z2m_absorption",
+              "catalogModule": "contracts.families.zcl.switches.z2m_absorption"
             }
           ]
         },
@@ -2387,6 +2872,38 @@
               "catalogModule": "contracts.families.zcl.switches.wave14_terncy_zcl"
             }
           ]
+        },
+        {
+          "catalogId": "zcl.switches.emizb132",
+          "catalogModule": "contracts.families.zcl.switches.emizb132",
+          "oldOwner": "zcl-switch-2-wonjj6768",
+          "newOwner": "zcl-switch-2-wonjj6768",
+          "moved": false,
+          "exactCount": 2,
+          "exacts": [
+            {
+              "manufacturer": "Develco Products A/S",
+              "manufacturerUtf8Hex": "446576656c636f2050726f647563747320412f53",
+              "model": "EMIZB-132",
+              "modelUtf8Hex": "454d495a422d313332",
+              "profile": "rpt-eft",
+              "oldOwner": "zcl-switch-2-wonjj6768",
+              "newOwner": "zcl-switch-2-wonjj6768",
+              "catalogId": "zcl.switches.emizb132",
+              "catalogModule": "contracts.families.zcl.switches.emizb132"
+            },
+            {
+              "manufacturer": "frient A/S",
+              "manufacturerUtf8Hex": "667269656e7420412f53",
+              "model": "EMIZB-132",
+              "modelUtf8Hex": "454d495a422d313332",
+              "profile": "rpt-eft",
+              "oldOwner": "zcl-switch-2-wonjj6768",
+              "newOwner": "zcl-switch-2-wonjj6768",
+              "catalogId": "zcl.switches.emizb132",
+              "catalogModule": "contracts.families.zcl.switches.emizb132"
+            }
+          ]
         }
       ]
     },
@@ -2414,7 +2931,7 @@
           "id": "zcl.lights.philips_flux"
         }
       ],
-      "exactCount": 41,
+      "exactCount": 42,
       "catalogMigrations": [
         {
           "catalogId": "zcl.lights.z2m_absorption",
@@ -2422,7 +2939,7 @@
           "oldOwner": "z2m-zcl-lights-wonjj6768",
           "newOwner": "zcl-lights-2-wonjj6768",
           "moved": false,
-          "exactCount": 34,
+          "exactCount": 35,
           "exacts": [
             {
               "manufacturer": "AduroSmart ERIA",
@@ -2738,6 +3255,17 @@
               "model": "RGBWW",
               "modelUtf8Hex": "5247425757",
               "profile": "lights-paulmann-rgbww",
+              "oldOwner": "z2m-zcl-lights-wonjj6768",
+              "newOwner": "zcl-lights-2-wonjj6768",
+              "catalogId": "zcl.lights.z2m_absorption",
+              "catalogModule": "contracts.families.zcl.lights.z2m_absorption"
+            },
+            {
+              "manufacturer": "_TZ3210_cmnwaylf",
+              "manufacturerUtf8Hex": "5f545a333231305f636d6e7761796c66",
+              "model": "TS0501B",
+              "modelUtf8Hex": "54533035303142",
+              "profile": "lights-ecodo-repeater",
               "oldOwner": "z2m-zcl-lights-wonjj6768",
               "newOwner": "zcl-lights-2-wonjj6768",
               "catalogId": "zcl.lights.z2m_absorption",
@@ -6787,7 +7315,7 @@
           "id": "zcl.controls.sonoff"
         }
       ],
-      "exactCount": 29,
+      "exactCount": 31,
       "catalogMigrations": [
         {
           "catalogId": "zcl.controls.z2m_absorption",
@@ -6795,7 +7323,7 @@
           "oldOwner": "z2m-zcl-controls-wonjj6768",
           "newOwner": "zcl-controls-2-wonjj6768",
           "moved": false,
-          "exactCount": 23,
+          "exactCount": 25,
           "exacts": [
             {
               "manufacturer": "Candeo",
@@ -6803,6 +7331,17 @@
               "model": "C-ZB-RD1Pv2-REM",
               "modelUtf8Hex": "432d5a422d5244315076322d52454d",
               "profile": "rpt-cwf",
+              "oldOwner": "z2m-zcl-controls-wonjj6768",
+              "newOwner": "zcl-controls-2-wonjj6768",
+              "catalogId": "zcl.controls.z2m_absorption",
+              "catalogModule": "contracts.families.zcl.controls.z2m_absorption"
+            },
+            {
+              "manufacturer": "CentraLite",
+              "manufacturerUtf8Hex": "43656e7472614c697465",
+              "model": "3460-L",
+              "modelUtf8Hex": "333436302d4c",
+              "profile": "rpt-zuf",
               "oldOwner": "z2m-zcl-controls-wonjj6768",
               "newOwner": "zcl-controls-2-wonjj6768",
               "catalogId": "zcl.controls.z2m_absorption",
@@ -6858,6 +7397,17 @@
               "model": "NimlyCodePRO",
               "modelUtf8Hex": "4e696d6c79436f646550524f",
               "profile": "rpt-nnm",
+              "oldOwner": "z2m-zcl-controls-wonjj6768",
+              "newOwner": "zcl-controls-2-wonjj6768",
+              "catalogId": "zcl.controls.z2m_absorption",
+              "catalogModule": "contracts.families.zcl.controls.z2m_absorption"
+            },
+            {
+              "manufacturer": "Samjin",
+              "manufacturerUtf8Hex": "53616d6a696e",
+              "model": "button",
+              "modelUtf8Hex": "627574746f6e",
+              "profile": "rpt-bfn",
               "oldOwner": "z2m-zcl-controls-wonjj6768",
               "newOwner": "zcl-controls-2-wonjj6768",
               "catalogId": "zcl.controls.z2m_absorption",
@@ -7146,9 +7696,13 @@
         {
           "module": "contracts.families.zcl.controls.wave18_javis_lock",
           "id": "zcl.controls.wave18_javis_lock"
+        },
+        {
+          "module": "contracts.families.zcl.controls.yale_yrd410",
+          "id": "zcl.controls.yale_yrd410"
         }
       ],
-      "exactCount": 2,
+      "exactCount": 3,
       "catalogMigrations": [
         {
           "catalogId": "zcl.controls.wave18_javis_lock",
@@ -7181,6 +7735,27 @@
               "catalogModule": "contracts.families.zcl.controls.wave18_javis_lock"
             }
           ]
+        },
+        {
+          "catalogId": "zcl.controls.yale_yrd410",
+          "catalogModule": "contracts.families.zcl.controls.yale_yrd410",
+          "oldOwner": "zcl-locks-wonjj6768",
+          "newOwner": "zcl-locks-wonjj6768",
+          "moved": false,
+          "exactCount": 1,
+          "exacts": [
+            {
+              "manufacturer": "Yale:8104:05D1",
+              "manufacturerUtf8Hex": "59616c653a383130343a30354431",
+              "model": "YRD410-PB",
+              "modelUtf8Hex": "5952443431302d5042",
+              "profile": "locks-yale-yrd410-pb",
+              "oldOwner": "zcl-locks-wonjj6768",
+              "newOwner": "zcl-locks-wonjj6768",
+              "catalogId": "zcl.controls.yale_yrd410",
+              "catalogModule": "contracts.families.zcl.controls.yale_yrd410"
+            }
+          ]
         }
       ]
     },
@@ -7192,7 +7767,7 @@
           "id": "zcl.bridges.wave19"
         }
       ],
-      "exactCount": 5,
+      "exactCount": 7,
       "catalogMigrations": [
         {
           "catalogId": "zcl.bridges.wave19",
@@ -7200,14 +7775,36 @@
           "oldOwner": "z2m-bridge-zcl-w19-wonjj6768",
           "newOwner": "zcl-bridge-wonjj6768",
           "moved": true,
-          "exactCount": 5,
+          "exactCount": 7,
           "exacts": [
+            {
+              "manufacturer": "AL001",
+              "manufacturerUtf8Hex": "414c303031",
+              "model": "WG001-Z01",
+              "modelUtf8Hex": "57473030312d5a3031",
+              "profile": "bridges-aeotec-wg001",
+              "oldOwner": "z2m-bridge-zcl-w19-wonjj6768",
+              "newOwner": "zcl-bridge-wonjj6768",
+              "catalogId": "zcl.bridges.wave19",
+              "catalogModule": "contracts.families.zcl.bridges_wave19"
+            },
             {
               "manufacturer": "Candeo",
               "manufacturerUtf8Hex": "43616e64656f",
               "model": "C-RFZB-HUB",
               "modelUtf8Hex": "432d52465a422d485542",
               "profile": "bridges-wave19-candeo-rf-hub",
+              "oldOwner": "z2m-bridge-zcl-w19-wonjj6768",
+              "newOwner": "zcl-bridge-wonjj6768",
+              "catalogId": "zcl.bridges.wave19",
+              "catalogModule": "contracts.families.zcl.bridges_wave19"
+            },
+            {
+              "manufacturer": "EGONY",
+              "manufacturerUtf8Hex": "45474f4e59",
+              "model": "V6",
+              "modelUtf8Hex": "5636",
+              "profile": "rpt-vwa",
               "oldOwner": "z2m-bridge-zcl-w19-wonjj6768",
               "newOwner": "zcl-bridge-wonjj6768",
               "catalogId": "zcl.bridges.wave19",
@@ -7279,9 +7876,25 @@
         {
           "module": "contracts.families.zcl.thermostats.namron_edge",
           "id": "zcl.thermostats.namron_edge"
+        },
+        {
+          "module": "contracts.families.zcl.thermostats.meg5779",
+          "id": "zcl.thermostats.meg5779"
+        },
+        {
+          "module": "contracts.families.zcl.thermostats.owon_ac221",
+          "id": "zcl.thermostats.owon_ac221"
+        },
+        {
+          "module": "contracts.families.zcl.thermostats.owon_ac201",
+          "id": "zcl.thermostats.owon_ac201"
+        },
+        {
+          "id": "zcl.thermostats.nodon_irb",
+          "module": "contracts.families.zcl.thermostats.nodon_irb"
         }
       ],
-      "exactCount": 6,
+      "exactCount": 10,
       "catalogMigrations": [
         {
           "catalogId": "zcl.sensors.wave19_hvac",
@@ -7388,6 +8001,90 @@
               "catalogModule": "contracts.families.zcl.thermostats.namron_edge"
             }
           ]
+        },
+        {
+          "catalogId": "zcl.thermostats.meg5779",
+          "catalogModule": "contracts.families.zcl.thermostats.meg5779",
+          "oldOwner": "zcl-thermostat-wonjj6768",
+          "newOwner": "zcl-thermostat-wonjj6768",
+          "moved": false,
+          "exactCount": 1,
+          "exacts": [
+            {
+              "manufacturer": "Schneider Electric",
+              "manufacturerUtf8Hex": "5363686e656964657220456c656374726963",
+              "model": "MEG5779",
+              "modelUtf8Hex": "4d454735373739",
+              "profile": "rpt-men",
+              "oldOwner": "zcl-thermostat-wonjj6768",
+              "newOwner": "zcl-thermostat-wonjj6768",
+              "catalogId": "zcl.thermostats.meg5779",
+              "catalogModule": "contracts.families.zcl.thermostats.meg5779"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.thermostats.owon_ac221",
+          "catalogModule": "contracts.families.zcl.thermostats.owon_ac221",
+          "oldOwner": "zcl-thermostat-wonjj6768",
+          "newOwner": "zcl-thermostat-wonjj6768",
+          "moved": false,
+          "exactCount": 1,
+          "exacts": [
+            {
+              "manufacturer": "OWON",
+              "manufacturerUtf8Hex": "4f574f4e",
+              "model": "AC221",
+              "modelUtf8Hex": "4143323231",
+              "profile": "rpt-ajn",
+              "oldOwner": "zcl-thermostat-wonjj6768",
+              "newOwner": "zcl-thermostat-wonjj6768",
+              "catalogId": "zcl.thermostats.owon_ac221",
+              "catalogModule": "contracts.families.zcl.thermostats.owon_ac221"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.thermostats.owon_ac201",
+          "catalogModule": "contracts.families.zcl.thermostats.owon_ac201",
+          "oldOwner": "zcl-thermostat-wonjj6768",
+          "newOwner": "zcl-thermostat-wonjj6768",
+          "moved": false,
+          "exactCount": 1,
+          "exacts": [
+            {
+              "manufacturer": "OWON",
+              "manufacturerUtf8Hex": "4f574f4e",
+              "model": "AC201",
+              "modelUtf8Hex": "4143323031",
+              "profile": "rpt-ars",
+              "oldOwner": "zcl-thermostat-wonjj6768",
+              "newOwner": "zcl-thermostat-wonjj6768",
+              "catalogId": "zcl.thermostats.owon_ac201",
+              "catalogModule": "contracts.families.zcl.thermostats.owon_ac201"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.thermostats.nodon_irb",
+          "catalogModule": "contracts.families.zcl.thermostats.nodon_irb",
+          "oldOwner": "zcl-thermostat-wonjj6768",
+          "newOwner": "zcl-thermostat-wonjj6768",
+          "moved": false,
+          "exactCount": 1,
+          "exacts": [
+            {
+              "manufacturer": "NodOn",
+              "manufacturerUtf8Hex": "4e6f644f6e",
+              "model": "IRB-4-1-00",
+              "modelUtf8Hex": "4952422d342d312d3030",
+              "profile": "rpt-iyj",
+              "oldOwner": "zcl-thermostat-wonjj6768",
+              "newOwner": "zcl-thermostat-wonjj6768",
+              "catalogId": "zcl.thermostats.nodon_irb",
+              "catalogModule": "contracts.families.zcl.thermostats.nodon_irb"
+            }
+          ]
         }
       ]
     },
@@ -7444,7 +8141,7 @@
           "id": "ef00.covers.wave19_legacy"
         }
       ],
-      "exactCount": 24,
+      "exactCount": 25,
       "catalogMigrations": [
         {
           "catalogId": "ef00.covers.z2m_absorption",
@@ -7572,7 +8269,7 @@
           "oldOwner": "z2m-ef00-covers-wonjj6768",
           "newOwner": "ef00-covers-2-wonjj6768",
           "moved": false,
-          "exactCount": 10,
+          "exactCount": 11,
           "exacts": [
             {
               "manufacturer": "_TZ3210_5rta89nj",
@@ -7679,6 +8376,17 @@
               "model": "TS0601",
               "modelUtf8Hex": "545330363031",
               "profile": "covers-wave10-moes-fwjzceh18a001",
+              "oldOwner": "z2m-ef00-covers-wonjj6768",
+              "newOwner": "ef00-covers-2-wonjj6768",
+              "catalogId": "ef00.covers.wave10",
+              "catalogModule": "contracts.families.ef00.covers.wave10"
+            },
+            {
+              "manufacturer": "_TZE28C1000000_19jwhi8c",
+              "manufacturerUtf8Hex": "5f545a45323843313030303030305f31396a7768693863",
+              "model": "TS0601",
+              "modelUtf8Hex": "545330363031",
+              "profile": "covers-zemismart-zn2s-usc1u",
               "oldOwner": "z2m-ef00-covers-wonjj6768",
               "newOwner": "ef00-covers-2-wonjj6768",
               "catalogId": "ef00.covers.wave10",
@@ -11881,9 +12589,17 @@
         {
           "module": "contracts.families.zcl.covers.z2m_absorption",
           "id": "zcl.covers.z2m_absorption"
+        },
+        {
+          "module": "contracts.families.zcl.covers.md_gate",
+          "id": "zcl.covers.md_gate"
+        },
+        {
+          "module": "contracts.families.zcl.covers.somfy_tilt_lift",
+          "id": "zcl.covers.somfy_tilt_lift"
         }
       ],
-      "exactCount": 3,
+      "exactCount": 16,
       "catalogMigrations": [
         {
           "catalogId": "zcl.covers.z2m_absorption",
@@ -11925,6 +12641,169 @@
               "newOwner": "zcl-covers-2-wonjj6768",
               "catalogId": "zcl.covers.z2m_absorption",
               "catalogModule": "contracts.families.zcl.covers.z2m_absorption"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.covers.md_gate",
+          "catalogModule": "contracts.families.zcl.covers.md_gate",
+          "oldOwner": "zcl-covers-2-wonjj6768",
+          "newOwner": "zcl-covers-2-wonjj6768",
+          "moved": false,
+          "exactCount": 1,
+          "exacts": [
+            {
+              "manufacturer": "MakeDIY",
+              "manufacturerUtf8Hex": "4d616b65444959",
+              "model": "MD-GATE-ZB1",
+              "modelUtf8Hex": "4d442d474154452d5a4231",
+              "profile": "covers-md-gate-main",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.md_gate",
+              "catalogModule": "contracts.families.zcl.covers.md_gate"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.covers.somfy_tilt_lift",
+          "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift",
+          "oldOwner": "zcl-covers-2-wonjj6768",
+          "newOwner": "zcl-covers-2-wonjj6768",
+          "moved": false,
+          "exactCount": 12,
+          "exacts": [
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "Glydea Ultra Curtain",
+              "modelUtf8Hex": "476c7964656120556c747261204375727461696e",
+              "profile": "rpt-sca",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.somfy_tilt_lift",
+              "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift"
+            },
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "Roll Up 24 WF Li-ion Roller",
+              "modelUtf8Hex": "526f6c6c205570203234205746204c692d696f6e20526f6c6c6572",
+              "profile": "rpt-sqr",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.somfy_tilt_lift",
+              "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift"
+            },
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "Sonesse 28 WF Li-Ion Roller",
+              "modelUtf8Hex": "536f6e65737365203238205746204c692d496f6e20526f6c6c6572",
+              "profile": "rpt-swo",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.somfy_tilt_lift",
+              "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift"
+            },
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "Sonesse 28 WF Roller",
+              "modelUtf8Hex": "536f6e6573736520323820574620526f6c6c6572",
+              "profile": "rpt-swo",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.somfy_tilt_lift",
+              "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift"
+            },
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "Sonesse 30 DC 24V Roller",
+              "modelUtf8Hex": "536f6e657373652033302044432032345620526f6c6c6572",
+              "profile": "rpt-sca",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.somfy_tilt_lift",
+              "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift"
+            },
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "Sonesse Ultra 30 WF Li-Ion Rolle",
+              "modelUtf8Hex": "536f6e6573736520556c747261203330205746204c692d496f6e20526f6c6c65",
+              "profile": "rpt-sqr",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.somfy_tilt_lift",
+              "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift"
+            },
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "Sonesse2 28 WF Li-Ion Roller",
+              "modelUtf8Hex": "536f6e6573736532203238205746204c692d496f6e20526f6c6c6572",
+              "profile": "rpt-swo",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.somfy_tilt_lift",
+              "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift"
+            },
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "Sonesse2 28 WF Roller",
+              "modelUtf8Hex": "536f6e657373653220323820574620526f6c6c6572",
+              "profile": "rpt-swo",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.somfy_tilt_lift",
+              "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift"
+            },
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "Sonesse2 40 Zigbee Roller",
+              "modelUtf8Hex": "536f6e6573736532203430205a696762656520526f6c6c6572",
+              "profile": "rpt-sca",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.somfy_tilt_lift",
+              "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift"
+            },
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "Sonesse2 ULTRA 30 WF Li-ion Roll",
+              "modelUtf8Hex": "536f6e657373653220554c545241203330205746204c692d696f6e20526f6c6c",
+              "profile": "rpt-sqr",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.somfy_tilt_lift",
+              "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift"
+            },
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "Tilt & Lift 25 WF Roller",
+              "modelUtf8Hex": "54696c742026204c69667420323520574620526f6c6c6572",
+              "profile": "rpt-tqvi",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.somfy_tilt_lift",
+              "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift"
+            },
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "Tilt Only 50 WF TiltOnly",
+              "modelUtf8Hex": "54696c74204f6e6c792035302057462054696c744f6e6c79",
+              "profile": "rpt-tfk",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.somfy_tilt_lift",
+              "catalogModule": "contracts.families.zcl.covers.somfy_tilt_lift"
             }
           ]
         }
@@ -13684,21 +14563,571 @@
           ]
         }
       ]
+    },
+    {
+      "package": "ef00-switch-panel-2-wonjj6768",
+      "catalogs": [
+        {
+          "module": "contracts.families.ef00.switch_panel_m9pro",
+          "id": "ef00.switch.panel.m9pro"
+        }
+      ],
+      "exactCount": 1,
+      "catalogMigrations": [
+        {
+          "catalogId": "ef00.switch.panel.m9pro",
+          "catalogModule": "contracts.families.ef00.switch_panel_m9pro",
+          "oldOwner": "ef00-switch-panel-wonjj6768",
+          "newOwner": "ef00-switch-panel-2-wonjj6768",
+          "moved": true,
+          "exactCount": 1,
+          "exacts": [
+            {
+              "manufacturer": "_TZE284_iwyqtclw",
+              "manufacturerUtf8Hex": "5f545a453238345f6977797174636c77",
+              "model": "TS0601",
+              "modelUtf8Hex": "545330363031",
+              "profile": "switches-m9pro",
+              "oldOwner": "ef00-switch-panel-wonjj6768",
+              "newOwner": "ef00-switch-panel-2-wonjj6768",
+              "catalogId": "ef00.switch.panel.m9pro",
+              "catalogModule": "contracts.families.ef00.switch_panel_m9pro"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "package": "zcl-switch-3-wonjj6768",
+      "catalogs": [
+        {
+          "module": "contracts.families.zcl.switches.sonoff_legacy_additions",
+          "id": "zcl.switches.sonoff_legacy_additions"
+        }
+      ],
+      "exactCount": 4,
+      "catalogMigrations": [
+        {
+          "catalogId": "zcl.switches.sonoff_legacy_additions",
+          "catalogModule": "contracts.families.zcl.switches.sonoff_legacy_additions",
+          "oldOwner": "zcl-switch-wonjj6768",
+          "newOwner": "zcl-switch-3-wonjj6768",
+          "moved": true,
+          "exactCount": 4,
+          "exacts": [
+            {
+              "manufacturer": "SONOFF",
+              "manufacturerUtf8Hex": "534f4e4f4646",
+              "model": "01MINIZB",
+              "modelUtf8Hex": "30314d494e495a42",
+              "profile": "rpt-zpi",
+              "oldOwner": "zcl-switch-wonjj6768",
+              "newOwner": "zcl-switch-3-wonjj6768",
+              "catalogId": "zcl.switches.sonoff_legacy_additions",
+              "catalogModule": "contracts.families.zcl.switches.sonoff_legacy_additions"
+            },
+            {
+              "manufacturer": "SONOFF",
+              "manufacturerUtf8Hex": "534f4e4f4646",
+              "model": "BASICZBR3",
+              "modelUtf8Hex": "42415349435a425233",
+              "profile": "switches-sonoff-basiczbr3",
+              "oldOwner": "zcl-switch-wonjj6768",
+              "newOwner": "zcl-switch-3-wonjj6768",
+              "catalogId": "zcl.switches.sonoff_legacy_additions",
+              "catalogModule": "contracts.families.zcl.switches.sonoff_legacy_additions"
+            },
+            {
+              "manufacturer": "SONOFF",
+              "manufacturerUtf8Hex": "534f4e4f4646",
+              "model": "S31 Lite zb",
+              "modelUtf8Hex": "533331204c697465207a62",
+              "profile": "plugs-sonoff-s31zb",
+              "oldOwner": "zcl-switch-wonjj6768",
+              "newOwner": "zcl-switch-3-wonjj6768",
+              "catalogId": "zcl.switches.sonoff_legacy_additions",
+              "catalogModule": "contracts.families.zcl.switches.sonoff_legacy_additions"
+            },
+            {
+              "manufacturer": "SONOFF",
+              "manufacturerUtf8Hex": "534f4e4f4646",
+              "model": "ZBMINIL2",
+              "modelUtf8Hex": "5a424d494e494c32",
+              "profile": "rpt-zqj",
+              "oldOwner": "zcl-switch-wonjj6768",
+              "newOwner": "zcl-switch-3-wonjj6768",
+              "catalogId": "zcl.switches.sonoff_legacy_additions",
+              "catalogModule": "contracts.families.zcl.switches.sonoff_legacy_additions"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "package": "zcl-sensors-4-wonjj6768",
+      "catalogs": [
+        {
+          "module": "contracts.families.zcl.sensors.zigbeetlc_dual",
+          "id": "zcl.sensors.zigbeetlc_dual"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.multir_mirsr100",
+          "id": "zcl.sensors.multir_mirsr100"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.heiman_m_safety",
+          "id": "zcl.sensors.heiman_m_safety"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.somfy_opening",
+          "id": "zcl.sensors.somfy_opening"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.shelly_outdoor",
+          "id": "zcl.sensors.shelly_outdoor"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.zigbeetlc_zgzv_additions",
+          "id": "zcl.sensors.zigbeetlc_zgzv_additions"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.contact_water_additions",
+          "id": "zcl.sensors.contact_water_additions"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.passive_alarm_additions",
+          "id": "zcl.sensors.passive_alarm_additions"
+        }
+      ],
+      "exactCount": 30,
+      "catalogMigrations": [
+        {
+          "catalogId": "zcl.sensors.zigbeetlc_dual",
+          "catalogModule": "contracts.families.zcl.sensors.zigbeetlc_dual",
+          "oldOwner": "zcl-sensors-2-wonjj6768",
+          "newOwner": "zcl-sensors-4-wonjj6768",
+          "moved": true,
+          "exactCount": 2,
+          "exacts": [
+            {
+              "manufacturer": "Sonoff",
+              "manufacturerUtf8Hex": "536f6e6f6666",
+              "model": "ZG-204ZM-z",
+              "modelUtf8Hex": "5a472d3230345a4d2d7a",
+              "profile": "rpt-zqk",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.zigbeetlc_dual",
+              "catalogModule": "contracts.families.zcl.sensors.zigbeetlc_dual"
+            },
+            {
+              "manufacturer": "Sonoff",
+              "manufacturerUtf8Hex": "536f6e6f6666",
+              "model": "ZG-204ZS-z",
+              "modelUtf8Hex": "5a472d3230345a532d7a",
+              "profile": "rpt-zqk",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.zigbeetlc_dual",
+              "catalogModule": "contracts.families.zcl.sensors.zigbeetlc_dual"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.sensors.multir_mirsr100",
+          "catalogModule": "contracts.families.zcl.sensors.multir_mirsr100",
+          "oldOwner": "zcl-sensors-2-wonjj6768",
+          "newOwner": "zcl-sensors-4-wonjj6768",
+          "moved": true,
+          "exactCount": 1,
+          "exacts": [
+            {
+              "manufacturer": "MultIR",
+              "manufacturerUtf8Hex": "4d756c744952",
+              "model": "MIR-SR100",
+              "modelUtf8Hex": "4d49522d5352313030",
+              "profile": "rpt-may",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.multir_mirsr100",
+              "catalogModule": "contracts.families.zcl.sensors.multir_mirsr100"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.sensors.heiman_m_safety",
+          "catalogModule": "contracts.families.zcl.sensors.heiman_m_safety",
+          "oldOwner": "zcl-sensors-3-wonjj6768",
+          "newOwner": "zcl-sensors-4-wonjj6768",
+          "moved": true,
+          "exactCount": 2,
+          "exacts": [
+            {
+              "manufacturer": "0x120B",
+              "manufacturerUtf8Hex": "307831323042",
+              "model": "C1-M",
+              "modelUtf8Hex": "43312d4d",
+              "profile": "rpt-cgx",
+              "oldOwner": "zcl-sensors-3-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.heiman_m_safety",
+              "catalogModule": "contracts.families.zcl.sensors.heiman_m_safety"
+            },
+            {
+              "manufacturer": "0x120B",
+              "manufacturerUtf8Hex": "307831323042",
+              "model": "S1-M",
+              "modelUtf8Hex": "53312d4d",
+              "profile": "rpt-srn",
+              "oldOwner": "zcl-sensors-3-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.heiman_m_safety",
+              "catalogModule": "contracts.families.zcl.sensors.heiman_m_safety"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.sensors.somfy_opening",
+          "catalogModule": "contracts.families.zcl.sensors.somfy_opening",
+          "oldOwner": "zcl-sensors-3-wonjj6768",
+          "newOwner": "zcl-sensors-4-wonjj6768",
+          "moved": true,
+          "exactCount": 1,
+          "exacts": [
+            {
+              "manufacturer": "SOMFY",
+              "manufacturerUtf8Hex": "534f4d4659",
+              "model": "1811680",
+              "modelUtf8Hex": "31383131363830",
+              "profile": "rpt-zxa",
+              "oldOwner": "zcl-sensors-3-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.somfy_opening",
+              "catalogModule": "contracts.families.zcl.sensors.somfy_opening"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.sensors.shelly_outdoor",
+          "catalogModule": "contracts.families.zcl.sensors.shelly_outdoor",
+          "oldOwner": "zcl-sensors-3-wonjj6768",
+          "newOwner": "zcl-sensors-4-wonjj6768",
+          "moved": true,
+          "exactCount": 1,
+          "exacts": [
+            {
+              "manufacturer": "Shelly",
+              "manufacturerUtf8Hex": "5368656c6c79",
+              "model": "BLU DoorWindow Outdoor ZB",
+              "modelUtf8Hex": "424c5520446f6f7257696e646f77204f7574646f6f72205a42",
+              "profile": "rpt-blz",
+              "oldOwner": "zcl-sensors-3-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.shelly_outdoor",
+              "catalogModule": "contracts.families.zcl.sensors.shelly_outdoor"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.sensors.zigbeetlc_zgzv_additions",
+          "catalogModule": "contracts.families.zcl.sensors.zigbeetlc_zgzv_additions",
+          "oldOwner": "zcl-sensors-2-wonjj6768",
+          "newOwner": "zcl-sensors-4-wonjj6768",
+          "moved": true,
+          "exactCount": 4,
+          "exacts": [
+            {
+              "manufacturer": "Sonoff",
+              "manufacturerUtf8Hex": "536f6e6f6666",
+              "model": "ZG-204ZV-z",
+              "modelUtf8Hex": "5a472d3230345a562d7a",
+              "profile": "rpt-zeg",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.zigbeetlc_zgzv_additions",
+              "catalogModule": "contracts.families.zcl.sensors.zigbeetlc_zgzv_additions"
+            },
+            {
+              "manufacturer": "Sonoff",
+              "manufacturerUtf8Hex": "536f6e6f6666",
+              "model": "ZG-204ZV1-z",
+              "modelUtf8Hex": "5a472d3230345a56312d7a",
+              "profile": "rpt-zsq",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.zigbeetlc_zgzv_additions",
+              "catalogModule": "contracts.families.zcl.sensors.zigbeetlc_zgzv_additions"
+            },
+            {
+              "manufacturer": "Sonoff",
+              "manufacturerUtf8Hex": "536f6e6f6666",
+              "model": "ZG-204ZV2-TH-z",
+              "modelUtf8Hex": "5a472d3230345a56322d54482d7a",
+              "profile": "rpt-zeg",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.zigbeetlc_zgzv_additions",
+              "catalogModule": "contracts.families.zcl.sensors.zigbeetlc_zgzv_additions"
+            },
+            {
+              "manufacturer": "Sonoff",
+              "manufacturerUtf8Hex": "536f6e6f6666",
+              "model": "ZG-204ZV2-z",
+              "modelUtf8Hex": "5a472d3230345a56322d7a",
+              "profile": "rpt-zsq",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.zigbeetlc_zgzv_additions",
+              "catalogModule": "contracts.families.zcl.sensors.zigbeetlc_zgzv_additions"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.sensors.contact_water_additions",
+          "catalogModule": "contracts.families.zcl.sensors.contact_water_additions",
+          "oldOwner": "zcl-sensors-2-wonjj6768",
+          "newOwner": "zcl-sensors-4-wonjj6768",
+          "moved": true,
+          "exactCount": 8,
+          "exacts": [
+            {
+              "manufacturer": "CentraLite",
+              "manufacturerUtf8Hex": "43656e7472614c697465",
+              "model": "3300-S",
+              "modelUtf8Hex": "333330302d53",
+              "profile": "rpt-zlb",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.contact_water_additions",
+              "catalogModule": "contracts.families.zcl.sensors.contact_water_additions"
+            },
+            {
+              "manufacturer": "CentraLite",
+              "manufacturerUtf8Hex": "43656e7472614c697465",
+              "model": "3315-L",
+              "modelUtf8Hex": "333331352d4c",
+              "profile": "rpt-zum",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.contact_water_additions",
+              "catalogModule": "contracts.families.zcl.sensors.contact_water_additions"
+            },
+            {
+              "manufacturer": "CentraLite",
+              "manufacturerUtf8Hex": "43656e7472614c697465",
+              "model": "3323-G",
+              "modelUtf8Hex": "333332332d47",
+              "profile": "rpt-zpf",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.contact_water_additions",
+              "catalogModule": "contracts.families.zcl.sensors.contact_water_additions"
+            },
+            {
+              "manufacturer": "Samjin",
+              "manufacturerUtf8Hex": "53616d6a696e",
+              "model": "water",
+              "modelUtf8Hex": "7761746572",
+              "profile": "rpt-wpn",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.contact_water_additions",
+              "catalogModule": "contracts.families.zcl.sensors.contact_water_additions"
+            },
+            {
+              "manufacturer": "SmartThings",
+              "manufacturerUtf8Hex": "536d6172745468696e6773",
+              "model": "moisturev4",
+              "modelUtf8Hex": "6d6f6973747572657634",
+              "profile": "rpt-mdi",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.contact_water_additions",
+              "catalogModule": "contracts.families.zcl.sensors.contact_water_additions"
+            },
+            {
+              "manufacturer": "Visonic",
+              "manufacturerUtf8Hex": "5669736f6e6963",
+              "model": "MCT-340 E",
+              "modelUtf8Hex": "4d43542d3334302045",
+              "profile": "rpt-zlb",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.contact_water_additions",
+              "catalogModule": "contracts.families.zcl.sensors.contact_water_additions"
+            },
+            {
+              "manufacturer": "Visonic",
+              "manufacturerUtf8Hex": "5669736f6e6963",
+              "model": "MCT-340 SMA",
+              "modelUtf8Hex": "4d43542d33343020534d41",
+              "profile": "rpt-zlb",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.contact_water_additions",
+              "catalogModule": "contracts.families.zcl.sensors.contact_water_additions"
+            },
+            {
+              "manufacturer": "Visonic",
+              "manufacturerUtf8Hex": "5669736f6e6963",
+              "model": "MCT-350 SMA",
+              "modelUtf8Hex": "4d43542d33353020534d41",
+              "profile": "rpt-zpf",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.contact_water_additions",
+              "catalogModule": "contracts.families.zcl.sensors.contact_water_additions"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.sensors.passive_alarm_additions",
+          "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions",
+          "oldOwner": "zcl-sensors-2-wonjj6768",
+          "newOwner": "zcl-sensors-4-wonjj6768",
+          "moved": true,
+          "exactCount": 11,
+          "exacts": [
+            {
+              "manufacturer": "Aurora",
+              "manufacturerUtf8Hex": "4175726f7261",
+              "model": "WindowSensor51AU",
+              "modelUtf8Hex": "57696e646f7753656e736f7235314155",
+              "profile": "safety-contact-aurora-window",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.passive_alarm_additions",
+              "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions"
+            },
+            {
+              "manufacturer": "ClimaxTechnology",
+              "manufacturerUtf8Hex": "436c696d6178546563686e6f6c6f6779",
+              "model": "CO_00.00.00.15TC",
+              "modelUtf8Hex": "434f5f30302e30302e30302e31355443",
+              "profile": "safety-co-climax-co8",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.passive_alarm_additions",
+              "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions"
+            },
+            {
+              "manufacturer": "ClimaxTechnology",
+              "manufacturerUtf8Hex": "436c696d6178546563686e6f6c6f6779",
+              "model": "CO_00.00.00.22TC",
+              "modelUtf8Hex": "434f5f30302e30302e30302e32325443",
+              "profile": "safety-co-climax-co8",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.passive_alarm_additions",
+              "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions"
+            },
+            {
+              "manufacturer": "Ecolink",
+              "manufacturerUtf8Hex": "45636f6c696e6b",
+              "model": "FFZB1-SM-ECO",
+              "modelUtf8Hex": "46465a42312d534d2d45434f",
+              "profile": "rpt-fws",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.passive_alarm_additions",
+              "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions"
+            },
+            {
+              "manufacturer": "HEIMAN",
+              "manufacturerUtf8Hex": "4845494d414e",
+              "model": "da2edf1ded0d44e1815d06f45ce02029",
+              "modelUtf8Hex": "6461326564663164656430643434653138313564303666343563653032303239",
+              "profile": "safety-water-orvibo-sw21",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.passive_alarm_additions",
+              "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions"
+            },
+            {
+              "manufacturer": "Heiman",
+              "manufacturerUtf8Hex": "4865696d616e",
+              "model": "2f077707a13f4120846e0775df7e2efe",
+              "modelUtf8Hex": "3266303737373037613133663431323038343665303737356466376532656665",
+              "profile": "safety-water-orvibo-sw21",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.passive_alarm_additions",
+              "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions"
+            },
+            {
+              "manufacturer": "ORVIBO",
+              "manufacturerUtf8Hex": "4f525649424f",
+              "model": "e70f96b3773a4c9283c6862dbafb6a99",
+              "modelUtf8Hex": "6537306639366233373733613463393238336336383632646261666236613939",
+              "profile": "safety-contact-livingwise-lvs",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.passive_alarm_additions",
+              "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions"
+            },
+            {
+              "manufacturer": "SmartThings",
+              "manufacturerUtf8Hex": "536d6172745468696e6773",
+              "model": "PGC314",
+              "modelUtf8Hex": "504743333134",
+              "profile": "safety-motion-smartthings-pgc314",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.passive_alarm_additions",
+              "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions"
+            },
+            {
+              "manufacturer": "WAXMAN",
+              "manufacturerUtf8Hex": "5741584d414e",
+              "model": "leakSMART Water Sensor V2",
+              "modelUtf8Hex": "6c65616b534d4152542057617465722053656e736f72205632",
+              "profile": "rpt-ldr",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.passive_alarm_additions",
+              "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions"
+            },
+            {
+              "manufacturer": "sengled",
+              "manufacturerUtf8Hex": "73656e676c6564",
+              "model": "E1D-G73",
+              "modelUtf8Hex": "4531442d473733",
+              "profile": "rpt-edw",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.passive_alarm_additions",
+              "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions"
+            },
+            {
+              "manufacturer": "sengled",
+              "manufacturerUtf8Hex": "73656e676c6564",
+              "model": "E2D-G73",
+              "modelUtf8Hex": "4532442d473733",
+              "profile": "rpt-edw",
+              "oldOwner": "zcl-sensors-2-wonjj6768",
+              "newOwner": "zcl-sensors-4-wonjj6768",
+              "catalogId": "zcl.sensors.passive_alarm_additions",
+              "catalogModule": "contracts.families.zcl.sensors.passive_alarm_additions"
+            }
+          ]
+        }
+      ]
     }
   ],
   "summary": {
     "legacyPackageCount": 27,
     "legacyExactCount": 3280,
     "legacyOwnerChangeCount": 0,
-    "newPackageCount": 24,
-    "newCatalogCount": 96,
-    "newExactCount": 920,
-    "fingerprintOnlyAliasCount": 97,
-    "failClosedExactCount": 1,
-    "restoredLegacyExactCount": 4,
-    "runtimeExactCount": 4292,
-    "movedCatalogCount": 52,
-    "movedExactCount": 503,
+    "newPackageCount": 27,
+    "newCatalogCount": 114,
+    "newExactCount": 986,
+    "fingerprintOnlyAliasCount": 120,
+    "newFamilyExactCount": 5,
+    "failClosedExactCount": 0,
+    "restoredLegacyExactCount": 5,
+    "runtimeExactCount": 4386,
+    "movedCatalogCount": 62,
+    "movedExactCount": 540,
     "historicalPartitionCount": 17
   }
 }

@@ -1,0 +1,153 @@
+{
+  "name": "safety-heiman-s1-m",
+  "components": [
+    {
+      "id": "main",
+      "capabilities": [
+        {
+          "id": "concertmirror08464.hmS1MBatteryPercent",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MIdentify",
+          "version": 1
+        },
+        {
+          "id": "temperatureMeasurement",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MHumidity",
+          "version": 1
+        },
+        {
+          "id": "smokeDetector",
+          "version": 1
+        },
+        {
+          "id": "batteryLevel",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MTestState",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MAlarmState",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MFaultState",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MMuteState",
+          "version": 1
+        },
+        {
+          "id": "audioMute",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MInterconnectable",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MSmokeLevel",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MSmokeUnit",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MChamberState",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MLinkState",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MSirenMode",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MShieldingTime",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MTempOffset",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MHumidityOffset",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MReportedCount",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MRejoinCount",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MRebootCount",
+          "version": 1
+        },
+        {
+          "id": "refresh",
+          "version": 1
+        },
+        {
+          "id": "signalStrength",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmS1MWarningV2",
+          "version": 1
+        }
+      ],
+      "categories": [
+        {
+          "name": "SmokeDetector"
+        }
+      ]
+    },
+    {
+      "id": "heartbeat",
+      "label": "Heartbeat indicator",
+      "capabilities": [
+        {
+          "id": "switch",
+          "version": 1
+        }
+      ],
+      "categories": [
+        {
+          "name": "Switch"
+        }
+      ]
+    },
+    {
+      "id": "selfTest",
+      "label": "Trigger self test",
+      "capabilities": [
+        {
+          "id": "momentary",
+          "version": 1
+        }
+      ],
+      "categories": [
+        {
+          "name": "Button"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "deviceType": "SmokeDetector",
+    "ocfDeviceType": "x.com.st.d.sensor.smoke"
+  }
+}

@@ -175,9 +175,6 @@ end
 local pirogov = {
   profile = "thermostats-wave19-pirogov-zb-midea-ac",
   package_group = "wave19-hvac",
-  transport_classification = "CUSTOM_PAYLOAD",
-  z2m_converter_source = "fzLocal.acAnalog + fz.thermostat / tzLocal + thermostat writers",
-  wire_cluster = "0x000C attrs 0xF000-0xF009 + 0x0201",
   configure = configure_pirogov,
   zcl_clusters = {
     zcl.cluster_attribute(CLUSTER_ANALOG_INPUT, ATTR_POWER, {
@@ -325,7 +322,6 @@ register_device_definition(pirogov, {
 local topband_trv602 = {
   profile = "thermostats-topband-trv602",
   magic_packet = false,
-  placeholder_custom_states = false,
   component_to_endpoint_map = {main=1},
   heating_setpoint_range = {minimum=7, maximum=30, step=0.5, unit="C"},
   capability_commands = {

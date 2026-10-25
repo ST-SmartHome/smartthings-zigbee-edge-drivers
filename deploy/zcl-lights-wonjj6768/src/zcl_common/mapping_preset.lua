@@ -70,7 +70,7 @@ if T~=nil then
 return T
 end
 return value
-end,
+end
 }
 end
 local function v(value,ad,ac)
@@ -88,14 +88,14 @@ from=function(value)
 if type(value)~="number"then
 return value
 end
-return math.floor((v(value,0,254)*100/254)+0.5)
+return math.floor(v(value,0,254)*100/254+0.5)
 end,
 to=function(value)
 if type(value)~="number"then
 return value
 end
-return math.floor((v(value,0,100)*254/100)+0.5)
-end,
+return math.floor(v(value,0,100)*254/100+0.5)
+end
 }
 end
 local function n()
@@ -104,32 +104,32 @@ from=function(value)
 if type(value)~="number"then
 return value
 end
-return math.floor((v(value,0,254)*100/254)+0.5)
+return math.floor(v(value,0,254)*100/254+0.5)
 end,
 to=function(value)
 if type(value)~="number"then
 return value
 end
-return math.floor((v(value,0,100)*254/100)+0.5)
-end,
+return math.floor(v(value,0,100)*254/100+0.5)
+end
 }
 end
 local function ae()
-return r({
-[0]="off",[1]="low",[2]="medium",[3]="high",[4]="on",[5]="auto",[6]="turbo",})
+return r{
+[0]="off",[1]="low",[2]="medium",[3]="high",[4]="on",[5]="auto",[6]="turbo"}
 end
 local function D()
 return r({
-[0]="off",[1]="on",[2]="previous",},nil,nil,{
-restore="previous",})
+[0]="off",[1]="on",[2]="previous"},nil,nil,{
+restore="previous"})
 end
 local function B()
-return r({
-[0]="momentary",[1]="toggle",[2]="state",})
+return r{
+[0]="momentary",[1]="toggle",[2]="state"}
 end
 local function U()
-return r({
-[0]="led",[1]="incandescent",[2]="halogen",})
+return r{
+[0]="led",[1]="incandescent",[2]="halogen"}
 end
 local function O(value)
 local L=math.floor(v(tonumber(value)or 0,0,0xFFFFFFFF)+0.5)return string.char(bit32.band(L,255))..
@@ -143,14 +143,14 @@ from=function(value)
 if type(value)~="number"then
 return value
 end
-return math.floor(((v(value,0,1000)*254)/1000)+1+0.5)
+return math.floor(v(value,0,1000)*254/1000+1+0.5)
 end,
 to=function(value)
 if type(value)~="number"then
 return value
 end
-return math.floor((((v(value,1,255)-1)*1000)/254)+0.5)
-end,
+return math.floor((v(value,1,255)-1)*1000/254+0.5)
+end
 }
 end
 local function E(ak,af,f)
@@ -160,7 +160,7 @@ name=f.name,emit=f.emit,converter=ab,
 to_device=function(value)
 return ab.to(value)
 end,
-data_type=j.Enum8,write_type=j.Enum8,attribute_name=f.attribute_name,mfg_code=f.mfg_code,read_on_configure=true,})return k.cluster_attribute(ak,af,b)
+data_type=j.Enum8,write_type=j.Enum8,attribute_name=f.attribute_name,mfg_code=f.mfg_code,read_on_configure=true})return k.cluster_attribute(ak,af,b)
 end
 end
 local function C()
@@ -170,22 +170,22 @@ from=function(value)
 if type(value)~="number"or value<=0 then
 return value
 end
-return math.floor((u/value)+0.5)
+return math.floor(u/value+0.5)
 end,
 to=function(value)
 if type(value)~="number"or value<=0 then
 return value
 end
-return math.floor((u/value)+0.5)
-end,
+return math.floor(u/value+0.5)
+end
 }
 end
 local function i(S,R,M)
 return{
-minimum_interval=S,maximum_interval=R,reportable_change=M,read_on_configure=true,}
+minimum_interval=S,maximum_interval=R,reportable_change=M,read_on_configure=true}
 end
 local function m(...)
-local am={}for _,f in ipairs({...})do
+local am={}for _,f in ipairs{...}do
 h(am,f)
 end
 return am
@@ -209,17 +209,17 @@ local g=e.configure_reporting
 e.configure_reporting=nil
 if g==false then
 return{
-emit=t.switch(),}
+emit=t.switch()}
 end
 return m(
 {
-emit=t.switch(),},i(0,300,nil))
+emit=t.switch()},i(0,300,nil))
 end)
 k.power_on_behavior=E(k.CLUSTER_ON_OFF,32770,{
-name="power_on_behavior",emit=o("power_on_behavior"),attribute_name="tuyaPowerOnBehavior",converter_factory=D,})
+name="power_on_behavior",emit=o"power_on_behavior",attribute_name="tuyaPowerOnBehavior",converter_factory=D})
 k.tuya_magic_packet=function(c,e)
 local b=d(c,e)h(b,{
-name="tuya_magic_packet",read_only=true,read_on_configure=true,})return k.cluster_attribute(0,65534,b)
+name="tuya_magic_packet",read_only=true,read_on_configure=true})return k.cluster_attribute(0,65534,b)
 end
 k.ts110e_countdown_timer=function(c,e)
 local b=d(c,e)local W=b.emit or o("countdownTsOneTenHours","s")h(b,{
@@ -228,13 +228,13 @@ to_device=function(value)
 return O(v(tonumber(value)or 0,0,43200))
 end,
 numeric_range={
-minimum=0,maximum=43200,step=1,unit="s",},attribute_name="tuyaCountdown",read_on_configure=true,})return k.cluster_attribute(k.CLUSTER_ON_OFF,16385,b)
+minimum=0,maximum=43200,step=1,unit="s"},attribute_name="tuyaCountdown",read_on_configure=true})return k.cluster_attribute(k.CLUSTER_ON_OFF,16385,b)
 end
 l("level",k.level_control,function(e)
 local g=e.configure_reporting
 e.configure_reporting=nil
 local f={
-name="brightness",emit=t.level(),converter=I(),}
+name="brightness",emit=t.level(),converter=I()}
 if g==false then return f end
 return m(f,i(1,3600,1))
 end)
@@ -245,67 +245,67 @@ from_device=function(value)
 if type(value)~="number"then
 return value
 end
-local as=v(value,10,1000)return math.floor((((as-10)*100)/990)+0.5)
+local as=v(value,10,1000)return math.floor((as-10)*100/990+0.5)
 end,
 to_device=function(value)
 if type(value)~="number"then
 return value
 end
-local au=v(value,0,100)return math.floor((10+((au*990)/100))+0.5)
+local au=v(value,0,100)return math.floor(10+au*990/100+0.5)
 end,
-read_on_configure=true,})return k.cluster_attribute(k.CLUSTER_LEVEL_CONTROL,61440,b)
+read_on_configure=true})return k.cluster_attribute(k.CLUSTER_LEVEL_CONTROL,61440,b)
 end
 l("power",k.electrical_measurement_power,function()
 return m(
 {
-emit=t.power(),metering_kind="power",poll_interval=300,},i(5,300,1))
+emit=t.power(),metering_kind="power",poll_interval=300},i(5,300,1))
 end)
 l("current",k.electrical_measurement_current,function()
 return m(
 {
-emit=t.current(),scale=1000,metering_kind="current",poll_interval=300,},i(5,300,1))
+emit=t.current(),scale=1000,metering_kind="current",poll_interval=300},i(5,300,1))
 end)
 l("voltage",k.electrical_measurement_voltage,function()
 return m(
 {
-emit=t.voltage(),metering_kind="voltage",poll_interval=300,},i(5,300,1))
+emit=t.voltage(),metering_kind="voltage",poll_interval=300},i(5,300,1))
 end)
 l("energy",k.simple_metering,function()
 return{
-emit=t.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900,}
+emit=t.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900}
 end)
 l("fan_mode",k.fan_control_mode,function()
 return m(
 {
-name="fan_mode",emit=t.fan_mode(),converter=ae(),},i(1,300,nil))
+name="fan_mode",emit=t.fan_mode(),converter=ae()},i(1,300,nil))
 end)
 l("color_temperature",k.color_control_temperature,function(e)
 local g=e.configure_reporting
 e.configure_reporting=nil
 local f={
-name="color_temperature",emit=t.color_temperature(),converter=C(),tx_command_id=10,}
+name="color_temperature",emit=t.color_temperature(),converter=C(),tx_command_id=10}
 if g==false then return f end
 return m(f,i(1,300,1))
 end)
 k.min_brightness=function(c,e)
 local b=d(c,e)h(b,{
-name="min_brightness",emit=o("minBrightnessZclThousand"),data_type=j.Uint16,write_type=j.Uint16,attribute_name="tuyaMinBrightness",read_on_configure=true,})return k.cluster_attribute(k.CLUSTER_LEVEL_CONTROL,64515,b)
+name="min_brightness",emit=o"minBrightnessZclThousand",data_type=j.Uint16,write_type=j.Uint16,attribute_name="tuyaMinBrightness",read_on_configure=true})return k.cluster_attribute(k.CLUSTER_LEVEL_CONTROL,64515,b)
 end
 k.ts110e_min_brightness=function(c,e)
 local b=d(c,e)h(b,{
-name="min_brightness",emit=o("minimumBrightnessTsOneTenMax"),converter=s(),data_type=j.Uint16,write_type=j.Uint16,attribute_name="tuyaMinBrightness",read_on_configure=true,})return k.cluster_attribute(k.CLUSTER_LEVEL_CONTROL,64515,b)
+name="min_brightness",emit=o"minimumBrightnessTsOneTenMax",converter=s(),data_type=j.Uint16,write_type=j.Uint16,attribute_name="tuyaMinBrightness",read_on_configure=true})return k.cluster_attribute(k.CLUSTER_LEVEL_CONTROL,64515,b)
 end
 k.ts110e_max_brightness=function(c,e)
 local b=d(c,e)h(b,{
-name="max_brightness",emit=o("maxBrightnessTsOneTenMax"),converter=s(),data_type=j.Uint16,write_type=j.Uint16,attribute_name="tuyaMaxBrightness",read_on_configure=true,})return k.cluster_attribute(k.CLUSTER_LEVEL_CONTROL,64516,b)
+name="max_brightness",emit=o"maxBrightnessTsOneTenMax",converter=s(),data_type=j.Uint16,write_type=j.Uint16,attribute_name="tuyaMaxBrightness",read_on_configure=true})return k.cluster_attribute(k.CLUSTER_LEVEL_CONTROL,64516,b)
 end
 k.ts110e_switch_type=function(c,e)
 local b=d(c,e)h(b,{
-name="switch_type",emit=o("switch_type"),converter=B(),data_type=j.Enum8,write_type=j.Enum8,attribute_name="tuyaSwitchType",read_on_configure=true,})return k.cluster_attribute(k.CLUSTER_LEVEL_CONTROL,64514,b)
+name="switch_type",emit=o"switch_type",converter=B(),data_type=j.Enum8,write_type=j.Enum8,attribute_name="tuyaSwitchType",read_on_configure=true})return k.cluster_attribute(k.CLUSTER_LEVEL_CONTROL,64514,b)
 end
 k.light_type=function(c,e)
 local b=d(c,e)h(b,{
-name="light_type",emit=o("light_type"),converter=U(),data_type=j.Enum8,attribute_name="tuyaLightType",read_on_configure=true,})return k.cluster_attribute(k.CLUSTER_LEVEL_CONTROL,64514,b)
+name="light_type",emit=o"light_type",converter=U(),data_type=j.Enum8,attribute_name="tuyaLightType",read_on_configure=true})return k.cluster_attribute(k.CLUSTER_LEVEL_CONTROL,64514,b)
 end
 l("color_hue",k.color_control_hue,function(e)
 local g=e.configure_reporting
@@ -314,7 +314,7 @@ local f={
 name="color_hue",emit=t.color_hue(),converter=n(),tx_command_id=0,
 to_device=function(value)
 local X=n().to(value)return{X,0,0,0,0}
-end,
+end
 }
 if g==false then return f end
 return m(f,i(1,300,1))
@@ -326,7 +326,7 @@ local f={
 name="color_saturation",emit=t.color_saturation(),converter=n(),tx_command_id=3,
 to_device=function(value)
 local X=n().to(value)return{X,0,0,0}
-end,
+end
 }
 if g==false then return f end
 return m(f,i(1,300,1))
@@ -342,7 +342,7 @@ local ar=n().to(value.hue)local z=n().to(value.saturation)if type(ar)~="number"o
 return nil
 end
 return{ar,z,0,0,0}
-end,
+end
 })return k.cluster_attribute(b.cluster_id,b.attribute_id,b)
 end
 function k.color_xy(e)
@@ -353,7 +353,7 @@ p:set_field(V..mapping.name,value)local x,y=p:get_field(V.."color_x"),p:get_fiel
 local ar,z=Z(x,y)local aa=A.component or{id=A.component_id or"main"}p:emit_component_event(aa,t.color_hue()(p,ar))p:emit_component_event(aa,t.color_saturation()(p,z))
 end
 end
-local Q={}for _,ao in ipairs({{"color_x",3},{"color_y",4},{"color_mode",8}})do
+local Q={}for _,ao in ipairs{{"color_x",3},{"color_y",4},{"color_mode",8}}do
 local b=w({},e)b.name,b.read_only,b.from_device=ao[1],true,av
 b.data_type=ao[2]==8 and j.Enum8 or j.Uint16
 Q[#Q+1]=k.cluster_attribute(k.CLUSTER_COLOR_CONTROL,ao[2],b)

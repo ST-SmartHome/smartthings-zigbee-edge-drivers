@@ -18,7 +18,7 @@ components:
         version: 1
       - id: concertmirror08464.zs300zHumidityCalibration
         version: 1
-      - id: concertmirror08464.illuminanceCalibrationZs300z
+      - id: concertmirror08464.zs304IllumCalibration
         version: 1
       - id: concertmirror08464.zs300zTempCalibration
         version: 1
