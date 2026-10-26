@@ -218490,9 +218490,9 @@
   },
   {
     "name": "zcl-sensors-2-wonjj6768",
-    "raw_size": 364994,
+    "raw_size": 370390,
     "under_limit": true,
-    "free_bytes": 159294,
+    "free_bytes": 153898,
     "meets_headroom": true,
     "profiles": [
       "rpt-ala",
@@ -363510,9 +363510,9 @@
   },
   {
     "name": "zcl-sensors-3-wonjj6768",
-    "raw_size": 372026,
+    "raw_size": 377422,
     "under_limit": true,
-    "free_bytes": 152262,
+    "free_bytes": 146866,
     "meets_headroom": true,
     "profiles": [
       "rpt-abc",

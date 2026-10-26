@@ -34,3 +34,98 @@ components:
     version: 1
   categories:
   - name: TempHumiditySensor
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: temperatureMeasurement
+      group: main
+      composite: true
+    - component: main
+      capability: relativeHumidityMeasurement
+      group: main
+      values:
+      - label: ' {{humidity.value}}{{humidity.unit}}'
+      composite: true
+    actions: []
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: temperatureMeasurement
+  - component: main
+    capability: relativeHumidityMeasurement
+  - component: main
+    capability: battery
+  - component: main
+    capability: voltageMeasurement
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
+  - component: main
+    capability: concertmirror08464.zclTempReportMin
+  - component: main
+    capability: concertmirror08464.zclTempReportMax
+  - component: main
+    capability: concertmirror08464.zclTempReportChange29
+  - component: main
+    capability: concertmirror08464.zclHumidityReportMin
+  - component: main
+    capability: concertmirror08464.zclHumidityReportMax
+  - component: main
+    capability: concertmirror08464.zclHumidityReportChange21
+  - component: main
+    capability: concertmirror08464.zclBatteryReportMin
+  - component: main
+    capability: concertmirror08464.zclBatteryReportMax
+  - component: main
+    capability: concertmirror08464.zclBatteryReportChange20
+  automation:
+    conditions:
+    - component: main
+      capability: temperatureMeasurement
+    - component: main
+      capability: relativeHumidityMeasurement
+    - component: main
+      capability: battery
+    - component: main
+      capability: voltageMeasurement
+    - component: main
+      capability: signalStrength
+    - component: main
+      capability: concertmirror08464.zclTempReportMin
+    - component: main
+      capability: concertmirror08464.zclTempReportMax
+    - component: main
+      capability: concertmirror08464.zclTempReportChange29
+    - component: main
+      capability: concertmirror08464.zclHumidityReportMin
+    - component: main
+      capability: concertmirror08464.zclHumidityReportMax
+    - component: main
+      capability: concertmirror08464.zclHumidityReportChange21
+    - component: main
+      capability: concertmirror08464.zclBatteryReportMin
+    - component: main
+      capability: concertmirror08464.zclBatteryReportMax
+    - component: main
+      capability: concertmirror08464.zclBatteryReportChange20
+    actions:
+    - component: main
+      capability: concertmirror08464.zclTempReportMin
+    - component: main
+      capability: concertmirror08464.zclTempReportMax
+    - component: main
+      capability: concertmirror08464.zclTempReportChange29
+    - component: main
+      capability: concertmirror08464.zclHumidityReportMin
+    - component: main
+      capability: concertmirror08464.zclHumidityReportMax
+    - component: main
+      capability: concertmirror08464.zclHumidityReportChange21
+    - component: main
+      capability: concertmirror08464.zclBatteryReportMin
+    - component: main
+      capability: concertmirror08464.zclBatteryReportMax
+    - component: main
+      capability: concertmirror08464.zclBatteryReportChange20
