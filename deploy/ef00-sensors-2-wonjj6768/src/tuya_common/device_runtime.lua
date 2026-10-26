@@ -1,629 +1,528 @@
-local function load_runtime(tuya,shared)
-local log=shared.log
-local BASIC_CLUSTER=shared.BASIC_CLUSTER
-local EPOCH_2000_OFFSET=shared.EPOCH_2000_OFFSET
-local PERSIST_FALSE=shared.PERSIST_FALSE
-local CONFIG_QUEUE_FIELD=shared.CONFIG_QUEUE_FIELD
-local CONFIG_QUEUE_CALLBACK_FIELD=shared.CONFIG_QUEUE_CALLBACK_FIELD
-local QUERY_INTERVAL_TIMER_FIELD=shared.QUERY_INTERVAL_TIMER_FIELD
-local QUERY_DATA=shared.QUERY_DATA
-local SET_TIME=shared.SET_TIME
-local CONNECTION_STATUS=shared.CONNECTION_STATUS
-local REPORT_COMMANDS=shared.REPORT_COMMANDS
-local cluster_base=shared.cluster_base
-local string_byte=shared.string_byte
-local string_len=shared.string_len
-local type_check=shared.type_check
-local table_insert=shared.table_insert
-local table_remove=shared.table_remove
-local extract_payload=shared.extract_payload
-local extract_command_id=shared.extract_command_id
-local extract_transaction=shared.extract_transaction
-local prepare_mappings=shared.prepare_mappings
-local time_offset_for_start=shared.time_offset_for_start
-local ACTION_MAGIC_PACKET="magic_packet"
-local ACTION_QUERY_STATE="query_state"
-local ACTION_MCU_VERSION="mcu_version"
-local MCU_VERSION_RESPONSE=shared.MCU_VERSION_RESPONSE
-local ACTION_BIND_BASIC="bind_basic"
-local ACTION_CONFIG_QUEUE="config_queue"
-local ACTION_QUERY_TIMER="query_timer"
-local FORCE_TIME_UPDATE_FIELD="tuya_next_forced_time_update"
-local FORCE_TIME_UPDATE_INTERVAL=60 * 60
-local handle_time_request_with_start_mode
-local run_configure_actions
-local send_next_config_item
-local handle_config_queue_response
-local function normalize_non_negative_delay(value,default_value,label)
-local resolved=value
-if resolved==nil then
-resolved=default_value
+local function bh(l,p)
+local bm=p.log
+local bd=p.BASIC_CLUSTER
+local v=p.PERSIST_FALSE
+local B=p.CONFIG_QUEUE_FIELD
+local r=p.CONFIG_QUEUE_CALLBACK_FIELD
+local w=p.QUERY_INTERVAL_TIMER_FIELD
+local br=p.SET_TIME
+local aO=p.CONNECTION_STATUS
+local aV=p.REPORT_COMMANDS
+local aP=require"st.zigbee.device_management"
+local d=p.type_check
+local A=p.table_insert
+local bj=p.table_remove
+local aW=p.extract_payload
+local aL=p.extract_command_id
+local aH=p.extract_transaction
+local au=p.prepare_mappings
+local R=p.time_offset_for_start
+local Y="magic_packet"
+local af="query_state"
+local ae="mcu_version"
+local aE=p.MCU_VERSION_RESPONSE
+local ar="bind_basic"
+local X="config_queue"
+local ag="query_timer"
+local K="tuya_next_forced_time_update"
+local ao=60*60
+local s
+local u
+local Q
+local F
+local function n(ba,ap,bn)
+local q=ba
+if q==nil then
+q=ap
 end
-if type_check(resolved)~="number" or resolved < 0 then
-log.warn(string.format("Tuya %s expects non-negative number, got %s",label,tostring(resolved)))
-return nil
+if d(q)~="number"or q<0 then
+bm.warn(string.format("Tuya %s expects non-negative number, got %s",bn,tostring(q)))return nil
 end
-return resolved
+return q
 end
-local function normalize_positive_interval(value,default_value,label)
-local resolved=value
-if resolved==nil then
-resolved=default_value
+local function am(ba,ap,bn)
+local q=ba
+if q==nil then
+q=ap
 end
-if type_check(resolved)~="number" or resolved <=0 then
-log.warn(string.format("Tuya %s expects positive number, got %s",label,tostring(resolved)))
-return nil
+if d(q)~="number"or q<=0 then
+bm.warn(string.format("Tuya %s expects positive number, got %s",bn,tostring(q)))return nil
 end
-return resolved
+return q
 end
-local function resolve_bind_target_eui(options,driver)
-local bind_target_eui=options.bind_target_eui
-if type_check(bind_target_eui)=="string" and bind_target_eui ~="" then
-return bind_target_eui
+local function ax(b,aK)
+local h=b.bind_target_eui
+if d(h)=="string"and h~=""then
+return h
 end
-if type_check(driver)=="table" and type_check(driver.environment_info)=="table" then
-local hub_zigbee_eui=driver.environment_info.hub_zigbee_eui
-if type_check(hub_zigbee_eui)=="string" and hub_zigbee_eui ~="" then
-return hub_zigbee_eui
+if d(aK)=="table"and d(aK.environment_info)=="table"then
+local ac=aK.environment_info.hub_zigbee_eui
+if d(ac)=="string"and ac~=""then
+return ac
 end
 end
 return nil
 end
-local function merge_named_mapping_options(options)
-local merged={}
-local nested=type_check(options.named_mapping)=="table" and options.named_mapping or nil
-if nested ~=nil then
-for key,value in pairs(nested)do
-merged[key]=value
+local function al(b)
+local bi={}local bq=d(b.named_mapping)=="table"and b.named_mapping or nil
+if bq~=nil then
+for bp,ba in pairs(bq)do
+bi[bp]=ba
 end
 end
-local named_keys={
-"named_mappings",
-"named_datapoints",
-"named_key_field",
-"named_mapping_values",
-"named_mapping_names",
-}
-for _,key in ipairs(named_keys)do
-if options[key]~=nil then
-merged[key]=options[key]
+local bo={
+"named_mappings","named_datapoints","named_key_field","named_mapping_values","named_mapping_names"}for _,bp in ipairs(bo)do
+if b[bp]~=nil then
+bi[bp]=b[bp]
 end
 end
-return merged
+return bi
 end
-local function send_basic_bind_request(device,bind_target_eui)
-if type_check(bind_target_eui)~="string" or bind_target_eui=="" then
+local function ay(a,h)
+if d(h)~="string"or h==""then
 return false
 end
-local request=cluster_base.build_bind_request(device,BASIC_CLUSTER,bind_target_eui)
-if request==nil then
-log.warn("Tuya bind_basic_on_configure failed to build bind request")
-return false
+local at=aP.build_bind_request(a,bd,h)if at==nil then
+bm.warn"Tuya bind_basic_on_configure failed to build bind request"return false
 end
-device:send(request)
-return true
+a:send(at)return true
 end
-local function append_queue_items(target,items)
-if type_check(target)~="table" or type_check(items)~="table" then
-return target
+local function ah(aZ,aX)
+if d(aZ)~="table"or d(aX)~="table"then
+return aZ
 end
-for _,item in ipairs(items)do
-table_insert(target,item)
+for _,L in ipairs(aX)do
+A(aZ,L)
 end
-return target
+return aZ
 end
-local function schedule_next_configure_action(device,actions,step_delay,cursor)
-if actions[cursor + 1]then
-device.thread:call_with_delay(step_delay,function()
-run_configure_actions(device,actions,step_delay,cursor + 1)
+local function D(a,o,x,aB)
+if o[aB+1]then
+a.thread:call_with_delay(x,function()
+u(a,o,x,aB+1)
 end)
 end
 end
-handle_time_request_with_start_mode=function(device,message,time_start,utc_time,local_time)
-if time_start=="off" then
+s=function(a,m,V,bk,aY)
+if V=="off"then
 return false
 end
-local offset=time_offset_for_start(time_start)
-if offset ~=0 then
-return tuya.apply_time_request_with_offset(device,message,offset,utc_time,local_time)
+local aM=R(V)if aM~=0 then
+return l.apply_time_request_with_offset(a,m,aM,bk,aY)
 end
-return tuya.apply_time_request(device,message,utc_time,local_time)
+return l.apply_time_request(a,m,bk,aY)
 end
-run_configure_actions=function(device,actions,step_delay,index)
-local cursor=index or 1
-local action=actions[cursor]
-if not action then
+u=function(a,o,x,bt)
+local aB=bt or 1
+local H=o[aB]if not H then
 return false
 end
-if action.kind==ACTION_MAGIC_PACKET then
-tuya.send_magic_packet(device)
-elseif action.kind==ACTION_QUERY_STATE then
-tuya.send_state_request(device,action.command_id)
-elseif action.kind==ACTION_MCU_VERSION then
-tuya.send_mcu_version_request(device)
-elseif action.kind==ACTION_BIND_BASIC then
-send_basic_bind_request(device,action.bind_target_eui)
-elseif action.kind==ACTION_CONFIG_QUEUE then
-return tuya.start_config_queue(device,action.queue,{
+if H.kind==Y then
+l.send_magic_packet(a)elseif H.kind==af then
+l.send_state_request(a,H.command_id)elseif H.kind==ae then
+l.send_mcu_version_request(a)elseif H.kind==ar then
+ay(a,H.bind_target_eui)elseif H.kind==X then
+return l.start_config_queue(a,H.queue,{
 on_complete=function(success)
 if success then
-schedule_next_configure_action(device,actions,step_delay,cursor)
+D(a,o,x,aB)
 end
-end,
-})
-elseif action.kind==ACTION_QUERY_TIMER then
-tuya.start_query_timer(device,action.interval_seconds,action.command_id)
 end
-schedule_next_configure_action(device,actions,step_delay,cursor)
-return true
+})elseif H.kind==ag then
+l.start_query_timer(a,H.interval_seconds,H.command_id)
 end
-function tuya.apply_announce(device,options)
-options=options or{}
-local handled=false
-if type_check(options.announce_handler)=="function" then
-handled=options.announce_handler(device,options)~=false
+D(a,o,x,aB)return true
 end
-if not options.query_on_announce then
-return handled
+function l.apply_announce(a,b)
+b=b or{}local bl=false
+if d(b.announce_handler)=="function"then
+bl=b.announce_handler(a,b)~=false
 end
-local delay=normalize_non_negative_delay(options.announce_delay,0.5,"announce_delay")
-if delay==nil then
+if not b.query_on_announce then
+return bl
+end
+local bf=n(b.announce_delay,0.5,"announce_delay")if bf==nil then
 return false
 end
-device.thread:call_with_delay(delay,function()
-tuya.send_state_request(device,options.query_command_id)
+a.thread:call_with_delay(bf,function()
+l.send_state_request(a,b.query_command_id)
 end)
 return true
 end
-function tuya.stop_query_timer(device)
-local timer=device:get_field(QUERY_INTERVAL_TIMER_FIELD)
-if timer and timer.cancel then
+function l.stop_query_timer(a)
+local aN=a:get_field(w)if aN and aN.cancel then
 pcall(function()
-timer:cancel()
+aN:cancel()
 end)
 end
-device:set_field(QUERY_INTERVAL_TIMER_FIELD,nil,PERSIST_FALSE)
-return true
+a:set_field(w,nil,v)return true
 end
-function tuya.start_query_timer(device,interval_seconds,command_id)
-local seconds=normalize_positive_interval(interval_seconds,nil,"query_interval_seconds")
-if seconds==nil then
+function l.start_query_timer(a,aT,k,at)
+local bb=am(aT,nil,"query_interval_seconds")if bb==nil then
 return false
 end
-tuya.stop_query_timer(device)
-local timer=nil
-timer=device.thread:call_with_delay(seconds,function()
-tuya.send_state_request(device,command_id)
-tuya.start_query_timer(device,seconds,command_id)
+l.stop_query_timer(a)local aN=nil
+aN=a.thread:call_with_delay(bb,function()
+if at~=nil then at(a)else l.send_state_request(a,k)end
+l.start_query_timer(a,bb,k,at)
 end)
-device:set_field(QUERY_INTERVAL_TIMER_FIELD,timer,PERSIST_FALSE)
-return true
+a:set_field(w,aN,v)return true
 end
-function tuya.start_configuration(device,options,driver)
-options=options or{}
-local actions={}
-local step_delay=normalize_non_negative_delay(options.step_delay,1,"step_delay")
-local initial_delay=normalize_non_negative_delay(options.initial_delay,0,"initial_delay")
-if step_delay==nil or initial_delay==nil then
+function l.start_configuration(a,b,aK)
+b=b or{}local o={}local x=n(b.step_delay,1,"step_delay")local aq=n(b.initial_delay,0,"initial_delay")if x==nil or aq==nil then
 return false
 end
-local named_mapping_options=merge_named_mapping_options(options)
-local preference_map=options.preference_map
-local preference_names=type_check(options.preference_names)=="table" and options.preference_names or nil
-local named_mappings=named_mapping_options.named_mappings
-local named_mapping_values=type_check(named_mapping_options.named_mapping_values)=="table" and named_mapping_options.named_mapping_values or nil
-local named_mapping_names=type_check(named_mapping_options.named_mapping_names)=="table" and named_mapping_options.named_mapping_names or nil
-local bind_target_eui=resolve_bind_target_eui(options,driver)
-local config_queue={}
-if preference_map==nil and options.preference_datapoints then
-local preference_datapoints=options.preference_datapoints
-if preference_datapoints==true then
-preference_datapoints=options.datapoints
+local e=al(b)local y=b.preference_map
+local aU=d(b.preference_names)=="table"and b.preference_names or nil
+local j=e.named_mappings
+local G=d(e.named_mapping_values)=="table"and e.named_mapping_values or nil
+local Z=d(e.named_mapping_names)=="table"and e.named_mapping_names or nil
+local h=ax(b,aK)local S={}if y==nil and b.preference_datapoints then
+local t=b.preference_datapoints
+if t==true then
+t=b.datapoints
 end
-if preference_datapoints ~=nil then
-preference_map=tuya.build_preference_map(
-preference_datapoints,
-options.preference_key_field
-)
+if t~=nil then
+y=l.build_preference_map(
+t,b.preference_key_field)
 end
 end
-if preference_map ~=nil then
-prepare_mappings(preference_map)
+if y~=nil then
+au(y)
 end
-if named_mappings==nil and named_mapping_options.named_datapoints then
-local named_datapoints=named_mapping_options.named_datapoints
-if named_datapoints==true then
-named_datapoints=options.datapoints
+if j==nil and e.named_datapoints then
+local z=e.named_datapoints
+if z==true then
+z=b.datapoints
 end
-if named_datapoints ~=nil then
-if named_mapping_options.named_key_field ~=nil then
-named_mappings=tuya.build_named_map(named_datapoints,named_mapping_options.named_key_field)
-else
-named_mappings=named_datapoints
+if z~=nil then
+if e.named_key_field~=nil then
+j=l.build_named_map(z,e.named_key_field)else
+j=z
 end
 end
 end
-if named_mappings==nil and(named_mapping_values ~=nil or named_mapping_names ~=nil)and options.datapoints ~=nil then
-if named_mapping_options.named_key_field ~=nil then
-named_mappings=tuya.build_named_map(options.datapoints,named_mapping_options.named_key_field)
-else
-named_mappings=options.datapoints
+if j==nil and(G~=nil or Z~=nil)and b.datapoints~=nil then
+if e.named_key_field~=nil then
+j=l.build_named_map(b.datapoints,e.named_key_field)else
+j=b.datapoints
 end
 end
-if named_mappings ~=nil then
-prepare_mappings(named_mappings)
+if j~=nil then
+au(j)
 end
-if options.magic_packet ~=false then
-table_insert(actions,{kind=ACTION_MAGIC_PACKET})
+if b.magic_packet~=false then
+A(o,{kind=Y})
 end
-if options.query_on_configure then
-table_insert(actions,{
-kind=ACTION_QUERY_STATE,
-command_id=options.query_command_id,
-})
+if b.query_on_configure then
+A(o,{
+kind=af,command_id=b.query_command_id})
 end
-if options.mcu_version_request_on_configure then
-table_insert(actions,{kind=ACTION_MCU_VERSION})
+if b.mcu_version_request_on_configure then
+A(o,{kind=ae})
 end
-if options.bind_basic_on_configure then
-if bind_target_eui ~=nil then
-table_insert(actions,{
-kind=ACTION_BIND_BASIC,
-bind_target_eui=bind_target_eui,
-})
-else
-log.warn("Tuya bind_basic_on_configure requires bind_target_eui or driver.environment_info.hub_zigbee_eui")
+if b.bind_basic_on_configure then
+if h~=nil then
+A(o,{
+kind=ar,bind_target_eui=h})else
+bm.warn"Tuya bind_basic_on_configure requires bind_target_eui or driver.environment_info.hub_zigbee_eui"
 end
 end
-if preference_map ~=nil then
-append_queue_items(
-config_queue,
-tuya.build_preference_config_queue(device,preference_map,preference_names)
-)
+if y~=nil then
+ah(
+S,l.build_preference_config_queue(a,y,aU))
 end
-if named_mappings ~=nil and named_mapping_values ~=nil then
-append_queue_items(
-config_queue,
-tuya.build_named_mapping_config_queue(device,named_mappings,named_mapping_values,named_mapping_names)
-)
+if j~=nil and G~=nil then
+ah(
+S,l.build_named_mapping_config_queue(a,j,G,Z))
 end
-if #config_queue > 0 then
-table_insert(actions,{
-kind=ACTION_CONFIG_QUEUE,
-queue=config_queue,
-})
+if #S>0 then
+A(o,{
+kind=X,queue=S})
 end
-if options.query_interval_seconds then
-table_insert(actions,{
-kind=ACTION_QUERY_TIMER,
-interval_seconds=options.query_interval_seconds,
-command_id=options.query_command_id,
-})
+if b.query_interval_seconds then
+A(o,{
+kind=ag,interval_seconds=b.query_interval_seconds,command_id=b.query_command_id})
 end
-if #actions==0 then
+if #o==0 then
 return false
 end
-if initial_delay > 0 then
-device.thread:call_with_delay(initial_delay,function()
-run_configure_actions(device,actions,step_delay,1)
+if aq>0 then
+a.thread:call_with_delay(aq,function()
+u(a,o,x,1)
 end)
 return true
 end
-return run_configure_actions(device,actions,step_delay,1)
+return u(a,o,x,1)
 end
-local function handle_time_command(device,message,handlers)
-if type(handlers.time_handler)=="function" then
-return handlers.time_handler(device,message,handlers)
+local function aI(a,m,c)
+if type(c.time_handler)=="function"then
+return c.time_handler(a,m,c)
 end
-if handlers.auto_time==false then
+if c.auto_time==false then
 return false
 end
-local time_offset=handlers.time_offset
-if time_offset then
-return tuya.apply_time_request_with_offset(device,message,time_offset,handlers.utc_time,handlers.local_time)
+local N=c.time_offset
+if N then
+return l.apply_time_request_with_offset(a,m,N,c.utc_time,c.local_time)
 end
-if handlers.time_start then
-return handle_time_request_with_start_mode(device,message,handlers.time_start,handlers.utc_time,handlers.local_time)
+if c.time_start then
+return s(a,m,c.time_start,c.utc_time,c.local_time)
 end
-return tuya.apply_time_request(device,message,handlers.utc_time,handlers.local_time)
+return l.apply_time_request(a,m,c.utc_time,c.local_time)
 end
-local function handle_connection_status_command(device,message,handlers)
-if handlers.auto_connection_status==false then
+local function O(a,m,c)
+if c.auto_connection_status==false then
 return false
 end
-return tuya.apply_connection_status_request(device,message,handlers.connection_status_bytes)
+return l.apply_connection_status_request(a,m,c.connection_status_bytes)
 end
-local function defer_forced_time_update(device,now)
-device:set_field(
-FORCE_TIME_UPDATE_FIELD,
-(now or os.time())+ FORCE_TIME_UPDATE_INTERVAL,
-PERSIST_FALSE
-)
+local function J(a,bs)
+a:set_field(
+K,(bs or os.time())+ao,v)
 end
-local function maybe_force_time_update(device,message,handlers)
-if handlers.force_time_updates ~=true or handlers.time_start=="off" then
+local function aw(a,m,c)
+if c.force_time_updates~=true or c.time_start=="off"then
 return false
 end
-local now=os.time()
-local next_update=device:get_field(FORCE_TIME_UPDATE_FIELD)
-if next_update ~=nil and next_update >=now then
+local bs=os.time()local aR=a:get_field(K)if aR~=nil and aR>=bs then
 return false
 end
-defer_forced_time_update(device,now)
-if type(handlers.time_handler)=="function" then
-return handlers.time_handler(device,message,handlers)==true
+J(a,bs)
+if type(c.time_handler)=="function"then
+return c.time_handler(a,m,c)==true
 end
-local time_offset=handlers.time_offset
-if time_offset ~=nil then
-return tuya.send_time_with_offset(
-device,
-time_offset,
-handlers.utc_time,
-handlers.local_time
+local N=c.time_offset
+if N~=nil then
+return l.send_time_with_offset(
+a,N,c.utc_time,c.local_time
 )==true
 end
-local time_start=handlers.time_start
-if time_start ~=nil then
-local offset=time_offset_for_start(time_start)
-if offset ~=0 then
-return tuya.send_time_with_offset(
-device,
-offset,
-handlers.utc_time,
-handlers.local_time
+local V=c.time_start
+if V~=nil then
+local aM=R(V)if aM~=0 then
+return l.send_time_with_offset(
+a,aM,c.utc_time,c.local_time
 )==true
 end
 end
-return tuya.send_time(device,handlers.utc_time,handlers.local_time)==true
+return l.send_time(a,c.utc_time,c.local_time)==true
 end
-local function handle_report_message(device,message,handlers,datapoints,command_id)
-local frame=tuya.parse_datapoint_report(message)
-if not frame then
-log.warn(string.format("Failed to parse Tuya report for command 0x%02X",command_id))
-return false
+local function aC(a,m,c,as,k)
+local C=l.parse_datapoint_report(m)if not C then
+bm.warn(string.format("Failed to parse Tuya report for command 0x%02X",k))return false
 end
-if handlers.config_queue ~=false then
-handle_config_queue_response(device,message,handlers.queue_delay,frame)
+if c.config_queue~=false then
+F(a,m,c.queue_delay,C)
 end
-for _,dp_info in ipairs(frame.datapoints)do
-if datapoints then
-tuya.apply_datapoint_mapping(device,dp_info,datapoints,{
-frame=frame,
-endpoint=dp_info.endpoint or frame.endpoint,
-})
+for _,ab in ipairs(C.datapoints)do
+if as then
+l.apply_datapoint_mapping(a,ab,as,{
+frame=C,endpoint=ab.endpoint or C.endpoint})
 end
 end
 return true
 end
-function tuya.apply_message(device,message,handlers)
-handlers=handlers or{}
-local datapoints=handlers.datapoints
-local command_id=extract_command_id(message)
-if not command_id then
+function l.apply_message(a,m,c)
+c=c or{}local as=c.datapoints
+local k=aL(m)if not k then
 return false
 end
-local forced_time_update=maybe_force_time_update(device,message,handlers)
-if command_id==SET_TIME then
-if forced_time_update then
+local ak=aw(a,m,c)if k==br then
+if ak then
 return true
 end
-if handle_time_command(device,message,handlers)then
-defer_forced_time_update(device)
+if aI(a,m,c)then
+J(a)return true
+end
+end
+if k==aO then
+if ak then
 return true
 end
-end
-if command_id==CONNECTION_STATUS then
-if forced_time_update then
-return true
-end
-if handle_connection_status_command(device,message,handlers)then
+if O(a,m,c)then
 return true
 end
 end
-if command_id==MCU_VERSION_RESPONSE and handlers.respond_to_mcu_version_response==true then
-return tuya.send_mcu_version_request(device,tuya.DEFAULT_MCU_VERSION_TRANSACTION)~=nil
+if k==aE and c.respond_to_mcu_version_response==true then
+return l.send_mcu_version_request(a,l.DEFAULT_MCU_VERSION_TRANSACTION)~=nil
 end
-if REPORT_COMMANDS[command_id]==true then
-return handle_report_message(device,message,handlers,datapoints,command_id)
+if aV[k]==true then
+return aC(a,m,c,as,k)
 end
 return false
 end
-local function transaction_matches(expected,actual)
-if expected==nil or actual==nil then
+local function aJ(aS,bg)
+if aS==nil or bg==nil then
 return false
 end
-if expected==actual then
+if aS==bg then
 return true
 end
-return(expected % 0x100)==actual
+return(aS%256)==bg
 end
-local function collect_response_dps(payload,frame)
-local responded_dps={}
-if frame and frame.datapoints and #frame.datapoints > 0 then
-for _,dp_info in ipairs(frame.datapoints)do
-responded_dps[dp_info.dp]=true
+local function aF(P,C)
+local i={}if C and C.datapoints and #C.datapoints>0 then
+for _,ab in ipairs(C.datapoints)do
+i[ab.dp]=true
 end
-return responded_dps
+return i
 end
-if payload then
-local dp_info=tuya.parse_datapoint(payload,3)
-if dp_info ~=nil then
-responded_dps[dp_info.dp]=true
+if P then
+local ab=l.parse_datapoint(P,3)if ab~=nil then
+i[ab.dp]=true
 end
 end
-return responded_dps
+return i
 end
-local function response_contains_dp(responded_dps,dp)
-return dp ~=nil and responded_dps[dp]==true
+local function U(i,dp)
+return dp~=nil and i[dp]==true
 end
-local function build_expected_response_dps(current)
-local expected_dps={}
-local function append_dp(dp)
-if type_check(dp)=="number" then
-expected_dps[dp]=true
-end
-end
-if current.response_dp ~=nil then
-append_dp(current.response_dp)
-return expected_dps
-end
-if type_check(current.response_dps)=="table" then
-for _,dp in ipairs(current.response_dps)do
-append_dp(dp)
-end
-if next(expected_dps)~=nil then
-return expected_dps
+local function ai(f)
+local g={}
+local function az(dp)
+if d(dp)=="number"then
+g[dp]=true
 end
 end
-if current.dp ~=nil then
-append_dp(current.dp)
-return expected_dps
+if f.response_dp~=nil then
+az(f.response_dp)return g
 end
-if type_check(current.items)=="table" then
-for _,item in ipairs(current.items)do
-if type_check(item)=="table" then
-append_dp(item.dp)
+if d(f.response_dps)=="table"then
+for _,dp in ipairs(f.response_dps)do
+az(dp)
+end
+if next(g)~=nil then
+return g
+end
+end
+if f.dp~=nil then
+az(f.dp)return g
+end
+if d(f.items)=="table"then
+for _,L in ipairs(f.items)do
+if d(L)=="table"then
+az(L.dp)
 end
 end
 end
-return expected_dps
+return g
 end
-local function response_matches_expected_dps(current,responded_dps)
-local expected_dps=current.expected_response_dps
-if type_check(expected_dps)~="table" then
-expected_dps=build_expected_response_dps(current)
-current.expected_response_dps=expected_dps
+local function W(f,i)
+local g=f.expected_response_dps
+if d(g)~="table"then
+g=ai(f)f.expected_response_dps=g
 end
-if next(expected_dps)==nil then
+if next(g)==nil then
 return false
 end
-local matched_dps=current.matched_response_dps
-if type_check(matched_dps)~="table" then
-matched_dps={}
-current.matched_response_dps=matched_dps
+local M=f.matched_response_dps
+if d(M)~="table"then
+M={}f.matched_response_dps=M
 end
-local matched_any=false
-for dp,_ in pairs(responded_dps)do
-if response_contains_dp(expected_dps,dp)then
-matched_dps[dp]=true
-matched_any=true
+local aQ=false
+for dp,_ in pairs(i)do
+if U(g,dp)then
+M[dp]=true
+aQ=true
 end
 end
-if not matched_any then
+if not aQ then
 return false
 end
-for dp,_ in pairs(expected_dps)do
-if not response_contains_dp(matched_dps,dp)then
+for dp,_ in pairs(g)do
+if not U(M,dp)then
 return false
 end
 end
 return true
 end
-local function config_response_matches(current,response,payload,frame)
-if current.match_response then
-return current.match_response(response,payload,current,frame)==true
+local function av(f,ad,P,C)
+if f.match_response then
+return f.match_response(ad,P,f,C)==true
 end
-if current.match_transaction and current.packet_id ~=nil then
-local response_transaction=extract_transaction(response)
-if not transaction_matches(current.packet_id,response_transaction)then
+if f.match_transaction and f.packet_id~=nil then
+local aG=aH(ad)if not aJ(f.packet_id,aG)then
 return false
 end
 end
-local responded_dps=collect_response_dps(payload,frame)
-if next(responded_dps)==nil then
-return current.match_transaction and current.packet_id ~=nil
+local i=aF(P,C)if next(i)==nil then
+return f.match_transaction and f.packet_id~=nil
 end
-return response_matches_expected_dps(current,responded_dps)
+return W(f,i)
 end
-local function clear_config_queue(device)
-device:set_field(CONFIG_QUEUE_FIELD,nil,PERSIST_FALSE)
-device:set_field(CONFIG_QUEUE_CALLBACK_FIELD,nil,PERSIST_FALSE)
+local function aj(a)
+a:set_field(B,nil,v)a:set_field(r,nil,v)
 end
-local function resolve_queue_callback(options)
-if type_check(options)=="function" then
-return options
+local function aA(b)
+if d(b)=="function"then
+return b
 end
-if type_check(options)=="table" and type_check(options.on_complete)=="function" then
-return options.on_complete
+if d(b)=="table"and d(b.on_complete)=="function"then
+return b.on_complete
 end
 return nil
 end
-local function finish_config_queue(device,success)
-local callback=device:get_field(CONFIG_QUEUE_CALLBACK_FIELD)
-clear_config_queue(device)
-if type_check(callback)=="function" then
-local ok,err=pcall(callback,success==true)
-if not ok then
-log.warn(string.format("Tuya config queue callback failed: %s",tostring(err)))
+local function I(a,success)
+local aa=a:get_field(r)aj(a)
+if d(aa)=="function"then
+local ok,bv=pcall(aa,success==true)if not ok then
+bm.warn(string.format("Tuya config queue callback failed: %s",tostring(bv)))
 end
 end
 return success==true
 end
-local function send_next_config_item_or_clear(device)
-if send_next_config_item(device)then
+local function E(a)
+if Q(a)then
 return true
 end
-return finish_config_queue(device,false)
+return I(a,false)
 end
-function tuya.start_config_queue(device,queue,options)
-local items=queue or{}
-local callback=resolve_queue_callback(options)
-if #items==0 then
-clear_config_queue(device)
-if type_check(callback)=="function" then
-pcall(callback,false)
+function l.start_config_queue(a,T,b)
+local aX=T or{}local aa=aA(b)if #aX==0 then
+aj(a)
+if d(aa)=="function"then
+pcall(aa,false)
 end
 return false
 end
-device:set_field(CONFIG_QUEUE_FIELD,items,PERSIST_FALSE)
-device:set_field(CONFIG_QUEUE_CALLBACK_FIELD,callback,PERSIST_FALSE)
-return send_next_config_item_or_clear(device)
+a:set_field(B,aX,v)a:set_field(r,aa,v)return E(a)
 end
-send_next_config_item=function(device)
-local queue=device:get_field(CONFIG_QUEUE_FIELD)
-if not queue or #queue==0 then
+Q=function(a)
+local T=a:get_field(B)if not T or #T==0 then
 return false
 end
-local item=queue[1]
-local command_id=item.command_id
-if item.items then
-local packet_id=tuya.send_datapoints(device,item.items,command_id,item.transaction)
-if packet_id ~=nil then
-item.packet_id=packet_id
+local L=T[1]local k=L.command_id
+if L.items then
+local an=l.send_datapoints(a,L.items,k,L.transaction)if an~=nil then
+L.packet_id=an
 return true
 end
 return false
 end
-local packet_id=tuya.send_datapoint(device,item.dp,item.datatype,item.value,command_id,item.signed,item.transaction)
-if packet_id ~=nil then
-item.packet_id=packet_id
+local an=l.send_datapoint(a,L.dp,L.datatype,L.value,k,L.signed,L.transaction)if an~=nil then
+L.packet_id=an
 return true
 end
 return false
 end
-handle_config_queue_response=function(device,response,delay,frame)
-local payload=extract_payload(response)
-local queue=device:get_field(CONFIG_QUEUE_FIELD)
-if not payload or not queue or #queue==0 then
+F=function(a,ad,bf,C)
+local P=aW(ad)local T=a:get_field(B)if not P or not T or #T==0 then
 return false
 end
-frame=frame or tuya.parse_datapoint_report(response)
-local current=queue[1]
-if not config_response_matches(current,response,payload,frame)then
+C=C or l.parse_datapoint_report(ad)local f=T[1]if not av(f,ad,P,C)then
 return false
 end
-table_remove(queue,1)
-if #queue==0 then
-return finish_config_queue(device,true)
+bj(T,1)if #T==0 then
+return I(a,true)
 end
-local response_delay=normalize_non_negative_delay(delay,0.5,"config_queue_delay")
-if response_delay==nil then
-return finish_config_queue(device,false)
+local aD=n(bf,0.5,"config_queue_delay")if aD==nil then
+return I(a,false)
 end
-device.thread:call_with_delay(response_delay,function()
-send_next_config_item_or_clear(device)
+a.thread:call_with_delay(aD,function()
+E(a)
 end)
 return true
 end
 end
-return load_runtime
+return bh

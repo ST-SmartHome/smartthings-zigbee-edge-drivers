@@ -1,3 +1,4 @@
+local zcl = require "protocol.zcl"
 local device_helpers = require "contracts.helpers.family"
 local shared_definitions = require "contracts.helpers.zcl_sensor_definitions"
 
@@ -6,6 +7,12 @@ local device_definitions, register_device_definition = device_helpers.definition
 register_device_definition(shared_definitions.water_battery_low_battery_sensor, {
   device_helpers.create_fingerprint("eWeLink", "CK-TLSR8656-Z23SE11HW-01(7019)"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tml"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.z2m_absorption_water",

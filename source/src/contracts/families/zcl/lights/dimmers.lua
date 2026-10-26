@@ -281,6 +281,28 @@ register_device_definition(dual_power_switch_min, device_helpers.create_fingerpr
   "_TZ3000_sfibawtr",
 }))
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tmf"},
+  {2, "rpt-tww", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000800001 = "Level", zr000800002 = "LevelTwo"}},
+  {3, "rpt-tif", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000800001 = "Level", zr000800002 = "LevelTwo"}},
+  {4, "rpt-tmj"},
+  {5, "rpt-tzm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000800001 = "Level", zr000800002 = "LevelTwo"}},
+  {6, "rpt-twd"},
+  {7, "rpt-twk"},
+  {8, "rpt-txs"},
+  {9, "rpt-tln"},
+  {10, "rpt-tvu"},
+  {11, "rpt-tqn"},
+  {12, "rpt-txw"},
+  {13, "rpt-tcs", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000800001 = "Level", zr000800002 = "LevelTwo"}},
+  {14, "rpt-tcs", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000800001 = "Level", zr000800002 = "LevelTwo"}},
+  {15, "rpt-tvt", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000800001 = "Level", zr000800002 = "LevelTwo"}},
+  {16, "rpt-tjg", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000800001 = "Level", zr000800002 = "LevelTwo"}},
+  {17, "rpt-tslv", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000800001 = "Level", zr000800002 = "LevelTwo"}},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.lights.dimmers",
   registrations = device_definitions,

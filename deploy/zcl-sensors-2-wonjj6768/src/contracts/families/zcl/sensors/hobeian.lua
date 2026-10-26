@@ -1,65 +1,62 @@
-local zcl=require "protocol.zcl"
-local device_helpers=require "contracts.helpers.family"
-local capabilities=require "st.capabilities"
-local data_types=require "st.zigbee.data_types"
-local registrations,register_device_definition=device_helpers.definition_registry()
-local function status_bit(mask)
-return function(value)
-if type(value)=="table" then value=value.value end
-if type(value)~="number" then return nil end
-return bit32.band(value,mask)~=0
+local h=require"protocol.zcl"
+local f=require"contracts.helpers.family"
+local d=require"st.capabilities"
+local g=require"st.zigbee.data_types"
+local j,n=f.definition_registry()
+local function e(u)
+return function(c)
+if type(c)=="table"then c=c.value end
+if type(c)~="number"then return nil end
+return bit32.band(c,u)~=0
 end
 end
-local function passive_ias(mapping)
-mapping.minimum_interval=nil
-mapping.maximum_interval=nil
-mapping.reportable_change=nil
-mapping.read_on_configure=false
-return mapping
+local function b(i)
+i.minimum_interval=nil
+i.maximum_interval=nil
+i.reportable_change=nil
+i.read_on_configure=false
+return i
 end
-local function battery_low_emit(_,value)
-if value then return capabilities.batteryLevel.battery.critical()end
-return capabilities.batteryLevel.battery.normal()
+local function a(_,c)
+if c then return d.batteryLevel.battery.critical()end
+return d.batteryLevel.battery.normal()
 end
-local function battery_percentage(value,_,context)
-local raw=context and context.raw_value or value
-if type(raw)~="number" or raw >=0xFF then return nil end
-return context and value or raw / 2
+local function k(c,_,l)
+local r=l and l.raw_value or c
+if type(r)~="number"or r>=255 then return nil end
+return l and c or r/2
 end
-local zg222z={
-profile="hobeian-zg222z-water-leak",
-additional_zcl_profiles={0x1D73},
-magic_packet=false,
-zcl_clusters={
-passive_ias(zcl.water({
-endpoint=1,read_only=true,from_device=status_bit(0x0001),
-})),
-passive_ias(zcl.tamper({
-endpoint=1,read_only=true,from_device=status_bit(0x0004),
-})),
-passive_ias(zcl.battery_low({
-endpoint=1,read_only=true,from_device=status_bit(0x0008),
-emit=battery_low_emit,
-})),
-zcl.battery({
-endpoint=1,read_only=true,from_device=battery_percentage,
-minimum_interval=3600,maximum_interval=65000,
-reportable_change=0,read_on_configure=true,
-}),
-zcl.cluster_attribute(0x0001,0x003E,{
-name="battery_alarm_state",endpoint=1,
-data_type=data_types.Bitmap32,read_only=true,read_on_configure=false,
-from_device=status_bit(0x00F03C0F),emit=battery_low_emit,
-}),
-},
-parent_refresh=function(device,preset)
-zcl.read_named_attribute(device,preset.zcl_clusters,"battery",{endpoint=1})
+local t={
+profile="hobeian-zg222z-water-leak",additional_zcl_profiles={7539},magic_packet=false,zcl_clusters={
+b(h.water{
+endpoint=1,read_only=true,from_device=e(1)}),b(h.tamper{
+endpoint=1,read_only=true,from_device=e(4)}),b(h.battery_low{
+endpoint=1,read_only=true,from_device=e(8),emit=a}),h.battery{
+endpoint=1,read_only=true,from_device=k,minimum_interval=3600,maximum_interval=65000,reportable_change=0},h.cluster_attribute(1,62,{
+name="battery_alarm_state",endpoint=1,data_type=g.Bitmap32,read_only=true,read_on_configure=false,from_device=e(15744015),emit=a})},
+parent_refresh=function(m,q)
+h.read_named_attribute(m,q.zcl_clusters,"battery",{endpoint=1})
+end
+}n(t,{
+f.create_fingerprint("HOBEIAN","ZG-222Z")})local s={
+profile="hobeian-zg102z-contact",zcl_clusters={
+b(h.contact{endpoint=1,read_only=true}),b(h.tamper{endpoint=1,read_only=true}),b(h.battery_low{endpoint=1,read_only=true,emit=a}),h.cluster_attribute(1,33,{
+name="battery_percentage_reporting",endpoint=1,data_type=g.Uint8,read_only=true,read_on_configure=true,minimum_interval=3600,maximum_interval=65000,reportable_change=0,
+from_device=function()return nil end
+}),h.cluster_attribute(1,32,{
+name="battery_voltage",endpoint=1,data_type=g.Uint8,read_only=true,read_on_configure=true,minimum_interval=3600,maximum_interval=65000,reportable_change=0,
+emit=function(_,c)
+if c==255 then return nil end
+local o=math.floor(math.max(0,math.min(100,235-370000/(c*100+1)))+0.5)return{
+d.battery.battery(o),d.voltageMeasurement.voltage{value=c/10,unit="V"}}
+end
+}),h.cluster_attribute(1,62,{
+name="battery_alarm_state",endpoint=1,data_type=g.Bitmap32,read_only=true,from_device=e(15744015),emit=a})},
+configure=function(p,m)
+h.bind_cluster(m,1,p.environment_info.hub_zigbee_eui,1)
 end,
-}
-register_device_definition(zg222z,{
-device_helpers.create_fingerprint("HOBEIAN","ZG-222Z"),
-})
-return{
-id="zcl.sensors.hobeian",
-registrations=registrations,
-}
+parent_refresh=function()end
+}n(s,{
+f.create_fingerprint("HOBEIAN","ZG-102Z")})h.attach_reporting_capabilities(j,{
+{1,"rpt-zmq"},{2,"rpt-zpd"}})return{
+id="zcl.sensors.hobeian",registrations=j}

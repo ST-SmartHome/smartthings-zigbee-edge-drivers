@@ -17,18 +17,7 @@ local function device_name(device)
   return device.label or device.id or "device"
 end
 
-local function is_callable(value)
-  if type(value) == "function" then
-    return true
-  end
-
-  if type(value) ~= "table" then
-    return false
-  end
-
-  local metatable = getmetatable(value)
-  return type(metatable) == "table" and type(metatable.__call) == "function"
-end
+local is_callable = capability_support.is_callable
 
 local function supports_component_capability(device, capability_id, component_id)
   return capability_support.supports(device, capability_id, component_id or MAIN_COMPONENT)
@@ -175,7 +164,8 @@ function binding.emit_state(device, component_id, reference, value, options)
     return false
   end
 
-  emit_event(device, component_id, attribute(build_payload(metadata, value, options)))
+  local event_metadata = options and { state_change = options.state_change } or nil
+  emit_event(device, component_id, attribute(build_payload(metadata, value, options), event_metadata))
   return true
 end
 

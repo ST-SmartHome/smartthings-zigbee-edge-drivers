@@ -7,5 +7,6 @@ components:
       - {id: temperatureMeasurement, version: 1}
       - {id: relativeHumidityMeasurement, version: 1}
       - {id: refresh, version: 1}
+      - {id: signalStrength, version: 1}
     categories:
       - {name: MotionSensor}

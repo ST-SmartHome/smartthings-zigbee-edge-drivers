@@ -88,7 +88,9 @@ local function thermostat_variant3_running_state(value)
   if numeric == 0 then
     return "heating"
   end
-  return "idle"
+  if numeric == 1 then
+    return "idle"
+  end
 end
 local bool_heat_off = converter.lookup_from_to({
   heat = true,
@@ -128,8 +130,8 @@ local classic_trv = {
   profile = "thermostats-thermostat-classic-trv",
   package_group = "trv-1",
   force_time_updates = true,
-  tuya.dp_current_heating_setpoint(2, { scale = 10 }),
-  tuya.dp_local_temperature(3, { scale = 10 }),
+  tuya.dp_current_heating_setpoint(2, { scale = 10, emit = emit.heating_setpoint("C") }),
+  tuya.dp_local_temperature(3, { scale = 10, emit = emit.temperature("C") }),
   -- Z2M TS0601_thermostat (tuya.ts:8570) drives this family through
   -- legacy.fz.tuya_thermostat (legacy.ts:2405).  DP4 is the preset, which also
   -- maps onto a system mode, DP106 is the force mode and DP109 carries both the
@@ -151,6 +153,7 @@ local classic_trv = {
   tuya.dp_system_mode(4, {
     from_device = classic_trv_preset_to_system_mode,
     to_device = classic_trv_system_mode_to_preset,
+    emit = emit.thermostat_mode(),
   }),
   tuya.dp_binary(7, {
     name = "child_lock",
@@ -192,7 +195,10 @@ local classic_trv = {
   tuya.dp_numeric(108, { name = "eco_temperature", emit = emit.classicTrvEcoTemperature() }),
   tuya.dp_numeric(109, { name = "position", read_only = true, emit = emit.classicTrvPosition() }),
   tuya.dp_running_state(109, {
+    datatype = tuya.DP_TYPE_VALUE,
+    read_only = true,
     from_device = valve_position_to_running_state,
+    emit = emit.thermostat_operating_state(),
   }),
   tuya.dp_binary(110, {
     name = "battery_low",
@@ -606,17 +612,18 @@ local thermostat_trv603_wz = {
 register_device_definition(thermostat_trv603_wz, ef00_helpers.ts0601_fingerprints( {
   "_TZE284_ymldrmzx",
 }))
-local thermostat_zht_002 = {
+local thermostat_zht_002 = thermostat_metadata.attach({
   profile = "thermostats-thermostat-zht002",
   package_group = "trv-1",
   time_start = "2000",
-  tuya.dp_binary(1, { name = "system_mode", converter = bool_heat_off }),
+  tuya.dp_on_off(1),
+  tuya.dp_binary(1, { name = "system_mode", converter = bool_heat_off, emit = emit.thermostat_mode() }),
   tuya.dp_enum(2, {
     name = "programming_mode",
     emit = emit.zht002ProgrammingMode(),
     converter = converter.lookup_from_to({ auto = 0, manual = 1 }),
   }),
-  tuya.dp_local_temperature(16, { scale = 10 }),
+  tuya.dp_local_temperature(16, { scale = 10, read_only = true, emit = emit.temperature("C") }),
   -- Z2M reads DP18, DP34, DP50, DP101 and DP102 raw (tuya.ts:10155) and DP19
   -- through localTemperatureCalibration, so none of them are divided by ten.
   tuya.dp_min_temperature_limit(18, {
@@ -650,14 +657,19 @@ local thermostat_zht_002 = {
       [1] = "open",
     })),
   }),
-  tuya.dp_current_heating_setpoint(50, { scale = 1 }),
+  tuya.dp_running_state(47, {
+    read_only = true,
+    emit = emit.thermostat_operating_state(),
+    converter = converter.lookup_from_to({ idle = 0, heating = 1 }),
+  }),
+  tuya.dp_current_heating_setpoint(50, { scale = 1, emit = emit.heating_setpoint("C") }),
   tuya.dp_max_temperature_limit(101, {
     name = "max_temperature_limit",
     scale = 1,
     emit = emit.maxTempLimitZhtCToSeventy(),
   }),
   tuya.dp_deadzone_temperature(102, { scale = 1, emit = emit.zht002DeadzoneTemperature() }),
-}
+}, { "off", "heat" }, 0, 50, 1)
 register_device_definition(thermostat_zht_002, ef00_helpers.ts0601_fingerprints( {
   "_TZE204_xalsoe3m",
 }))
@@ -757,41 +769,61 @@ register_device_definition(thermostat_variant1, ef00_helpers.ts0601_fingerprints
 -- Z2M lists id3 GTZ06 (_TZE200_z1tyspqw) and AVATTO TRV07 (_TZE200_bvrlmajk) as
 -- whiteLabel retail names for the exacts above (tuya.ts:9662), not as interviewed
 -- manufacturer/model pairs.
-local thermostat_variant3 = {
+local TRV06_TIME_ZONE_FIELD = "_trv06_time_zone_hours"
+local trv06_temperature_from_device = converter.pipe(
+  converter.wrap_signed(0x100000000, 0x7FFFFFFF).from, converter.divide_by(10)
+)
+local function trv06_send_time(device, hours)
+  local utc_time = os.time()
+  return tuya.send_time_with_offset(device, 946684800, utc_time, utc_time + hours * 3600)
+end
+local thermostat_variant3 = thermostat_metadata.attach({
   profile = "thermostats-thermostat-trv06",
   package_group = "trv-1",
   time_start = "2000",
+  time_handler = function(device)
+    return trv06_send_time(device, device:get_field(TRV06_TIME_ZONE_FIELD) or 0)
+  end,
+  protocol_writers = {
+    trv06_time_zone = function(device, hours)
+      if not trv06_send_time(device, hours) then return false end
+      device:set_field(TRV06_TIME_ZONE_FIELD, hours, {persist = true})
+      return true
+    end,
+  },
   tuya.dp_system_mode(2, {
     converter = converter.lookup_from_to({
       auto = 0,
       heat = 1,
       off = 2,
     }),
+    emit = emit.thermostat_mode(),
   }),
   tuya.dp_running_state(3, {
+    read_only = true,
     from_device = thermostat_variant3_running_state,
+    emit = emit.thermostat_operating_state(),
   }),
-  tuya.dp_current_heating_setpoint(4, { scale = 10 }),
-  tuya.dp_local_temperature(5, { scale = 10 }),
+  tuya.dp_current_heating_setpoint(4, {
+    from_device = trv06_temperature_from_device, to_device = converter.multiply_by(10),
+    signed = true, emit = emit.heating_setpoint("C"),
+  }),
+  tuya.dp_local_temperature(5, {
+    from_device = trv06_temperature_from_device, read_only = true, emit = emit.temperature("C"),
+  }),
   -- Z2M TS0601_thermostat_3 (tuya.ts:9303) also exposes DP7 child lock, DP35
   -- error / battery-low, DP36 frost protection, DP39 scale protection, DP47
-  -- calibration and DP101 valve position.  DP28..DP34 are packed weekly
-  -- schedule frames, so they stay unexposed.
+  -- calibration and DP101 valve position. DP28..DP34 carry six periods per day.
   tuya.dp_binary(7, {
     name = "child_lock",
     emit = emit.trv06ChildLock(),
     converter = converter.lookup_from_to({ unlock = false, lock = true }),
   }),
-  tuya.dp_raw(28, { name = "schedule_monday" }),                          -- 프로파일 미포함
-  tuya.dp_raw(29, { name = "schedule_tuesday" }),                         -- 프로파일 미포함
-  tuya.dp_raw(30, { name = "schedule_wednesday" }),                       -- 프로파일 미포함
-  tuya.dp_raw(31, { name = "schedule_thursday" }),                        -- 프로파일 미포함
-  tuya.dp_raw(32, { name = "schedule_friday" }),                          -- 프로파일 미포함
-  tuya.dp_raw(33, { name = "schedule_saturday" }),                        -- 프로파일 미포함
-  tuya.dp_raw(34, { name = "schedule_sunday" }),                          -- 프로파일 미포함
-  -- Z2M errorOrBatteryLow always publishes the raw error bitmap and marks the
-  -- battery low only when the raw value is exactly 1.
-  error_or_battery_low_dp(emit.trv06Error(), emit.trv06BatteryLow()),
+  -- One report supplies the raw error and a low-battery flag only at exactly1.
+  tuya.dp_bitmap(35, { name = "error", read_only = true, emit = emit.trv06ErrorBitmap(),
+    converter = converter.wrap_signed(0x100000000, 0x7FFFFFFF) }),
+  tuya.dp_bitmap(35, { name = "battery_low", read_only = true, emit = emit.trv06BatteryLow(),
+    converter = converter.from_only(thermostat_common.error_or_battery_low_state) }),
   tuya.dp_binary(36, {
     name = "frost_protection",
     emit = emit.trv06FrostProtection(),
@@ -811,7 +843,21 @@ local thermostat_variant3 = {
     read_only = true,
     emit = emit.trv06PiHeatingDemand(),
   }),
-}
+}, { "auto", "heat", "off" }, 5, 35, 0.5)
+local trv06_runtime_start = thermostat_variant3.runtime_start
+thermostat_variant3.runtime_start = function(device)
+  trv06_runtime_start(device)
+  device:emit_component_event({id = "main"}, emit.trv06TimeZone()(device, device:get_field(TRV06_TIME_ZONE_FIELD) or 0))
+end
+for index, day in ipairs({
+  { "monday", emit.trv06Monday }, { "tuesday", emit.trv06Tuesday }, { "wednesday", emit.trv06Wednesday },
+  { "thursday", emit.trv06Thursday }, { "friday", emit.trv06Friday }, { "saturday", emit.trv06Saturday },
+  { "sunday", emit.trv06Sunday },
+}) do
+  thermostat_variant3[#thermostat_variant3 + 1] = tuya.dp_raw(27 + index, {
+    name = "schedule_" .. day[1], converter = thermostat_common.daily_schedule(index, 6), emit = day[2](),
+  })
+end
 register_device_definition(thermostat_variant3, ef00_helpers.ts0601_fingerprints( {
   "_TZE200_bvu2wnxz",
   "_TZE200_6rdj8dzm",

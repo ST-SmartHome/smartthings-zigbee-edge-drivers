@@ -1,8 +1,9 @@
 local zcl = require "protocol.zcl"
 local device_helpers = require "contracts.helpers.family"
+local fp = device_helpers.create_fingerprint
 local capabilities = require "st.capabilities"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 local function build_thermostat(profile, options)
   options = options or {}
@@ -139,63 +140,78 @@ for _, endpoint in ipairs({ 5, 6 }) do
   end
 end
 
-register_device_definition(thermostat_battery, {
-  device_helpers.create_fingerprint("Eurotronic", "SPZB0001"),
+register(thermostat_battery, {
+  fp("Eurotronic", "SPZB0001"),
 })
 
-register_device_definition(thermostat_battery, {
-  device_helpers.create_fingerprint("Danfoss", "0x0042"),
-  device_helpers.create_fingerprint("Danfoss", "0x0200"),
-  device_helpers.create_fingerprint("Danfoss", "0x0210"),
-  device_helpers.create_fingerprint("Danfoss", "0x0211"),
-  device_helpers.create_fingerprint("Danfoss", "0x8020"),
-  device_helpers.create_fingerprint("Danfoss", "0x8021"),
-  device_helpers.create_fingerprint("Danfoss", "0x8030"),
-  device_helpers.create_fingerprint("Danfoss", "0x8031"),
-  device_helpers.create_fingerprint("Danfoss", "0x8034"),
-  device_helpers.create_fingerprint("Danfoss", "0x8035"),
-  device_helpers.create_fingerprint("Danfoss", "0x8040"),
-  device_helpers.create_fingerprint("Danfoss", "0x8041"),
+register(thermostat_battery, {
+  fp("Danfoss", "0x0042"),
+  fp("Danfoss", "0x0200"),
+  fp("Danfoss", "0x0210"),
+  fp("Danfoss", "0x0211"),
+  fp("Danfoss", "0x8020"),
+  fp("Danfoss", "0x8021"),
+  fp("Danfoss", "0x8030"),
+  fp("Danfoss", "0x8031"),
+  fp("Danfoss", "0x8034"),
+  fp("Danfoss", "0x8035"),
+  fp("Danfoss", "0x8040"),
+  fp("Danfoss", "0x8041"),
 })
 
-register_device_definition(centralite_thermostat, {
-  device_helpers.create_fingerprint("Centralite", "3157100"),
-  device_helpers.create_fingerprint("Centralite", "3157100-E"),
+register(centralite_thermostat, {
+  fp("Centralite", "3157100"),
+  fp("Centralite", "3157100-E"),
 })
 
-register_device_definition(thermostat, {
-  device_helpers.create_fingerprint("Danfoss", "devi_f"),
-  device_helpers.create_fingerprint("Sinopé", "TH1320ZB-04"),
-  device_helpers.create_fingerprint("computime", "PUMM01102"),
+register(thermostat, {
+  fp("Danfoss", "devi_f"),
+  fp("Sinopé", "TH1320ZB-04"),
+  fp("computime", "PUMM01102"),
 })
 
-register_device_definition(schneider_room_thermostat, {
-  device_helpers.create_fingerprint("Schneider Electric", "Thermostat"),
+register(schneider_room_thermostat, {
+  fp("Schneider Electric", "Thermostat"),
 })
 
-register_device_definition(ecozy_thermostat, {
-  device_helpers.create_fingerprint("eCozy", "Thermostat"),
+register(ecozy_thermostat, {
+  fp("eCozy", "Thermostat"),
 })
 
-register_device_definition(schneider_heating_thermostat, {
-  device_helpers.create_fingerprint("Schneider Electric", "CCTFR6700"),
-  device_helpers.create_fingerprint("Schneider Electric", "CCTFR6710"),
+register(schneider_heating_thermostat, {
+  fp("Schneider Electric", "CCTFR6700"),
+  fp("Schneider Electric", "CCTFR6710"),
 })
 
-register_device_definition(namron_edge_thermostat, {
-  device_helpers.create_fingerprint("Namron", "4566702"),
-  device_helpers.create_fingerprint("Namron", "4566703"),
-  device_helpers.create_fingerprint("Namron", "4512783"),
-  device_helpers.create_fingerprint("Namron", "4512784"),
+register(namron_edge_thermostat, {
+  fp("Namron", "4566702"),
+  fp("Namron", "4566703"),
+  fp("Namron", "4512783"),
+  fp("Namron", "4512784"),
 })
 
-register_device_definition(hive_dual_thermostat, {
-  device_helpers.create_fingerprint("Hive", "SLR2d"),
+register(hive_dual_thermostat, {
+  fp("Hive", "SLR2d"),
 })
 
-register_device_definition(salus_fcu_thermostat, {
-  device_helpers.create_fingerprint("Salus Controls", "FC600NH"),
+register(salus_fcu_thermostat, {
+  fp("Salus Controls", "FC600NH"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-sxb"},
+  {2, "rpt-sxb"},
+  {3, "rpt-zjo"},
+  {4, "rpt-dsh"},
+  {5, "rpt-tza"},
+  {6, "rpt-tpd"},
+  {7, "rpt-cfc"},
+  {8, "rpt-zdh"},
+  {9, "rpt-suw", {zr020100005 = "LocalTemp", zr020100006 = "LocalTempTwo", zr020100125 = "HeatSet", zr020100126 = "HeatSetTwo", zr0201001c5 = "Mode", zr0201001c6 = "ModeTwo", zr020100295 = "State", zr020100296 = "StateTwo"}},
+  {10, "rpt-fsr"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.thermostats",

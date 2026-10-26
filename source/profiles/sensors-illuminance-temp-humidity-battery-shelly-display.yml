@@ -1,0 +1,91 @@
+name: sensors-illuminance-temp-humidity-battery-shelly-display
+components:
+- id: main
+  capabilities:
+  - id: concertmirror08464.shellyBluDisplayLightLevel
+    version: 1
+  - id: concertmirror08464.shellyDisplayDarkThresholdV2
+    version: 1
+  - id: concertmirror08464.shellyDisplayBrightThresholdV2
+    version: 1
+  - id: temperatureMeasurement
+    version: 1
+  - id: relativeHumidityMeasurement
+    version: 1
+  - id: battery
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.shellyDisplayIdentify
+    version: 1
+  - {id: signalStrength, version: 1}
+  categories:
+  - name: TempHumiditySensor
+preferences:
+  - preferenceId: tempOffset
+    explicit: true
+  - preferenceId: humidityOffset
+    explicit: true
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: concertmirror08464.shellyBluDisplayLightLevel
+      group: main
+      composite: true
+    - component: main
+      capability: temperatureMeasurement
+      group: main
+      values:
+      - label: ' {{temperature.value}}{{temperature.unit}}'
+      composite: true
+    - component: main
+      capability: relativeHumidityMeasurement
+      group: main
+      values:
+      - label: ' {{humidity.value}}{{humidity.unit}}'
+      composite: true
+    actions: []
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: concertmirror08464.shellyBluDisplayLightLevel
+  - component: main
+    capability: concertmirror08464.shellyDisplayDarkThresholdV2
+  - component: main
+    capability: concertmirror08464.shellyDisplayBrightThresholdV2
+  - component: main
+    capability: temperatureMeasurement
+  - component: main
+    capability: relativeHumidityMeasurement
+  - component: main
+    capability: battery
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
+  - component: main
+    capability: concertmirror08464.shellyDisplayIdentify
+  automation:
+    conditions:
+    - component: main
+      capability: concertmirror08464.shellyBluDisplayLightLevel
+    - component: main
+      capability: concertmirror08464.shellyDisplayDarkThresholdV2
+    - component: main
+      capability: concertmirror08464.shellyDisplayBrightThresholdV2
+    - component: main
+      capability: temperatureMeasurement
+    - component: main
+      capability: relativeHumidityMeasurement
+    - component: main
+      capability: battery
+    - component: main
+      capability: signalStrength
+    actions:
+    - component: main
+      capability: concertmirror08464.shellyDisplayDarkThresholdV2
+    - component: main
+      capability: concertmirror08464.shellyDisplayBrightThresholdV2
+    - component: main
+      capability: concertmirror08464.shellyDisplayIdentify

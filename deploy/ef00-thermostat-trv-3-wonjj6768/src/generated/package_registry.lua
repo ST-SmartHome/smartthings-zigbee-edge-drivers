@@ -1,39 +1,35 @@
-local function registrations(catalog,expected_id,module_name)
-assert(type(catalog)=="table","Canonical catalog must return a table: " .. module_name)
-for key in next,catalog do
-assert(key=="id" or key=="registrations","Canonical catalog has extra key: " .. module_name .. ":" .. tostring(key))
+local function b(d,e,module_name)
+assert(type(d)=="table","Canonical catalog must return a table: "..module_name)for m in next,d do
+assert(m=="id"or m=="registrations","Canonical catalog has extra key: "..module_name ..":"..tostring(m))
 end
-assert(catalog.id==expected_id,"Canonical catalog id mismatch: " .. module_name)
-assert(type(catalog.registrations)=="table","Canonical catalog registrations missing: " .. module_name)
-return catalog.registrations
+assert(d.id==e,"Canonical catalog id mismatch: "..module_name)assert(type(d.registrations)=="table","Canonical catalog registrations missing: "..module_name)return d.registrations
 end
-local entries={}
-local catalog_1=require "contracts.families.ef00.thermostats.wave6a_trv"
-for _,entry in ipairs(registrations(catalog_1,"ef00.thermostats.wave6a_trv","contracts.families.ef00.thermostats.wave6a_trv"))do
-entries[#entries + 1]=entry
+local a={}local f=require"contracts.families.ef00.thermostats.wave6a_trv"
+for _,c in ipairs(b(f,"ef00.thermostats.wave6a_trv","contracts.families.ef00.thermostats.wave6a_trv"))do
+a[#a+1]=c
 end
-local catalog_2=require "contracts.families.ef00.thermostats.wave9_mazda"
-for _,entry in ipairs(registrations(catalog_2,"ef00.thermostats.wave9_mazda","contracts.families.ef00.thermostats.wave9_mazda"))do
-entries[#entries + 1]=entry
+local g=require"contracts.families.ef00.thermostats.wave9_mazda"
+for _,c in ipairs(b(g,"ef00.thermostats.wave9_mazda","contracts.families.ef00.thermostats.wave9_mazda"))do
+a[#a+1]=c
 end
-local catalog_3=require "contracts.families.ef00.thermostats.wave9_legacy"
-for _,entry in ipairs(registrations(catalog_3,"ef00.thermostats.wave9_legacy","contracts.families.ef00.thermostats.wave9_legacy"))do
-entries[#entries + 1]=entry
+local h=require"contracts.families.ef00.thermostats.wave9_legacy"
+for _,c in ipairs(b(h,"ef00.thermostats.wave9_legacy","contracts.families.ef00.thermostats.wave9_legacy"))do
+a[#a+1]=c
 end
-local catalog_4=require "contracts.families.ef00.thermostats.wave12_trv"
-for _,entry in ipairs(registrations(catalog_4,"ef00.thermostats.wave12_trv","contracts.families.ef00.thermostats.wave12_trv"))do
-entries[#entries + 1]=entry
+local i=require"contracts.families.ef00.thermostats.wave12_trv"
+for _,c in ipairs(b(i,"ef00.thermostats.wave12_trv","contracts.families.ef00.thermostats.wave12_trv"))do
+a[#a+1]=c
 end
-local catalog_5=require "contracts.families.ef00.thermostats.wave19_exact_aliases"
-for _,entry in ipairs(registrations(catalog_5,"ef00.thermostats.wave19_exact_aliases","contracts.families.ef00.thermostats.wave19_exact_aliases"))do
-entries[#entries + 1]=entry
+local j=require"contracts.families.ef00.thermostats.wave19_exact_aliases"
+for _,c in ipairs(b(j,"ef00.thermostats.wave19_exact_aliases","contracts.families.ef00.thermostats.wave19_exact_aliases"))do
+a[#a+1]=c
 end
-local catalog_6=require "contracts.families.ef00.thermostats.wave15_trv"
-for _,entry in ipairs(registrations(catalog_6,"ef00.thermostats.wave15_trv","contracts.families.ef00.thermostats.wave15_trv"))do
-entries[#entries + 1]=entry
+local k=require"contracts.families.ef00.thermostats.wave15_trv"
+for _,c in ipairs(b(k,"ef00.thermostats.wave15_trv","contracts.families.ef00.thermostats.wave15_trv"))do
+a[#a+1]=c
 end
-local catalog_7=require "contracts.families.ef00.thermostats.wave19_exact"
-for _,entry in ipairs(registrations(catalog_7,"ef00.thermostats.wave19.exact","contracts.families.ef00.thermostats.wave19_exact"))do
-entries[#entries + 1]=entry
+local l=require"contracts.families.ef00.thermostats.wave19_exact"
+for _,c in ipairs(b(l,"ef00.thermostats.wave19.exact","contracts.families.ef00.thermostats.wave19_exact"))do
+a[#a+1]=c
 end
-return entries
+return a

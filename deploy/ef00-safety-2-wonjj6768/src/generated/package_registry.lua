@@ -1,43 +1,39 @@
-local function registrations(catalog,expected_id,module_name)
-assert(type(catalog)=="table","Canonical catalog must return a table: " .. module_name)
-for key in next,catalog do
-assert(key=="id" or key=="registrations","Canonical catalog has extra key: " .. module_name .. ":" .. tostring(key))
+local function b(d,e,module_name)
+assert(type(d)=="table","Canonical catalog must return a table: "..module_name)for n in next,d do
+assert(n=="id"or n=="registrations","Canonical catalog has extra key: "..module_name ..":"..tostring(n))
 end
-assert(catalog.id==expected_id,"Canonical catalog id mismatch: " .. module_name)
-assert(type(catalog.registrations)=="table","Canonical catalog registrations missing: " .. module_name)
-return catalog.registrations
+assert(d.id==e,"Canonical catalog id mismatch: "..module_name)assert(type(d.registrations)=="table","Canonical catalog registrations missing: "..module_name)return d.registrations
 end
-local entries={}
-local catalog_1=require "contracts.families.ef00.safety.z2m_absorption"
-for _,entry in ipairs(registrations(catalog_1,"ef00.safety.z2m_absorption","contracts.families.ef00.safety.z2m_absorption"))do
-entries[#entries + 1]=entry
+local a={}local f=require"contracts.families.ef00.safety.z2m_absorption"
+for _,c in ipairs(b(f,"ef00.safety.z2m_absorption","contracts.families.ef00.safety.z2m_absorption"))do
+a[#a+1]=c
 end
-local catalog_2=require "contracts.families.ef00.safety_neo_nas_ab06b2"
-for _,entry in ipairs(registrations(catalog_2,"neo.nas_ab06b2","contracts.families.ef00.safety_neo_nas_ab06b2"))do
-entries[#entries + 1]=entry
+local g=require"contracts.families.ef00.safety_neo_nas_ab06b2"
+for _,c in ipairs(b(g,"neo.nas_ab06b2","contracts.families.ef00.safety_neo_nas_ab06b2"))do
+a[#a+1]=c
 end
-local catalog_3=require "contracts.families.ef00.safety_tuya_vibration_alarm"
-for _,entry in ipairs(registrations(catalog_3,"tuya.vibration_alarm","contracts.families.ef00.safety_tuya_vibration_alarm"))do
-entries[#entries + 1]=entry
+local h=require"contracts.families.ef00.safety_tuya_vibration_alarm"
+for _,c in ipairs(b(h,"tuya.vibration_alarm","contracts.families.ef00.safety_tuya_vibration_alarm"))do
+a[#a+1]=c
 end
-local catalog_4=require "contracts.families.ef00.safety_neo_nas_ab02b2"
-for _,entry in ipairs(registrations(catalog_4,"neo.nas_ab02b2","contracts.families.ef00.safety_neo_nas_ab02b2"))do
-entries[#entries + 1]=entry
+local i=require"contracts.families.ef00.safety_neo_nas_ab02b2"
+for _,c in ipairs(b(i,"neo.nas_ab02b2","contracts.families.ef00.safety_neo_nas_ab02b2"))do
+a[#a+1]=c
 end
-local catalog_5=require "contracts.families.ef00.safety_lincukoo_w04_z10t"
-for _,entry in ipairs(registrations(catalog_5,"lincukoo.w04_z10t","contracts.families.ef00.safety_lincukoo_w04_z10t"))do
-entries[#entries + 1]=entry
+local j=require"contracts.families.ef00.safety_lincukoo_w04_z10t"
+for _,c in ipairs(b(j,"lincukoo.w04_z10t","contracts.families.ef00.safety_lincukoo_w04_z10t"))do
+a[#a+1]=c
 end
-local catalog_6=require "contracts.families.ef00.safety_nous_e12"
-for _,entry in ipairs(registrations(catalog_6,"nous.e12","contracts.families.ef00.safety_nous_e12"))do
-entries[#entries + 1]=entry
+local k=require"contracts.families.ef00.safety_nous_e12"
+for _,c in ipairs(b(k,"nous.e12","contracts.families.ef00.safety_nous_e12"))do
+a[#a+1]=c
 end
-local catalog_7=require "contracts.families.ef00.safety.wave15_lincukoo"
-for _,entry in ipairs(registrations(catalog_7,"ef00.safety.wave15_lincukoo","contracts.families.ef00.safety.wave15_lincukoo"))do
-entries[#entries + 1]=entry
+local l=require"contracts.families.ef00.safety.wave15_lincukoo"
+for _,c in ipairs(b(l,"ef00.safety.wave15_lincukoo","contracts.families.ef00.safety.wave15_lincukoo"))do
+a[#a+1]=c
 end
-local catalog_8=require "contracts.families.ef00.safety.wave16_lincukoo_siren"
-for _,entry in ipairs(registrations(catalog_8,"ef00.safety.wave16_lincukoo_siren","contracts.families.ef00.safety.wave16_lincukoo_siren"))do
-entries[#entries + 1]=entry
+local m=require"contracts.families.ef00.safety.wave16_lincukoo_siren"
+for _,c in ipairs(b(m,"ef00.safety.wave16_lincukoo_siren","contracts.families.ef00.safety.wave16_lincukoo_siren"))do
+a[#a+1]=c
 end
-return entries
+return a

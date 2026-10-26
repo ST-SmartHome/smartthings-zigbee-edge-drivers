@@ -1,15 +1,15 @@
-local function registrations(catalog,expected_id,module_name)
-assert(type(catalog)=="table","Canonical catalog must return a table: " .. module_name)
-for key in next,catalog do
-assert(key=="id" or key=="registrations","Canonical catalog has extra key: " .. module_name .. ":" .. tostring(key))
+local function c(a,d,module_name)
+assert(type(a)=="table","Canonical catalog must return a table: "..module_name)for h in next,a do
+assert(h=="id"or h=="registrations","Canonical catalog has extra key: "..module_name ..":"..tostring(h))
 end
-assert(catalog.id==expected_id,"Canonical catalog id mismatch: " .. module_name)
-assert(type(catalog.registrations)=="table","Canonical catalog registrations missing: " .. module_name)
-return catalog.registrations
+assert(a.id==d,"Canonical catalog id mismatch: "..module_name)assert(type(a.registrations)=="table","Canonical catalog registrations missing: "..module_name)return a.registrations
 end
-local entries={}
-local catalog_1=require "contracts.families.zcl.controls.wave18_javis_lock"
-for _,entry in ipairs(registrations(catalog_1,"zcl.controls.wave18_javis_lock","contracts.families.zcl.controls.wave18_javis_lock"))do
-entries[#entries + 1]=entry
+local b={}local f=require"contracts.families.zcl.controls.wave18_javis_lock"
+for _,e in ipairs(c(f,"zcl.controls.wave18_javis_lock","contracts.families.zcl.controls.wave18_javis_lock"))do
+b[#b+1]=e
 end
-return entries
+local g=require"contracts.families.zcl.controls.yale_yrd410"
+for _,e in ipairs(c(g,"zcl.controls.yale_yrd410","contracts.families.zcl.controls.yale_yrd410"))do
+b[#b+1]=e
+end
+return b

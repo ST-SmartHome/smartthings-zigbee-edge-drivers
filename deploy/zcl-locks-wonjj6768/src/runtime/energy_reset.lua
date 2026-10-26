@@ -1,63 +1,46 @@
-local capabilities=require "st.capabilities"
-local energy_reset={}
-local OFFSET_FIELD_PREFIX="__energy_meter_offset:"
-local RAW_FIELD_PREFIX="__energy_meter_raw:"
-local function normalized_component_id(component_id)
-if type(component_id)=="string" and component_id ~="" then
-return component_id
+local f=require"st.capabilities"
+local g={}local j="__energy_meter_offset:"
+local l="__energy_meter_raw:"
+local function normalized_component_id(a)
+if type(a)=="string"and a~=""then
+return a
 end
-return "main"
+return"main"
 end
-local function offset_field(component_id)
-return OFFSET_FIELD_PREFIX .. normalized_component_id(component_id)
+local function h(a)
+return j..normalized_component_id(a)
 end
-local function raw_field(component_id)
-return RAW_FIELD_PREFIX .. normalized_component_id(component_id)
+local function n(a)
+return l..normalized_component_id(a)
 end
-local function current_offset(device,component_id)
-local offset=device:get_field(offset_field(component_id))
-if type(offset)=="number" then
-return offset
+local function i(b,a)
+local d=b:get_field(h(a))if type(d)=="number"then
+return d
 end
 return 0
 end
-function energy_reset.apply_report(device,raw_value,component_id)
-if type(raw_value)~="number"
-or type(device)~="table"
-or type(device.get_field)~="function"
-or type(device.set_field)~="function" then
-return raw_value
+function g.apply_report(b,e,a)
+if type(e)~="number"
+or type(b)~="table"
+or type(b.get_field)~="function"
+or type(b.set_field)~="function"then
+return e
 end
-component_id=normalized_component_id(component_id)
-device:set_field(raw_field(component_id),raw_value,{persist=false})
-local offset=current_offset(device,component_id)
-if raw_value < offset then
-device:set_field(offset_field(component_id),0,{persist=true})
-return raw_value
+a=normalized_component_id(a)b:set_field(n(a),e,{persist=false})local d=i(b,a)if e<d then
+b:set_field(h(a),0,{persist=true})return e
 end
-return raw_value - offset
+return e-d
 end
-function energy_reset.handle_reset(_,device,command)
-local component_id=normalized_component_id(command and command.component)
-local offset=current_offset(device,component_id)
-local latest_raw=device:get_field(raw_field(component_id))
-if type(latest_raw)=="number" then
-offset=latest_raw
+function g.handle_reset(_,b,o)
+local a=normalized_component_id(o and o.component)local d=i(b,a)local m=b:get_field(n(a))if type(m)=="number"then
+d=m
 else
-local latest_value=device:get_latest_state(
-component_id,
-capabilities.energyMeter.ID,
-capabilities.energyMeter.energy.NAME,
-0
-)
-if type(latest_value)=="number" then
-offset=offset + latest_value
+local k=b:get_latest_state(
+a,f.energyMeter.ID,f.energyMeter.energy.NAME,0)if type(k)=="number"then
+d=d+k
 end
 end
-device:set_field(offset_field(component_id),offset,{persist=true})
-device:emit_component_event(
-{id=component_id},
-capabilities.energyMeter.energy({value=0.0,unit="kWh"})
-)
+b:set_field(h(a),d,{persist=true})b:emit_component_event(
+{id=a},f.energyMeter.energy{value=0.0,unit="kWh"})
 end
-return energy_reset
+return g

@@ -8,11 +8,7 @@ local cluster_base = require "st.zigbee.cluster_base"
 local shared_definitions = require "contracts.helpers.zcl_sensor_definitions"
 local fp = device_helpers.create_fingerprint
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
-
-local function register_aliases(definition, aliases)
-  register_device_definition(definition, aliases)
-end
+local device_definitions, register = device_helpers.definition_registry()
 
 local function bind_clusters_by_endpoint(bindings)
   return function(driver, device)
@@ -39,22 +35,6 @@ local function notification_only_ias(mapping)
   return mapping
 end
 
-local motion_sensor = {
-  profile = "safety-motion-battery",
-  zcl_clusters = {
-    zcl.motion(),
-    zcl.battery(),
-  },
-}
-local motion_battery_low_battery_voltage_sensor = {
-  profile = "safety-motion-battery-low-battery-voltage",
-  zcl_clusters = {
-    zcl.motion(),
-    zcl.battery_low(),
-    zcl.battery(),
-    zcl.battery_voltage(),
-  },
-}
 local ewelink_motion_sensor = {
   profile = "safety-motion-battery-low-battery-voltage-ewelink-pending",
   zcl_clusters = {
@@ -63,14 +43,11 @@ local ewelink_motion_sensor = {
     zcl.battery({
       minimum_interval = 3600,
       maximum_interval = 7200,
-      reportable_change = 2,
-      read_on_configure = true,
     }),
     zcl.battery_voltage({
       minimum_interval = 3600,
       maximum_interval = 7200,
       reportable_change = 100,
-      read_on_configure = true,
     }),
   },
 }
@@ -125,14 +102,6 @@ local occupancy_motion_illuminance_sensor = {
   zcl_clusters = {
     zcl.occupancy({ emit = emit.motion() }),
     zcl.illuminance(),
-  },
-}
-local motion_illuminance_sensor = {
-  profile = "safety-motion-illuminance-battery",
-  zcl_clusters = {
-    zcl.motion(),
-    zcl.illuminance(),
-    zcl.battery(),
   },
 }
 local candeo_motion_illuminance_sensor = {
@@ -225,12 +194,47 @@ local water_sensor = {
   },
 }
 local water_battery_low_battery_sensor = shared_definitions.water_battery_low_battery_sensor
-local third_reality_water_sensor_pending = {
+local function third_ws_setting(device, mapping, value)
+  local raw = value
+  if mapping.attribute_id==0x10 then raw=({ON=1,OFF=0})[value] end
+  if type(raw)~="number" or raw%1~=0 or raw<0 or raw>255 then return false end
+  device:send(cluster_base.write_manufacturer_specific_attribute(device,0xFF01,mapping.attribute_id,
+    0x1233,data_types.Uint8,raw):to_endpoint(1))
+  device:send(cluster_base.read_manufacturer_specific_attribute(device,0xFF01,mapping.attribute_id,0x1233):to_endpoint(1))
+  return true
+end
+
+local third_ws_water = zcl.water({endpoint=1,read_only=true,read_on_refresh=false,ias_configure_method=0})
+third_ws_water.minimum_interval, third_ws_water.maximum_interval, third_ws_water.reportable_change = nil, nil, nil
+third_ws_water.read_on_configure = false
+
+local third_reality_water_sensor = {
   profile = "safety-water-leak-battery-low-battery-3rws18bz-pending",
+  magic_packet = false,
   zcl_clusters = {
-    zcl.water(),
-    zcl.battery_low(),
-    zcl.battery(),
+    zcl.switch({endpoint=1,minimum_interval=0,maximum_interval=65000,suppress_optimistic_state=true}),
+    third_ws_water,
+    zcl.battery_low({endpoint=1,configure_reporting=false,read_only=true,read_on_configure=false,
+      read_on_refresh=false,ias_configure_method=0,emit=function(_,value)
+        return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
+      end}),
+    zcl.battery({endpoint=1,read_only=true,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
+      from_device=function(value,device,context)
+        if context.raw_value==255 then return nil end
+        local version=device:get_field("third_ws_application_version")
+        return version and version<=0x17 and context.raw_value or value
+      end}),
+    zcl.cluster_attribute(0,1,{name="third_ws_application_version",endpoint=1,data_type=data_types.Uint8,
+      read_only=true,read_on_configure=true,emit=function(device,value)
+        device:set_field("third_ws_application_version",value,{persist=true})
+      end}),
+    zcl.cluster_attribute(0xFF01,0x10,{name="third_ws_buzzer",endpoint=1,data_type=data_types.Uint8,
+      write_type=data_types.Uint8,mfg_code=0x1233,read_on_configure=true,suppress_optimistic_state=true,
+      emit=emit.thirdWsBuzzer(),sender=third_ws_setting,
+      from_device=function(value) return value==1 and "ON" or "OFF" end}),
+    zcl.cluster_attribute(0xFF01,0x11,{name="third_ws_buzzer_minutes",endpoint=1,data_type=data_types.Uint8,
+      write_type=data_types.Uint8,mfg_code=0x1233,read_on_configure=true,suppress_optimistic_state=true,
+      numeric_range={minimum=0,maximum=255},emit=emit.thirdWsBuzzerMinutes(),sender=third_ws_setting}),
   },
 }
 local temp_humidity_sensor = {
@@ -380,34 +384,20 @@ local sunricher_zg9032b_sensor = {
     { endpoint = 2, clusters = { 0x0405 } },
   }),
 }
-local smoke_sensor = {
-  profile = "safety-smoke-detector-battery",
-  zcl_clusters = {
-    zcl.smoke(),
-    zcl.battery(),
-  },
-}
 local schneider_smoke_sensor = {
   profile = "safety-smoke-temp-tamper-battery-low-battery-voltage-schneider-pending",magic_packet=false,
   zcl_clusters = {
     zcl.smoke({minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=true}),
-    zcl.temperature({minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
+    zcl.temperature({minimum_interval=10,maximum_interval=3600,reportable_change=100}),
     zcl.tamper({minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=false}),
     zcl.battery_low({minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=false,
       emit=function(_,value)
         return value and capabilities.batteryLevel.battery.critical() or capabilities.batteryLevel.battery.normal()
       end}),
-    zcl.battery({minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,
+    zcl.battery({minimum_interval=3600,maximum_interval=65000,reportable_change=10,
       from_device=function(value,_,context) if context.raw_value~=255 then return value end end}),
-    zcl.battery_voltage({minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,
+    zcl.battery_voltage({minimum_interval=3600,maximum_interval=65000,reportable_change=10,
       from_device=function(value,_,context) if context.raw_value~=255 then return value end end}),
-  },
-}
-local illuminance_sensor = {
-  profile = "sensors-illuminance-battery",
-  zcl_clusters = {
-    zcl.illuminance(),
-    zcl.battery(),
   },
 }
 
@@ -528,22 +518,25 @@ local terncy_dc01 = {
 local sunricher_terncy_dc01 = {
   profile = "safety-contact-battery",
   zcl_clusters = {
-    zcl.cluster_attribute(0x000F, 0x0055, {
-      name = "contact",
-      emit = emit.contact(),
-      data_type = data_types.SinglePrecisionFloat,
-      from_device = function(value)
-        return value == 0
+    notification_only_ias(zcl.contact({
+      endpoint = 1,
+      read_only = true,
+      read_on_refresh = false,
+      from_device = function(_, _, context)
+        -- ZHC wally U02I007C01: EP1 notifications only; alarm1 means open.
+        if context.command_id ~= 0x00 then return nil end
+        return bit32.band(context.raw_value, 0x0001) ~= 0
       end,
-      minimum_interval = 0,
-      maximum_interval = 300,
-      reportable_change = 1,
-    }),
+    })),
     zcl.cluster_attribute(zcl.CLUSTER_POWER_CONFIGURATION, zcl.ATTR_BATTERY_PERCENTAGE_REMAINING, {
       name = "battery",
       emit = emit.battery(),
       data_type = data_types.Uint8,
-      scale = 1,
+      scale = 2,
+      from_device = function(value, _, context)
+        if context.raw_value == 255 then return nil end
+        return value
+      end,
       minimum_interval = 300,
       maximum_interval = 21600,
       reportable_change = 1,
@@ -551,15 +544,15 @@ local sunricher_terncy_dc01 = {
   },
 }
 
-register_aliases(motion_tamper_battery_low_battery_sensor, {
+register(motion_tamper_battery_low_battery_sensor, {
   fp("LDS", "ZHA-PirSensor"),
 })
 
-register_aliases(occupancy_motion_illuminance_sensor, {
+register(occupancy_motion_illuminance_sensor, {
   fp("Leedarson", "ZHA-PIRSensor"),
 })
 
-register_aliases(ewelink_motion_sensor, {
+register(ewelink_motion_sensor, {
   fp("eWeLink", "CK-TLSR8656-SS5-01(7002)"),
   fp("eWeLink", "MS01"),
   fp("eWeLink", "MSO1"),
@@ -572,124 +565,160 @@ register_aliases(ewelink_motion_sensor, {
   fp("SONOFF", "SNZB-03"),
 })
 
-register_aliases(candeo_motion_illuminance_sensor, {
+register(candeo_motion_illuminance_sensor, {
   fp("Candeo", "C-ZB-SEMO"),
 })
 
-register_aliases(contact_sensor, {
+register(contact_sensor, {
   fp("Candeo", "C-ZB-SEDC"),
 })
 
-register_aliases(contact_sensor, {
+register(contact_sensor, {
   fp("Sunricher", "HK-SENSOR-CT-A"),
 })
 
-register_aliases(contact_battery_low_sensor, {
+register(contact_battery_low_sensor, {
   fp("Sunricher", "HK-SENSOR-CT-MINI"),
 })
 
-register_aliases(shyugj_contact_sensor, {
+register(shyugj_contact_sensor, {
   fp("Shyugj", "DoorSensor-ZB3.0"),
 })
 
-register_aliases(ewelink_contact_sensor, {
+register(ewelink_contact_sensor, {
   fp("eWeLink", "CK-TLSR8656-SS5-01(7003)"),
   fp("eWeLink", "SNZB-04"),
 })
 
-register_aliases(water_sensor, {
+register(water_sensor, {
   fp("Candeo", "C-ZB-SEWA"),
 })
 
-register_aliases(third_reality_water_sensor_pending, {
+register(third_reality_water_sensor, {
   fp("Third Reality, Inc", "3RWS18BZ"),
+  fp("THIRDREALITY", "3RWS18BZ"),
 })
 
-register_aliases(water_sensor, {
+register(water_sensor, {
   fp("Third Reality, Inc", "3RWS0218Z"),
 })
 
-register_aliases(water_battery_low_battery_sensor, {
+register(water_battery_low_battery_sensor, {
   fp("eWeLink", "CK-TLSR8656-SS5-01(7019)"),
   fp("eWeLink", "SNZB-05"),
 })
 
-register_aliases(temp_humidity_sensor, {
+register(temp_humidity_sensor, {
   fp("Candeo", "C-ZB-SETE"),
 })
 
-register_aliases(frient_temp_humidity_sensor, {
+register(frient_temp_humidity_sensor, {
   fp("Frient", "HMSZB-120"),
 })
 
-register_aliases(third_reality_3rths_sensor, {
+register(third_reality_3rths_sensor, {
   fp("Third Reality, Inc", "3RTHS24BZ"),
   fp("Third Reality, Inc", "3RTHS0224Z"),
 })
 
-register_aliases(third_reality_3rths0324_sensor, {
+register(third_reality_3rths0324_sensor, {
   fp("Third Reality, Inc", "3RTHS0324Z"),
 })
 
-register_aliases(heiman_ht_em_sensor, {
+register(heiman_ht_em_sensor, {
   fp("HEIMAN", "HT-EM"),
   fp("HEIMAN", "TH-EM"),
   fp("HEIMAN", "TH-T_V14"),
 })
 
-register_aliases(heiman_ht_n_sensor, {
+register(heiman_ht_n_sensor, {
   fp("HEIMAN", "HT-N"),
   fp("HEIMAN", "HT-EF-3.0"),
   fp("HEIMAN", "HS3HT-EFA-3.0"),
 })
 
-register_aliases(sunricher_zg9032b_sensor, {
+register(sunricher_zg9032b_sensor, {
   fp("Sunricher", "ZG9032B"),
 })
 
-register_aliases(temp_humidity_voltage_sensor, {
+register(temp_humidity_voltage_sensor, {
   fp("eWeLink", "CK-TLSR8656-SS5-01(7014)"),
   fp("Zbeacon", "TH01"),
 })
 
-register_aliases(heiman_air_quality, {
+register(heiman_air_quality, {
   fp("HEIMAN", "HS2AQ-EM"),
   fp("HEIMAN", "HS2AQ-EM-3.0"),
 })
 
-register_aliases(terncy_dc01, {
+register(terncy_dc01, {
   fp("TERNCY", "TERNCY-DC01"),
 })
 
-register_aliases(sunricher_terncy_dc01, {
+register(sunricher_terncy_dc01, {
   fp("Sunricher", "TERNCY-DC01"),
 })
 
-register_aliases(schneider_smoke_sensor, {
+register(schneider_smoke_sensor, {
   fp("Schneider Electric", "755WSA"),
   fp("Schneider Electric", "W599501"),
   fp("Schneider Electric", "W599001"),
 })
 
-register_aliases(third_reality_3rms_motion_sensor, {
+register(third_reality_3rms_motion_sensor, {
   fp("Third Reality, Inc", "3RMS16BZ"),
 })
 
-register_aliases(third_reality_3rsmr_motion_sensor, {
+register(third_reality_3rsmr_motion_sensor, {
   fp("Third Reality, Inc", "3RSMR01067Z"),
 })
 
-register_aliases(third_reality_3rps_presence_sensor, {
+register(third_reality_3rps_presence_sensor, {
   fp("Third Reality, Inc", "3RPS01083Z"),
 })
 
-register_aliases(third_reality_door_sensor, {
+register(third_reality_door_sensor, {
   fp("Third Reality, Inc", "3RDS17BZ"),
 })
 
-register_aliases(third_reality_tilt_sensor, {
+register(third_reality_tilt_sensor, {
   fp("Third Reality, Inc", "3RDTS01056Z"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-txk"},
+  {2, "rpt-zcl"},
+  {3, "rpt-cep"},
+  {4, "rpt-cgl"},
+  {5, "rpt-cvm"},
+  {6, "rpt-cvm"},
+  {7, "rpt-hqa"},
+  {8, "rpt-rab"},
+  {9, "rpt-tku"},
+  {10, "rpt-cxv"},
+  {11, "rpt-zjd"},
+  {12, "rpt-cxv"},
+  {13, "rpt-tml"},
+  {14, "rpt-tgdf"},
+  {15, "rpt-sgy"},
+  {16, "rpt-tgdf"},
+  {17, "rpt-zkk"},
+  {18, "rpt-tgdf"},
+  {19, "rpt-tgdf"},
+  {20, "rpt-zzw"},
+  {21, "rpt-sgy"},
+  {22, "rpt-hlk"},
+  {23, "rpt-trc", {zr000f0055auto = false}},
+  {24, "rpt-tcg"},
+  {25, "rpt-zxh"},
+  {26, "rpt-tctq"},
+  {27, "rpt-tctq"},
+  {28, "rpt-zjr"},
+  {29, "rpt-tku"},
+  {30, "rpt-hqa"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.retail_sensors",

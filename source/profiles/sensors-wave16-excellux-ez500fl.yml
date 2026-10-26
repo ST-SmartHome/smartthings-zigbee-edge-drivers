@@ -30,5 +30,6 @@ components:
       - {id: concertmirror08464.ezFlMoistureCalibration, version: 1}
       - {id: concertmirror08464.ezFlMoistureWarning, version: 1}
       - {id: refresh, version: 1}
+      - {id: signalStrength, version: 1}
     categories:
       - name: TempHumiditySensor

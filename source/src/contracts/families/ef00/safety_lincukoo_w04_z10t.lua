@@ -36,7 +36,6 @@ local water_alarm_battery_state = {
   time_start = "off",
   initial_custom_state_query = false,
   refresh_state_query = false,
-  placeholder_custom_states = false,
 
   tuya.dp_numeric(1, {
     name = "lincukoo_w_four_alarm_status",
@@ -59,6 +58,7 @@ local water_alarm_battery_state = {
 
 register_device_definition(water_alarm_battery_state, {
   { manufacturer = "_TZE284_iunyuzwe", model = "TS0601" },
+  { manufacturer = "_TZE2841000000_iunyuzwe", model = "TS0601" },
 })
 
 local water_alarm_battery_ringtone = {
@@ -67,7 +67,6 @@ local water_alarm_battery_ringtone = {
   time_start = "off",
   initial_custom_state_query = false,
   refresh_state_query = false,
-  placeholder_custom_states = false,
 
   tuya.dp_numeric(1, {
     name = "lincukoo_w_four_alarm_status",
@@ -93,6 +92,7 @@ local water_alarm_battery_ringtone = {
 
 register_device_definition(water_alarm_battery_ringtone, {
   { manufacturer = "_TZE284_vbgmewta", model = "TS0601" },
+  { manufacturer = "_TZE2841000000_vbgmewta", model = "TS0601" },
 })
 
 return {

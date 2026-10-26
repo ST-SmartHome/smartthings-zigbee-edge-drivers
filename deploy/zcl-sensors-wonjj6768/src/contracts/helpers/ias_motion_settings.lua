@@ -1,104 +1,90 @@
-local zcl=require "protocol.zcl"
-local types=require "st.zigbee.data_types"
-local cluster_base=require "st.zigbee.cluster_base"
+local q=require"protocol.zcl"
+local d=require"st.zigbee.data_types"
+local h=require"st.zigbee.cluster_base"
 local M={}
-function M.passive(mapping)
-mapping.minimum_interval=nil
-mapping.maximum_interval=nil
-mapping.reportable_change=nil
-mapping.read_on_configure=false
-return mapping
+function M.passive(g)
+g.minimum_interval=nil
+g.maximum_interval=nil
+g.reportable_change=nil
+g.read_on_configure=false
+return g
 end
-function M.battery(configure)
-local options={endpoint=1,read_only=true,
-minimum_interval=3600,maximum_interval=65000,reportable_change=0,
-read_on_configure=true,
-from_device=function(value,_,context)
-if context.raw_value==255 then return nil end
-return value
-end,
+function M.battery(o)
+local l={endpoint=1,read_only=true,minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true,
+from_device=function(c,_,e)
+if e.raw_value==255 then return nil end
+return c
+end
 }
-if configure then return zcl.battery(options)end
-return M.passive(zcl.battery(options))
+if o then return q.battery(l)end
+return M.passive(q.battery(l))
 end
 function M.voltage()
-return zcl.battery_voltage({endpoint=1,read_only=true,
-minimum_interval=3600,maximum_interval=65000,reportable_change=0,
-read_on_configure=true,
-from_device=function(value,_,context)
-if context.raw_value==255 then return nil end
-return value
-end,
+return q.battery_voltage{endpoint=1,read_only=true,minimum_interval=3600,maximum_interval=65000,reportable_change=0,read_on_configure=true,
+from_device=function(c,_,e)
+if e.raw_value==255 then return nil end
+return c
+end
+}
+end
+function M.battery_alarm(b)
+return q.cluster_attribute(1,62,{
+name="battery_alarm_state",endpoint=1,data_type=d.Bitmap32,read_only=true,read_on_configure=false,emit=b,
+from_device=function(c)
+if type(c)=="table"then c=c.value end
+return bit32.band(c,15744015)~=0
+end
 })
 end
-function M.battery_alarm(emitter)
-return zcl.cluster_attribute(0x0001,0x003E,{
-name="battery_alarm_state",endpoint=1,data_type=types.Bitmap32,
-read_only=true,read_on_configure=false,emit=emitter,
-from_device=function(value)
-if type(value)=="table" then value=value.value end
-return bit32.band(value,0x00F03C0F)~=0
-end,
-})
-end
-function M.keep_alive(emitter)
-return function(device,active,context)
-if context.command_id ~=0x00 then return end
-local key="__ih012_rt01_keep_alive"
-local previous=device:get_field(key)
-if previous then previous:cancel()end
-device:set_field(key,nil)
-if active then
-device:set_field(key,device.thread:call_with_delay(125,function()
-device:set_field(key,nil)
-device:emit_event(emitter(device,false))
+function M.keep_alive(b)
+return function(a,t,e)
+if e.command_id~=0 then return end
+local i="__ih012_rt01_keep_alive"
+local f=a:get_field(i)
+if f then f:cancel()end
+a:set_field(i,nil)if t then
+a:set_field(i,a.thread:call_with_delay(125,function()
+a:set_field(i,nil)a:emit_event(b(a,false))
 end,"IH012 RT01 occupancy keep alive"))
 end
 end
 end
-function M.mapping(emitter,name,attribute,values)
-local encoded={}
-for raw,value in pairs(values)do encoded[value]=raw end
-return zcl.cluster_attribute(0x0500,attribute,{
-name=name,endpoint=1,data_type=types.Uint8,write_type=types.Uint8,
-emit=emitter,read_on_configure=false,
-from_device=function(raw)return values[raw]end,
-to_device=function(value)return encoded[value]end,
+function M.mapping(b,j,n,p)
+local k={}
+for u,c in pairs(p)do k[c]=u end
+return q.cluster_attribute(1280,n,{
+name=j,endpoint=1,data_type=d.Uint8,write_type=d.Uint8,emit=b,read_on_configure=false,
+from_device=function(u)return p[u]end,
+to_device=function(c)return k[c]end
 })
 end
-function M.vibration_timeout(emitter)
-return function(device,_,context)
-if context.command_id ~=0x00 then return end
-local key="__ts0210_vibration_timeout"
-local previous=device:get_field(key)
-if previous then previous:cancel()end
-device:set_field(key,nil)
-local timeout=tonumber(device.preferences.vibrationTimeout)or 90
-if timeout > 0 then
-device:set_field(key,device.thread:call_with_delay(timeout,function()
-device:set_field(key,nil)
-device:emit_event(emitter(device,false))
+function M.vibration_timeout(b)
+return function(a,_,e)
+if e.command_id~=0 then return end
+local i="__ts0210_vibration_timeout"
+local f=a:get_field(i)
+if f then f:cancel()end
+a:set_field(i,nil)local m=tonumber(a.preferences.vibrationTimeout)or 90
+if m>0 then
+a:set_field(i,a.thread:call_with_delay(m,function()
+a:set_field(i,nil)a:emit_event(b(a,false))
 end,"TS0210 vibration timeout"))
 end
 end
 end
-function M.sensitivity(emitter,name)
-return M.mapping(emitter,name,0x0013,{[0]="low","medium","high"})
+function M.sensitivity(b,j)
+return M.mapping(b,j,19,{[0]="low","medium","high"})
 end
-function M.keep_time(emitter,name)
-return M.mapping(emitter,name,0xF001,{[0]="30","60","120"})
+function M.keep_time(b,j)
+return M.mapping(b,j,61441,{[0]="30","60","120"})
 end
-function M.refresh(device)
-local tx=cluster_base.read_attribute(device,types.ClusterId(0x0500),types.AttributeId(0x0013))
-tx.body.zcl_body.attr_ids={types.AttributeId(0x0013),types.AttributeId(0xF001),types.AttributeId(0x0002)}
-device:send(tx:to_endpoint(1))
+function M.refresh(a)
+local s=h.read_attribute(a,d.ClusterId(1280),d.AttributeId(19))s.body.zcl_body.attr_ids={d.AttributeId(19),d.AttributeId(61441),d.AttributeId(2)}a:send(s:to_endpoint(1))
 end
-function M.magic_packet(device)
-local tx=cluster_base.read_attribute(device,types.ClusterId(0x0000),types.AttributeId(0x0004))
-tx.body.zcl_body.attr_ids={}
-for _,id in ipairs({0x0004,0x0000,0x0001,0x0005,0x0007,0xFFFE})do
-tx.body.zcl_body.attr_ids[#tx.body.zcl_body.attr_ids + 1]=types.AttributeId(id)
+function M.magic_packet(a)
+local s=h.read_attribute(a,d.ClusterId(0),d.AttributeId(4))s.body.zcl_body.attr_ids={}for _,w in ipairs{4,0,1,5,7,65534}do
+s.body.zcl_body.attr_ids[#s.body.zcl_body.attr_ids+1]=d.AttributeId(w)
 end
-device:send(tx:to_endpoint(1))
+a:send(s:to_endpoint(1))
 end
 return M

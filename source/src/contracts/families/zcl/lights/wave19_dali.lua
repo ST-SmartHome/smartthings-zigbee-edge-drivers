@@ -51,6 +51,16 @@ local function child_profile(device, endpoint)
   return DIMMER_CHILD_PROFILE
 end
 
+local function child_profile_matches(device, color_temperature)
+  local components = device.profile and device.profile.components
+  if type(components) ~= "table" or components.main == nil then return false end
+  for name in pairs(components) do if name ~= "main" then return false end end
+  return device:supports_capability_by_id("switch", "main") and
+    device:supports_capability_by_id("switchLevel", "main") and
+    device:supports_capability_by_id("refresh", "main") and
+    device:supports_capability_by_id("colorTemperature", "main") == color_temperature
+end
+
 local function emit_on_child(endpoint, event_factory, required_device_id)
   local key = child_key(endpoint)
   return function(device, value, context, mapping)
@@ -60,7 +70,7 @@ local function emit_on_child(endpoint, event_factory, required_device_id)
       return nil
     end
     local child = device:get_child_by_parent_assigned_key(key)
-    if child == nil then return nil end
+    if child == nil or not child_profile_matches(child, device_id == COLOR_TEMPERATURE_DEVICE_ID) then return nil end
     local event = event_factory(child, value, context, mapping)
     if event ~= nil then child:emit_event(event) end
     return nil
@@ -76,7 +86,7 @@ local function create_child_devices(driver, device)
     if enabled_endpoint(device, endpoint) then
       local profile = child_profile(device, endpoint)
       if child ~= nil then
-        if child.profile == nil or child.profile.id ~= profile then
+        if not child_profile_matches(child, endpoint_device_id(device, endpoint) == COLOR_TEMPERATURE_DEVICE_ID) then
           child:try_update_metadata({ profile = profile })
         end
       else
@@ -98,8 +108,7 @@ local function is_expected_child(parent, device)
   local endpoint = child_endpoint(device)
   if endpoint == nil or not enabled_endpoint(parent, endpoint) then return false end
   local expected_profile = child_profile(parent, endpoint)
-  if device.profile == nil then return false end
-  if device.profile.id ~= expected_profile then
+  if not child_profile_matches(device, endpoint_device_id(parent, endpoint) == COLOR_TEMPERATURE_DEVICE_ID) then
     device:try_update_metadata({ profile = expected_profile })
   end
   return true
@@ -110,6 +119,7 @@ local function child_runtime_start(device, _, parent)
   if endpoint == nil or endpoint_device_id(parent, endpoint) ~= COLOR_TEMPERATURE_DEVICE_ID then
     return
   end
+  if not child_profile_matches(device, true) then return end
   device:emit_component_event(
     { id = "main" },
     capabilities.colorTemperature.colorTemperatureRange({
@@ -163,6 +173,7 @@ local function child_command_allowed(device, name)
   local parent = child_parent(device)
   local endpoint = child_endpoint(device)
   if endpoint == nil or not enabled_endpoint(parent, endpoint) then return false end
+  if not child_profile_matches(device, endpoint_device_id(parent, endpoint) == COLOR_TEMPERATURE_DEVICE_ID) then return false end
   if name == "switch" or name == "brightness" then return true end
   return name == "color_temperature" and
     endpoint_device_id(parent, endpoint) == COLOR_TEMPERATURE_DEVICE_ID
@@ -210,11 +221,15 @@ end
 
 local sunricher_dali = {
   profile = "bridge-wave19-sunricher-dali-parent",
+  parent_profile_matches = function(device)
+    local components = device.profile and device.profile.components
+    return type(components) == "table" and components.main ~= nil and
+      device:supports_capability_by_id("refresh", "main") and
+      not device:supports_capability_by_id("switch", "main") and
+      not device:supports_capability_by_id("switchLevel", "main")
+  end,
   auxiliary_profiles = { DIMMER_CHILD_PROFILE, CCT_CHILD_PROFILE },
   package_group = "wave19-dali",
-  transport_classification = "STANDARD_ZCL_DYNAMIC_ENDPOINT_CHILDREN",
-  z2m_converter_source = "sunricherDaliController",
-  wire_cluster = "OnOff 0x0006 + Level 0x0008 + optional ColorControl 0x0300",
   zcl_clusters = mappings,
   allow_child_devices = true,
   is_expected_child = is_expected_child,

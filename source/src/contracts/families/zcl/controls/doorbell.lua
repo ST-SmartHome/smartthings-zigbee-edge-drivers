@@ -86,6 +86,13 @@ register_device_definition(heiman_doorbell_button, {
   device_helpers.create_fingerprint("HEIMAN", "DoorBell-EM"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tgx"},
+  {2, "rpt-tgx"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.controls.doorbell",
   registrations = device_definitions,

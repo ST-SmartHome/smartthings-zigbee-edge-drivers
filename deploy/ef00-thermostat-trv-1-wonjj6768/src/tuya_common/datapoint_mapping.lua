@@ -1,1000 +1,837 @@
-local function load_mapping(tuya,shared)
-local log=shared.log
-local capabilities=require "st.capabilities"
-local custom_capabilities=require "runtime.capability_metadata"
-local battery_refresh=require "runtime.battery_refresh"
-local utf8_text=require "runtime.utf8_text"
-local type_check=shared.type_check
-local table_insert=shared.table_insert
-local normalize_transaction=shared.normalize_transaction
-local persist_opt=shared.persist_opt
-local mapping_list_cache=setmetatable({},{__mode="k"})
-local dp_index_cache=setmetatable({},{__mode="k"})
-local key_index_cache=setmetatable({},{__mode="k"})
-local prepared_mappings=setmetatable({},{__mode="k"})
-local MAPPING_BUCKET_TAG="__tuya_mapping_bucket"
-local is_mapping_list
-local driver_message_definition=custom_capabilities.driver_message
-local function debug_value_to_string(value)
-local value_type=type_check(value)
-if value_type=="string" then
-return value
+local function bB(H,aW)
+local bT=aW.log
+local by=require"st.capabilities"
+local ax=require"runtime.capability_metadata"
+local aL=require"runtime.battery_refresh"
+local bP=require"runtime.utf8_text"
+local a=aW.type_check
+local u=aW.table_insert
+local aT=aW.normalize_transaction
+local bF=aW.persist_opt
+local ae=setmetatable({},{__mode="k"})local ay=setmetatable({},{__mode="k"})local as=setmetatable({},{__mode="k"})local an=setmetatable({},{__mode="k"})local aA="__tuya_mapping_bucket"
+local M
+local p=ax.driver_message
+local function aR(h)
+local aJ=a(h)if aJ=="string"then
+return h
 end
-if value_type=="number" or value_type=="boolean" then
-return tostring(value)
+if aJ=="number"or aJ=="boolean"then
+return tostring(h)
 end
-if value_type=="table" then
-local parts={}
-local count=0
-for key,item in pairs(value)do
-count=count + 1
-if count > 4 then
-parts[#parts + 1]="..."
+if aJ=="table"then
+local bs={}local bK=0
+for ap,e in pairs(h)do
+bK=bK+1
+if bK>4 then
+bs[#bs+1]="..."
 break
 end
-parts[#parts + 1]=tostring(key).. "=" .. tostring(item)
+bs[#bs+1]=tostring(ap).."="..tostring(e)
 end
-return table.concat(parts,", ")
+return table.concat(bs,", ")
 end
-return tostring(value)
+return tostring(h)
 end
-local function emit_debug_driver_message(device,mapping_context,dp_info,value)
-if type_check(device)~="table" then
+local function aI(b,f,t,h)
+if a(b)~="table"then
 return
 end
-local metadata=custom_capabilities.by_emit_name[type_check(mapping_context)=="table" and mapping_context.name or nil]
-if metadata==nil or metadata.emit_name==driver_message_definition.emit_name then
+local aY=ax.by_emit_name[a(f)=="table"and f.name or nil]if aY==nil or aY.emit_name==p.emit_name then
 return
 end
-local capability=capabilities[driver_message_definition.capability_id]
-local attribute_fn=capability and capability[driver_message_definition.attribute_name]or nil
-if type_check(attribute_fn)~="function" then
-log.error(string.format(
-"[%s] Debug driver message binding missing: %s.%s",
-device.label or device.id or "device",
-driver_message_definition.capability_id or "unknown",
-driver_message_definition.attribute_name or "unknown"
-))
+local bp=by[p.capability_id]local ba=bp and bp[p.attribute_name]or nil
+if a(ba)~="function"then
+bT.error(string.format(
+"[%s] Debug driver message binding missing: %s.%s",b.label or b.id or"device",p.capability_id or"unknown",p.attribute_name or"unknown"))return
+end
+local N=aY.label or aY.emit_name or"custom state"
+local bQ=a(t)=="table"and a(t.dp)=="number"and string.format("dp=%d",t.dp)or"dp=?"
+local bi=string.format("RX %s (%s): %s",N,bQ,aR(h))local bx=p.maximum_length or 512
+bi=bP.truncate(bi,bx)if bi==nil then
 return
 end
-local label=metadata.label or metadata.emit_name or "custom state"
-local dp_label=type_check(dp_info)=="table" and type_check(dp_info.dp)=="number" and string.format("dp=%d",dp_info.dp)or "dp=?"
-local message=string.format("RX %s (%s): %s",label,dp_label,debug_value_to_string(value))
-local maximum_length=driver_message_definition.maximum_length or 512
-message=utf8_text.truncate(message,maximum_length)
-if message==nil then
+b:emit_event(ba{value=bi})
+end
+local function k(N)
+bT.warn(string.format("Tuya %s ignored",N))
+end
+local function am(h)
+return a(h)=="table"and h[aA]==true
+end
+local function w(bh,ap,s)
+if ap==nil then
 return
 end
-device:emit_event(attribute_fn({value=message}))
-end
-local function warn_invalid_mapping(label)
-log.warn(string.format("Tuya %s ignored",label))
-end
-local function is_mapping_bucket(value)
-return type_check(value)=="table" and value[MAPPING_BUCKET_TAG]==true
-end
-local function append_index_entry(index,key,entry)
-if key==nil then
+local aX=bh[ap]if aX==nil then
+bh[ap]=s
 return
 end
-local existing=index[key]
-if existing==nil then
-index[key]=entry
-return
+if am(aX)then
+u(aX,s)return
 end
-if is_mapping_bucket(existing)then
-table_insert(existing,entry)
-return
+bh[ap]={
+[aA]=true,aX,s}
 end
-index[key]={
-[MAPPING_BUCKET_TAG]=true,
-existing,
-entry,
-}
-end
-local function mapping_converter(mapping)
-if type_check(mapping)~="table" then
+local function aH(c)
+if a(c)~="table"then
 return nil
 end
-if type_check(mapping.converter)=="table" then
-return mapping.converter
+if a(c.converter)=="table"then
+return c.converter
 end
 return nil
 end
-local function mapping_name(mapping,map_key)
-if type_check(mapping)~="table" then
-return type_check(map_key)=="string" and map_key or nil
+local function aK(c,B)
+if a(c)~="table"then
+return a(B)=="string"and B or nil
 end
-return mapping.key or mapping.preference or mapping.name or(type_check(map_key)=="string" and map_key or nil)
+return c.key or c.preference or c.name or(a(B)=="string"and B or nil)
 end
-local function mapping_meta(mapping)
-if type_check(mapping)~="table" then
+local function af(c)
+if a(c)~="table"then
 return nil
 end
-local converter_pair=mapping_converter(mapping)
-local receive_converter=type_check(mapping.converter)=="function" and mapping.converter or nil
+local m=aH(c)
+local bj=a(c.converter)=="function"and c.converter or nil
 return{
-from_device=type_check(mapping.from_device)=="function" and mapping.from_device or
-(converter_pair and type_check(converter_pair.from)=="function" and converter_pair.from or receive_converter),
-to_device=type_check(mapping.to_device)=="function" and mapping.to_device or
-(converter_pair and type_check(converter_pair.to)=="function" and converter_pair.to or nil),
-read_only=mapping.read_only==true,
-write_only=mapping.write_only==true,
-field=(type_check(mapping.field)=="string" or type_check(mapping.field)=="function")and mapping.field or nil,
-fields=(type_check(mapping.fields)=="table" or type_check(mapping.fields)=="function")and mapping.fields or nil,
-handler=type_check(mapping.handler)=="function" and mapping.handler or nil,
-emit=type_check(mapping.emit)=="function" and mapping.emit or nil,
-endpoint=(type_check(mapping.endpoint)=="number" or type_check(mapping.endpoint)=="function")and mapping.endpoint or nil,
-component=(type_check(mapping.component)=="string" or type_check(mapping.component)=="function")and mapping.component or nil,
-persist=persist_opt(mapping.persist),
-}
+from_device=a(c.from_device)=="function"and c.from_device or
+(m and a(m.from)=="function"and m.from or bj),
+to_device=a(c.to_device)=="function"and c.to_device or
+(m and a(m.to)=="function"and m.to or nil),
+read_only=c.read_only==true,write_only=c.write_only==true,
+field=(a(c.field)=="string"or a(c.field)=="function")and c.field or nil,
+fields=(a(c.fields)=="table"or a(c.fields)=="function")and c.fields or nil,
+handler=a(c.handler)=="function"and c.handler or nil,
+emit=a(c.emit)=="function"and c.emit or nil,
+endpoint=(a(c.endpoint)=="number"or a(c.endpoint)=="function")and c.endpoint or nil,
+component=(a(c.component)=="string"or a(c.component)=="function")and c.component or nil,
+persist=bF(c.persist)}
 end
-local function normalize_endpoint(endpoint)
-if type_check(endpoint)~="number" or endpoint % 1 ~=0 then
+local function O(q)
+if a(q)~="number"or q%1~=0 then
 return nil
 end
-return endpoint
+return q
 end
-local function resolve_context_component_id(device,context)
-if type_check(context)~="table" then
+local function U(b,d)
+if a(d)~="table"then
 return nil
 end
-local component_id=context.component_id or context.component
-if type_check(component_id)=="string" and component_id ~="" then
-return component_id
+local i=d.component_id or d.component
+if a(i)=="string"and i~=""then
+return i
 end
-local endpoint=normalize_endpoint(context.endpoint or context.src_endpoint)
-if endpoint ~=nil and type_check(device.get_component_id_for_endpoint)=="function" then
-local resolved=device:get_component_id_for_endpoint(endpoint)
-if type_check(resolved)=="string" and resolved ~="" then
-return resolved
+local q=O(d.endpoint or d.src_endpoint)
+if q~=nil and a(b.get_component_id_for_endpoint)=="function"then
+local o=b:get_component_id_for_endpoint(q)if a(o)=="string"and o~=""then
+return o
 end
 end
 return nil
 end
-local function resolve_context_endpoint(device,context)
-if type_check(context)~="table" then
+local function J(b,d)
+if a(d)~="table"then
 return nil
 end
-local endpoint=normalize_endpoint(context.endpoint or context.src_endpoint)
-if endpoint ~=nil then
-return endpoint
+local q=O(d.endpoint or d.src_endpoint)if q~=nil then
+return q
 end
-local component_id=context.component_id or context.component
-if type_check(component_id)=="string" and component_id ~="" and type_check(device.get_endpoint_for_component_id)=="function" then
-local resolved=device:get_endpoint_for_component_id(component_id)
-if type_check(resolved)=="table" then
-resolved=resolved[1]
+local i=d.component_id or d.component
+if a(i)=="string"and i~=""and a(b.get_endpoint_for_component_id)=="function"then
+local o=b:get_endpoint_for_component_id(i)if a(o)=="table"then
+o=o[1]
 end
-return normalize_endpoint(resolved)
-end
-return nil
-end
-local function resolve_mapping_endpoint(meta,device,context)
-if meta==nil then
-return nil
-end
-local endpoint=meta.endpoint
-if type_check(endpoint)=="function" then
-endpoint=endpoint(device,context,meta)
-end
-return normalize_endpoint(endpoint)
-end
-local function resolve_mapping_component_id(meta,device,context)
-if meta==nil then
-return nil
-end
-local component_id=meta.component
-if type_check(component_id)=="function" then
-component_id=component_id(device,context,meta)
-end
-if type_check(component_id)=="string" and component_id ~="" then
-return component_id
+return O(o)
 end
 return nil
 end
-local function build_mapping_context(device,mapping,context,value)
-local mapping_context={
-mapping=mapping,
-value=value,
-}
-if type_check(context)=="table" then
-for key,item in pairs(context)do
-mapping_context[key]=item
-end
-end
-if mapping_context.dp==nil and type_check(mapping)=="table" then
-mapping_context.dp=mapping.dp
-end
-local meta=mapping_meta(mapping)
-local endpoint=resolve_mapping_endpoint(meta,device,mapping_context)
-if endpoint==nil then
-endpoint=resolve_context_endpoint(device,mapping_context)
-end
-local component_id=resolve_mapping_component_id(meta,device,mapping_context)
-if component_id==nil then
-if endpoint ~=nil and type_check(device.get_component_id_for_endpoint)=="function" then
-component_id=device:get_component_id_for_endpoint(endpoint)
-else
-component_id=resolve_context_component_id(device,mapping_context)
-end
-end
-mapping_context.endpoint=endpoint
-mapping_context.component_id=component_id
-mapping_context.component=component_id and device.profile and device.profile.components and device.profile.components[component_id]or nil
-return mapping_context
-end
-local function explicit_context_component_id(context)
-if type_check(context)~="table" then
+local function ag(v,b,d)
+if v==nil then
 return nil
 end
-local component_id=context.component_id or context.component
-if type_check(component_id)=="string" and component_id ~="" then
-return component_id
+local q=v.endpoint
+if a(q)=="function"then
+q=q(b,d,v)
+end
+return O(q)
+end
+local function V(v,b,d)
+if v==nil then
+return nil
+end
+local i=v.component
+if a(i)=="function"then
+i=i(b,d,v)
+end
+if a(i)=="string"and i~=""then
+return i
 end
 return nil
 end
-local function mapping_match_score(mapping,device,context)
-if type_check(mapping)~="table" then
+local function aq(b,c,d,h)
+local f={
+mapping=c,value=h}if a(d)=="table"then
+for ap,e in pairs(d)do
+f[ap]=e
+end
+end
+if f.dp==nil and a(c)=="table"then
+f.dp=c.dp
+end
+local v=af(c)local q=ag(v,b,f)if q==nil then
+q=J(b,f)
+end
+local i=V(v,b,f)if i==nil then
+if q~=nil and a(b.get_component_id_for_endpoint)=="function"then
+i=b:get_component_id_for_endpoint(q)else
+i=U(b,f)
+end
+end
+f.endpoint=q
+f.component_id=i
+f.component=i and b.profile and b.profile.components and b.profile.components[i]or nil
+return f
+end
+local function aw(d)
+if a(d)~="table"then
+return nil
+end
+local i=d.component_id or d.component
+if a(i)=="string"and i~=""then
+return i
+end
+return nil
+end
+local function ab(c,b,d)
+if a(c)~="table"then
 return 0
 end
-local meta=mapping_meta(mapping)
-local expected_endpoint=resolve_mapping_endpoint(meta,device,context)
-local expected_component_id=resolve_mapping_component_id(meta,device,context)
-local actual_endpoint=resolve_context_endpoint(device,context)
-local actual_component_id=resolve_context_component_id(device,context)
-local selected_component_id=explicit_context_component_id(context)
-if actual_endpoint==nil and actual_component_id ~=nil and type_check(device.get_endpoint_for_component_id)=="function" then
-actual_endpoint=resolve_context_endpoint(device,{component_id=actual_component_id})
+local v=af(c)local al=ag(v,b,d)local S=V(v,b,d)local F=J(b,d)local K=U(b,d)local W=aw(d)
+if F==nil and K~=nil and a(b.get_endpoint_for_component_id)=="function"then
+F=J(b,{component_id=K})
 end
-if actual_component_id==nil and actual_endpoint ~=nil and type_check(device.get_component_id_for_endpoint)=="function" then
-actual_component_id=device:get_component_id_for_endpoint(actual_endpoint)
+if K==nil and F~=nil and a(b.get_component_id_for_endpoint)=="function"then
+K=b:get_component_id_for_endpoint(F)
 end
-if expected_endpoint ~=nil then
-if actual_endpoint==nil or actual_endpoint ~=expected_endpoint then
-return -1
+if al~=nil then
+if F==nil or F~=al then
+return-1
 end
 end
-if expected_component_id ~=nil and selected_component_id ~=nil then
-if selected_component_id ~=expected_component_id then
-return -1
+if S~=nil and W~=nil then
+if W~=S then
+return-1
 end
 end
-local score=0
-if expected_endpoint ~=nil then
-score=score + 2
+local aj=0
+if al~=nil then
+aj=aj+2
 end
-if expected_component_id ~=nil and selected_component_id ~=nil then
-score=score + 1
+if S~=nil and W~=nil then
+aj=aj+1
 end
-return score
+return aj
 end
-local function select_mapping_entry(candidate,device,context)
-if candidate==nil then
+local function Z(I,b,d)
+if I==nil then
 return nil
 end
-if not is_mapping_bucket(candidate)then
-if mapping_match_score(candidate,device,context)>=0 then
-return candidate
+if not am(I)then
+if ab(I,b,d)>=0 then
+return I
 end
 return nil
 end
-local selected=nil
-local selected_score=-1
-for _,mapping in ipairs(candidate)do
-local score=mapping_match_score(mapping,device,context)
-if score > selected_score then
-selected=mapping
-selected_score=score
+local R
+local C=-1
+for _,c in ipairs(I)do
+local aj=ab(c,b,d)if aj>C then
+R=c
+C=aj
 end
 end
-return selected
+return R
 end
-local function select_mapping_entries(candidate,device,context)
-if candidate==nil or not is_mapping_bucket(candidate)then
-return select_mapping_entry(candidate,device,context)
+local function Q(I,b,d)
+if I==nil or not am(I)then
+return Z(I,b,d)
 end
-local selected={}
-local selected_score=-1
-for _,mapping in ipairs(candidate)do
-local score=mapping_match_score(mapping,device,context)
-if score > selected_score then
-selected={mapping}
-selected_score=score
-elseif score >=0 and score==selected_score then
-selected[#selected + 1]=mapping
+local R={}local C=-1
+for _,c in ipairs(I)do
+local aj=ab(c,b,d)if aj>C then
+R={c}C=aj
+elseif aj>=0 and aj==C then
+R[#R+1]=c
 end
 end
-if selected_score < 0 or #selected==0 then
+if C<0 or #R==0 then
 return nil
 end
-if #selected==1 then
-return selected[1]
+if #R==1 then
+return R[1]
 end
-return selected
+return R
 end
-local function resolve_field_name(field,device,context)
-local resolved=field
-if type_check(resolved)=="function" then
-resolved=resolved(device,context)
+local function bf(Y,b,d)
+local o=Y
+if a(o)=="function"then
+o=o(b,d)
 end
-if type_check(resolved)=="string" and resolved ~="" then
-return resolved
+if a(o)=="string"and o~=""then
+return o
 end
 return nil
 end
-local function resolve_fields_map(fields,device,context)
-local resolved=fields
-if type_check(resolved)=="function" then
-resolved=resolved(device,context)
+local function bg(bS,b,d)
+local o=bS
+if a(o)=="function"then
+o=o(b,d)
 end
-if type_check(resolved)=="table" then
-return resolved
+if a(o)=="table"then
+return o
 end
 return nil
 end
-local function emit_mapping_event(device,event,context)
-if event==nil then
+local function aE(b,ar,d)
+if ar==nil then
 return
 end
-battery_refresh.maybe_schedule_after_event(device,event)
-if context.component ~=nil and type_check(device.emit_component_event)=="function" then
-device:emit_component_event(context.component,event)
+aL.maybe_schedule_after_event(b,ar)
+if d.component~=nil and a(b.emit_component_event)=="function"then
+b:emit_component_event(d.component,ar)return
+end
+if d.endpoint~=nil and a(b.emit_event_for_endpoint)=="function"then
+b:emit_event_for_endpoint(d.endpoint,ar)return
+end
+b:emit_event(ar)
+end
+local function T(bb,A,ap)
+local d={}if a(bb)=="table"then
+for Y,e in pairs(bb)do
+d[Y]=e
+end
+end
+if A~=nil and d.values==nil then
+d.values=A
+end
+if ap~=nil then
+d.name=ap
+d.key=ap
+d.preference=ap
+end
+return d
+end
+local function aV(g)
+if a(g)~="table"then
 return
 end
-if context.endpoint ~=nil and type_check(device.emit_event_for_endpoint)=="function" then
-device:emit_event_for_endpoint(context.endpoint,event)
-return
+ae[g]=nil
+ay[g]=nil
+as[g]=nil
 end
-device:emit_event(event)
-end
-local function extend_context(base_context,values,key)
-local context={}
-if type_check(base_context)=="table" then
-for field,item in pairs(base_context)do
-context[field]=item
-end
-end
-if values ~=nil and context.values==nil then
-context.values=values
-end
-if key ~=nil then
-context.name=key
-context.key=key
-context.preference=key
-end
-return context
-end
-local function reset_mapping_indexes(mappings)
-if type_check(mappings)~="table" then
-return
-end
-mapping_list_cache[mappings]=nil
-dp_index_cache[mappings]=nil
-key_index_cache[mappings]=nil
-end
-local function build_mapping_indexes(mappings)
-if type_check(mappings)~="table" then
+local function G(g)
+if a(g)~="table"then
 return nil,nil
 end
-local cacheable=prepared_mappings[mappings]==true
-if cacheable then
-local dp_index=dp_index_cache[mappings]
-local key_index=key_index_cache[mappings]
-if dp_index ~=nil and key_index ~=nil then
-return dp_index,key_index
+local aD=an[g]==true
+if aD then
+local y=ay[g]local E=as[g]if y~=nil and E~=nil then
+return y,E
 end
 end
-local dp_index={}
-local key_index={}
-if is_mapping_list(mappings)then
-for _,entry in ipairs(mappings)do
-if type_check(entry)=="table" then
-local dp=entry.dp
-if type_check(dp)=="number" then
-append_index_entry(dp_index,dp,entry)
+local y={}local E={}if M(g)then
+for _,s in ipairs(g)do
+if a(s)=="table"then
+local dp=s.dp
+if a(dp)=="number"then
+w(y,dp,s)
 end
-local name=mapping_name(entry)
-if type_check(name)=="string" then
-append_index_entry(key_index,name,entry)
+local l=aK(s)if a(l)=="string"then
+w(E,l,s)
 end
 end
 end
 else
-for map_key,entry in pairs(mappings)do
-if type_check(map_key)=="number" then
-append_index_entry(dp_index,map_key,entry)
+for B,s in pairs(g)do
+if a(B)=="number"then
+w(y,B,s)
 end
-if type_check(entry)=="table" then
-local dp=entry.dp
-if type_check(dp)=="number" then
-append_index_entry(dp_index,dp,entry)
+if a(s)=="table"then
+local dp=s.dp
+if a(dp)=="number"then
+w(y,dp,s)
 end
-local name=mapping_name(entry,map_key)
-if type_check(name)=="string" then
-append_index_entry(key_index,name,entry)
+local l=aK(s,B)if a(l)=="string"then
+w(E,l,s)
 end
-elseif type_check(entry)=="function" and type_check(map_key)=="string" then
-append_index_entry(key_index,map_key,entry)
-end
-end
-end
-if cacheable then
-dp_index_cache[mappings]=dp_index
-key_index_cache[mappings]=key_index
-end
-return dp_index,key_index
-end
-local function sanitize_send_item(item,label)
-if type_check(item)~="table" then
-warn_invalid_mapping(label)
-return nil
-end
-local datatype=item.datatype
-local function is_byte(value)
-return type_check(value)=="number" and value >=0 and value <=0xFF and value % 1==0
-end
-local function is_word(value)
-return type_check(value)=="number" and value >=0 and value <=0xFFFF and value % 1==0
-end
-if not is_byte(item.dp)or not is_byte(datatype)then
-warn_invalid_mapping(label)
-return nil
-end
-if item.command_id ~=nil and not is_byte(item.command_id)then
-warn_invalid_mapping(label)
-return nil
-end
-if item.transaction ~=nil and not is_word(item.transaction)then
-warn_invalid_mapping(label)
-return nil
-end
-if item.to_device ~=nil and type_check(item.to_device)~="function" then
-warn_invalid_mapping(label)
-return nil
-end
-local converter_pair=mapping_converter(item)
-if converter_pair ~=nil then
-if converter_pair.from ~=nil and type_check(converter_pair.from)~="function" then
-warn_invalid_mapping(label)
-return nil
-end
-if converter_pair.to ~=nil and type_check(converter_pair.to)~="function" then
-warn_invalid_mapping(label)
-return nil
-end
-end
-if item.skip ~=nil and type_check(item.skip)~="function" then
-warn_invalid_mapping(label)
-return nil
-end
-if item.match_response ~=nil and type_check(item.match_response)~="function" then
-warn_invalid_mapping(label)
-return nil
-end
-if item.match_transaction ~=nil and type_check(item.match_transaction)~="boolean" then
-warn_invalid_mapping(label)
-return nil
-end
-if item.response_dp ~=nil and not is_byte(item.response_dp)then
-warn_invalid_mapping(label)
-return nil
-end
-if item.response_dps ~=nil and type_check(item.response_dps)~="table" then
-warn_invalid_mapping(label)
-return nil
-end
-if item.response_dps ~=nil then
-for _,response_dp in ipairs(item.response_dps)do
-if not is_byte(response_dp)then
-warn_invalid_mapping(label)
-return nil
+elseif a(s)=="function"and a(B)=="string"then
+w(E,B,s)
 end
 end
 end
-local meta=mapping_meta(item)
-local response_dps=item.response_dps
-if response_dps ~=nil and next(response_dps)==nil then
-response_dps=nil
+if aD then
+ay[g]=y
+as[g]=E
+end
+return y,E
+end
+local function ah(e,N)
+if a(e)~="table"then
+k(N)return nil
+end
+local bz=e.datatype
+local function aS(h)
+return a(h)=="number"and h>=0 and h<=255 and h%1==0
+end
+local function bR(h)
+return a(h)=="number"and h>=0 and h<=65535 and h%1==0
+end
+if not aS(e.dp)or not aS(bz)then
+k(N)return nil
+end
+if e.command_id~=nil and not aS(e.command_id)then
+k(N)return nil
+end
+if e.transaction~=nil and not bR(e.transaction)then
+k(N)return nil
+end
+if e.to_device~=nil and a(e.to_device)~="function"then
+k(N)return nil
+end
+local m=aH(e)if m~=nil then
+if m.from~=nil and a(m.from)~="function"then
+k(N)return nil
+end
+if m.to~=nil and a(m.to)~="function"then
+k(N)return nil
+end
+end
+if e.skip~=nil and a(e.skip)~="function"then
+k(N)return nil
+end
+if e.match_response~=nil and a(e.match_response)~="function"then
+k(N)return nil
+end
+if e.match_transaction~=nil and a(e.match_transaction)~="boolean"then
+k(N)return nil
+end
+if e.response_dp~=nil and not aS(e.response_dp)then
+k(N)return nil
+end
+if e.response_dps~=nil and a(e.response_dps)~="table"then
+k(N)return nil
+end
+if e.response_dps~=nil then
+for _,bG in ipairs(e.response_dps)do
+if not aS(bG)then
+k(N)return nil
+end
+end
+end
+local v=af(e)local au=e.response_dps
+if au~=nil and next(au)==nil then
+au=nil
 end
 return{
-dp=item.dp,
-datatype=datatype,
-value=item.value,
-command_id=item.command_id,
-transaction=normalize_transaction(item.transaction),
-signed=item.signed==true,
-to_device=meta and meta.to_device or nil,
-skip=item.skip,
-batch_key=item.batch_key,
-match_transaction=item.match_transaction ~=false,
-response_dp=item.response_dp,
-response_dps=response_dps,
-match_response=item.match_response,
-}
+dp=e.dp,datatype=bz,value=e.value,command_id=e.command_id,transaction=aT(e.transaction),signed=e.signed==true,to_device=v and v.to_device or nil,skip=e.skip,batch_key=e.batch_key,match_transaction=e.match_transaction~=false,response_dp=e.response_dp,response_dps=au,match_response=e.match_response}
 end
-local function copy_number_list(values)
-if type_check(values)~="table" then
+local function bl(A)
+if a(A)~="table"then
 return nil
 end
-local copied={}
-for _,value in ipairs(values)do
-table_insert(copied,value)
+local bN={}for _,h in ipairs(A)do
+u(bN,h)
 end
-return copied
+return bN
 end
-is_mapping_list=function(mappings)
-if type_check(mappings)~="table" then
+M=function(g)
+if a(g)~="table"then
 return false
 end
-local cacheable=prepared_mappings[mappings]==true
-if cacheable then
-local cached=mapping_list_cache[mappings]
-if cached ~=nil then
-return cached
+local aD=an[g]==true
+if aD then
+local bM=ae[g]if bM~=nil then
+return bM
 end
 end
-local is_list=type_check(mappings[1])=="table" and mappings[1].dp ~=nil
-if cacheable then
-mapping_list_cache[mappings]=is_list
+local bJ=a(g[1])=="table"and g[1].dp~=nil
+if aD then
+ae[g]=bJ
 end
-return is_list
+return bJ
 end
-local function mapping_for_dp(mappings,device,context)
-if type_check(mappings)~="table" then
+local function bw(g,b,d)
+if a(g)~="table"then
 return nil
 end
-local dp=type_check(context)=="table" and context.dp or context
-if is_mapping_list(mappings)then
-local dp_index=build_mapping_indexes(mappings)
-return select_mapping_entries(dp_index and dp_index[dp]or nil,device,context)
+local dp=a(d)=="table"and d.dp or d
+if M(g)then
+local y=G(g)return Q(y and y[dp]or nil,b,d)
 end
-local direct=mappings[dp]
-if direct ~=nil then
-return select_mapping_entries(direct,device,context)
+local bc=g[dp]if bc~=nil then
+return Q(bc,b,d)
 end
-local dp_index=build_mapping_indexes(mappings)
-return select_mapping_entries(dp_index and dp_index[dp]or nil,device,context)
+local y=G(g)return Q(y and y[dp]or nil,b,d)
 end
-local function mapping_for_key(mappings,key,device,context)
-if type_check(mappings)~="table" or type_check(key)~="string" then
+local function ac(g,ap,b,d)
+if a(g)~="table"or a(ap)~="string"then
 return nil
 end
-local direct=mappings[key]
-if direct ~=nil then
-return select_mapping_entry(direct,device,context)
+local bc=g[ap]if bc~=nil then
+return Z(bc,b,d)
 end
-local _,key_index=build_mapping_indexes(mappings)
-return select_mapping_entry(key_index and key_index[key]or nil,device,context)
+local _,E=G(g)return Z(E and E[ap]or nil,b,d)
 end
-local function apply_mapping(device,dp_info,mapping,context)
-if type_check(mapping)~="table" then
-return dp_info.value
+local function aZ(b,t,c,d)
+if a(c)~="table"then
+return t.value
 end
-local meta=mapping_meta(mapping)
-if meta==nil or meta.write_only then
-return dp_info.value
+local v=af(c)if v==nil or v.write_only then
+return t.value
 end
-local mapping_context=build_mapping_context(device,mapping,context or dp_info,dp_info.value)
-local value=dp_info.value
-if meta.from_device then
-value=meta.from_device(value,device,dp_info,mapping_context)
+local f=aq(b,c,d or t,t.value)local h=t.value
+if v.from_device then
+h=v.from_device(h,b,t,f)
 end
-if meta.field then
-local field_name=resolve_field_name(meta.field,device,mapping_context)
-if field_name ~=nil then
-device:set_field(field_name,value,meta.persist)
+if v.field then
+local ai=bf(v.field,b,f)if ai~=nil then
+b:set_field(ai,h,v.persist)
 end
 end
-local fields_map=resolve_fields_map(meta.fields,device,mapping_context)
-if fields_map ~=nil and type_check(value)=="table" then
-for field_name,source_key in pairs(fields_map)do
-local key=source_key==true and field_name or source_key
-if type_check(field_name)=="string" and type_check(key)=="string" and value[key]~=nil then
-device:set_field(field_name,value[key],meta.persist)
+local br=bg(v.fields,b,f)if br~=nil and a(h)=="table"then
+for ai,bu in pairs(br)do
+local ap=bu==true and ai or bu
+if a(ai)=="string"and a(ap)=="string"and h[ap]~=nil then
+b:set_field(ai,h[ap],v.persist)
 end
 end
 end
-if value==nil then
-return value
+if h==nil then
+return h
 end
-local name=mapping_name(mapping)
-if name=="battery" or name=="battery_voltage" then
-battery_refresh.note_report(device)
+local l=aK(c)if l=="battery"or l=="battery_voltage"then
+aL.note_report(b)
 end
-if meta.handler then
-meta.handler(device,value,dp_info,mapping_context)
+if v.handler then
+v.handler(b,h,t,f)
 end
-if meta.emit then
-local event=meta.emit(device,value,dp_info,mapping_context)
-if event then
-if type_check(event)=="table" and event[1]~=nil then
-for _,item in ipairs(event)do
-emit_mapping_event(device,item,mapping_context)
+if v.emit then
+local ar=v.emit(b,h,t,f)if ar then
+if a(ar)=="table"and ar[1]~=nil then
+for _,e in ipairs(ar)do
+aE(b,e,f)
 end
 else
-emit_mapping_event(device,event,mapping_context)
+aE(b,ar,f)
 end
-emit_debug_driver_message(device,mapping_context,dp_info,value)
+aI(b,f,t,h)
 end
 end
-return value
+return h
 end
-local function send_items(device,items)
-if #items==0 then
+local function bt(b,z)
+if #z==0 then
 return nil
 end
-if #items==1 then
-local item=items[1]
-return tuya.send_datapoint(device,item.dp,item.datatype,item.value,item.command_id,item.signed,item.transaction)
+if #z==1 then
+local e=z[1]return H.send_datapoint(b,e.dp,e.datatype,e.value,e.command_id,e.signed,e.transaction)
 end
-local command_id=items[1].command_id
-local transaction=items[1].transaction
-for index=2,#items do
-if items[index].command_id ~=command_id or items[index].transaction ~=transaction then
-local last_packet_id=nil
-for _,item in ipairs(items)do
-last_packet_id=tuya.send_datapoint(device,item.dp,item.datatype,item.value,item.command_id,item.signed,item.transaction)
-if last_packet_id==nil then
+local bq=z[1].command_id
+local bk=z[1].transaction
+for bh=2,#z do
+if z[bh].command_id~=bq or z[bh].transaction~=bk then
+local az
+for _,e in ipairs(z)do
+az=H.send_datapoint(b,e.dp,e.datatype,e.value,e.command_id,e.signed,e.transaction)if az==nil then
 return nil
 end
 end
-return last_packet_id
+return az
 end
 end
-return tuya.send_datapoints(device,items,command_id,transaction)
+return H.send_datapoints(b,z,bq,bk)
 end
-local build_send_items
-local function append_named_items(target,append_item,device,mappings,values,names,context)
-if type_check(append_item)~="function" then
-return target
+local X
+local function aB(bD,aa,b,g,A,aO,d)
+if a(aa)~="function"then
+return bD
 end
-local send_context=extend_context(context,values)
-local function append_named_value(name,value)
-local item_context=extend_context(send_context,values,name)
-local mapping=mapping_for_key(mappings,name,device,item_context)
-if mapping==nil then
+local bC=T(d,A)
+local function aC(l,h)
+local D=T(bC,A,l)local c=ac(g,l,b,D)if c==nil then
 return
 end
-for _,item in ipairs(build_send_items(device,mapping,value,item_context))do
-append_item(target,item)
+for _,e in ipairs(X(b,c,h,D))do
+aa(bD,e)
 end
 end
-if type_check(names)=="table" then
-for _,name in ipairs(names)do
-local value=values and values[name]
-if value ~=nil then
-append_named_value(name,value)
+if a(aO)=="table"then
+for _,l in ipairs(aO)do
+local h=A and A[l]if h~=nil then
+aC(l,h)
 end
 end
-elseif type_check(values)=="table" then
-for name,value in pairs(values)do
-append_named_value(name,value)
+elseif a(A)=="table"then
+for l,h in pairs(A)do
+aC(l,h)
 end
 end
-return target
+return bD
 end
-local function build_send_item(device,mapping,value,context)
-local item=sanitize_send_item(mapping,"send mapping")
-if not item then
+local function aM(b,c,h,d)
+local e=ah(c,"send mapping")if not e then
 return nil
 end
-local meta=mapping_meta(mapping)
-if meta and meta.read_only then
+local v=af(c)if v and v.read_only then
 return nil
 end
-local mapping_context=build_mapping_context(device,mapping,context,value)
-if item.skip and item.skip(device,value,item,mapping_context)then
+local f=aq(b,c,d,h)if e.skip and e.skip(b,h,e,f)then
 return nil
 end
-local encoded=value
-if item.to_device then
-encoded=item.to_device(value,device,item,mapping_context)
+local bI=h
+if e.to_device then
+bI=e.to_device(h,b,e,f)
 end
 return{
-dp=item.dp,
-datatype=item.datatype,
-value=encoded,
-command_id=item.command_id,
-transaction=item.transaction,
-signed=item.signed,
-batch_key=item.batch_key,
-match_transaction=item.match_transaction,
-response_dp=item.response_dp,
-response_dps=item.response_dps,
-match_response=item.match_response,
-}
+dp=e.dp,datatype=e.datatype,value=bI,command_id=e.command_id,transaction=e.transaction,signed=e.signed,batch_key=e.batch_key,match_transaction=e.match_transaction,response_dp=e.response_dp,response_dps=e.response_dps,match_response=e.match_response}
 end
-build_send_items=function(device,mapping,value,context)
-if type_check(mapping)=="function" then
-local item=mapping(device,value,context)
-local items={}
-if item==nil then
-return items
+X=function(b,c,h,d)
+if a(c)=="function"then
+local e=c(b,h,d)local z={}if e==nil then
+return z
 end
-if item[1]~=nil then
-for _,result_item in ipairs(item)do
-local sanitized=sanitize_send_item(result_item,"send mapping result")
-if sanitized then
-table_insert(items,sanitized)
+if e[1]~=nil then
+for _,bH in ipairs(e)do
+local aF=ah(bH,"send mapping result")if aF then
+u(z,aF)
 end
 end
-return items
+return z
 end
-local sanitized=sanitize_send_item(item,"send mapping result")
-if sanitized then
-table_insert(items,sanitized)
+local aF=ah(e,"send mapping result")if aF then
+u(z,aF)
 end
-return items
+return z
 end
-if type_check(mapping)~="table" then
+if a(c)~="table"then
 return{}
 end
-if mapping[1]~=nil and mapping.dp==nil then
-local items={}
-for _,item in ipairs(mapping)do
-local built=build_send_item(device,item,value,context)
-if built then
-table_insert(items,built)
+if c[1]~=nil and c.dp==nil then
+local z={}for _,e in ipairs(c)do
+local bo=aM(b,e,h,d)if bo then
+u(z,bo)
 end
 end
-return items
+return z
 end
-local built=build_send_item(device,mapping,value,context)
-if built then
-return{built}
+local bo=aM(b,c,h,d)if bo then
+return{bo}
 end
 return{}
 end
-function tuya.apply_datapoint_mapping(device,dp_info,datapoints,context)
-local lookup_context=context or dp_info
-if type_check(lookup_context)~="table" then
-lookup_context={dp=dp_info.dp}
-elseif lookup_context.dp==nil then
-lookup_context.dp=dp_info.dp
+function H.apply_datapoint_mapping(b,t,L,d)
+local x=d or t
+if a(x)~="table"then
+x={dp=t.dp}elseif x.dp==nil then
+x.dp=t.dp
 end
-local mapping=mapping_for_dp(datapoints,device,lookup_context)
-if mapping==nil then
+local c=bw(L,b,x)if c==nil then
 return false
 end
-if type_check(mapping)=="function" then
-mapping(device,dp_info,lookup_context)
-return true
+if a(c)=="function"then
+c(b,t,x)return true
 end
-if type_check(mapping)~="table" then
+if a(c)~="table"then
 return false
 end
-if mapping[1]~=nil then
-for _,item in ipairs(mapping)do
-apply_mapping(device,dp_info,item,lookup_context)
+if c[1]~=nil then
+for _,e in ipairs(c)do
+aZ(b,t,e,x)
 end
 else
-apply_mapping(device,dp_info,mapping,lookup_context)
+aZ(b,t,c,x)
 end
 return true
 end
-function tuya.send_mapping(device,mapping,value,context)
-return send_items(device,build_send_items(device,mapping,value,context))
+function H.send_mapping(b,c,h,d)
+return bt(b,X(b,c,h,d))
 end
-function tuya.send_named_mapping(device,mappings,name,value,context)
-local mapping=mapping_for_key(mappings,name,device,context)
-if mapping==nil then
+function H.send_named_mapping(b,g,l,h,d)
+local c=ac(g,l,b,d)if c==nil then
 return nil
 end
-return tuya.send_mapping(device,mapping,value,extend_context(context,nil,name))
+return H.send_mapping(b,c,h,T(d,nil,l))
 end
-function tuya.send_named_mappings(device,mappings,values,names,context)
-local items={}
-append_named_items(items,table_insert,device,mappings,values,names,context)
-return send_items(device,items)
+function H.send_named_mappings(b,g,A,aO,d)
+local z={}aB(z,u,b,g,A,aO,d)return bt(b,z)
 end
-local function append_queue_item(queue,item)
-if not item.batch_key then
-table_insert(queue,item)
-return
+local function aG(P,e)
+if not e.batch_key then
+u(P,e)return
 end
-local last=queue[#queue]
-local grouped_item={
-dp=item.dp,
-datatype=item.datatype,
-value=item.value,
-command_id=item.command_id,
-transaction=item.transaction,
-signed=item.signed,
-}
-if last and
-last.batch_key==item.batch_key and
-last.command_id==item.command_id and
-last.transaction==item.transaction and
-last.match_transaction==item.match_transaction and
-last.match_response==item.match_response and
-last.items then
-table_insert(last.items,grouped_item)
-if item.response_dp ~=nil then
-last.response_dps=last.response_dps or{}
-table_insert(last.response_dps,item.response_dp)
-elseif item.response_dps then
-last.response_dps=last.response_dps or{}
-for _,dp in ipairs(item.response_dps)do
-table_insert(last.response_dps,dp)
+local at=P[#P]local bd={
+dp=e.dp,datatype=e.datatype,value=e.value,command_id=e.command_id,transaction=e.transaction,signed=e.signed}if at and
+at.batch_key==e.batch_key and
+at.command_id==e.command_id and
+at.transaction==e.transaction and
+at.match_transaction==e.match_transaction and
+at.match_response==e.match_response and
+at.items then
+u(at.items,bd)if e.response_dp~=nil then
+at.response_dps=at.response_dps or{}u(at.response_dps,e.response_dp)elseif e.response_dps then
+at.response_dps=at.response_dps or{}for _,dp in ipairs(e.response_dps)do
+u(at.response_dps,dp)
 end
 end
 return
 end
-local entry={
-items={grouped_item},
-command_id=item.command_id,
-batch_key=item.batch_key,
-transaction=item.transaction,
-match_transaction=item.match_transaction,
-match_response=item.match_response,
-}
-if item.response_dp ~=nil then
-entry.response_dps={item.response_dp}
-elseif item.response_dps then
-entry.response_dps=copy_number_list(item.response_dps)
+local s={
+items={bd},command_id=e.command_id,batch_key=e.batch_key,transaction=e.transaction,match_transaction=e.match_transaction,match_response=e.match_response}if e.response_dp~=nil then
+s.response_dps={e.response_dp}elseif e.response_dps then
+s.response_dps=bl(e.response_dps)
 end
-table_insert(queue,entry)
+u(P,s)
 end
-local function send_preference(device,preference_name,preference_map,old_prefs)
-local prefs=device.preferences or{}
-local item_context=extend_context(nil,prefs,preference_name)
-local mapping=mapping_for_key(preference_map,preference_name,device,item_context)
-local value=prefs[preference_name]
-local old_value=old_prefs and old_prefs[preference_name]or nil
-if mapping==nil or value==nil or value==old_value then
+local function av(b,ad,j,r)
+local aP=b.preferences or{}local D=T(nil,aP,ad)local c=ac(j,ad,b,D)local h=aP[ad]local bO=r and r[ad]or nil
+if c==nil or h==nil or h==bO then
 return false
 end
-return tuya.send_mapping(device,mapping,value,item_context)~=nil
+return H.send_mapping(b,c,h,D)~=nil
 end
-local function preference_has_changed(prefs,old_prefs,name)
-if old_prefs==nil then
+local function aQ(aP,r,l)
+if r==nil then
 return true
 end
-return prefs[name]~=old_prefs[name]
+return aP[l]~=r[l]
 end
-function tuya.build_preference_config_queue(device,preference_map,preference_names,old_prefs)
-local queue={}
-local prefs=device.preferences or{}
-local function append_item(name)
-local item_context=extend_context(nil,prefs,name)
-local mapping=mapping_for_key(preference_map,name,device,item_context)
-local value=prefs[name]
-if mapping==nil or value==nil or not preference_has_changed(prefs,old_prefs,name)then
+function H.build_preference_config_queue(b,j,n,r)
+local P={}local aP=b.preferences or{}
+local function aa(l)
+local D=T(nil,aP,l)local c=ac(j,l,b,D)local h=aP[l]if c==nil or h==nil or not aQ(aP,r,l)then
 return
 end
-for _,item in ipairs(build_send_items(device,mapping,value,item_context))do
-append_queue_item(queue,item)
+for _,e in ipairs(X(b,c,h,D))do
+aG(P,e)
 end
 end
-if type_check(preference_names)=="table" then
-for _,name in ipairs(preference_names)do
-append_item(name)
+if a(n)=="table"then
+for _,l in ipairs(n)do
+aa(l)
 end
-elseif type_check(preference_map)=="table" then
-if is_mapping_list(preference_map)then
-for _,mapping in ipairs(preference_map)do
-local name=mapping.preference or mapping.key or mapping.name
-if type_check(name)=="string" then
-append_item(name)
+elseif a(j)=="table"then
+if M(j)then
+for _,c in ipairs(j)do
+local l=c.preference or c.key or c.name
+if a(l)=="string"then
+aa(l)
 end
 end
 else
-for name,_ in pairs(preference_map)do
-append_item(name)
+for l,_ in pairs(j)do
+aa(l)
 end
 end
 end
-return queue
+return P
 end
-function tuya.build_named_mapping_config_queue(device,mappings,values,names,context)
-local queue={}
-append_named_items(queue,append_queue_item,device,mappings,values,names,context)
-return queue
+function H.build_named_mapping_config_queue(b,g,A,aO,d)
+local P={}aB(P,aG,b,g,A,aO,d)return P
 end
-local function build_mapping_name_map(datapoints,field,fallback_fields)
-if type_check(datapoints)~="table" then
+local function ao(L,Y,aN)
+if a(L)~="table"then
 return{}
 end
-local name_map={}
-for map_key,entry in pairs(datapoints)do
-if type_check(entry)=="function" and type_check(map_key)=="string" then
-name_map[map_key]=entry
-elseif type_check(entry)=="table" then
-local name=entry[field]
-if name==nil and type_check(fallback_fields)=="table" then
-for _,fallback_field in ipairs(fallback_fields)do
-name=entry[fallback_field]
-if name ~=nil then
+local bm={}for B,s in pairs(L)do
+if a(s)=="function"and a(B)=="string"then
+bm[B]=s
+elseif a(s)=="table"then
+local l=s[Y]if l==nil and a(aN)=="table"then
+for _,bv in ipairs(aN)do
+l=s[bv]if l~=nil then
 break
 end
 end
 end
-if name==nil and type_check(map_key)=="string" then
-name=map_key
+if l==nil and a(B)=="string"then
+l=B
 end
-if type_check(name)=="string" then
-name_map[name]=entry
+if a(l)=="string"then
+bm[l]=s
 end
 end
 end
-return name_map
+return bm
 end
-local function mapping_fallback_fields(field)
-if field=="key" then
+local function ak(Y)
+if Y=="key"then
 return{"name","preference"}
 end
-if field=="name" then
+if Y=="name"then
 return{"key","preference"}
 end
-if field=="preference" then
+if Y=="preference"then
 return{"key","name"}
 end
 return nil
 end
-function tuya.build_named_map(datapoints,key_field)
-local field=key_field or "key"
-return build_mapping_name_map(datapoints,field,mapping_fallback_fields(field))
+function H.build_named_map(L,be)
+local Y=be or"key"
+return ao(L,Y,ak(Y))
 end
-function tuya.build_preference_map(datapoints,key_field)
-local field=key_field or "preference"
-return build_mapping_name_map(datapoints,field,mapping_fallback_fields(field))
+function H.build_preference_map(L,be)
+local Y=be or"preference"
+return ao(L,Y,ak(Y))
 end
-local function prepare_mappings(mappings)
-if type_check(mappings)~="table" then
-return mappings
+local function bn(g)
+if a(g)~="table"then
+return g
 end
-reset_mapping_indexes(mappings)
-prepared_mappings[mappings]=true
-build_mapping_indexes(mappings)
-return mappings
+aV(g)an[g]=true
+G(g)return g
 end
-shared.prepare_mappings=prepare_mappings
-function tuya.start_preference_config_queue(device,preference_map,preference_names,old_prefs)
-local queue=tuya.build_preference_config_queue(device,preference_map,preference_names,old_prefs)
-return tuya.start_config_queue(device,queue)
+aW.prepare_mappings=bn
+function H.start_preference_config_queue(b,j,n,r)
+local P=H.build_preference_config_queue(b,j,n,r)return H.start_config_queue(b,P)
 end
-function tuya.start_named_mapping_config_queue(device,mappings,values,names,context)
-local queue=tuya.build_named_mapping_config_queue(device,mappings,values,names,context)
-return tuya.start_config_queue(device,queue)
+function H.start_named_mapping_config_queue(b,g,A,aO,d)
+local P=H.build_named_mapping_config_queue(b,g,A,aO,d)return H.start_config_queue(b,P)
 end
-function tuya.send_preferences(device,preference_map,old_prefs,preference_names)
-local sent=false
-if type_check(preference_names)=="table" then
-for _,name in ipairs(preference_names)do
-if send_preference(device,name,preference_map,old_prefs)then
-sent=true
+function H.send_preferences(b,j,r,n)
+local bL=false
+if a(n)=="table"then
+for _,l in ipairs(n)do
+if av(b,l,j,r)then
+bL=true
 end
 end
-elseif type_check(preference_map)=="table" then
-if is_mapping_list(preference_map)then
-for _,mapping in ipairs(preference_map)do
-local name=mapping.preference or mapping.key or mapping.name
-if type_check(name)=="string" and send_preference(device,name,preference_map,old_prefs)then
-sent=true
+elseif a(j)=="table"then
+if M(j)then
+for _,c in ipairs(j)do
+local l=c.preference or c.key or c.name
+if a(l)=="string"and av(b,l,j,r)then
+bL=true
 end
 end
 else
-for name,_ in pairs(preference_map or{})do
-if send_preference(device,name,preference_map,old_prefs)then
-sent=true
+for l,_ in pairs(j or{})do
+if av(b,l,j,r)then
+bL=true
 end
 end
 end
 end
-return sent
+return bL
 end
-function tuya.apply_preferences_changed(device,preference_map,old_prefs,options)
-options=options or{}
-local preference_names=type_check(options.preference_names)=="table" and options.preference_names or nil
-local queue=tuya.build_preference_config_queue(device,preference_map,preference_names,old_prefs)
-if #queue==0 then
+function H.apply_preferences_changed(b,j,r,aU)
+aU=aU or{}local n=a(aU.preference_names)=="table"and aU.preference_names or nil
+local P=H.build_preference_config_queue(b,j,n,r)if #P==0 then
 return false
 end
-if options.use_queue then
-return tuya.start_config_queue(device,queue)
+if aU.use_queue then
+return H.start_config_queue(b,P)
 end
-return tuya.send_preferences(device,preference_map,old_prefs,preference_names)
+return H.send_preferences(b,j,r,n)
 end
 end
-return load_mapping
+return bB

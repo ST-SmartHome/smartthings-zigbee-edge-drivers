@@ -10,6 +10,9 @@ local device_management = require "st.zigbee.device_management"
 local function build_stub()
   local zcl = {}
 
+  function zcl.attach_reporting_capabilities(...) end
+  function zcl.configure_reporting(...) return false end
+
   zcl.CLUSTER_ON_OFF = 0x0006
   zcl.CLUSTER_POWER_CONFIGURATION = 0x0001
   zcl.CLUSTER_IAS_ZONE = 0x0500
@@ -21,6 +24,16 @@ local function build_stub()
   zcl.ATTR_ZONE_STATUS = 0x0002
   zcl.ATTR_MEASURED_VALUE = 0x0000
   zcl.ATTR_OCCUPANCY = 0x0000
+
+  function zcl.bind_cluster(device, cluster_id, hub_eui, endpoint)
+    device:send(device_management.build_bind_request(
+      device,
+      cluster_id,
+      hub_eui,
+      endpoint
+    ))
+    return true
+  end
 
   function zcl.cluster_attribute(cluster_id, attribute_id, options)
     local mapping = options or {}

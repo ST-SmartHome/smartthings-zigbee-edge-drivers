@@ -1,0 +1,44 @@
+name: meters-emizb132
+components:
+- id: main
+  capabilities:
+  - id: powerMeter
+    version: 1
+  - id: energyMeter
+    version: 1
+  - id: concertmirror08464.emizb132ReactivePower
+    version: 1
+  - id: concertmirror08464.emizb132InterfaceMode
+    version: 1
+  - id: signalStrength
+    version: 1
+  - id: refresh
+    version: 1
+  categories:
+  - name: PowerMeasurementSensor
+- id: production
+  label: Production
+  capabilities:
+  - id: energyMeter
+    version: 1
+- id: phaseA
+  label: Phase A
+  capabilities:
+  - id: voltageMeasurement
+    version: 1
+  - id: currentMeasurement
+    version: 1
+- id: phaseB
+  label: Phase B
+  capabilities:
+  - id: voltageMeasurement
+    version: 1
+  - id: currentMeasurement
+    version: 1
+- id: phaseC
+  label: Phase C
+  capabilities:
+  - id: voltageMeasurement
+    version: 1
+  - id: currentMeasurement
+    version: 1

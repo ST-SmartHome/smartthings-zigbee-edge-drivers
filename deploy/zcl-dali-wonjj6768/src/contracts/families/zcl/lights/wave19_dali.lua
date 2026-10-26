@@ -1,210 +1,163 @@
-local zcl=require "protocol.zcl"
-local emit=require "capabilities.events.all"
-local device_helpers=require "contracts.helpers.family"
-local capabilities=require "st.capabilities"
-local device_management=require "st.zigbee.device_management"
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local DIMMABLE_DEVICE_ID=0x0101
-local COLOR_TEMPERATURE_DEVICE_ID=0x010C
-local FIRST_ENDPOINT=1
-local LAST_ENDPOINT=8
-local DIMMER_CHILD_PROFILE="bridge-wave19-sunricher-dali-dimmer-child"
-local CCT_CHILD_PROFILE="bridge-wave19-sunricher-dali-cct-child"
-local function child_key(endpoint)
-return string.format("%02X",endpoint)
+local R=require"protocol.zcl"
+local V=require"capabilities.events.all"
+local x=require"contracts.helpers.family"
+local P=require"st.capabilities"
+local u=require"st.zigbee.device_management"
+local E,s=x.definition_registry()local C=257
+local c=268
+local h=1
+local i=8
+local o="bridge-wave19-sunricher-dali-dimmer-child"
+local t="bridge-wave19-sunricher-dali-cct-child"
+local function L(a)
+return string.format("%02X",a)
 end
-local function child_endpoint(device)
-local key=device and device.parent_assigned_child_key
-if type(key)~="string" or key:match("^%x%x$")==nil then return nil end
-local endpoint=tonumber(key,16)
-if endpoint==nil or endpoint < FIRST_ENDPOINT or endpoint > LAST_ENDPOINT then
+local function l(b)
+local M=b and b.parent_assigned_child_key
+if type(M)~="string"or M:match"^%x%x$"==nil then return nil end
+local a=tonumber(M,16)if a==nil or a<h or a>i then
 return nil
 end
-return endpoint
+return a
 end
-local function endpoint_descriptor(device,endpoint)
-return device and device.zigbee_endpoints and device.zigbee_endpoints[endpoint]or nil
+local function B(b,a)
+return b and b.zigbee_endpoints and b.zigbee_endpoints[a]or nil
 end
-local function endpoint_device_id(device,endpoint)
-local descriptor=endpoint_descriptor(device,endpoint)
-return descriptor and descriptor.device_id or nil
+local function d(b,a)
+local I=B(b,a)return I and I.device_id or nil
 end
-local function enabled_endpoint(device,endpoint)
-local device_id=endpoint_device_id(device,endpoint)
-return device_id==DIMMABLE_DEVICE_ID or device_id==COLOR_TEMPERATURE_DEVICE_ID
+local function e(b,a)
+local device_id=d(b,a)return device_id==C or device_id==c
 end
-local function child_profile(device,endpoint)
-if endpoint_device_id(device,endpoint)==COLOR_TEMPERATURE_DEVICE_ID then
-return CCT_CHILD_PROFILE
+local function z(b,a)
+if d(b,a)==c then
+return t
 end
-return DIMMER_CHILD_PROFILE
+return o
 end
-local function emit_on_child(endpoint,event_factory,required_device_id)
-local key=child_key(endpoint)
-return function(device,value,context,mapping)
-local device_id=endpoint_device_id(device,endpoint)
-if not enabled_endpoint(device,endpoint)or
-(required_device_id ~=nil and device_id ~=required_device_id)then
+local function f(b,g)
+local m=b.profile and b.profile.components
+if type(m)~="table"or m.main==nil then return false end
+for Q in pairs(m)do if Q~="main"then return false end end
+return b:supports_capability_by_id("switch","main")and
+b:supports_capability_by_id("switchLevel","main")and
+b:supports_capability_by_id("refresh","main")and
+b:supports_capability_by_id("colorTemperature","main")==g
+end
+local function r(a,O,q)
+local M=L(a)
+return function(b,aa,Y,Z)
+local device_id=d(b,a)if not e(b,a)or
+(q~=nil and device_id~=q)then
 return nil
 end
-local child=device:get_child_by_parent_assigned_key(key)
-if child==nil then return nil end
-local event=event_factory(child,value,context,mapping)
-if event ~=nil then child:emit_event(event)end
+local p=b:get_child_by_parent_assigned_key(M)
+if p==nil or not f(p,device_id==c)then return nil end
+local W=O(p,aa,Y,Z)
+if W~=nil then p:emit_event(W)end
 return nil
 end
 end
-local function create_child_devices(driver,device)
-if type(device.zigbee_endpoints)~="table" then return end
-for endpoint=FIRST_ENDPOINT,LAST_ENDPOINT do
-local key=child_key(endpoint)
-local child=device:get_child_by_parent_assigned_key(key)
-if enabled_endpoint(device,endpoint)then
-local profile=child_profile(device,endpoint)
-if child ~=nil then
-if child.profile==nil or child.profile.id ~=profile then
-child:try_update_metadata({profile=profile})
+local function y(F,b)
+if type(b.zigbee_endpoints)~="table"then return end
+for a=h,i do
+local M=L(a)local p=b:get_child_by_parent_assigned_key(M)if e(b,a)then
+local T=z(b,a)if p~=nil then
+if not f(p,d(b,a)==c)then
+p:try_update_metadata{profile=T}
 end
 else
-driver:try_create_device({
-type="EDGE_CHILD",
-parent_assigned_child_key=key,
-parent_device_id=device.id,
-label=string.format("%s DALI %d",device.label,endpoint),
-profile=profile,
-})
+F:try_create_device{
+type="EDGE_CHILD",parent_assigned_child_key=M,parent_device_id=b.id,label=string.format("%s DALI %d",b.label,a),profile=T}
 end
-elseif child ~=nil and type(driver.try_delete_device)=="function" then
-driver:try_delete_device(child.id)
+elseif p~=nil and type(F.try_delete_device)=="function"then
+F:try_delete_device(p.id)
 end
 end
 end
-local function is_expected_child(parent,device)
-local endpoint=child_endpoint(device)
-if endpoint==nil or not enabled_endpoint(parent,endpoint)then return false end
-local expected_profile=child_profile(parent,endpoint)
-if device.profile==nil then return false end
-if device.profile.id ~=expected_profile then
-device:try_update_metadata({profile=expected_profile})
+local function G(j,b)
+local a=l(b)
+if a==nil or not e(j,a)then return false end
+local H=z(j,a)if not f(b,d(j,a)==c)then
+b:try_update_metadata{profile=H}
 end
 return true
 end
-local function child_runtime_start(device,_,parent)
-local endpoint=child_endpoint(device)
-if endpoint==nil or endpoint_device_id(parent,endpoint)~=COLOR_TEMPERATURE_DEVICE_ID then
+local function A(b,_,j)
+local a=l(b)if a==nil or d(j,a)~=c then
 return
 end
-device:emit_component_event(
-{id="main"},
-capabilities.colorTemperature.colorTemperatureRange({
-value={minimum=2000,maximum=6667},
-unit="K",
-})
-)
+if not f(b,true)then return end
+b:emit_component_event(
+{id="main"},P.colorTemperature.colorTemperatureRange{
+value={minimum=2000,maximum=6667},unit="K"})
 end
-local function child_parent(device)
-if type(device)~="table" or type(device.get_parent_device)~="function" then
+local function D(b)
+if type(b)~="table"or type(b.get_parent_device)~="function"then
 return nil
 end
-return device:get_parent_device()
+return b:get_parent_device()
 end
-local function read_initial_state(device,endpoint,color_temperature)
-zcl.read_attribute(device,0x0006,0x0000,endpoint)
-zcl.read_attribute(device,0x0008,0x0000,endpoint)
-if color_temperature then
-zcl.read_attribute(device,0x0300,0x0008,endpoint)
-zcl.read_attribute(device,0x0300,0x0007,endpoint)
+local function k(b,a,g)
+R.read_attribute(b,6,0,a)R.read_attribute(b,8,0,a)if g then
+R.read_attribute(b,768,8,a)R.read_attribute(b,768,7,a)
 end
 end
-local function child_refresh(device)
-local parent=child_parent(device)
-local endpoint=child_endpoint(device)
-if endpoint==nil or not enabled_endpoint(parent,endpoint)then return end
-read_initial_state(
-device,
-endpoint,
-endpoint_device_id(parent,endpoint)==COLOR_TEMPERATURE_DEVICE_ID
-)
+local function N(b)
+local j=D(b)local a=l(b)
+if a==nil or not e(j,a)then return end
+k(
+b,a,d(j,a)==c)
 end
-local function parent_refresh(device)
-if type(device.zigbee_endpoints)~="table" then return end
-for endpoint=FIRST_ENDPOINT,LAST_ENDPOINT do
-if enabled_endpoint(device,endpoint)then
-read_initial_state(
-device,
-endpoint,
-endpoint_device_id(device,endpoint)==COLOR_TEMPERATURE_DEVICE_ID
-)
+local function J(b)
+if type(b.zigbee_endpoints)~="table"then return end
+for a=h,i do
+if e(b,a)then
+k(
+b,a,d(b,a)==c)
 end
 end
 end
-local function child_command_allowed(device,name)
-local parent=child_parent(device)
-local endpoint=child_endpoint(device)
-if endpoint==nil or not enabled_endpoint(parent,endpoint)then return false end
-if name=="switch" or name=="brightness" then return true end
-return name=="color_temperature" and
-endpoint_device_id(parent,endpoint)==COLOR_TEMPERATURE_DEVICE_ID
+local function w(b,Q)
+local j=D(b)local a=l(b)
+if a==nil or not e(j,a)then return false end
+if not f(b,d(j,a)==c)then return false end
+if Q=="switch"or Q=="brightness"then return true end
+return Q=="color_temperature"and
+d(j,a)==c
 end
-local function configure(driver,device)
-local hub_eui=driver.environment_info.hub_zigbee_eui
-for endpoint=FIRST_ENDPOINT,LAST_ENDPOINT do
-if enabled_endpoint(device,endpoint)then
-for _,cluster in ipairs({0x0006,0x0008})do
-device:send(device_management.build_bind_request(device,cluster,hub_eui,endpoint))
+local function U(F,b)
+local S=F.environment_info.hub_zigbee_eui
+for a=h,i do
+if e(b,a)then
+for _,X in ipairs{6,8}do
+b:send(u.build_bind_request(b,X,S,a))
 end
-local color_temperature=
-endpoint_device_id(device,endpoint)==COLOR_TEMPERATURE_DEVICE_ID
-if color_temperature then
-device:send(device_management.build_bind_request(device,0x0300,hub_eui,endpoint))
+local g=
+d(b,a)==c
+if g then
+b:send(u.build_bind_request(b,768,S,a))
 end
-read_initial_state(device,endpoint,color_temperature)
+k(b,a,g)
 end
 end
 end
-local mappings={}
-for endpoint=FIRST_ENDPOINT,LAST_ENDPOINT do
-mappings[#mappings + 1]=zcl.switch({
-endpoint=endpoint,
-configure_reporting=false,
-emit=emit_on_child(endpoint,emit.switch()),
-})
-mappings[#mappings + 1]=zcl.level({
-endpoint=endpoint,
-configure_reporting=false,
-emit=emit_on_child(endpoint,emit.level()),
-})
-mappings[#mappings + 1]=zcl.color_temperature({
-endpoint=endpoint,
-configure_reporting=false,
-emit=emit_on_child(
-endpoint,
-emit.color_temperature(),
-COLOR_TEMPERATURE_DEVICE_ID
-),
-})
+local n={}for a=h,i do
+n[#n+1]=R.switch{
+endpoint=a,configure_reporting=false,emit=r(a,V.switch())}n[#n+1]=R.level{
+endpoint=a,configure_reporting=false,emit=r(a,V.level())}n[#n+1]=R.color_temperature{
+endpoint=a,configure_reporting=false,emit=r(
+a,V.color_temperature(),c)}
 end
-local sunricher_dali={
+local K={
 profile="bridge-wave19-sunricher-dali-parent",
-auxiliary_profiles={DIMMER_CHILD_PROFILE,CCT_CHILD_PROFILE},
-package_group="wave19-dali",
-transport_classification="STANDARD_ZCL_DYNAMIC_ENDPOINT_CHILDREN",
-z2m_converter_source="sunricherDaliController",
-wire_cluster="OnOff 0x0006 + Level 0x0008 + optional ColorControl 0x0300",
-zcl_clusters=mappings,
-allow_child_devices=true,
-is_expected_child=is_expected_child,
-create_child_devices=create_child_devices,
-child_runtime_start=child_runtime_start,
-child_refresh=child_refresh,
-parent_refresh=parent_refresh,
-child_command_allowed=child_command_allowed,
-configure=configure,
-}
-register_device_definition(sunricher_dali,{
-device_helpers.create_fingerprint("Sunricher","Light"),
-})
-return{
-id="zcl.lights.wave19_dali",
-registrations=device_definitions,
-}
+parent_profile_matches=function(b)
+local m=b.profile and b.profile.components
+return type(m)=="table"and m.main~=nil and
+b:supports_capability_by_id("refresh","main")and
+not b:supports_capability_by_id("switch","main")and
+not b:supports_capability_by_id("switchLevel","main")
+end,
+auxiliary_profiles={o,t},package_group="wave19-dali",zcl_clusters=n,allow_child_devices=true,is_expected_child=G,create_child_devices=y,child_runtime_start=A,child_refresh=N,parent_refresh=J,child_command_allowed=w,configure=U}s(K,{
+x.create_fingerprint("Sunricher","Light")})return{
+id="zcl.lights.wave19_dali",registrations=E}

@@ -1,275 +1,191 @@
-local function load_mapping_preset(zcl)
-local emit=require "capabilities.events.all"
-local data_types=require "st.zigbee.data_types"
-local zigbee_constants=require "st.zigbee.constants"
-local function merge_options(target,source)
-if type(target)~="table" then
-target={}
+local function v(p)
+local B=require"capabilities.events.all"
+local l=require"st.zigbee.data_types"
+local S=require"st.zigbee.constants"
+local U=require"st.utils.safe_xy_to_hsv"
+local function t(i,P)
+if type(i)~="table"then
+i={}
 end
-if type(source)~="table" then
-return target
+if type(P)~="table"then
+return i
 end
-for key,value in pairs(source)do
-target[key]=value
+for L,c in pairs(P)do
+i[L]=c
 end
-return target
+return i
 end
-local function apply_defaults(target,defaults)
-if type(target)~="table" or type(defaults)~="table" then
-return target
+local function g(i,d)
+if type(i)~="table"or type(d)~="table"then
+return i
 end
-for key,value in pairs(defaults)do
-if target[key]==nil then
-target[key]=value
+for L,c in pairs(d)do
+if i[L]==nil then
+i[L]=c
 end
 end
-return target
+return i
 end
-local function optional_emit(name,...)
-local factory=emit[name]
-if type(factory)=="function" then
-return factory(...)
+local function n(R,...)
+local y=B[R]
+if type(y)=="function"then
+return y(...)
 end
 return nil
 end
-local function normalize_preset_options(name_or_options,options)
-local resolved={}
-if type(name_or_options)=="string" then
-resolved.name=name_or_options
+local function e(a,f)
+local b={}if type(a)=="string"then
+b.name=a
 else
-merge_options(resolved,name_or_options)
+t(b,a)
 end
-merge_options(resolved,options)
-return resolved
+t(b,f)return b
 end
-local function build_lookup_pair(map,default_from,default_to,aliases)
-local reverse={}
-for key,value in pairs(map)do
-reverse[value]=key
+local function q(W,w,E,K)
+local s={}for L,c in pairs(W)do
+s[c]=L
 end
-if type(aliases)=="table" then
-for alias,target in pairs(aliases)do
-if reverse[target]~=nil then
-reverse[alias]=reverse[target]
+if type(K)=="table"then
+for V,i in pairs(K)do
+if s[i]~=nil then
+s[V]=s[i]
 end
 end
 end
 return{
-from=function(value)
-local mapped=map[value]
-if mapped ~=nil then
-return mapped
+from=function(c)
+local x=W[c]if x~=nil then
+return x
 end
-if default_from ~=nil then
-return default_from
+if w~=nil then
+return w
 end
-return value
+return c
 end,
-to=function(value)
-local mapped=reverse[value]
-if mapped ~=nil then
-return mapped
+to=function(c)
+local x=s[c]if x~=nil then
+return x
 end
-if default_to ~=nil then
-return default_to
+if E~=nil then
+return E
 end
-return value
-end,
+return c
+end
 }
 end
-local function clamp(value,min_value,max_value)
-if value < min_value then
-return min_value
+local function T(c,I,H)
+if c<I then
+return I
 end
-if value > max_value then
-return max_value
+if c>H then
+return H
 end
-return value
+return c
 end
-local function indicator_mode_pair()
-return build_lookup_pair({
-[0]="off",
-[1]="off/on",
-[2]="on/off",
-[3]="on",
-},nil,nil,{
-off_on="off/on",
-on_off="on/off",
-normal="off/on",
-inverted="on/off",
-})
+local function u()
+return q({
+[0]="off",[1]="off/on",[2]="on/off",[3]="on"},nil,nil,{
+off_on="off/on",on_off="on/off",normal="off/on",inverted="on/off"})
 end
-local function power_outage_memory_pair()
-return build_lookup_pair({
-[0]="off",
-[1]="on",
-[2]="restore",
-},nil,nil,{
-previous="restore",
-})
+local function r()
+return q({
+[0]="off",[1]="on",[2]="restore"},nil,nil,{
+previous="restore"})
 end
-local function encode_uint16_le(value)
-local numeric=math.floor(clamp(tonumber(value)or 0,0,0xFFFF)+ 0.5)
-return string.char(bit32.band(numeric,0xFF))..
-string.char(bit32.rshift(bit32.band(numeric,0xFF00),8))
+local function encode_uint16_le(c)
+local M=math.floor(T(tonumber(c)or 0,0,65535)+0.5)return string.char(bit32.band(M,255))..
+string.char(bit32.rshift(bit32.band(M,65280),8))
 end
-local function define_enum_attribute(cluster_id,attribute_id,defaults)
-return function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-local converter=defaults.converter_factory()
-apply_defaults(resolved,{
-name=defaults.name,
-emit=defaults.emit,
-converter=converter,
-to_device=function(value)
-return converter.to(value)
+local function o(N,J,d)
+return function(a,f)
+local b=e(a,f)local F=d.converter_factory()g(b,{
+name=d.name,emit=d.emit,converter=F,
+to_device=function(c)
+return F.to(c)
 end,
-data_type=data_types.Enum8,
-write_type=data_types.Enum8,
-attribute_name=defaults.attribute_name,
-mfg_code=defaults.mfg_code,
-read_on_configure=true,
-})
-return zcl.cluster_attribute(cluster_id,attribute_id,resolved)
+data_type=l.Enum8,write_type=l.Enum8,attribute_name=d.attribute_name,mfg_code=d.mfg_code,read_on_configure=true})return p.cluster_attribute(N,J,b)
 end
 end
-local function reporting_defaults(minimum_interval,maximum_interval,reportable_change)
+local function h(D,C,z)
 return{
-minimum_interval=minimum_interval,
-maximum_interval=maximum_interval,
-reportable_change=reportable_change,
-read_on_configure=true,
-}
+minimum_interval=D,maximum_interval=C,reportable_change=z,read_on_configure=true}
 end
-local function merge_defaults(...)
-local merged={}
-for _,defaults in ipairs({...})do
-apply_defaults(merged,defaults)
+local function m(...)
+local O={}for _,d in ipairs{...}do
+g(O,d)
 end
-return merged
+return O
 end
-local function define_preset(name,factory,defaults_builder)
-zcl[name]=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,defaults_builder(resolved))
-return factory(resolved)
+local function j(R,y,A)
+p[R]=function(a,f)
+local b=e(a,f)local k=b.configure_reporting
+local d=A(b)b.configure_reporting=nil
+if k==false then
+d.minimum_interval=nil
+d.maximum_interval=nil
+d.reportable_change=nil
+d.physical_reportable_change=nil
+d.reporting_defaults=nil
+end
+g(b,d)return y(b)
 end
 end
-define_preset("switch",zcl.on_off,function(options)
-local configure_reporting=options.configure_reporting
-options.configure_reporting=nil
-if configure_reporting==false then
+j("switch",p.on_off,function(f)
+local k=f.configure_reporting
+f.configure_reporting=nil
+if k==false then
 return{
-emit=emit.switch(),
-}
+emit=B.switch()}
 end
-return merge_defaults(
+return m(
 {
-emit=emit.switch(),
-},
-reporting_defaults(0,300,nil)
-)
+emit=B.switch()},h(0,300,nil))
 end)
-zcl.indicator_mode=define_enum_attribute(zcl.CLUSTER_ON_OFF,0x8001,{
-name="indicator_mode",
-emit=optional_emit("indicator_mode"),
-attribute_name="tuyaBacklightMode",
-converter_factory=indicator_mode_pair,
-})
-zcl.tuya_power_outage_memory=define_enum_attribute(zcl.CLUSTER_ON_OFF,0x8002,{
-name="power_outage_memory",
-emit=optional_emit("power_outage_memory"),
-attribute_name="moesStartUpOnOff",
-converter_factory=power_outage_memory_pair,
-})
-zcl.child_lock=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,{
-name="child_lock",
-emit=optional_emit("childLock"),
-from_device=function(value)
-return value and "on" or "off"
+p.indicator_mode=o(p.CLUSTER_ON_OFF,32769,{
+name="indicator_mode",emit=n"indicator_mode",attribute_name="tuyaBacklightMode",converter_factory=u})p.tuya_power_outage_memory=o(p.CLUSTER_ON_OFF,32770,{
+name="power_outage_memory",emit=n"power_outage_memory",attribute_name="moesStartUpOnOff",converter_factory=r})
+p.child_lock=function(a,f)
+local b=e(a,f)g(b,{
+name="child_lock",emit=n"childLock",
+from_device=function(c)
+return c and"on"or"off"
 end,
-to_device=function(value)
-return value==true or value=="on" or value=="lock" or value=="LOCK"
+to_device=function(c)
+return c==true or c=="on"or c=="lock"or c=="LOCK"
 end,
-data_type=data_types.Boolean,
-write_type=data_types.Boolean,
-attribute_name="tuyaChildLock",
-read_on_configure=true,
-})
-return zcl.cluster_attribute(zcl.CLUSTER_ON_OFF,0x8000,resolved)
+data_type=l.Boolean,write_type=l.Boolean,attribute_name="tuyaChildLock",read_on_configure=true})return p.cluster_attribute(p.CLUSTER_ON_OFF,32768,b)
 end
-zcl.tuya_magic_packet=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,{
-name="tuya_magic_packet",
-read_only=true,
-read_on_configure=true,
-})
-return zcl.cluster_attribute(0x0000,0xFFFE,resolved)
+p.tuya_magic_packet=function(a,f)
+local b=e(a,f)g(b,{
+name="tuya_magic_packet",read_only=true,read_on_configure=true})return p.cluster_attribute(0,65534,b)
 end
-zcl.countdown_timer=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,{
-name="countdown_timer",
-emit=optional_emit("countdownTimerZclTwelveHours","s"),
-data_type=data_types.Uint16,
-write_type=data_types.Uint16,
-tx_command_id=0x42,
-to_device=function(value)
-local countdown=clamp(tonumber(value)or 0,0,43200)
-return string.char(0x00).. encode_uint16_le(countdown).. encode_uint16_le(countdown)
+p.countdown_timer=function(a,f)
+local b=e(a,f)g(b,{
+name="countdown_timer",emit=n("countdownTimerZclTwelveHours","s"),data_type=l.Uint16,write_type=l.Uint16,tx_command_id=66,
+to_device=function(c)
+local G=T(tonumber(c)or 0,0,43200)return string.char(0)..encode_uint16_le(G)..encode_uint16_le(G)
 end,
 numeric_range={
-minimum=0,
-maximum=43200,
-step=1,
-unit="s",
-},
-attribute_name="onTime",
-read_on_configure=true,
-})
-return zcl.cluster_attribute(zcl.CLUSTER_ON_OFF,0x4001,resolved)
+minimum=0,maximum=43200,step=1,unit="s"},attribute_name="onTime",read_on_configure=true})return p.cluster_attribute(p.CLUSTER_ON_OFF,16385,b)
 end
-define_preset("power",zcl.electrical_measurement_power,function()
-return merge_defaults(
+j("power",p.electrical_measurement_power,function()
+return m(
 {
-emit=emit.power(),
-metering_kind="power",
-poll_interval=300,
-},
-reporting_defaults(5,300,1)
-)
+emit=B.power(),metering_kind="power",poll_interval=300},h(5,300,1))
 end)
-define_preset("current",zcl.electrical_measurement_current,function()
-return merge_defaults(
+j("current",p.electrical_measurement_current,function()
+return m(
 {
-emit=emit.current(),
-scale=1000,
-metering_kind="current",
-poll_interval=300,
-},
-reporting_defaults(5,300,1)
-)
+emit=B.current(),scale=1000,metering_kind="current",poll_interval=300},h(5,300,1))
 end)
-define_preset("voltage",zcl.electrical_measurement_voltage,function()
-return merge_defaults(
+j("voltage",p.electrical_measurement_voltage,function()
+return m(
 {
-emit=emit.voltage(),
-metering_kind="voltage",
-poll_interval=300,
-},
-reporting_defaults(5,300,1)
-)
+emit=B.voltage(),metering_kind="voltage",poll_interval=300},h(5,300,1))
 end)
-define_preset("energy",zcl.simple_metering,function()
+j("energy",p.simple_metering,function()
 return{
-emit=emit.energy(),
-read_on_configure=true,
-metering_kind="energy",
-poll_interval=900,
-}
+emit=B.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900}
 end)
 end
-return load_mapping_preset
+return v

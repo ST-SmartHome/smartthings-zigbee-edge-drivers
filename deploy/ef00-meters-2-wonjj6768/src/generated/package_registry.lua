@@ -1,19 +1,15 @@
-local function registrations(catalog,expected_id,module_name)
-assert(type(catalog)=="table","Canonical catalog must return a table: " .. module_name)
-for key in next,catalog do
-assert(key=="id" or key=="registrations","Canonical catalog has extra key: " .. module_name .. ":" .. tostring(key))
+local function c(a,d,module_name)
+assert(type(a)=="table","Canonical catalog must return a table: "..module_name)for h in next,a do
+assert(h=="id"or h=="registrations","Canonical catalog has extra key: "..module_name ..":"..tostring(h))
 end
-assert(catalog.id==expected_id,"Canonical catalog id mismatch: " .. module_name)
-assert(type(catalog.registrations)=="table","Canonical catalog registrations missing: " .. module_name)
-return catalog.registrations
+assert(a.id==d,"Canonical catalog id mismatch: "..module_name)assert(type(a.registrations)=="table","Canonical catalog registrations missing: "..module_name)return a.registrations
 end
-local entries={}
-local catalog_1=require "contracts.families.ef00.din_rail.meters_z2m_absorption"
-for _,entry in ipairs(registrations(catalog_1,"ef00.din_rail.meters.z2m_absorption","contracts.families.ef00.din_rail.meters_z2m_absorption"))do
-entries[#entries + 1]=entry
+local b={}local f=require"contracts.families.ef00.din_rail.meters_z2m_absorption"
+for _,e in ipairs(c(f,"ef00.din_rail.meters.z2m_absorption","contracts.families.ef00.din_rail.meters_z2m_absorption"))do
+b[#b+1]=e
 end
-local catalog_2=require "contracts.families.ef00.din_rail.wave19_energy"
-for _,entry in ipairs(registrations(catalog_2,"ef00.din_rail.wave19_energy","contracts.families.ef00.din_rail.wave19_energy"))do
-entries[#entries + 1]=entry
+local g=require"contracts.families.ef00.din_rail.wave19_energy"
+for _,e in ipairs(c(g,"ef00.din_rail.wave19_energy","contracts.families.ef00.din_rail.wave19_energy"))do
+b[#b+1]=e
 end
-return entries
+return b

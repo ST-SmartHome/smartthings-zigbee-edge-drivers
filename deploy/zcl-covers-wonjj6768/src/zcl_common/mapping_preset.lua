@@ -1,129 +1,110 @@
-local function load_mapping_preset(zcl)
-local emit=require "capabilities.events.all"
-local data_types=require "st.zigbee.data_types"
-local zigbee_constants=require "st.zigbee.constants"
-local function merge_options(target,source)
-if type(target)~="table" then
-target={}
+local function o(v)
+local z=require"capabilities.events.all"
+local F=require"st.zigbee.data_types"
+local A=require"st.zigbee.constants"
+local D=require"st.utils.safe_xy_to_hsv"
+local function m(f,y)
+if type(f)~="table"then
+f={}
 end
-if type(source)~="table" then
-return target
+if type(y)~="table"then
+return f
 end
-for key,value in pairs(source)do
-target[key]=value
+for B,i in pairs(y)do
+f[B]=i
 end
-return target
+return f
 end
-local function apply_defaults(target,defaults)
-if type(target)~="table" or type(defaults)~="table" then
-return target
+local function j(f,c)
+if type(f)~="table"or type(c)~="table"then
+return f
 end
-for key,value in pairs(defaults)do
-if target[key]==nil then
-target[key]=value
+for B,i in pairs(c)do
+if f[B]==nil then
+f[B]=i
 end
 end
-return target
+return f
 end
-local function normalize_preset_options(name_or_options,options)
-local resolved={}
-if type(name_or_options)=="string" then
-resolved.name=name_or_options
+local function d(a,l)
+local b={}if type(a)=="string"then
+b.name=a
 else
-merge_options(resolved,name_or_options)
+m(b,a)
 end
-merge_options(resolved,options)
-return resolved
+m(b,l)return b
 end
-local function clamp(value,min_value,max_value)
-if value < min_value then
-return min_value
+local function E(i,u,t)
+if i<u then
+return u
 end
-if value > max_value then
-return max_value
+if i>t then
+return t
 end
-return value
+return i
 end
-local function window_shade_state_from_position()
+local function h()
 return{
-from=function(value)
-if type(value)~="number" then
-return value
+from=function(i)
+if type(i)~="number"then
+return i
 end
-local clamped=clamp(value,0,100)
-if clamped <=0 then
-return "closed"
+local w=E(i,0,100)if w<=0 then
+return"closed"
 end
-if clamped >=100 then
-return "open"
+if w>=100 then
+return"open"
 end
-return "partially open"
-end,
+return"partially open"
+end
 }
 end
-local function reporting_defaults(minimum_interval,maximum_interval,reportable_change)
+local function e(s,r,p)
 return{
-minimum_interval=minimum_interval,
-maximum_interval=maximum_interval,
-reportable_change=reportable_change,
-read_on_configure=true,
-}
+minimum_interval=s,maximum_interval=r,reportable_change=p,read_on_configure=true}
 end
-local function merge_defaults(...)
-local merged={}
-for _,defaults in ipairs({...})do
-apply_defaults(merged,defaults)
+local function k(...)
+local x={}for _,c in ipairs{...}do
+j(x,c)
 end
-return merged
+return x
 end
-local function define_preset(name,factory,defaults_builder)
-zcl[name]=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,defaults_builder(resolved))
-return factory(resolved)
+local function g(G,C,q)
+v[G]=function(a,l)
+local b=d(a,l)local n=b.configure_reporting
+local c=q(b)b.configure_reporting=nil
+if n==false then
+c.minimum_interval=nil
+c.maximum_interval=nil
+c.reportable_change=nil
+c.physical_reportable_change=nil
+c.reporting_defaults=nil
+end
+j(b,c)return C(b)
 end
 end
-define_preset("battery",zcl.power_configuration_battery,function()
-return merge_defaults(
+g("battery",v.power_configuration_battery,function()
+return k(
 {
-emit=emit.battery(),
-scale=2,
-},
-reporting_defaults(300,21600,2)
-)
+emit=z.battery(),scale=2},e(300,21600,2))
 end)
-zcl.tuya_magic_packet=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,{
-name="tuya_magic_packet",
-read_only=true,
-read_on_configure=true,
-})
-return zcl.cluster_attribute(0x0000,0xFFFE,resolved)
+v.tuya_magic_packet=function(a,l)
+local b=d(a,l)j(b,{
+name="tuya_magic_packet",read_only=true,read_on_configure=true})return v.cluster_attribute(0,65534,b)
 end
-define_preset("cover_position",zcl.window_covering_position,function()
-return merge_defaults(
+g("cover_position",v.window_covering_position,function()
+return k(
 {
-emit=emit.shade_level(),
-},
-reporting_defaults(0,600,1)
-)
+emit=z.shade_level()},e(0,600,1))
 end)
-define_preset("cover_state",zcl.window_covering_position,function()
+g("cover_state",v.window_covering_position,function()
 return{
-name="cover_state",
-write_only=true,
-}
+name="cover_state",write_only=true}
 end)
-define_preset("window_shade_state",zcl.window_covering_position,function()
-return merge_defaults(
+g("window_shade_state",v.window_covering_position,function()
+return k(
 {
-name="window_shade_state",
-emit=emit.shade_state(),
-converter=window_shade_state_from_position(),
-},
-reporting_defaults(0,600,1)
-)
+name="window_shade_state",emit=z.shade_state(),converter=h()},e(0,600,1))
 end)
 end
-return load_mapping_preset
+return o

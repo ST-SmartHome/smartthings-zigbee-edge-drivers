@@ -1,43 +1,15 @@
-local zcl=require "protocol.zcl"
-local device_helpers=require "contracts.helpers.family"
-local registrations,register_device_definition=device_helpers.definition_registry()
-local dimmer_light={
-profile="lights-dimmer",
-zcl_clusters={
-zcl.switch(),
-zcl.level(),
-},
-}
-local color_cct_light={
-profile="lights-color-temperature-color",
-zcl_clusters={
-zcl.switch(),
-zcl.level(),
-zcl.color_temperature(),
-zcl.color_hue(),
-zcl.color_saturation(),
-zcl.color(),
-},
-}
-register_device_definition(dimmer_light,{
-device_helpers.create_fingerprint(
-string.char(0x20).. "Legrand" .. string.rep(string.char(0x00),23),
-string.char(0x20).. "Dimmer switch with neutral" .. string.rep(string.char(0x00),4)
-),
-})
-register_device_definition(color_cct_light,{
-device_helpers.create_fingerprint(
-"eWeLi" .. string.char(0x01,0x00,0x10),
-"ZB-CL01"
-),
-})
-register_device_definition(dimmer_light,{
-device_helpers.create_fingerprint(
-"Paulmann lamp" .. string.char(0x20),
-"Dimmable Light" .. string.char(0x20)
-),
-})
-return{
-id="zcl.lights.wave19_exact_aliases",
-registrations=registrations,
-}
+local f=require"protocol.zcl"
+local b=require"contracts.helpers.family"
+local c,a=b.definition_registry()local d={
+profile="lights-dimmer",zcl_clusters={
+f.switch(),f.level()}}local e={
+profile="lights-color-temperature-color",zcl_clusters={
+f.switch(),f.level(),f.color_temperature(),f.color_hue(),f.color_saturation(),f.color()}}a(d,{
+b.create_fingerprint(
+string.char(32).."Legrand"..string.rep(string.char(0),23),string.char(32).."Dimmer switch with neutral"..string.rep(string.char(0),4))})a(e,{
+b.create_fingerprint(
+"eWeLi"..string.char(1,0,16),"ZB-CL01")})a(d,{
+b.create_fingerprint(
+"Paulmann lamp"..string.char(32),"Dimmable Light"..string.char(32))})f.attach_reporting_capabilities(c,{
+{1,"rpt-tmf"},{2,"rpt-tkj"},{3,"rpt-tmf"}})return{
+id="zcl.lights.wave19_exact_aliases",registrations=c}

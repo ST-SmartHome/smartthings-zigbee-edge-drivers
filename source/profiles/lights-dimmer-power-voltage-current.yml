@@ -35,7 +35,7 @@ deviceConfig:
         version: 1
         group: main
         values:
-          - label: "{{level.value}} {{level.unit}}"
+          - label: " {{level.value}}{{level.unit}}"
         composite: true
     actions:
       - component: main
@@ -106,4 +106,7 @@ deviceConfig:
         version: 1
       - component: main
         capability: concertmirror08464.powerPollIntervalV2
+        version: 1
+      - component: main
+        capability: energyMeter
         version: 1

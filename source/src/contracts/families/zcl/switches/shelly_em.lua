@@ -31,7 +31,6 @@ local clusters = {
 }
 
 for channel = 2, 3 do
-  local suffix = channel == 2 and "Two" or "Three"
   local component = "meter" .. tostring(channel)
   for _, mapping in ipairs({
     zcl.power({
@@ -58,7 +57,7 @@ for channel = 2, 3 do
       name = "shelly_em_produced_energy_" .. tostring(channel),
       endpoint = channel,
       component = component,
-      emit = assert(emit["shellyEmProducedEnergy" .. suffix], "missing Shelly EM produced-energy emitter")(),
+      emit = (channel == 2 and emit.shellyEmProducedEnergyTwo or emit.shellyEmProducedEnergyThree)(),
       data_type = data_types.Uint48,
       metering_kind = "energy",
       from_device = clamp_smartthings_numeric,
@@ -71,7 +70,7 @@ for channel = 2, 3 do
       name = "shelly_em_ac_frequency_" .. tostring(channel),
       endpoint = channel,
       component = component,
-      emit = assert(emit["shellyEmAcFrequency" .. suffix], "missing Shelly EM AC-frequency emitter")(),
+      emit = (channel == 2 and emit.shellyEmAcFrequencyTwo or emit.shellyEmAcFrequencyThree)(),
       data_type = data_types.Uint16,
       metering_kind = "frequency",
       minimum_interval = 10,
@@ -103,6 +102,12 @@ local shelly_em = {
 register_device_definition(shelly_em, {
   device_helpers.create_fingerprint("Shelly", "EM"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-eqx", {zr070200002 = "Energy", zr070200003 = "EnergyTwo", zr070200012 = "Export", zr070200013 = "ExportTwo", zr0b0403002 = "Frequency", zr0b0403003 = "FrequencyTwo", zr0b0405052 = "Voltage", zr0b0405053 = "VoltageTwo", zr0b0405082 = "Current", zr0b0405083 = "CurrentTwo", zr0b04050b2 = "Power", zr0b04050b3 = "PowerTwo"}},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.switches.shelly_em",

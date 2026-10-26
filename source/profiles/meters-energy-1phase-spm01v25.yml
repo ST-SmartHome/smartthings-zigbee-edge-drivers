@@ -10,11 +10,13 @@ components:
         version: 1
       - id: currentMeasurement
         version: 1
-      - id: concertmirror08464.spm01v25ProducedEnergy
+      - id: concertmirror08464.spm01v25ReverseEnergy
         version: 1
-      - id: concertmirror08464.spm01v25AcFrequency
+      - id: concertmirror08464.spm01v25LineFrequency
         version: 1
-      - id: concertmirror08464.spm01v25PowerFactor
+      - id: concertmirror08464.spm01v25Factor
+        version: 1
+      - id: concertmirror08464.spm01v25ReportInterval
         version: 1
       - id: refresh
         version: 1
@@ -43,17 +45,19 @@ deviceConfig:
       capability: currentMeasurement
       version: 1
     - component: main
-      capability: concertmirror08464.spm01v25ProducedEnergy
+      capability: concertmirror08464.spm01v25ReverseEnergy
       version: 1
     - component: main
-      capability: concertmirror08464.spm01v25AcFrequency
+      capability: concertmirror08464.spm01v25LineFrequency
       version: 1
     - component: main
-      capability: concertmirror08464.spm01v25PowerFactor
+      capability: concertmirror08464.spm01v25Factor
       version: 1
     - component: main
       capability: refresh
       version: 1
+    - component: main
+      capability: concertmirror08464.spm01v25ReportInterval
   automation:
     conditions:
       - component: main
@@ -69,12 +73,17 @@ deviceConfig:
         capability: currentMeasurement
         version: 1
       - component: main
-        capability: concertmirror08464.spm01v25ProducedEnergy
+        capability: concertmirror08464.spm01v25ReverseEnergy
         version: 1
       - component: main
-        capability: concertmirror08464.spm01v25AcFrequency
+        capability: concertmirror08464.spm01v25LineFrequency
         version: 1
       - component: main
-        capability: concertmirror08464.spm01v25PowerFactor
+        capability: concertmirror08464.spm01v25Factor
         version: 1
-    actions: []
+    actions:
+      - component: main
+        capability: energyMeter
+        version: 1
+      - component: main
+        capability: concertmirror08464.spm01v25ReportInterval

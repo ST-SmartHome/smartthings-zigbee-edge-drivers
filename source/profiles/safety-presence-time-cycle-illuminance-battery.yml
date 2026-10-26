@@ -20,51 +20,44 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: PresenceSensor
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: presenceSensor
-        version: 1
-        group: main
+    - component: main
+      capability: presenceSensor
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: presenceSensor
-      version: 1
-    - component: main
-      capability: concertmirror08464.presenceTime
-      version: 1
-    - component: main
-      capability: concertmirror08464.presenceDelay
-      version: 1
-    - component: main
-      capability: concertmirror08464.detectionCycle
-      version: 1
-    - component: main
-      capability: concertmirror08464.driverMessage
-      version: 1
-    - component: main
-      capability: illuminanceMeasurement
-      version: 1
-    - component: main
-      capability: battery
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: presenceSensor
+  - component: main
+    capability: concertmirror08464.presenceTime
+  - component: main
+    capability: concertmirror08464.presenceDelay
+  - component: main
+    capability: concertmirror08464.detectionCycle
+  - component: main
+    capability: concertmirror08464.driverMessage
+  - component: main
+    capability: illuminanceMeasurement
+  - component: main
+    capability: battery
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: presenceSensor
-        version: 1
-      - component: main
-        capability: illuminanceMeasurement
-        version: 1
-      - component: main
-        capability: battery
-        version: 1
+    - component: main
+      capability: presenceSensor
+    - component: main
+      capability: illuminanceMeasurement
+    - component: main
+      capability: battery
+    - component: main
+      capability: signalStrength
     actions: []

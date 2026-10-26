@@ -1,647 +1,226 @@
-local zcl=require "protocol.zcl"
-local device_helpers=require "contracts.helpers.family"
-local emit=require "capabilities.events.all"
-local capabilities=require "st.capabilities"
-local data_types=require "st.zigbee.data_types"
-local device_management=require "st.zigbee.device_management"
-local cluster_base=require "st.zigbee.cluster_base"
-local shared_definitions=require "contracts.helpers.zcl_sensor_definitions"
-local fp=device_helpers.create_fingerprint
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local function register_aliases(definition,aliases)
-register_device_definition(definition,aliases)
-end
-local function bind_clusters_by_endpoint(bindings)
-return function(driver,device)
-for _,binding in ipairs(bindings)do
-for _,cluster_id in ipairs(binding.clusters)do
-device:send(device_management.build_bind_request(
-device,
-cluster_id,
-driver.environment_info.hub_zigbee_eui,
-binding.endpoint
-))
+local b=require"protocol.zcl"
+local K=require"contracts.helpers.family"
+local h=require"capabilities.events.all"
+local t=require"st.capabilities"
+local a=require"st.zigbee.data_types"
+local B=require"st.zigbee.device_management"
+local E=require"st.zigbee.cluster_base"
+local U=require"contracts.helpers.zcl_sensor_definitions"
+local g=K.create_fingerprint
+local w,c=K.definition_registry()
+local function e(ad)
+return function(Y,f)
+for _,ab in ipairs(ad)do
+for _,O in ipairs(ab.clusters)do
+f:send(B.build_bind_request(
+f,O,Y.environment_info.hub_zigbee_eui,ab.endpoint))
 end
 end
 end
 end
-local function notification_only_ias(mapping)
-mapping.minimum_interval=nil
-mapping.maximum_interval=nil
-mapping.reportable_change=nil
-mapping.read_on_configure=false
-return mapping
+local function j(m)
+m.minimum_interval=nil
+m.maximum_interval=nil
+m.reportable_change=nil
+m.read_on_configure=false
+return m
 end
-local motion_sensor={
-profile="safety-motion-battery",
-zcl_clusters={
-zcl.motion(),
-zcl.battery(),
-},
-}
-local motion_battery_low_battery_voltage_sensor={
-profile="safety-motion-battery-low-battery-voltage",
-zcl_clusters={
-zcl.motion(),
-zcl.battery_low(),
-zcl.battery(),
-zcl.battery_voltage(),
-},
-}
-local ewelink_motion_sensor={
-profile="safety-motion-battery-low-battery-voltage-ewelink-pending",
-zcl_clusters={
-notification_only_ias(zcl.motion()),
-notification_only_ias(zcl.battery_low()),
-zcl.battery({
-minimum_interval=3600,
-maximum_interval=7200,
-reportable_change=2,
-read_on_configure=true,
-}),
-zcl.battery_voltage({
-minimum_interval=3600,
-maximum_interval=7200,
-reportable_change=100,
-read_on_configure=true,
-}),
-},
-}
-local third_reality_3rms_motion_sensor={
-profile="safety-motion-battery-low-battery-voltage-3rms-pending",
-zcl_clusters={
-zcl.motion(),
-zcl.battery_low(),
-zcl.battery(),
-zcl.battery_voltage(),
-},
-}
-local third_reality_3rsmr_motion_sensor={
-profile="safety-motion-battery-low-battery-voltage-3rsmr-pending",
-zcl_clusters={
-zcl.motion(),
-zcl.battery_low(),
-zcl.battery(),
-zcl.battery_voltage(),
-},
-}
-local third_reality_3rps_presence_sensor={
-profile="safety-motion-battery-3rps-pending",
-zcl_clusters={
-zcl.motion(),
-zcl.battery(),
-zcl.cluster_attribute(0xFF01,0x0060,{
-name="rps_sensitivity",endpoint=1,mfg_code=0x1407,
-data_type=data_types.Uint8,write_type=data_types.Uint8,
-read_on_configure=true,emit=emit.rpsSensitivity(),
-}),
-zcl.cluster_attribute(0xFF01,0x0003,{
-name="rps_calibration",endpoint=1,mfg_code=0x1407,
-data_type=data_types.Uint8,write_type=data_types.Uint8,
-read_on_configure=true,emit=emit.rpsCalibration(),
-from_device=function(value)return value==1 and "Press" or nil end,
-to_device=function(value)return value=="Press" and 1 or nil end,
-}),
-},
-}
-local motion_tamper_battery_low_battery_sensor={
-profile="safety-motion-tamper-battery-battery-low",
-zcl_clusters={
-zcl.motion(),
-zcl.tamper(),
-zcl.battery_low(),
-zcl.battery(),
-},
-}
-local occupancy_motion_illuminance_sensor={
-profile="safety-motion-illuminance",
-zcl_clusters={
-zcl.occupancy({emit=emit.motion()}),
-zcl.illuminance(),
-},
-}
-local motion_illuminance_sensor={
-profile="safety-motion-illuminance-battery",
-zcl_clusters={
-zcl.motion(),
-zcl.illuminance(),
-zcl.battery(),
-},
-}
-local candeo_motion_illuminance_sensor={
-profile="safety-motion-illuminance-battery-candeo-pending",
-datapoints={
-{dp=9,datatype=0x04,name="candeo_motion_sensitivity",emit=emit.candeoMotionSensitivity(),
-from_device=function(value)return({[0]="low","medium","high"})[value]end,
-to_device=function(value)return({low=0,medium=1,high=2})[value]end},
-{dp=10,datatype=0x04,name="candeo_motion_keep_time",emit=emit.candeoMotionKeepTime(),
-from_device=function(value)return({[0]="10","30","60","120"})[value]end,
-to_device=function(value)return({["10"]=0,["30"]=1,["60"]=2,["120"]=3})[value]end},
-{dp=102,datatype=0x02,name="candeo_light_interval",emit=emit.candeoLightInterval("min")},
-},
-zcl_clusters={
-zcl.tuya_magic_packet(),
-zcl.motion(),
-zcl.illuminance({configure_reporting=false,
-converter={from=function(raw)
-local lux=10 ^((raw - 1)/ 10000)
-if lux <=2200 then lux=-7.969192 + 0.0151988 * lux
-elseif lux <=2500 then lux=-1069.189434 + 0.4950663 * lux
-else lux=78029.21628 - 61.73575 * lux + 0.01223567 * lux * lux end
-return math.floor(math.max(1,lux)+ 0.5)
+local L={
+profile="safety-motion-battery-low-battery-voltage-ewelink-pending",zcl_clusters={
+j(b.motion()),j(b.battery_low()),b.battery{
+minimum_interval=3600,maximum_interval=7200},b.battery_voltage{
+minimum_interval=3600,maximum_interval=7200,reportable_change=100}}}local r={
+profile="safety-motion-battery-low-battery-voltage-3rms-pending",zcl_clusters={
+b.motion(),b.battery_low(),b.battery(),b.battery_voltage()}}local p={
+profile="safety-motion-battery-low-battery-voltage-3rsmr-pending",zcl_clusters={
+b.motion(),b.battery_low(),b.battery(),b.battery_voltage()}}local o={
+profile="safety-motion-battery-3rps-pending",zcl_clusters={
+b.motion(),b.battery(),b.cluster_attribute(65281,96,{
+name="rps_sensitivity",endpoint=1,mfg_code=5127,data_type=a.Uint8,write_type=a.Uint8,read_on_configure=true,emit=h.rpsSensitivity()}),b.cluster_attribute(65281,3,{
+name="rps_calibration",endpoint=1,mfg_code=5127,data_type=a.Uint8,write_type=a.Uint8,read_on_configure=true,emit=h.rpsCalibration(),
+from_device=function(d)return d==1 and"Press"or nil end,
+to_device=function(d)return d=="Press"and 1 or nil end
+})}}local l={
+profile="safety-motion-tamper-battery-battery-low",zcl_clusters={
+b.motion(),b.tamper(),b.battery_low(),b.battery()}}local n={
+profile="safety-motion-illuminance",zcl_clusters={
+b.occupancy{emit=h.motion()},b.illuminance()}}local q={
+profile="safety-motion-illuminance-battery-candeo-pending",datapoints={
+{dp=9,datatype=4,name="candeo_motion_sensitivity",emit=h.candeoMotionSensitivity(),
+from_device=function(d)return({[0]="low","medium","high"})[d]end,
+to_device=function(d)return({low=0,medium=1,high=2})[d]end},
+{dp=10,datatype=4,name="candeo_motion_keep_time",emit=h.candeoMotionKeepTime(),
+from_device=function(d)return({[0]="10","30","60","120"})[d]end,
+to_device=function(d)return({["10"]=0,["30"]=1,["60"]=2,["120"]=3})[d]end},
+{dp=102,datatype=2,name="candeo_light_interval",emit=h.candeoLightInterval"min"}},zcl_clusters={
+b.tuya_magic_packet(),b.motion(),b.illuminance{configure_reporting=false,
+converter={from=function(X)
+local T=10 ^((X-1)/10000)if T<=2200 then T=-7.969192+0.0151988*T
+elseif T<=2500 then T=-1069.189434+0.4950663*T
+else T=78029.21628-61.73575*T+0.01223567*T*T end
+return math.floor(math.max(1,T)+0.5)
+end}
+},b.battery()}}local J={
+profile="safety-contact-battery",zcl_clusters={
+b.contact(),b.battery()}}local y={
+profile="safety-contact-battery-low-battery",zcl_clusters={
+b.contact(),b.battery_low(),b.battery()}}local M={
+profile="safety-contact-tamper-battery-low-battery",zcl_clusters={
+b.contact_alarm_1_or_2(),b.tamper(),b.battery_low(),b.battery()}}local H={
+profile="safety-contact-battery-low-battery-voltage",zcl_clusters={
+b.contact(),b.battery_low(),b.battery(),b.battery_voltage()}}local C={
+profile="safety-contact-battery-low-battery-voltage",zcl_clusters={
+b.contact(),b.battery_low(),b.battery(),b.battery_voltage()}}local D={
+profile="safety-contact-battery-low-battery",zcl_clusters={
+b.contact(),b.battery_low(),b.battery()}}local V={
+profile="safety-water-leak-battery",zcl_clusters={
+b.water(),b.battery()}}local s=U.water_battery_low_battery_sensor
+local function G(f,m,d)
+local X=d
+if m.attribute_id==16 then X=({ON=1,OFF=0})[d]end
+if type(X)~="number"or X%1~=0 or X<0 or X>255 then return false end
+f:send(E.write_manufacturer_specific_attribute(f,65281,m.attribute_id,4659,a.Uint8,X):to_endpoint(1))f:send(E.read_manufacturer_specific_attribute(f,65281,m.attribute_id,4659):to_endpoint(1))return true
+end
+local k=b.water{endpoint=1,read_only=true,read_on_refresh=false,ias_configure_method=0}k.minimum_interval,k.maximum_interval,k.reportable_change=nil,nil,nil
+k.read_on_configure=false
+local A={
+profile="safety-water-leak-battery-low-battery-3rws18bz-pending",magic_packet=false,zcl_clusters={
+b.switch{endpoint=1,minimum_interval=0,maximum_interval=65000,suppress_optimistic_state=true},k,b.battery_low{endpoint=1,configure_reporting=false,read_only=true,read_on_configure=false,
+read_on_refresh=false,ias_configure_method=0,emit=function(_,d)
+return d and t.batteryLevel.battery.critical()or t.batteryLevel.battery.normal()
 end},
-}),
-zcl.battery(),
-},
-}
-local contact_sensor={
-profile="safety-contact-battery",
-zcl_clusters={
-zcl.contact(),
-zcl.battery(),
-},
-}
-local contact_battery_low_sensor={
-profile="safety-contact-battery-low-battery",
-zcl_clusters={
-zcl.contact(),
-zcl.battery_low(),
-zcl.battery(),
-},
-}
-local shyugj_contact_sensor={
-profile="safety-contact-tamper-battery-low-battery",
-zcl_clusters={
-zcl.contact_alarm_1_or_2(),
-zcl.tamper(),
-zcl.battery_low(),
-zcl.battery(),
-},
-}
-local ewelink_contact_sensor={
-profile="safety-contact-battery-low-battery-voltage",
-zcl_clusters={
-zcl.contact(),
-zcl.battery_low(),
-zcl.battery(),
-zcl.battery_voltage(),
-},
-}
-local third_reality_door_sensor={
-profile="safety-contact-battery-low-battery-voltage",
-zcl_clusters={
-zcl.contact(),
-zcl.battery_low(),
-zcl.battery(),
-zcl.battery_voltage(),
-},
-}
-local third_reality_tilt_sensor={
-profile="safety-contact-battery-low-battery",
-zcl_clusters={
-zcl.contact(),
-zcl.battery_low(),
-zcl.battery(),
-},
-}
-local water_sensor={
-profile="safety-water-leak-battery",
-zcl_clusters={
-zcl.water(),
-zcl.battery(),
-},
-}
-local water_battery_low_battery_sensor=shared_definitions.water_battery_low_battery_sensor
-local third_reality_water_sensor_pending={
-profile="safety-water-leak-battery-low-battery-3rws18bz-pending",
-zcl_clusters={
-zcl.water(),
-zcl.battery_low(),
-zcl.battery(),
-},
-}
-local temp_humidity_sensor={
-profile="sensors-temp-humidity-battery",
-zcl_clusters={
-zcl.temperature(),
-zcl.humidity(),
-zcl.battery(),
-},
-}
-local temp_humidity_voltage_sensor={
-profile="sensors-temp-humidity-battery-voltage",
-zcl_clusters={
-zcl.temperature(),
-zcl.humidity(),
-zcl.battery(),
-zcl.battery_voltage(),
-},
-}
-local frient_temp_humidity_sensor={
-profile="sensors-temp-humidity-battery-voltage",
-zcl_clusters={
-zcl.temperature({endpoint=38}),
-zcl.humidity({endpoint=38}),
-zcl.battery({endpoint=38}),
-zcl.battery_voltage({endpoint=38}),
-},
-configure=bind_clusters_by_endpoint({
-{endpoint=38,clusters={0x0402,0x0405,0x0001}},
-}),
-}
-local third_reality_3rths_sensor={
-profile="sensors-temp-humidity-battery-3rths-pending",
-zcl_clusters={
-zcl.temperature(),
-zcl.humidity(),
-zcl.battery(),
-},
-}
-local third_reality_3rths0324_sensor={
-profile="sensors-temp-humidity-battery-3rths0324-pending",
-advanced_remote=true,
-zcl_clusters={
-zcl.temperature(),
-zcl.humidity(),
-zcl.battery(),
-zcl.cluster_attribute(0xFF01,0x0031,{
-name="third_rths0324_celsius_calibration",
-emit=emit.thirdRths0324CelsiusCal(),
-data_type=data_types.Int16,
-scale=100,
-mfg_code=0x1407,
-minimum_interval=0,
-maximum_interval=3600,
-reportable_change=100,
-}),
-zcl.cluster_attribute(0xFF01,0x0032,{
-name="third_rths0324_humidity_calibration",
-emit=emit.thirdRths0324HumidityCal(),
-data_type=data_types.Int16,
-scale=100,
-mfg_code=0x1407,
-minimum_interval=0,
-maximum_interval=3600,
-reportable_change=100,
-}),
-zcl.cluster_attribute(0xFF01,0x0033,{
-name="third_rths0324_fahrenheit_calibration",
-emit=emit.thirdRths0324FahrenheitCal(),
-data_type=data_types.Int16,
-scale=100,
-mfg_code=0x1407,
-minimum_interval=0,
-maximum_interval=3600,
-reportable_change=100,
-}),
-},
-}
-local heiman_ht_em_sensor={
-profile="sensors-temp-humidity-battery",
-zcl_clusters={
-zcl.temperature({endpoint=1}),
-zcl.humidity({endpoint=2}),
-zcl.battery({endpoint=2}),
-},
-configure=bind_clusters_by_endpoint({
-{endpoint=1,clusters={0x0402}},
-{endpoint=2,clusters={0x0405,0x0001}},
-}),
-}
-local heiman_ht_n_sensor={
-profile="sensors-temp-humidity-battery",
-zcl_clusters={
-zcl.temperature({endpoint=1}),
-zcl.humidity({endpoint=2}),
-zcl.battery({endpoint=1}),
-},
-configure=bind_clusters_by_endpoint({
-{endpoint=1,clusters={0x0402,0x0001}},
-{endpoint=2,clusters={0x0405}},
-}),
-}
-local sunricher_zg9032b_sensor={
-profile="sensors-temp-humidity-battery-zg9032b",
-zcl_clusters={
-zcl.temperature({endpoint=1}),
-zcl.humidity({endpoint=2}),
-zcl.battery({endpoint=1}),
-zcl.cluster_attribute(0x0402,0x1000,{
-name="zg9032b_temperature_compensation",
-endpoint=1,
-emit=emit.zg9032bTemperatureCompensation(),
-data_type=data_types.Int8,
-write_type=data_types.Int8,
-mfg_code=0x1224,
-numeric_range={minimum=-5,maximum=5,step=1,unit="C"},
-read_on_configure=true,
-}),
-zcl.cluster_attribute(0x0402,0x1001,{
-name="zg9032b_temperature_display_unit",
-endpoint=1,
-emit=emit.zg9032bTemperatureDisplayUnit(),
-data_type=data_types.Enum8,
-write_type=data_types.Enum8,
-mfg_code=0x1224,
-from_device=function(value)
-return({[0]="celsius",[1]="fahrenheit"})[value]
-end,
-to_device=function(value)
-return({celsius=0,fahrenheit=1})[value]
-end,
-read_on_configure=true,
-}),
-zcl.cluster_attribute(0x0405,0x1000,{
-name="zg9032b_humidity_compensation",
-endpoint=2,
-emit=emit.zg9032bHumidityCompensation(),
-data_type=data_types.Int8,
-write_type=data_types.Int8,
-mfg_code=0x1224,
-numeric_range={minimum=-5,maximum=5,step=1,unit="%"},
-read_on_configure=true,
-}),
-},
-configure=bind_clusters_by_endpoint({
-{endpoint=1,clusters={0x0402,0x0001}},
-{endpoint=2,clusters={0x0405}},
-}),
-}
-local smoke_sensor={
-profile="safety-smoke-detector-battery",
-zcl_clusters={
-zcl.smoke(),
-zcl.battery(),
-},
-}
-local schneider_smoke_sensor={
-profile="safety-smoke-temp-tamper-battery-low-battery-voltage-schneider-pending",magic_packet=false,
-zcl_clusters={
-zcl.smoke({minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=true}),
-zcl.temperature({minimum_interval=10,maximum_interval=3600,reportable_change=100,read_on_configure=true}),
-zcl.tamper({minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=false}),
-zcl.battery_low({minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=false,
-emit=function(_,value)
-return value and capabilities.batteryLevel.battery.critical()or capabilities.batteryLevel.battery.normal()
+b.battery{endpoint=1,read_only=true,minimum_interval=3600,maximum_interval=65000,reportable_change=10,
+from_device=function(d,f,i)
+if i.raw_value==255 then return nil end
+local ac=f:get_field"third_ws_application_version"return ac and ac<=23 and i.raw_value or d
+end},
+b.cluster_attribute(0,1,{name="third_ws_application_version",endpoint=1,data_type=a.Uint8,
+read_only=true,read_on_configure=true,emit=function(f,d)
+f:set_field("third_ws_application_version",d,{persist=true})
 end}),
-zcl.battery({minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,
-from_device=function(value,_,context)if context.raw_value~=255 then return value end end}),
-zcl.battery_voltage({minimum_interval=3600,maximum_interval=65000,reportable_change=10,read_on_configure=true,
-from_device=function(value,_,context)if context.raw_value~=255 then return value end end}),
-},
-}
-local illuminance_sensor={
-profile="sensors-illuminance-battery",
-zcl_clusters={
-zcl.illuminance(),
-zcl.battery(),
-},
-}
-local heiman_air_quality={
-profile="sensors-heiman-hs2aq-air-quality",
-zcl_clusters={
-zcl.temperature(),
-zcl.humidity(),
-zcl.battery(),
-zcl.cluster_attribute(0x042A,0x0000,{
-name="pm25",
-emit=emit.pm25(),
-data_type=data_types.Uint16,
-minimum_interval=0,
-maximum_interval=3600,
-reportable_change=1,
-}),
-zcl.cluster_attribute(0x042B,0x0000,{
-name="formaldehyde",
-emit=emit.formaldehyde(),
-data_type=data_types.Uint16,
-scale=1000,
-minimum_interval=0,
-maximum_interval=3600,
-reportable_change=1,
-}),
-zcl.cluster_attribute(0xFC81,0xF002,{
-name="heiman_battery_state",
-emit=emit.heimanHs2aqBatteryState(),
-data_type=data_types.Uint8,
-mfg_code=0x120B,
-from_device=function(value)
-return({[0]="not_charging",[1]="charging",[2]="charged"})[value]
+b.cluster_attribute(65281,16,{name="third_ws_buzzer",endpoint=1,data_type=a.Uint8,write_type=a.Uint8,mfg_code=4659,read_on_configure=true,suppress_optimistic_state=true,emit=h.thirdWsBuzzer(),sender=G,
+from_device=function(d)return d==1 and"ON"or"OFF"end}),
+b.cluster_attribute(65281,17,{name="third_ws_buzzer_minutes",endpoint=1,data_type=a.Uint8,write_type=a.Uint8,mfg_code=4659,read_on_configure=true,suppress_optimistic_state=true,numeric_range={minimum=0,maximum=255},emit=h.thirdWsBuzzerMinutes(),sender=G})}}local P={
+profile="sensors-temp-humidity-battery",zcl_clusters={
+b.temperature(),b.humidity(),b.battery()}}local v={
+profile="sensors-temp-humidity-battery-voltage",zcl_clusters={
+b.temperature(),b.humidity(),b.battery(),b.battery_voltage()}}local x={
+profile="sensors-temp-humidity-battery-voltage",zcl_clusters={
+b.temperature{endpoint=38},b.humidity{endpoint=38},b.battery{endpoint=38},b.battery_voltage{endpoint=38}},configure=e{
+{endpoint=38,clusters={1026,1029,1}}}}local z={
+profile="sensors-temp-humidity-battery-3rths-pending",zcl_clusters={
+b.temperature(),b.humidity(),b.battery()}}local u={
+profile="sensors-temp-humidity-battery-3rths0324-pending",advanced_remote=true,zcl_clusters={
+b.temperature(),b.humidity(),b.battery(),b.cluster_attribute(65281,49,{
+name="third_rths0324_celsius_calibration",emit=h.thirdRths0324CelsiusCal(),data_type=a.Int16,scale=100,mfg_code=5127,minimum_interval=0,maximum_interval=3600,reportable_change=100}),b.cluster_attribute(65281,50,{
+name="third_rths0324_humidity_calibration",emit=h.thirdRths0324HumidityCal(),data_type=a.Int16,scale=100,mfg_code=5127,minimum_interval=0,maximum_interval=3600,reportable_change=100}),b.cluster_attribute(65281,51,{
+name="third_rths0324_fahrenheit_calibration",emit=h.thirdRths0324FahrenheitCal(),data_type=a.Int16,scale=100,mfg_code=5127,minimum_interval=0,maximum_interval=3600,reportable_change=100})}}local Q={
+profile="sensors-temp-humidity-battery",zcl_clusters={
+b.temperature{endpoint=1},b.humidity{endpoint=2},b.battery{endpoint=2}},configure=e{
+{endpoint=1,clusters={1026}},{endpoint=2,clusters={1029,1}}}}local S={
+profile="sensors-temp-humidity-battery",zcl_clusters={
+b.temperature{endpoint=1},b.humidity{endpoint=2},b.battery{endpoint=1}},configure=e{
+{endpoint=1,clusters={1026,1}},{endpoint=2,clusters={1029}}}}local F={
+profile="sensors-temp-humidity-battery-zg9032b",zcl_clusters={
+b.temperature{endpoint=1},b.humidity{endpoint=2},b.battery{endpoint=1},b.cluster_attribute(1026,4096,{
+name="zg9032b_temperature_compensation",endpoint=1,emit=h.zg9032bTemperatureCompensation(),data_type=a.Int8,write_type=a.Int8,mfg_code=4644,numeric_range={minimum=-5,maximum=5,step=1,unit="C"},read_on_configure=true}),b.cluster_attribute(1026,4097,{
+name="zg9032b_temperature_display_unit",endpoint=1,emit=h.zg9032bTemperatureDisplayUnit(),data_type=a.Enum8,write_type=a.Enum8,mfg_code=4644,
+from_device=function(d)
+return({[0]="celsius",[1]="fahrenheit"})[d]
 end,
-minimum_interval=0,
-maximum_interval=3600,
-reportable_change=1,
-}),
-zcl.cluster_attribute(0xFC81,0xF003,{
-name="heiman_pm10",
-emit=emit.heimanHs2aqPm10(),
-data_type=data_types.Uint16,
-mfg_code=0x120B,
-minimum_interval=0,
-maximum_interval=3600,
-reportable_change=1,
-}),
-zcl.cluster_attribute(0xFC81,0xF004,{
-name="voc",
-emit=emit.voc(),
-data_type=data_types.Uint16,
-mfg_code=0x120B,
-minimum_interval=0,
-maximum_interval=3600,
-reportable_change=1,
-}),
-zcl.cluster_attribute(0xFC81,0xF005,{
-name="heiman_aqi",
-emit=emit.heimanHs2aqAqi(),
-data_type=data_types.Uint16,
-mfg_code=0x120B,
-minimum_interval=0,
-maximum_interval=3600,
-reportable_change=1,
-}),
-},
-configure=function(driver,device)
-for _,cluster_id in ipairs({0x0001,0x000A,0x0402,0x0405,0x042A,0x042B,0xFC81})do
-device:send(device_management.build_bind_request(
-device,
-cluster_id,
-driver.environment_info.hub_zigbee_eui,
-1
-))
+to_device=function(d)
+return({celsius=0,fahrenheit=1})[d]
+end,
+read_on_configure=true}),b.cluster_attribute(1029,4096,{
+name="zg9032b_humidity_compensation",endpoint=2,emit=h.zg9032bHumidityCompensation(),data_type=a.Int8,write_type=a.Int8,mfg_code=4644,numeric_range={minimum=-5,maximum=5,step=1,unit="%"},read_on_configure=true})},configure=e{
+{endpoint=1,clusters={1026,1}},{endpoint=2,clusters={1029}}}}local I={
+profile="safety-smoke-temp-tamper-battery-low-battery-voltage-schneider-pending",magic_packet=false,zcl_clusters={
+b.smoke{minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=true},b.temperature{minimum_interval=10,maximum_interval=3600,reportable_change=100},b.tamper{minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=false},b.battery_low{minimum_interval=0,maximum_interval=65000,reportable_change=0,read_on_configure=false,
+emit=function(_,d)
+return d and t.batteryLevel.battery.critical()or t.batteryLevel.battery.normal()
+end},
+b.battery{minimum_interval=3600,maximum_interval=65000,reportable_change=10,
+from_device=function(d,_,i)if i.raw_value~=255 then return d end end},
+b.battery_voltage{minimum_interval=3600,maximum_interval=65000,reportable_change=10,
+from_device=function(d,_,i)if i.raw_value~=255 then return d end end}
+}}local R={
+profile="sensors-heiman-hs2aq-air-quality",zcl_clusters={
+b.temperature(),b.humidity(),b.battery(),b.cluster_attribute(1066,0,{
+name="pm25",emit=h.pm25(),data_type=a.Uint16,minimum_interval=0,maximum_interval=3600,reportable_change=1}),b.cluster_attribute(1067,0,{
+name="formaldehyde",emit=h.formaldehyde(),data_type=a.Uint16,scale=1000,minimum_interval=0,maximum_interval=3600,reportable_change=1}),b.cluster_attribute(64641,61442,{
+name="heiman_battery_state",emit=h.heimanHs2aqBatteryState(),data_type=a.Uint8,mfg_code=4619,
+from_device=function(d)
+return({[0]="not_charging",[1]="charging",[2]="charged"})[d]
+end,
+minimum_interval=0,maximum_interval=3600,reportable_change=1}),b.cluster_attribute(64641,61443,{
+name="heiman_pm10",emit=h.heimanHs2aqPm10(),data_type=a.Uint16,mfg_code=4619,minimum_interval=0,maximum_interval=3600,reportable_change=1}),b.cluster_attribute(64641,61444,{
+name="voc",emit=h.voc(),data_type=a.Uint16,mfg_code=4619,minimum_interval=0,maximum_interval=3600,reportable_change=1}),b.cluster_attribute(64641,61445,{
+name="heiman_aqi",emit=h.heimanHs2aqAqi(),data_type=a.Uint16,mfg_code=4619,minimum_interval=0,maximum_interval=3600,reportable_change=1})},
+configure=function(Y,f)
+for _,O in ipairs{1,10,1026,1029,1066,1067,64641}do
+f:send(B.build_bind_request(
+f,O,Y.environment_info.hub_zigbee_eui,1))
 end
-local utc=os.time()
-local local_date,utc_date=os.date("*t",utc),os.date("!*t",utc)
-utc_date.isdst=local_date.isdst
-local offset=os.difftime(os.time(local_date),os.time(utc_date))
-local tx
-for _,field in ipairs({{1,data_types.Bitmap8(3)},{0,data_types.UtcTime(utc - 946684800)},{2,data_types.Int32(offset)}})do
-local part=cluster_base.write_attribute(device,data_types.ClusterId(0x000A),data_types.AttributeId(field[1]),field[2])
-if tx then tx.body.zcl_body.attr_records[#tx.body.zcl_body.attr_records + 1]=part.body.zcl_body.attr_records[1]
-else tx=part end
+local ai=os.time()local W,Z=os.date("*t",ai),os.date("!*t",ai)Z.isdst=W.isdst
+local af=os.difftime(os.time(W),os.time(Z))local tx
+for _,ae in ipairs{{1,a.Bitmap8(3)},{0,a.UtcTime(ai-946684800)},{2,a.Int32(af)}}do
+local ag=E.write_attribute(f,a.ClusterId(10),a.AttributeId(ae[1]),ae[2])if tx then tx.body.zcl_body.attr_records[#tx.body.zcl_body.attr_records+1]=ag.body.zcl_body.attr_records[1]
+else tx=ag end
 end
-device:send(tx:to_endpoint(1))
+f:send(tx:to_endpoint(1))
+end
+}local aa={
+profile="safety-contact-temp-battery",zcl_clusters={
+b.cluster_attribute(15,85,{
+name="contact",emit=h.contact(),data_type=a.SinglePrecisionFloat,
+from_device=function(d)
+return d==0
 end,
-}
-local terncy_dc01={
-profile="safety-contact-temp-battery",
-zcl_clusters={
-zcl.cluster_attribute(0x000F,0x0055,{
-name="contact",
-emit=emit.contact(),
-data_type=data_types.SinglePrecisionFloat,
-from_device=function(value)
-return value==0
+minimum_interval=0,maximum_interval=300,reportable_change=1}),b.temperature{scale=10},b.cluster_attribute(b.CLUSTER_POWER_CONFIGURATION,b.ATTR_BATTERY_PERCENTAGE_REMAINING,{
+name="battery",emit=h.battery(),data_type=a.Uint8,scale=1,minimum_interval=300,maximum_interval=21600,reportable_change=1})}}local N={
+profile="safety-contact-battery",zcl_clusters={
+j(b.contact{
+endpoint=1,read_only=true,read_on_refresh=false,
+from_device=function(_,_,i)
+if i.command_id~=0 then return nil end
+return bit32.band(i.raw_value,1)~=0
+end
+}),b.cluster_attribute(b.CLUSTER_POWER_CONFIGURATION,b.ATTR_BATTERY_PERCENTAGE_REMAINING,{
+name="battery",emit=h.battery(),data_type=a.Uint8,scale=2,
+from_device=function(d,_,i)
+if i.raw_value==255 then return nil end
+return d
 end,
-minimum_interval=0,
-maximum_interval=300,
-reportable_change=1,
-}),
-zcl.temperature({scale=10}),
-zcl.cluster_attribute(zcl.CLUSTER_POWER_CONFIGURATION,zcl.ATTR_BATTERY_PERCENTAGE_REMAINING,{
-name="battery",
-emit=emit.battery(),
-data_type=data_types.Uint8,
-scale=1,
-minimum_interval=300,
-maximum_interval=21600,
-reportable_change=1,
-}),
-},
-}
-local sunricher_terncy_dc01={
-profile="safety-contact-battery",
-zcl_clusters={
-zcl.cluster_attribute(0x000F,0x0055,{
-name="contact",
-emit=emit.contact(),
-data_type=data_types.SinglePrecisionFloat,
-from_device=function(value)
-return value==0
-end,
-minimum_interval=0,
-maximum_interval=300,
-reportable_change=1,
-}),
-zcl.cluster_attribute(zcl.CLUSTER_POWER_CONFIGURATION,zcl.ATTR_BATTERY_PERCENTAGE_REMAINING,{
-name="battery",
-emit=emit.battery(),
-data_type=data_types.Uint8,
-scale=1,
-minimum_interval=300,
-maximum_interval=21600,
-reportable_change=1,
-}),
-},
-}
-register_aliases(motion_tamper_battery_low_battery_sensor,{
-fp("LDS","ZHA-PirSensor"),
-})
-register_aliases(occupancy_motion_illuminance_sensor,{
-fp("Leedarson","ZHA-PIRSensor"),
-})
-register_aliases(ewelink_motion_sensor,{
-fp("eWeLink","CK-TLSR8656-SS5-01(7002)"),
-fp("eWeLink","MS01"),
-fp("eWeLink","MSO1"),
-fp("eWeLink","SNZB-03"),
-fp("SONOFF","CK-TLSR8656-SS5-01(7002)"),
-fp("SONOFF","MS01"),
-fp("SONOFF","MSO1"),
-fp("SONOFF","SNZB-03"),
-})
-register_aliases(candeo_motion_illuminance_sensor,{
-fp("Candeo","C-ZB-SEMO"),
-})
-register_aliases(contact_sensor,{
-fp("Candeo","C-ZB-SEDC"),
-})
-register_aliases(contact_sensor,{
-fp("Sunricher","HK-SENSOR-CT-A"),
-})
-register_aliases(contact_battery_low_sensor,{
-fp("Sunricher","HK-SENSOR-CT-MINI"),
-})
-register_aliases(shyugj_contact_sensor,{
-fp("Shyugj","DoorSensor-ZB3.0"),
-})
-register_aliases(ewelink_contact_sensor,{
-fp("eWeLink","CK-TLSR8656-SS5-01(7003)"),
-fp("eWeLink","SNZB-04"),
-})
-register_aliases(water_sensor,{
-fp("Candeo","C-ZB-SEWA"),
-})
-register_aliases(third_reality_water_sensor_pending,{
-fp("Third Reality, Inc","3RWS18BZ"),
-})
-register_aliases(water_sensor,{
-fp("Third Reality, Inc","3RWS0218Z"),
-})
-register_aliases(water_battery_low_battery_sensor,{
-fp("eWeLink","CK-TLSR8656-SS5-01(7019)"),
-fp("eWeLink","SNZB-05"),
-})
-register_aliases(temp_humidity_sensor,{
-fp("Candeo","C-ZB-SETE"),
-})
-register_aliases(frient_temp_humidity_sensor,{
-fp("Frient","HMSZB-120"),
-})
-register_aliases(third_reality_3rths_sensor,{
-fp("Third Reality, Inc","3RTHS24BZ"),
-fp("Third Reality, Inc","3RTHS0224Z"),
-})
-register_aliases(third_reality_3rths0324_sensor,{
-fp("Third Reality, Inc","3RTHS0324Z"),
-})
-register_aliases(heiman_ht_em_sensor,{
-fp("HEIMAN","HT-EM"),
-fp("HEIMAN","TH-EM"),
-fp("HEIMAN","TH-T_V14"),
-})
-register_aliases(heiman_ht_n_sensor,{
-fp("HEIMAN","HT-N"),
-fp("HEIMAN","HT-EF-3.0"),
-fp("HEIMAN","HS3HT-EFA-3.0"),
-})
-register_aliases(sunricher_zg9032b_sensor,{
-fp("Sunricher","ZG9032B"),
-})
-register_aliases(temp_humidity_voltage_sensor,{
-fp("eWeLink","CK-TLSR8656-SS5-01(7014)"),
-fp("Zbeacon","TH01"),
-})
-register_aliases(heiman_air_quality,{
-fp("HEIMAN","HS2AQ-EM"),
-fp("HEIMAN","HS2AQ-EM-3.0"),
-})
-register_aliases(terncy_dc01,{
-fp("TERNCY","TERNCY-DC01"),
-})
-register_aliases(sunricher_terncy_dc01,{
-fp("Sunricher","TERNCY-DC01"),
-})
-register_aliases(schneider_smoke_sensor,{
-fp("Schneider Electric","755WSA"),
-fp("Schneider Electric","W599501"),
-fp("Schneider Electric","W599001"),
-})
-register_aliases(third_reality_3rms_motion_sensor,{
-fp("Third Reality, Inc","3RMS16BZ"),
-})
-register_aliases(third_reality_3rsmr_motion_sensor,{
-fp("Third Reality, Inc","3RSMR01067Z"),
-})
-register_aliases(third_reality_3rps_presence_sensor,{
-fp("Third Reality, Inc","3RPS01083Z"),
-})
-register_aliases(third_reality_door_sensor,{
-fp("Third Reality, Inc","3RDS17BZ"),
-})
-register_aliases(third_reality_tilt_sensor,{
-fp("Third Reality, Inc","3RDTS01056Z"),
-})
-return{
-id="zcl.sensors.retail_sensors",
-registrations=device_definitions,
-}
+minimum_interval=300,maximum_interval=21600,reportable_change=1})}}c(l,{
+g("LDS","ZHA-PirSensor")})c(n,{
+g("Leedarson","ZHA-PIRSensor")})c(L,{
+g("eWeLink","CK-TLSR8656-SS5-01(7002)"),g("eWeLink","MS01"),g("eWeLink","MSO1"),g("eWeLink","SNZB-03"),g("SONOFF","CK-TLSR8656-SS5-01(7002)"),g("SONOFF","MS01"),g("SONOFF","MSO1"),g("SONOFF","SNZB-03")})c(q,{
+g("Candeo","C-ZB-SEMO")})c(J,{
+g("Candeo","C-ZB-SEDC")})c(J,{
+g("Sunricher","HK-SENSOR-CT-A")})c(y,{
+g("Sunricher","HK-SENSOR-CT-MINI")})c(M,{
+g("Shyugj","DoorSensor-ZB3.0")})c(H,{
+g("eWeLink","CK-TLSR8656-SS5-01(7003)"),g("eWeLink","SNZB-04")})c(V,{
+g("Candeo","C-ZB-SEWA")})c(A,{
+g("Third Reality, Inc","3RWS18BZ"),g("THIRDREALITY","3RWS18BZ")})c(V,{
+g("Third Reality, Inc","3RWS0218Z")})c(s,{
+g("eWeLink","CK-TLSR8656-SS5-01(7019)"),g("eWeLink","SNZB-05")})c(P,{
+g("Candeo","C-ZB-SETE")})c(x,{
+g("Frient","HMSZB-120")})c(z,{
+g("Third Reality, Inc","3RTHS24BZ"),g("Third Reality, Inc","3RTHS0224Z")})c(u,{
+g("Third Reality, Inc","3RTHS0324Z")})c(Q,{
+g("HEIMAN","HT-EM"),g("HEIMAN","TH-EM"),g("HEIMAN","TH-T_V14")})c(S,{
+g("HEIMAN","HT-N"),g("HEIMAN","HT-EF-3.0"),g("HEIMAN","HS3HT-EFA-3.0")})c(F,{
+g("Sunricher","ZG9032B")})c(v,{
+g("eWeLink","CK-TLSR8656-SS5-01(7014)"),g("Zbeacon","TH01")})c(R,{
+g("HEIMAN","HS2AQ-EM"),g("HEIMAN","HS2AQ-EM-3.0")})c(aa,{
+g("TERNCY","TERNCY-DC01")})c(N,{
+g("Sunricher","TERNCY-DC01")})c(I,{
+g("Schneider Electric","755WSA"),g("Schneider Electric","W599501"),g("Schneider Electric","W599001")})c(r,{
+g("Third Reality, Inc","3RMS16BZ")})c(p,{
+g("Third Reality, Inc","3RSMR01067Z")})c(o,{
+g("Third Reality, Inc","3RPS01083Z")})c(C,{
+g("Third Reality, Inc","3RDS17BZ")})c(D,{
+g("Third Reality, Inc","3RDTS01056Z")})b.attach_reporting_capabilities(w,{
+{1,"rpt-txk"},{2,"rpt-zcl"},{3,"rpt-cep"},{4,"rpt-cgl"},{5,"rpt-cvm"},{6,"rpt-cvm"},{7,"rpt-hqa"},{8,"rpt-rab"},{9,"rpt-tku"},{10,"rpt-cxv"},{11,"rpt-zjd"},{12,"rpt-cxv"},{13,"rpt-tml"},{14,"rpt-tgdf"},{15,"rpt-sgy"},{16,"rpt-tgdf"},{17,"rpt-zkk"},{18,"rpt-tgdf"},{19,"rpt-tgdf"},{20,"rpt-zzw"},{21,"rpt-sgy"},{22,"rpt-hlk"},{23,"rpt-trc",{zr000f0055auto=false}},{24,"rpt-tcg"},{25,"rpt-zxh"},{26,"rpt-tctq"},{27,"rpt-tctq"},{28,"rpt-zjr"},{29,"rpt-tku"},{30,"rpt-hqa"}})return{
+id="zcl.sensors.retail_sensors",registrations=w}

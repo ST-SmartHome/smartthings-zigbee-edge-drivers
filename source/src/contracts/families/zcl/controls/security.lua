@@ -134,6 +134,7 @@ register_device_definition(sos_remote, device_helpers.create_fingerprints("TS021
   "_TZ3000_9r5jaajv",
   "_TZ3000_nxdziqzc",
   "_TZ3000_irwuzilv",
+  "_TZ3000_gjiggmio",
 }))
 
 register_device_definition(heiman_sos_remote, {
@@ -160,6 +161,16 @@ register_device_definition(heiman_partial_action_remote, {
   device_helpers.create_fingerprint("HEIMAN", "RC-EM"),
   device_helpers.create_fingerprint("HEIMAN", "RC-N"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tnq"},
+  {2, "rpt-tfs"},
+  {3, "rpt-toee"},
+  {4, "rpt-toee"},
+  {5, "rpt-rqo"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.controls.security",

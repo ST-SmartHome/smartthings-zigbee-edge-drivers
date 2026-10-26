@@ -1,0 +1,55 @@
+name: safety-motion-zigbeetlc-dual
+components:
+- id: main
+  capabilities:
+  - id: occupancySensor
+    version: 1
+  - id: motionSensor
+    version: 1
+  - id: presenceSensor
+    version: 1
+  - id: switch
+    version: 1
+  - id: battery
+    version: 1
+  - id: voltageMeasurement
+    version: 1
+  - id: refresh
+    version: 1
+  - id: signalStrength
+    version: 1
+  - id: concertmirror08464.zgDualFadingTime
+    version: 1
+  - id: concertmirror08464.zgDualZoneOneMotion
+    version: 1
+  - id: concertmirror08464.zgDualZoneOneStill
+    version: 1
+  - id: concertmirror08464.zgDualZoneTwoMotion
+    version: 1
+  - id: concertmirror08464.zgDualZoneTwoStill
+    version: 1
+  - id: concertmirror08464.zgDualZoneThreeMotion
+    version: 1
+  - id: concertmirror08464.zgDualZoneThreeStill
+    version: 1
+  - id: concertmirror08464.zgDualRadarScans
+    version: 1
+  - id: concertmirror08464.zgDualIlluminanceRaw
+    version: 1
+  - id: concertmirror08464.zgDualIlluminance
+    version: 1
+  - id: concertmirror08464.zgDualPowerOn
+    version: 1
+  - id: concertmirror08464.zgDualPresenceState
+    version: 1
+  - id: concertmirror08464.zgDualAction
+    version: 1
+  categories:
+  - name: MotionSensor
+preferences:
+- name: illuminanceRaw
+  title: Raw illuminance diagnostic
+  required: false
+  preferenceType: boolean
+  definition:
+    default: false

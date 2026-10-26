@@ -129,6 +129,31 @@ register_device_definition(bht002_half, device_helpers.create_fingerprints("TS06
 }))
 
 local bht002_whole = bht002_definition("thermostats-bht002-whole", 1, 10, 1, emit.bhtTemperatureCalibrationWhole(), 1)
+local BHT002_TIME_ZONE_FIELD = "_bht002_time_zone_hours"
+local function bht002_send_time(device, offset_hours)
+  local utc_time = os.time()
+  return tuya.send_time(device, utc_time, utc_time + offset_hours * 3600)
+end
+
+bht002_whole.force_time_updates = true
+bht002_whole.time_handler = function(device)
+  return bht002_send_time(device, device:get_field(BHT002_TIME_ZONE_FIELD) or 0)
+end
+bht002_whole.protocol_writers = {
+  bht002_time_zone = function(device, offset_hours)
+    if not bht002_send_time(device, offset_hours) then return false end
+    device:set_field(BHT002_TIME_ZONE_FIELD, offset_hours, { persist = true })
+    return true
+  end,
+}
+local bht002_whole_runtime_start = bht002_whole.runtime_start
+bht002_whole.runtime_start = function(device)
+  bht002_whole_runtime_start(device)
+  device:emit_component_event(
+    { id = "main" },
+    emit.bht002TimeZone()(device, device:get_field(BHT002_TIME_ZONE_FIELD) or 0)
+  )
+end
 register_device_definition(bht002_whole, device_helpers.create_fingerprints("TS0601", {
   "_TZE204_aoclfnxz",
 }))
@@ -473,10 +498,12 @@ local tervix_program_emit = emit.thermostatPresetTervixProgram()
 local tervix_mode_emit = emit.tervixMode()
 local thermostat_tervix = {
   profile = "thermostats-thermostat-tervix",
-  tuya.dp_system_mode(1, {
+  tuya.dp_binary(1, {
+    name = "system_mode",
+    emit = emit.thermostat_mode(),
     converter = converter.lookup_from_to({
-      off = 0,
-      heat = 1,
+      off = false,
+      heat = true,
     }),
   }),
   tuya.dp_enum(2, {
@@ -1117,8 +1144,8 @@ local thermostat_pro_900z = {
     emit = emit.pro900zSensor(),
     converter = converter.lookup_from_to({
       ["in"] = 0,
-      ["al"] = 1,
-      ["ou"] = 2,
+      al = 1,
+      ou = 2,
     }),
   }),
   tuya.dp_raw(101, { name = "schedule_monday" }),                            -- profile 미포함

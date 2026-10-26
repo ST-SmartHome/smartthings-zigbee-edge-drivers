@@ -1,0 +1,141 @@
+{
+  "name": "safety-heiman-c1-m",
+  "components": [
+    {
+      "id": "main",
+      "capabilities": [
+        {
+          "id": "concertmirror08464.hmC1MBatteryPercent",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MIdentify",
+          "version": 1
+        },
+        {
+          "id": "temperatureMeasurement",
+          "version": 1
+        },
+        {
+          "id": "carbonMonoxideDetector",
+          "version": 1
+        },
+        {
+          "id": "batteryLevel",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MTestState",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MCoPpm",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MLifeState",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MAlarmState",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MPreheatState",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MFaultState",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MMuteState",
+          "version": 1
+        },
+        {
+          "id": "audioMute",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MInterconnectable",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MSirenMode",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MTempOffset",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MLinkState",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MReportedCount",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MRejoinCount",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MRebootCount",
+          "version": 1
+        },
+        {
+          "id": "refresh",
+          "version": 1
+        },
+        {
+          "id": "signalStrength",
+          "version": 1
+        },
+        {
+          "id": "concertmirror08464.hmC1MWarningV2",
+          "version": 1
+        }
+      ],
+      "categories": [
+        {
+          "name": "SmokeDetector"
+        }
+      ]
+    },
+    {
+      "id": "heartbeat",
+      "label": "Heartbeat indicator",
+      "capabilities": [
+        {
+          "id": "switch",
+          "version": 1
+        }
+      ],
+      "categories": [
+        {
+          "name": "Switch"
+        }
+      ]
+    },
+    {
+      "id": "selfTest",
+      "label": "Trigger self test",
+      "capabilities": [
+        {
+          "id": "momentary",
+          "version": 1
+        }
+      ],
+      "categories": [
+        {
+          "name": "Button"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "deviceType": "CarbonMonoxideDetector",
+    "ocfDeviceType": "x.com.st.d.sensor.carbonmonoxide"
+  }
+}

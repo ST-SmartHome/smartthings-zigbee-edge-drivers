@@ -21,9 +21,6 @@ for index = 1, 10 do clear_scenes["scene_" .. tostring(index)] = index + 9 end
 local ews = {
   profile = "switches-wave13-box-ews1154z",
   package_group = "switch-panel",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "modernExtend.dp*",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = false,
   datapoints = {

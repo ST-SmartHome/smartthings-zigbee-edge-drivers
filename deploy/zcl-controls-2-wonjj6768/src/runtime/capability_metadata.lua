@@ -1,108 +1,79 @@
-local custom_capabilities={}
-local strings={"slackyThreeSceneIdOne","slacky3_scene_id_one","Slacky Three Scene Id One","slackyThreeGroupIdOne","slacky3_group_id_one","Slacky Three Group Id One","slackyThreeMinLevelOne","slacky3_min_level_one","Slacky Three Min Level One","slackyThreeMaxLevelOne","slacky3_max_level_one","Slacky Three Max Level One","slackyThreeSceneIdTwo","slacky3_scene_id_two","Slacky Three Scene Id Two","slackyThreeGroupIdTwo","slacky3_group_id_two","Slacky Three Group Id Two","slackyThreeMinLevelTwo","slacky3_min_level_two","Slacky Three Min Level Two","slackyThreeMaxLevelTwo","slacky3_max_level_two","Slacky Three Max Level Two","slackyThreeSceneIdThree","slacky3_scene_id_three","Slacky Three Scene Id Three","slackyThreeGroupIdThree","slacky3_group_id_three","Slacky Three Group Id Three","slackyThreeMinLevelThree","slacky3_min_level_three","Slacky Three Min Level Three","slackyThreeMaxLevelThree","slacky3_max_level_three","Slacky Three Max Level Three","candeoRd1pRemAction","candeoRdOnepRemAction","candeo_rd1p_rem_action","Candeo Rd1p Rem Action","pressed","double_pressed","held","released","started_rotating_left","started_rotating_right","rotating_right","rotating_left","stopped_rotating","slackyThreeSwitchActionOne","slacky3_switch_action_one","Slacky Three Switch Action One","off","on","toggle","slackyThreeSwitchTypeOne","slacky3_switch_type_one","Slacky Three Switch Type One","momentary","multifunction","brightness_level","brightness_level_up","brightness_level_down","move_to_color_temperature","move_to_color_temperature_up","move_to_color_temperature_down","scene","slackyThreeSwitchActionTwo","slacky3_switch_action_two","Slacky Three Switch Action Two","slackyThreeSwitchTypeTwo","slacky3_switch_type_two","Slacky Three Switch Type Two","slackyThreeSwitchActionThree","slacky3_switch_action_three","Slacky Three Switch Action Three","slackyThreeSwitchTypeThree","slacky3_switch_type_three","Slacky Three Switch Type Three","jetHomeWs7Action","jetHomeWsAction","jethome_ws7_action_in1","Jet Home Ws7Action","release_in1","single_in1","double_in1","triple_in1","hold_in1","release_in2","single_in2","double_in2","triple_in2","hold_in2","release_in3","single_in3","double_in3","triple_in3","hold_in3","sonoffKfAction","action","sonoff_kf_action","Sonoff Kf Action","single","last_power_response_time","lastPowerResponseTime","Last power response time","remote_action","remoteAction","Remote action"}
-local function string_value(value)
-if type(value)=="number" then return strings[value]end
-return value
+local a={}local H={"OFF","ON","min","off","toggle","action","s","on","single","single_up_button_1","double_up_button_1","release_up_button_1","hold_up_button_1","single_down_button_1","double_down_button_1","release_down_button_1","hold_down_button_1","%","momentary","multifunction","brightness_level","brightness_level_up","brightness_level_down","move_to_color_temperature","move_to_color_temperature_up","move_to_color_temperature_down","scene","hold","double","single_up_button_2","double_up_button_2","release_up_button_2","hold_up_button_2","single_down_button_2","double_down_button_2","release_down_button_2","hold_down_button_2","zigbee","keypad","fingerprintsensor","rfid","unattributed","self","unknown","ms","pressed","released","release","ring","AUTO","SCHEDULE","slackyThreeSceneIdOne","slackyThreeGroupIdOne","slackyThreeMinLevelOne","slackyThreeMaxLevelOne","slackyThreeSceneIdTwo","slackyThreeGroupIdTwo","slackyThreeMinLevelTwo","slackyThreeMaxLevelTwo","slackyThreeSceneIdThree","slackyThreeGroupIdThree","slackyThreeMinLevelThree","slackyThreeMaxLevelThree","slackyThreeSwitchActionOne","slackyThreeSwitchTypeOne","slackyThreeSwitchActionTwo","slackyThreeSwitchTypeTwo","slackyThreeSwitchActionThree","slackyThreeSwitchTypeThree","aqH1RotationAngle","aqH1RotationAngleSpeed","aqH1RotationPercent","aqH1RotationPercentSpeed","aqH1RotationTime","stredaSn2OnOffTransitionTime","stredaSn2OnTransitionTime","stredaSn2OffTransitionTime","stredaSn2OnLevel","stredaSn2StartupLevel","srCctStepSize","srCctTransitionTime","mired","srCctTemperatureDelta","srCctGroup","airwickBatteryLevel","airwickDuration","airwickAutoInterval","airwickTimeZone","airwickSprayCount","airwickMonInterval","airwickTueInterval","airwickWedInterval","airwickThuInterval","airwickFriInterval","airwickSatInterval","airwickSunInterval","nimlyCodeActionUser","nimlyCodeEventSource","nimlyCodePinCapacity","nimlyCodeMinPinLength","nimlyCodeMaxPinLength","nimlyCodeRelockTime","iris3460Group","candeoRd1pRemAction","double_pressed","started_rotating_left","started_rotating_right","rotating_right","rotating_left","stopped_rotating","jetHomeWs7Action","release_in1","single_in1","double_in1","triple_in1","hold_in1","release_in2","single_in2","double_in2","triple_in2","hold_in2","release_in3","single_in3","double_in3","triple_in3","hold_in3","sonoffKfAction","aqH1Action","start_rotating","rotation","stop_rotating","aqH1RotationButtonState","aqH1OperationMode","command","aqH1Sensitivity","medium","stredaBn0sAction","stredaBn0tAction","stredaSn3Action","stredaSn3Doorbell","doorbell","stredaSn3kDoorbell","stredaSn2ExecuteIfOff","r3sb22bzAction","triple","quadruple","airwickMode","PROGRAMMABLE","UNKNOWN","airwickLastReason","Zigbee","Button","PROGRAM","airwickTimeValid","airwickMonEnabled","airwickTueEnabled","airwickWedEnabled","airwickThuEnabled","airwickFriEnabled","airwickSatEnabled","airwickSunEnabled","nimlyCodeLastLockSource","nimlyCodeLastUnlockSource","nimlyCodeActionSource","manual","fingerprint","nimlyCodeSoundVolume","silent_mode","low_volume","high_volume","nimlyCodeAutoRelock","stredaSn3kButtonAction","single_up_doorbell_button","double_up_doorbell_button","release_up_doorbell_button","hold_up_doorbell_button","samjinButtonAction","iris3460Action","lastPowerResponseTime","remoteAction","srCctAction","airwickScheduleInfo","airwickLastSpray","airwickNextSpray","airwickMonStart","airwickMonEnd","airwickTueStart","airwickTueEnd","airwickWedStart","airwickWedEnd","airwickThuStart","airwickThuEnd","airwickFriStart","airwickFriEnd","airwickSatStart","airwickSatEnd","airwickSunStart","airwickSunEnd","nimlyCodeLastLockUser","nimlyCodeLastUnlockUser","nimlyCodeLastPin","nimlyCodeAction","nimlyCodePin"}
+local function b(g)
+if type(g)=="number"then return H[g]end
+return g
 end
-local function capability_id(value)local suffix=string_value(value);if suffix==nil then return nil end;return "concertmirror08464." .. suffix end
-local table_groups={}
-local function grouped_table(group_id)
-if type(group_id)~="number" then return{}end
-local existing=table_groups[group_id]
-if existing ~=nil then return existing end
-local out={}
-table_groups[group_id]=out
-return out
+local function p(g)local suffix=b(g);if suffix==nil then return nil end;return"concertmirror08464."..suffix end
+local t={}
+local function q(k)
+if type(k)~="number"then return{}end
+local x=t[k]
+if x~=nil then return x end
+local n={}t[k]=n
+return n
 end
-local function string_list(values,group_id)
-if type(values)~="table" then return nil end
-local out=grouped_table(group_id)
-for index,value in ipairs(values)do out[index]=string_value(value)end
-return out
+local function s(D,k)
+if type(D)~="table"then return nil end
+local n=q(k)
+for A,g in ipairs(D)do n[A]=b(g)end
+return n
 end
-local function optional_string(value,default)
-if value==nil then return default end
-if value==0 then return nil end
-return string_value(value)
+local function i(g,E)
+if g==nil then return E end
+if g==0 then return nil end
+return b(g)
 end
-local function command_default(attribute_name)
-if type(attribute_name)~="string" or attribute_name=="" then return nil end
-return "set" .. attribute_name:sub(1,1):upper().. attribute_name:sub(2)
+local function m(attribute_name)
+if type(attribute_name)~="string"or attribute_name==""then return nil end
+return"set"..attribute_name:sub(1,1):upper()..attribute_name:sub(2)
 end
-local function range(value)
-if type(value)~="table" then return nil end
-local out=grouped_table(value[6])
-out.minimum=value[1]
-out.maximum=value[2]
-out.step=value[3]
-out.unit=string_value(value[4])
-out.allowed_values=string_list(value[5],value[7])
-return out
+local function J(g)
+if type(g)~="table"then return nil end
+local n=q(g[6])n.minimum=g[1]n.maximum=g[2]n.step=g[3]n.unit=b(g[4])n.allowed_values=s(g[5],g[7])return n
 end
-local function allowed_range(allowed_values,group_id)
-if allowed_values==nil and group_id==nil then return nil end
-local out=grouped_table(group_id)
-out.allowed_values=allowed_values
-return out
+local function w(j,k)
+if j==nil and k==nil then return nil end
+local n=q(k)n.allowed_values=j
+return n
 end
-local function numeric(row)
-local attribute_name=string_value(row[4])
-return{kind="numeric",emit_name=string_value(row[1]),range_key=string_value(row[2]),capability_id=capability_id(row[3]),attribute_name=attribute_name,range_attribute_name=string_value(row[5]),command_name=optional_string(row[6],command_default(attribute_name)),argument_name=optional_string(row[7],attribute_name),mapping_name=string_value(row[8]),label=string_value(row[9]),default_range=range(row[10]),event_minimum=row[11],event_maximum=row[12],event_unit=string_value(row[13])}
+local function G(f)
+local attribute_name=b(f[4])return{kind="numeric",emit_name=b(f[1]),range_key=b(f[2]),capability_id=p(f[3]),attribute_name=attribute_name,range_attribute_name=b(f[5]),command_name=i(f[6],m(attribute_name)),argument_name=i(f[7],attribute_name),mapping_name=b(f[8]),label=b(f[9]),default_range=J(f[10]),event_minimum=f[11],event_maximum=f[12],event_unit=b(f[13])}
 end
-local function enum(row)
-local attribute_name=string_value(row[4])
-local supported_values=string_list(row[10],row[12])
-local default_allowed_values=string_list(row[11],row[14])
-local default_range=allowed_range(default_allowed_values,row[13])
-return{kind="enum",emit_name=string_value(row[1]),range_key=string_value(row[2]),capability_id=capability_id(row[3]),attribute_name=attribute_name,supported_attribute_name=string_value(row[5]),command_name=optional_string(row[6],command_default(attribute_name)),argument_name=optional_string(row[7],attribute_name),mapping_name=string_value(row[8]),label=string_value(row[9]),supported_values=supported_values,default_range=default_range}
+local function K(f)
+local attribute_name=b(f[4])local u=s(f[10],f[12])local r=s(f[11],f[14])local d=w(r,f[13])return{kind="enum",emit_name=b(f[1]),range_key=b(f[2]),capability_id=p(f[3]),attribute_name=attribute_name,supported_attribute_name=b(f[5]),command_name=i(f[6],m(attribute_name)),argument_name=i(f[7],attribute_name),mapping_name=b(f[8]),label=b(f[9]),supported_values=u,default_range=d}
 end
-local function text(row)
-local attribute_name=string_value(row[3])
-return{kind="text",emit_name=string_value(row[1]),capability_id=capability_id(row[2]),attribute_name=attribute_name,command_name=optional_string(row[4],command_default(attribute_name)),argument_name=optional_string(row[5],attribute_name),mapping_name=string_value(row[6]),label=string_value(row[7]),maximum_length=row[8]}
+local function M(f)
+local attribute_name=b(f[3])return{kind="text",emit_name=b(f[1]),capability_id=p(f[2]),attribute_name=attribute_name,command_name=i(f[4],m(attribute_name)),argument_name=i(f[5],attribute_name),mapping_name=b(f[6]),label=b(f[7]),maximum_length=f[8]}
 end
-local function build(rows,factory)
-local out={}
-for _,row in ipairs(rows)do out[#out + 1]=factory(row)end
-return out
+local function z(L,F)
+local n={}
+for _,f in ipairs(L)do n[#n+1]=F(f)end
+return n
 end
-custom_capabilities.numeric=build({{1,nil,1,1,nil,nil,nil,2,3,{0,255,1,nil,nil,1,nil},nil,nil,nil},{4,nil,4,4,nil,nil,nil,5,6,{0,65527,1,nil,nil,2,nil},nil,nil,nil},{7,nil,7,7,nil,nil,nil,8,9,{1,255,1,nil,nil,3,nil},nil,nil,nil},{10,nil,10,10,nil,nil,nil,11,12,{1,255,1,nil,nil,4,nil},nil,nil,nil},{13,nil,13,13,nil,nil,nil,14,15,{0,255,1,nil,nil,5,nil},nil,nil,nil},{16,nil,16,16,nil,nil,nil,17,18,{0,65527,1,nil,nil,6,nil},nil,nil,nil},{19,nil,19,19,nil,nil,nil,20,21,{1,255,1,nil,nil,7,nil},nil,nil,nil},{22,nil,22,22,nil,nil,nil,23,24,{1,255,1,nil,nil,8,nil},nil,nil,nil},{25,nil,25,25,nil,nil,nil,26,27,{0,255,1,nil,nil,9,nil},nil,nil,nil},{28,nil,28,28,nil,nil,nil,29,30,{0,65527,1,nil,nil,10,nil},nil,nil,nil},{31,nil,31,31,nil,nil,nil,32,33,{1,255,1,nil,nil,11,nil},nil,nil,nil},{34,nil,34,34,nil,nil,nil,35,36,{1,255,1,nil,nil,12,nil},nil,nil,nil}},numeric)
-custom_capabilities.enum=build({{37,nil,37,38,nil,0,0,39,40,{41,42,43,44,45,46,47,48,49},{41,42,43,44,45,46,47,48,49},13,14,13},{50,nil,50,50,nil,nil,nil,51,52,{53,54,55},{53,54,55},15,16,15},{56,nil,56,56,nil,nil,nil,57,58,{55,59,60,61,62,63,64,65,66,67},{55,59,60,61,62,63,64,65,66,67},17,18,17},{68,nil,68,68,nil,nil,nil,69,70,{53,54,55},{53,54,55},19,20,19},{71,nil,71,71,nil,nil,nil,72,73,{55,59,60,61,62,63,64,65,66,67},{55,59,60,61,62,63,64,65,66,67},21,22,21},{74,nil,74,74,nil,nil,nil,75,76,{53,54,55},{53,54,55},23,24,23},{77,nil,77,77,nil,nil,nil,78,79,{55,59,60,61,62,63,64,65,66,67},{55,59,60,61,62,63,64,65,66,67},25,26,25},{80,nil,80,81,nil,0,0,82,83,{84,85,86,87,88,89,90,91,92,93,94,95,96,97,98},{84,85,86,87,88,89,90,91,92,93,94,95,96,97,98},27,28,27},{99,nil,99,100,nil,0,0,101,102,{53,103},{53,103},29,30,29}},enum)
-custom_capabilities.text=build({{104,105,105,0,0,nil,106,64},{107,108,108,0,0,nil,109,128}},text)
-custom_capabilities.driver_message={["attribute_name"]="driverMessage",["capability_id"]="concertmirror08464.driverMessage",["emit_name"]="driver_message",["label"]="Driver message",["maximum_length"]=512}
-custom_capabilities.by_range_key={}
-custom_capabilities.by_emit_name={}
-custom_capabilities.by_capability_id={}
-local function index_metadata(definitions)
-for _,metadata in ipairs(definitions)do
-custom_capabilities.by_emit_name[metadata.emit_name]=metadata
-if type(metadata.capability_id)=="string" and metadata.capability_id ~="" then custom_capabilities.by_capability_id[metadata.capability_id]=metadata end
-if type(metadata.range_key)=="string" and metadata.range_key ~="" then custom_capabilities.by_range_key[metadata.range_key]=metadata end
+a.numeric=z({{52,nil,52,52,nil,nil,nil,"slacky3_scene_id_one","Slacky Three Scene Id One",{0,255,1,nil,nil,1}},{53,nil,53,53,nil,nil,nil,"slacky3_group_id_one","Slacky Three Group Id One",{0,65527,1,nil,nil,2}},{54,nil,54,54,nil,nil,nil,"slacky3_min_level_one","Slacky Three Min Level One",{1,255,1,nil,nil,3}},{55,nil,55,55,nil,nil,nil,"slacky3_max_level_one","Slacky Three Max Level One",{1,255,1,nil,nil,4}},{56,nil,56,56,nil,nil,nil,"slacky3_scene_id_two","Slacky Three Scene Id Two",{0,255,1,nil,nil,5}},{57,nil,57,57,nil,nil,nil,"slacky3_group_id_two","Slacky Three Group Id Two",{0,65527,1,nil,nil,6}},{58,nil,58,58,nil,nil,nil,"slacky3_min_level_two","Slacky Three Min Level Two",{1,255,1,nil,nil,7}},{59,nil,59,59,nil,nil,nil,"slacky3_max_level_two","Slacky Three Max Level Two",{1,255,1,nil,nil,8}},{60,nil,60,60,nil,nil,nil,"slacky3_scene_id_three","Slacky Three Scene Id Three",{0,255,1,nil,nil,9}},{61,nil,61,61,nil,nil,nil,"slacky3_group_id_three","Slacky Three Group Id Three",{0,65527,1,nil,nil,10}},{62,nil,62,62,nil,nil,nil,"slacky3_min_level_three","Slacky Three Min Level Three",{1,255,1,nil,nil,11}},{63,nil,63,63,nil,nil,nil,"slacky3_max_level_three","Slacky Three Max Level Three",{1,255,1,nil,nil,12}},{70,nil,70,"rotationAngle",nil,0,0,"aq_h1_rotation_angle","Aq H1Rotation Angle",{nil,nil,nil,"*",nil,13},nil,nil,"*"},{71,nil,71,"rotationAngleSpeed",nil,0,0,"aq_h1_rotation_angle_speed","Aq H1Rotation Angle Speed",{nil,nil,nil,"*",nil,14},nil,nil,"*"},{72,nil,72,"rotationPercent",nil,0,0,"aq_h1_rotation_percent","Aq H1Rotation Percent",{nil,nil,nil,18,nil,15},nil,nil,18},{73,nil,73,"rotationPercentSpeed",nil,0,0,"aq_h1_rotation_percent_speed","Aq H1Rotation Percent Speed",{nil,nil,nil,18,nil,16},nil,nil,18},{74,nil,74,"rotationTime",nil,0,0,"aq_h1_rotation_time","Aq H1Rotation Time",{nil,nil,nil,45,nil,17},nil,nil,45},{75,nil,75,"onOffTransitionTime",nil,nil,nil,"streda_sn2_on_off_transition_time","Streda Sn2On Off Transition Time",{0,6553.5,0.1,7,nil,18},nil,nil,7},{76,nil,76,"onTransitionTime",nil,nil,nil,"streda_sn2_on_transition_time","Streda Sn2On Transition Time",{0,6553.5,0.1,7,nil,19},nil,nil,7},{77,nil,77,"offTransitionTime",nil,nil,nil,"streda_sn2_off_transition_time","Streda Sn2Off Transition Time",{0,6553.5,0.1,7,nil,20},nil,nil,7},{78,nil,78,"onLevel",nil,nil,nil,"streda_sn2_on_level","Streda Sn2On Level",{0,255,1,nil,nil,21}},{79,nil,79,"startupLevel",nil,nil,nil,"streda_sn2_startup_level","Streda Sn2Startup Level",{0,255,1,nil,nil,22}},{80,nil,80,"stepSize",nil,0,0,"sr_cct_step_size","Sr Cct Step Size",{0,65535,1,nil,nil,23}},{81,nil,81,"transitionTime",nil,0,0,"sr_cct_transition_time","Sr Cct Transition Time",{0,6553.5,0.1,7,nil,24},nil,nil,7},{83,nil,83,"temperatureDelta",nil,0,0,"sr_cct_temperature_delta","Sr Cct Temperature Delta",{-65535,65535,1,82,nil,25},nil,nil,82},{84,nil,84,"group",nil,0,0,"sr_cct_group","Sr Cct Group",{1,65527,1,nil,nil,26}},{85,nil,85,"batteryLevel",nil,0,0,"airwick_battery_level","Airwick Battery Level",{0,100,0.5,18,nil,27},nil,nil,18},{86,nil,86,"duration",nil,nil,nil,"airwick_duration","Airwick Duration",{300,1000,10,45,nil,28},nil,nil,45},{87,nil,87,"autoInterval",nil,nil,nil,"airwick_auto_interval","Airwick Auto Interval",{1,1440,1,3,nil,29},nil,nil,3},{88,nil,88,"timeZone",nil,nil,nil,"airwick_time_zone","Airwick Time Zone",{-12,14,0.5,"h",nil,30},nil,nil,"h"},{89,nil,89,"sprayCount",nil,0,0,"airwick_spray_count","Airwick Spray Count",{nil,nil,nil,nil,nil,31}},{90,nil,90,"monInterval",nil,nil,nil,"airwick_mon_interval","Airwick Mon Interval",{1,1440,1,3,nil,32},nil,nil,3},{91,nil,91,"tueInterval",nil,nil,nil,"airwick_tue_interval","Airwick Tue Interval",{1,1440,1,3,nil,33},nil,nil,3},{92,nil,92,"wedInterval",nil,nil,nil,"airwick_wed_interval","Airwick Wed Interval",{1,1440,1,3,nil,34},nil,nil,3},{93,nil,93,"thuInterval",nil,nil,nil,"airwick_thu_interval","Airwick Thu Interval",{1,1440,1,3,nil,35},nil,nil,3},{94,nil,94,"friInterval",nil,nil,nil,"airwick_fri_interval","Airwick Fri Interval",{1,1440,1,3,nil,36},nil,nil,3},{95,nil,95,"satInterval",nil,nil,nil,"airwick_sat_interval","Airwick Sat Interval",{1,1440,1,3,nil,37},nil,nil,3},{96,nil,96,"sunInterval",nil,nil,nil,"airwick_sun_interval","Airwick Sun Interval",{1,1440,1,3,nil,38},nil,nil,3},{97,nil,97,"actionUser",nil,0,0,"nimly_code_actionUser","Nimly Code Action User",{nil,nil,nil,nil,nil,39}},{98,nil,98,"eventSource",nil,0,0,"nimly_code_eventSource","Nimly Code Event Source",{nil,nil,nil,nil,nil,40}},{99,nil,99,"pinCapacity",nil,0,0,"nimly_code_pinCapacity","Nimly Code Pin Capacity",{nil,nil,nil,nil,nil,41}},{100,nil,100,"minPinLength",nil,0,0,"nimly_code_minPinLength","Nimly Code Min Pin Length",{nil,nil,nil,nil,nil,42}},{101,nil,101,"maxPinLength",nil,0,0,"nimly_code_maxPinLength","Nimly Code Max Pin Length",{nil,nil,nil,nil,nil,43}},{102,nil,102,"relockTime",nil,nil,nil,"nimly_code_relock_time","Nimly Code Relock Time",{0,255,1,7,nil,44},nil,nil,7},{103,nil,103,"actionGroup",nil,0,0,"iris3460_group","Iris3460Group",{1,65527,1,nil,nil,45}}},G)a.enum=z({{104,nil,104,"candeoRdOnepRemAction",nil,0,0,"candeo_rd1p_rem_action","Candeo Rd1p Rem Action",{46,105,"held",47,106,107,108,109,110},{46,105,"held",47,106,107,108,109,110},46,47,46},{64,nil,64,64,nil,nil,nil,"slacky3_switch_action_one","Slacky Three Switch Action One",{4,8,5},{4,8,5},48,49,48},{65,nil,65,65,nil,nil,nil,"slacky3_switch_type_one","Slacky Three Switch Type One",{5,19,20,21,22,23,24,25,26,27},{5,19,20,21,22,23,24,25,26,27},50,51,50},{66,nil,66,66,nil,nil,nil,"slacky3_switch_action_two","Slacky Three Switch Action Two",{4,8,5},{4,8,5},52,53,52},{67,nil,67,67,nil,nil,nil,"slacky3_switch_type_two","Slacky Three Switch Type Two",{5,19,20,21,22,23,24,25,26,27},{5,19,20,21,22,23,24,25,26,27},54,55,54},{68,nil,68,68,nil,nil,nil,"slacky3_switch_action_three","Slacky Three Switch Action Three",{4,8,5},{4,8,5},56,57,56},{69,nil,69,69,nil,nil,nil,"slacky3_switch_type_three","Slacky Three Switch Type Three",{5,19,20,21,22,23,24,25,26,27},{5,19,20,21,22,23,24,25,26,27},58,59,58},{111,nil,111,"jetHomeWsAction",nil,0,0,"jethome_ws7_action_in1","Jet Home Ws7Action",{112,113,114,115,116,117,118,119,120,121,122,123,124,125,126},{112,113,114,115,116,117,118,119,120,121,122,123,124,125,126},60,61,60},{127,nil,127,6,nil,0,0,"sonoff_kf_action","Sonoff Kf Action",{4,9},{4,9},62,63,62},{128,nil,128,6,nil,0,0,"aq_h1_action","Aq H1Action",{28,9,29,48,129,130,131},{28,9,29,48,129,130,131},64,65,64},{132,nil,132,"rotationButtonState",nil,0,0,"aq_h1_rotation_button_state","Aq H1Rotation Button State",{47,46},{47,46},66,67,66},{133,nil,133,"operationMode",nil,nil,nil,"aq_h1_operation_mode","Aq H1Operation Mode",{"event",134},{"event",134},68,69,68},{135,nil,135,"sensitivity",nil,nil,nil,"aq_h1_sensitivity","Aq H1Sensitivity",{"low",136,"high"},{"low",136,"high"},70,71,70},{137,nil,137,6,nil,0,0,"streda_bn0s_action","Streda Bn0s Action",{10,11,12,13,14,15,16,17},{10,11,12,13,14,15,16,17},72,73,72},{138,nil,138,6,nil,0,0,"streda_bn0t_action","Streda Bn0t Action",{10,11,12,13,14,15,16,17,30,31,32,33,34,35,36,37},{10,11,12,13,14,15,16,17,30,31,32,33,34,35,36,37},74,75,74},{139,nil,139,6,nil,0,0,"streda_sn3_action","Streda Sn3Action",{10,11,12,13,14,15,16,17,30,31,32,33,34,35,36,37},{10,11,12,13,14,15,16,17,30,31,32,33,34,35,36,37},76,77,76},{140,nil,140,141,nil,nil,nil,"streda_sn3_doorbell","Streda Sn3Doorbell",{49},{49},78,79,78},{142,nil,142,141,nil,nil,nil,"streda_sn3k_doorbell","Streda Sn3k Doorbell",{49},{49},80,81,80},{143,nil,143,"executeIfOff",nil,nil,nil,"streda_sn2_execute_if_off","Streda Sn2Execute If Off",{8,4},{8,4},82,83,82},{144,nil,144,6,nil,0,0,"r3sb22bz_action","R3sb22bz Action",{9,29,28,48,145,146,"many"},{9,29,28,48,145,146,"many"},84,85,84},{147,nil,147,"mode",nil,0,0,"airwick_mode","Airwick Mode",{1,50,51,148,149},{1,50,51,148,149},86,87,86},{150,nil,150,"lastReason",nil,0,0,"airwick_last_reason","Airwick Last Reason",{"None",151,152,50,51,153},{"None",151,152,50,51,153},88,89,88},{154,nil,154,"timeValid",nil,0,0,"airwick_time_valid","Airwick Time Valid",{1,2},{1,2},90,91,90},{155,nil,155,"monEnabled",nil,nil,nil,"airwick_mon_enabled","Airwick Mon Enabled",{2,1},{2,1},92,93,92},{156,nil,156,"tueEnabled",nil,nil,nil,"airwick_tue_enabled","Airwick Tue Enabled",{2,1},{2,1},94,95,94},{157,nil,157,"wedEnabled",nil,nil,nil,"airwick_wed_enabled","Airwick Wed Enabled",{2,1},{2,1},96,97,96},{158,nil,158,"thuEnabled",nil,nil,nil,"airwick_thu_enabled","Airwick Thu Enabled",{2,1},{2,1},98,99,98},{159,nil,159,"friEnabled",nil,nil,nil,"airwick_fri_enabled","Airwick Fri Enabled",{2,1},{2,1},100,101,100},{160,nil,160,"satEnabled",nil,nil,nil,"airwick_sat_enabled","Airwick Sat Enabled",{2,1},{2,1},102,103,102},{161,nil,161,"sunEnabled",nil,nil,nil,"airwick_sun_enabled","Airwick Sun Enabled",{2,1},{2,1},104,105,104},{162,nil,162,"lastLockSource",nil,0,0,"nimly_code_lastLockSource","Nimly Code Last Lock Source",{38,39,40,41,42,43,44},{38,39,40,41,42,43,44},106,107,106},{163,nil,163,"lastUnlockSource",nil,0,0,"nimly_code_lastUnlockSource","Nimly Code Last Unlock Source",{38,39,40,41,42,43,44},{38,39,40,41,42,43,44},108,109,108},{164,nil,164,"actionSource",nil,0,0,"nimly_code_actionSource","Nimly Code Action Source",{38,39,40,41,42,43,44,"rf",165,166},{38,39,40,41,42,43,44,"rf",165,166},110,111,110},{167,nil,167,"soundVolume",nil,nil,nil,"nimly_code_sound_volume","Nimly Code Sound Volume",{168,169,170},{168,169,170},112,113,112},{171,nil,171,"autoRelock",nil,nil,nil,"nimly_code_auto_relock","Nimly Code Auto Relock",{2,1},{2,1},114,115,114},{172,nil,172,6,nil,0,0,"streda_sn3k_action","Streda Sn3k Button Action",{10,11,12,13,14,15,16,17,30,31,32,33,34,35,36,37,173,174,175,176},{10,11,12,13,14,15,16,17,30,31,32,33,34,35,36,37,173,174,175,176},116,117,116},{177,nil,177,6,nil,0,0,"samjin_button_action","Samjin Button Action",{4,9,29,28},{4,9,29,28},118,119,118},{178,nil,178,6,nil,0,0,"iris3460_action","Iris3460Action",{8,4},{8,4},120,121,120}},K)a.text=z({{"last_power_response_time",179,179,0,0,nil,"Last power response time",64},{"remote_action",180,180,0,0,nil,"Remote action",128},{181,181,6,0,0,"sr_cct_action","Sr Cct Action"},{182,182,"scheduleInfo",0,0,"airwick_schedule_info","Airwick Schedule Info"},{183,183,"lastSpray",0,0,"airwick_last_spray","Airwick Last Spray"},{184,184,"nextSpray",0,0,"airwick_next_spray","Airwick Next Spray"},{185,185,"monStart",nil,nil,"airwick_mon_start","Airwick Mon Start"},{186,186,"monEnd",nil,nil,"airwick_mon_end","Airwick Mon End"},{187,187,"tueStart",nil,nil,"airwick_tue_start","Airwick Tue Start"},{188,188,"tueEnd",nil,nil,"airwick_tue_end","Airwick Tue End"},{189,189,"wedStart",nil,nil,"airwick_wed_start","Airwick Wed Start"},{190,190,"wedEnd",nil,nil,"airwick_wed_end","Airwick Wed End"},{191,191,"thuStart",nil,nil,"airwick_thu_start","Airwick Thu Start"},{192,192,"thuEnd",nil,nil,"airwick_thu_end","Airwick Thu End"},{193,193,"friStart",nil,nil,"airwick_fri_start","Airwick Fri Start"},{194,194,"friEnd",nil,nil,"airwick_fri_end","Airwick Fri End"},{195,195,"satStart",nil,nil,"airwick_sat_start","Airwick Sat Start"},{196,196,"satEnd",nil,nil,"airwick_sat_end","Airwick Sat End"},{197,197,"sunStart",nil,nil,"airwick_sun_start","Airwick Sun Start"},{198,198,"sunEnd",nil,nil,"airwick_sun_end","Airwick Sun End"},{199,199,"lastLockUser",0,0,"nimly_code_lastLockUser","Nimly Code Last Lock User"},{200,200,"lastUnlockUser",0,0,"nimly_code_lastUnlockUser","Nimly Code Last Unlock User"},{201,201,"lastPin",0,0,"nimly_code_lastPin","Nimly Code Last Pin"},{202,202,6,0,0,"nimly_code_action","Nimly Code Action"},{203,203,"pin",nil,nil,"nimly_code_pin","Nimly Code Pin"}},M)a.driver_message={attribute_name="driverMessage",capability_id="concertmirror08464.driverMessage",emit_name="driver_message",label="Driver message",maximum_length=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
+local function o(y)
+for _,e in ipairs(y)do
+a.by_emit_name[e.emit_name]=e
+if type(e.capability_id)=="string"and e.capability_id~=""then a.by_capability_id[e.capability_id]=e end
+if type(e.range_key)=="string"and e.range_key~=""then a.by_range_key[e.range_key]=e end
 end
 end
-index_metadata(custom_capabilities.numeric)
-index_metadata(custom_capabilities.enum)
-index_metadata(custom_capabilities.text)
-custom_capabilities.by_emit_name[custom_capabilities.driver_message.emit_name]=custom_capabilities.driver_message
-custom_capabilities.by_capability_id[custom_capabilities.driver_message.capability_id]=custom_capabilities.driver_message
-local function clone_allowed_values(allowed_values)
-if type(allowed_values)~="table" then return nil end
-local copied={}
-for index,value in ipairs(allowed_values)do copied[index]=value end
-return copied
+o(a.numeric)o(a.enum)o(a.text)a.by_emit_name[a.driver_message.emit_name]=a.driver_message
+a.by_capability_id[a.driver_message.capability_id]=a.driver_message
+local function l(j)
+if type(j)~="table"then return nil end
+local B={}
+for A,g in ipairs(j)do B[A]=g end
+return B
 end
-function custom_capabilities.resolve_range(definition,metadata)
-if type(metadata)~="table" then return nil end
-local default_range=type(metadata.default_range)=="table" and metadata.default_range or nil
-local ranges=type(definition)=="table" and definition.presence_capability_ranges or nil
-local resolved=type(ranges)=="table" and ranges[metadata.range_key]or nil
-if type(resolved)~="table" then resolved=default_range end
-if type(resolved)~="table" then return nil end
+function a.resolve_range(v,e)
+if type(e)~="table"then return nil end
+local d=type(e.default_range)=="table"and e.default_range or nil
+local C=type(v)=="table"and v.presence_capability_ranges or nil
+local h=type(C)=="table"and C[e.range_key]or nil
+if type(h)~="table"then h=d end
+if type(h)~="table"then return nil end
 return{
-minimum=type(resolved.minimum)=="number" and resolved.minimum or(default_range and default_range.minimum or nil),
-maximum=type(resolved.maximum)=="number" and resolved.maximum or(default_range and default_range.maximum or nil),
-step=type(resolved.step)=="number" and resolved.step or(default_range and default_range.step or nil),
-unit=type(resolved.unit)=="string" and resolved.unit or(default_range and default_range.unit or nil),
-allowed_values=type(resolved.allowed_values)=="table" and clone_allowed_values(resolved.allowed_values)or clone_allowed_values(default_range and default_range.allowed_values or nil),
-}
+minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil)}
 end
-return custom_capabilities
+return a

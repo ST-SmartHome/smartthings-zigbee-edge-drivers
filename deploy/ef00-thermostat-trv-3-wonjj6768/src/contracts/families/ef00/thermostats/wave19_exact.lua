@@ -1,323 +1,197 @@
-local tuya=require "protocol.tuya"
-local emit=require "capabilities.events.all"
-local device_helpers=require "contracts.helpers.family"
-local thermostat_metadata=require "contracts.helpers.ef00_thermostat_metadata"
-local converter=tuya.converter
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local function custom(capability_id)
-return assert(emit[capability_id],"missing Wave19 thermostat emitter: " .. capability_id)()
+local b=require"protocol.tuya"
+local t=require"capabilities.events.all"
+local p=require"contracts.helpers.family"
+local o=require"contracts.helpers.ef00_thermostat_metadata"
+local c=b.converter
+local z,k=p.definition_registry()
+local function f(capability_id)
+return assert(t[capability_id],"missing Wave19 thermostat emitter: "..capability_id)()
 end
-local function round(value)
-local numeric=tonumber(value)
-if numeric==nil then return nil end
-return math.floor(numeric + 0.5)
+local function K(a)
+local d=tonumber(a)
+if d==nil then return nil end
+return math.floor(d+0.5)
 end
-local function clamp(value,minimum,maximum)
-local numeric=tonumber(value)
-if numeric==nil then return nil end
-return math.max(minimum,math.min(maximum,numeric))
+local function ai(a,ad,ac)
+local d=tonumber(a)
+if d==nil then return nil end
+return math.max(ad,math.min(ac,d))
 end
-local function bool(value)
-return value==true or value==1
+local function ag(a)
+return a==true or a==1
 end
-local function on_off(value)
-return bool(value)and "ON" or "OFF"
+local function j(a)
+if type(a)~="string"then return nil end
+local L={}
+for B=1,#a do L[#L+1]=tostring(string.byte(a,B))end
+return table.concat(L,",")
 end
-local function comma_bytes(value)
-if type(value)~="string" then return nil end
-local fields={}
-for index=1,#value do fields[#fields + 1]=tostring(string.byte(value,index))end
-return table.concat(fields,",")
+local function v(i,W)
+local N=b.build_named_map(i,"name")
+for am,ab in pairs(W)do N[am]=ab end
+return N
 end
-local function named_overlay(datapoints,overrides)
-local mappings=tuya.build_named_map(datapoints,"name")
-for name,mapping in pairs(overrides)do mappings[name]=mapping end
-return mappings
+local function H(ae,i)
+i.profile=ae
+i.package_group="wave19-thermostat"
+i.magic_packet=true
+i.query_on_configure=true
+i.named_datapoints=true
+i.time_start="2000"
+return i
 end
-local function lifecycle(profile,datapoints)
-datapoints.profile=profile
-datapoints.package_group="wave19-thermostat"
-datapoints.transport_classification="CUSTOM_PAYLOAD"
-datapoints.z2m_converter_source="frozen legacy thermostat converter"
-datapoints.wire_cluster="manuSpecificTuya"
-datapoints.magic_packet=true
-datapoints.query_on_configure=true
-datapoints.named_datapoints=true
-datapoints.time_start="2000"
-datapoints.placeholder_custom_states=false
-return datapoints
+local D={
+[101]="monday",[102]="tuesday",[103]="wednesday",[104]="thursday",[105]="friday",[106]="saturday",[107]="away_or_vacation"}
+local function aa(a)
+local d=math.floor(tonumber(a)or 0)return string.char(math.floor(d/256)%256,d%256)
 end
-local IMMAX_DAY_BY_DP={
-[101]="monday",
-[102]="tuesday",
-[103]="wednesday",
-[104]="thursday",
-[105]="friday",
-[106]="saturday",
-[107]="away_or_vacation",
-}
-local function u16be(value)
-local numeric=math.floor(tonumber(value)or 0)
-return string.char(math.floor(numeric / 0x100)% 0x100,numeric % 0x100)
+local function g(dp)
+return function(a)
+if type(a)~="string"or #a<16 then return nil end
+local h={}for B=0,3 do
+local V=B*4+1
+local O,R,U,X=string.byte(a,V,V+3)h[#h+1]={
+time=O*256+R,heating_setpoint=string.format("%.1f",(U*256+X)/10)}
 end
-local function immax_weekly_from(dp)
-return function(value)
-if type(value)~="string" or #value < 16 then return nil end
-local transitions={}
-for index=0,3 do
-local offset=index * 4 + 1
-local minutes_high,minutes_low,heat_high,heat_low=string.byte(value,offset,offset + 3)
-transitions[#transitions + 1]={
-time=minutes_high * 0x100 + minutes_low,
-heating_setpoint=string.format("%.1f",(heat_high * 0x100 + heat_low)/ 10),
-}
-end
-return{days={IMMAX_DAY_BY_DP[dp]},transitions=transitions}
+return{days={D[dp]},transitions=h}
 end
 end
-local function immax_weekly_write(_,value)
-if type(value)~="table" then return nil end
-local frames={}
-for _,schedule in pairs(value)do
-if type(schedule)~="table" then return nil end
-local day=tonumber(schedule.dayofweek)
-local count=tonumber(schedule.numoftrans)
-local mode=tonumber(schedule.mode)
-local transitions=schedule.transitions
-if day==nil or day < 1 or day > 7 or mode ~=1 or type(transitions)~="table"
-or count ~=#transitions or #transitions < 1 or #transitions > 4 then
+local function A(_,a)
+if type(a)~="table"then return nil end
+local M={}for _,s in pairs(a)do
+if type(s)~="table"then return nil end
+local Z=tonumber(s.dayofweek)local ak=tonumber(s.numoftrans)local T=tonumber(s.mode)local h=s.transitions
+if Z==nil or Z<1 or Z>7 or T~=1 or type(h)~="table"
+or ak~=#h or #h<1 or #h>4 then
 return nil
 end
-local padded={}
-for index=1,#transitions do padded[index]=transitions[index]end
-while #padded < 4 do padded[#padded + 1]=padded[#padded]end
-local payload={}
-for _,transition in ipairs(padded)do
-local minutes=tonumber(transition.transitionTime)
-local heat=tonumber(transition.heatSetpoint)
-if minutes==nil or heat==nil then return nil end
-payload[#payload + 1]=u16be(minutes)
-payload[#payload + 1]=u16be(math.floor(heat * 10))
+local q={}
+for B=1,#h do q[B]=h[B]end
+while #q<4 do q[#q+1]=q[#q]end
+local u={}for _,E in ipairs(q)do
+local S=tonumber(E.transitionTime)local ah=tonumber(E.heatSetpoint)
+if S==nil or ah==nil then return nil end
+u[#u+1]=aa(S)u[#u+1]=aa(math.floor(ah*10))
 end
-frames[#frames + 1]={
-dp=100 + day,
-datatype=tuya.DP_TYPE_RAW,
-value=table.concat(payload),
-transaction=1,
-}
+M[#M+1]={
+dp=100+Z,datatype=b.DP_TYPE_RAW,value=table.concat(u),transaction=1}
 end
-return frames
+return M
 end
-local function delayed_immax_mode(device,mode)
-if mode=="off" then
-return{dp=1,datatype=tuya.DP_TYPE_BOOL,value=false,transaction=1}
+local function y(l,T)
+if T=="off"then
+return{dp=1,datatype=b.DP_TYPE_BOOL,value=false,transaction=1}
 end
-local raw_mode=({heat=0,auto=2})[mode]
-if raw_mode==nil then return nil end
-if tuya.send_datapoint(device,1,tuya.DP_TYPE_BOOL,true,tuya.SET_DATA,false,1)==nil then return nil end
-device.thread:call_with_delay(0.5,function()
-tuya.send_datapoint(device,4,tuya.DP_TYPE_ENUM,raw_mode,tuya.SET_DATA,false,1)
+local r=({heat=0,auto=2})[T]
+if r==nil then return nil end
+if b.send_datapoint(l,1,b.DP_TYPE_BOOL,true,b.SET_DATA,false,1)==nil then return nil end
+l.thread:call_with_delay(0.5,function()
+b.send_datapoint(l,4,b.DP_TYPE_ENUM,r,b.SET_DATA,false,1)
 end,"Wave19 Immax system mode DP delay")
 return nil
 end
-local function delayed_immax_away(device,value)
-if value=="OFF" then
-return{dp=4,datatype=tuya.DP_TYPE_ENUM,value=0,transaction=1}
+local function x(l,a)
+if a=="OFF"then
+return{dp=4,datatype=b.DP_TYPE_ENUM,value=0,transaction=1}
 end
-if value ~="ON" then return nil end
-if tuya.send_datapoint(device,1,tuya.DP_TYPE_BOOL,true,tuya.SET_DATA,false,1)==nil then return nil end
-device.thread:call_with_delay(0.5,function()
-tuya.send_datapoint(device,4,tuya.DP_TYPE_ENUM,1,tuya.SET_DATA,false,1)
+if a~="ON"then return nil end
+if b.send_datapoint(l,1,b.DP_TYPE_BOOL,true,b.SET_DATA,false,1)==nil then return nil end
+l.thread:call_with_delay(0.5,function()
+b.send_datapoint(l,4,b.DP_TYPE_ENUM,1,b.SET_DATA,false,1)
 end,"Wave19 Immax away mode DP delay")
 return nil
 end
-local function bit_state(mask,active,clear)
-return converter.from_only(function(value)
-return bit32.band(tonumber(value)or 0,mask)~=0 and active or clear
+local function n(al,af,aj)
+return c.from_only(function(a)
+return bit32.band(tonumber(a)or 0,al)~=0 and af or aj
 end)
 end
-local immax=lifecycle("thermostats-wave19-immax-07703l",{
-tuya.dp_binary(1,{
+local J=H("thermostats-wave19-immax-07703l",{
+b.dp_binary(1,{
 name="immax_trv_power_mode_report",read_only=true,
-from_device=function(value)return bool(value)and nil or "off" end,
-emit=emit.thermostat_mode(),
-}),
-tuya.dp_bitmap(13,{name="immax_trv_high_temperature",read_only=true,converter=bit_state(0x01,"ON","OFF")}),
-tuya.dp_bitmap(13,{name="immax_trv_low_temperature",read_only=true,converter=bit_state(0x02,"ON","OFF")}),
-tuya.dp_bitmap(13,{name="immax_trv_internal_sensor_error",read_only=true,converter=bit_state(0x04,"ON","OFF")}),
-tuya.dp_bitmap(13,{name="immax_trv_external_sensor_error",read_only=true,converter=bit_state(0x08,"ON","OFF")}),
-tuya.dp_bitmap(13,{
-name="immaxTrv_battery_low",read_only=true,
-converter=bit_state(0x10,"low","normal"),emit=custom("immaxTrvBatteryLow"),
-}),
-tuya.dp_bitmap(13,{name="immax_trv_device_offline",read_only=true,converter=bit_state(0x20,"ON","OFF")}),
-tuya.dp_child_lock(7,{
-name="immaxTrv_child_lock",
-converter=converter.lookup_from_to({LOCK=true,UNLOCK=false}),
-emit=custom("immaxTrvChildLock"),
-}),
-tuya.dp_current_heating_setpoint(2,{scale=10,emit=emit.heating_setpoint("C")}),
-tuya.dp_local_temperature(3,{scale=10,read_only=true,emit=emit.temperature("C")}),
-tuya.dp_enum(4,{
+from_device=function(a)return ag(a)and nil or"off"end,
+emit=t.thermostat_mode()}),b.dp_bitmap(13,{name="immax_trv_high_temperature",read_only=true,converter=n(1,"ON","OFF")}),b.dp_bitmap(13,{name="immax_trv_low_temperature",read_only=true,converter=n(2,"ON","OFF")}),b.dp_bitmap(13,{name="immax_trv_internal_sensor_error",read_only=true,converter=n(4,"ON","OFF")}),b.dp_bitmap(13,{name="immax_trv_external_sensor_error",read_only=true,converter=n(8,"ON","OFF")}),b.dp_bitmap(13,{
+name="immaxTrv_battery_low",read_only=true,converter=n(16,"low","normal"),emit=f"immaxTrvBatteryLow"}),b.dp_bitmap(13,{name="immax_trv_device_offline",read_only=true,converter=n(32,"ON","OFF")}),b.dp_child_lock(7,{
+name="immaxTrv_child_lock",converter=c.lookup_from_to{LOCK=true,UNLOCK=false},emit=f"immaxTrvChildLock"}),b.dp_current_heating_setpoint(2,{scale=10,emit=t.heating_setpoint"C"}),b.dp_local_temperature(3,{scale=10,read_only=true,emit=t.temperature"C"}),b.dp_enum(4,{
 name="system_mode",read_only=true,
-converter=converter.from_only(function(value)return({[0]="heat",[1]="heat",[2]="auto"})[tonumber(value)]end),
-emit=emit.thermostat_mode(),
-}),
-tuya.dp_enum(4,{
+converter=c.from_only(function(a)return({[0]="heat",[1]="heat",[2]="auto"})[tonumber(a)]end),
+emit=t.thermostat_mode()}),b.dp_enum(4,{
 name="immaxTrv_away_mode",read_only=true,
-converter=converter.from_only(function(value)
-return({[0]="OFF",[1]="ON",[2]="OFF"})[tonumber(value)]
+converter=c.from_only(function(a)
+return({[0]="OFF",[1]="ON",[2]="OFF"})[tonumber(a)]
 end),
-emit=custom("immaxTrvAwayMode"),
-}),
-tuya.dp_enum(4,{
+emit=f"immaxTrvAwayMode"}),b.dp_enum(4,{
 name="immax_trv_preset",read_only=true,
-converter=converter.from_only(function(value)
-return({[0]="none",[1]="away",[2]="none"})[tonumber(value)]
-end),
-}),
-tuya.dp_binary(14,{
+converter=c.from_only(function(a)
+return({[0]="none",[1]="away",[2]="none"})[tonumber(a)]
+end)
+}),b.dp_binary(14,{
 name="running_state",read_only=true,
-converter=converter.from_only(function(value)return bool(value)and "heating" or "idle" end),
-emit=emit.thermostat_operating_state(),
-}),
-tuya.dp_raw(101,{name="immax_weekly_monday",read_only=true,converter=converter.from_only(immax_weekly_from(101))}),
-tuya.dp_raw(102,{name="immax_weekly_tuesday",read_only=true,converter=converter.from_only(immax_weekly_from(102))}),
-tuya.dp_raw(103,{name="immax_weekly_wednesday",read_only=true,converter=converter.from_only(immax_weekly_from(103))}),
-tuya.dp_raw(104,{name="immax_weekly_thursday",read_only=true,converter=converter.from_only(immax_weekly_from(104))}),
-tuya.dp_raw(105,{name="immax_weekly_friday",read_only=true,converter=converter.from_only(immax_weekly_from(105))}),
-tuya.dp_raw(106,{name="immax_weekly_saturday",read_only=true,converter=converter.from_only(immax_weekly_from(106))}),
-tuya.dp_raw(107,{name="immax_weekly_day_seven",read_only=true,converter=converter.from_only(immax_weekly_from(107))}),
-})
-immax.named_mapping={
-named_mappings=named_overlay(immax,{
-system_mode=delayed_immax_mode,
-immaxTrv_away_mode=delayed_immax_away,
-weekly_schedule=immax_weekly_write,
-}),
-}
-thermostat_metadata.attach(immax,{"off","heat","auto"},5,35,0.5)
-register_device_definition(immax,{
-device_helpers.create_fingerprint("_TZE200_wlosfena","TS0601"),
-})
-local half_degree=converter.from_to(
-function(value)local numeric=tonumber(value);return numeric and tonumber(string.format("%.1f",numeric / 2))or nil end,
-function(value)
-local numeric=clamp(value,0,30)
-return numeric and round(numeric * 2)or nil
+converter=c.from_only(function(a)return ag(a)and"heating"or"idle"end),
+emit=t.thermostat_operating_state()}),b.dp_raw(101,{name="immax_weekly_monday",read_only=true,converter=c.from_only(g(101))}),b.dp_raw(102,{name="immax_weekly_tuesday",read_only=true,converter=c.from_only(g(102))}),b.dp_raw(103,{name="immax_weekly_wednesday",read_only=true,converter=c.from_only(g(103))}),b.dp_raw(104,{name="immax_weekly_thursday",read_only=true,converter=c.from_only(g(104))}),b.dp_raw(105,{name="immax_weekly_friday",read_only=true,converter=c.from_only(g(105))}),b.dp_raw(106,{name="immax_weekly_saturday",read_only=true,converter=c.from_only(g(106))}),b.dp_raw(107,{name="immax_weekly_day_seven",read_only=true,converter=c.from_only(g(107))})})J.named_mapping={
+named_mappings=v(J,{
+system_mode=y,immaxTrv_away_mode=x,weekly_schedule=A})}o.attach(J,{"off","heat","auto"},5,35,0.5)k(J,{
+p.create_fingerprint("_TZE200_wlosfena","TS0601")})local m=c.from_to(
+function(a)local d=tonumber(a);return d and tonumber(string.format("%.1f",d/2))or nil end,
+function(a)
+local d=ai(a,0,30)return d and K(d*2)or nil
+end
+)local P=c.from_to(
+function(a)local d=tonumber(a);return d and tonumber(string.format("%.1f",d/10))or nil end,
+function(a)
+local d=tonumber(a)return d and K(d*10)or nil
+end
+)local C=c.from_to(
+function(a)local d=tonumber(a);return d and tonumber(string.format("%.1f",d/10))or nil end,
+function(a)
+local d=tonumber(a)
+if d==nil then return nil end
+if d<0 then d=d+4096 end
+return K(d*10)
 end
 )
-local tenth_degree=converter.from_to(
-function(value)local numeric=tonumber(value);return numeric and tonumber(string.format("%.1f",numeric / 10))or nil end,
-function(value)
-local numeric=tonumber(value)
-return numeric and round(numeric * 10)or nil
+local function G(l,a)
+local r,Y=({auto=0,heat=1})[a],({auto=220,heat=170})[a]
+if r==nil then return nil end
+if b.send_datapoint(l,2,b.DP_TYPE_ENUM,r,b.SET_DATA,false,1)==nil then return nil end
+return{dp=119,datatype=b.DP_TYPE_VALUE,value=Y,transaction=1}
 end
-)
-local woox_calibration=converter.from_to(
-function(value)local numeric=tonumber(value);return numeric and tonumber(string.format("%.1f",numeric / 10))or nil end,
-function(value)
-local numeric=tonumber(value)
-if numeric==nil then return nil end
-if numeric < 0 then numeric=numeric + 4096 end
-return round(numeric * 10)
+local function F(l,a)
+if a=="ON"then
+return{dp=2,datatype=b.DP_TYPE_ENUM,value=2,transaction=1}
 end
-)
-local function woox_mode_write(device,value)
-local raw_mode,setpoint=({auto=0,heat=1})[value],({auto=220,heat=170})[value]
-if raw_mode==nil then return nil end
-if tuya.send_datapoint(device,2,tuya.DP_TYPE_ENUM,raw_mode,tuya.SET_DATA,false,1)==nil then return nil end
-return{dp=119,datatype=tuya.DP_TYPE_VALUE,value=setpoint,transaction=1}
+if b.send_datapoint(l,2,b.DP_TYPE_ENUM,0,b.SET_DATA,false,1)==nil then return nil end
+return{dp=119,datatype=b.DP_TYPE_VALUE,value=220,transaction=1}
 end
-local function woox_away_write(device,value)
-if value=="ON" then
-return{dp=2,datatype=tuya.DP_TYPE_ENUM,value=2,transaction=1}
+local function w(_,a)
+local d=tonumber(a)
+if d==nil then return nil end
+return{dp=119,datatype=b.DP_TYPE_VALUE,value=K(d*10),transaction=1}
 end
-if tuya.send_datapoint(device,2,tuya.DP_TYPE_ENUM,0,tuya.SET_DATA,false,1)==nil then return nil end
-return{dp=119,datatype=tuya.DP_TYPE_VALUE,value=220,transaction=1}
-end
-local function woox_setpoint_write(_,value)
-local numeric=tonumber(value)
-if numeric==nil then return nil end
-return{dp=119,datatype=tuya.DP_TYPE_VALUE,value=round(numeric * 10),transaction=1}
-end
-local function woox_schedule_no_wire()return nil end
-local woox=lifecycle("thermostats-wave19-woox-r7067",{
-tuya.dp_enum(2,{
+local function e()return nil end
+local Q=H("thermostats-wave19-woox-r7067",{
+b.dp_enum(2,{
 name="system_mode",read_only=true,
-converter=converter.from_only(function(value)
-return({[0]="auto",[1]="heat",[2]="auto"})[tonumber(value)]or "off"
+converter=c.from_only(function(a)
+return({[0]="auto",[1]="heat",[2]="auto"})[tonumber(a)]or"off"
 end),
-emit=emit.thermostat_mode(),
-}),
-tuya.dp_enum(2,{
+emit=t.thermostat_mode()}),b.dp_enum(2,{
 name="wooxTrv_away_mode",read_only=true,
-converter=converter.from_only(function(value)return tonumber(value)==2 and "ON" or "OFF" end),
-emit=custom("wooxTrvAwayMode"),
-}),
-tuya.dp_numeric(16,{name="woox_manual_setpoint_report",read_only=true,converter=half_degree,emit=emit.heating_setpoint("C")}),
-tuya.dp_numeric(105,{name="woox_auto_setpoint_report",read_only=true,converter=half_degree,emit=emit.heating_setpoint("C")}),
-tuya.dp_numeric(24,{name="local_temperature",read_only=true,converter=tenth_degree,emit=emit.temperature("C")}),
-tuya.dp_numeric(104,{name="wooxTrv_temperature_calibration",converter=woox_calibration,emit=custom("wooxTrvTemperatureCalibration")}),
-tuya.dp_raw(107,{
+converter=c.from_only(function(a)return tonumber(a)==2 and"ON"or"OFF"end),
+emit=f"wooxTrvAwayMode"}),b.dp_numeric(16,{name="woox_manual_setpoint_report",read_only=true,converter=m,emit=t.heating_setpoint"C"}),b.dp_numeric(105,{name="woox_auto_setpoint_report",read_only=true,converter=m,emit=t.heating_setpoint"C"}),b.dp_numeric(24,{name="local_temperature",read_only=true,converter=P,emit=t.temperature"C"}),b.dp_numeric(104,{name="wooxTrv_temperature_calibration",converter=C,emit=f"wooxTrvTemperatureCalibration"}),b.dp_raw(107,{
 name="wooxTrv_window_detection",read_only=true,
-converter=converter.from_only(function(value)
-if type(value)~="string" or #value < 1 then return nil end
-return string.byte(value,1)~=0 and "OPEN" or "CLOSED"
+converter=c.from_only(function(a)
+if type(a)~="string"or #a<1 then return nil end
+return string.byte(a,1)~=0 and"OPEN"or"CLOSED"
 end),
-emit=custom("wooxTrvWindowDetection"),
-}),
-tuya.dp_numeric(116,{name="wooxTrv_window_temperature",converter=half_degree,emit=custom("wooxTrvWindowTemperature")}),
-tuya.dp_numeric(117,{name="wooxTrv_window_time",emit=custom("wooxTrvWindowTime")}),
-tuya.dp_binary(30,{
-name="wooxTrv_child_lock",
-converter=converter.lookup_from_to({LOCK=true,UNLOCK=false}),
-emit=custom("wooxTrvChildLock"),
-}),
-tuya.dp_numeric(34,{name="woox_hidden_battery",read_only=true}),
-tuya.dp_numeric(34,{
+emit=f"wooxTrvWindowDetection"}),b.dp_numeric(116,{name="wooxTrv_window_temperature",converter=m,emit=f"wooxTrvWindowTemperature"}),b.dp_numeric(117,{name="wooxTrv_window_time",emit=f"wooxTrvWindowTime"}),b.dp_binary(30,{
+name="wooxTrv_child_lock",converter=c.lookup_from_to{LOCK=true,UNLOCK=false},emit=f"wooxTrvChildLock"}),b.dp_numeric(34,{name="woox_hidden_battery",read_only=true}),b.dp_numeric(34,{
 name="woox_hidden_battery_low",read_only=true,
-from_device=function(value)return(tonumber(value)or 0)< 30 and 1 or 0 end,
-}),
-tuya.dp_numeric(118,{name="wooxTrv_boost_time",read_only=true,emit=custom("wooxTrvBoostTime")}),
-tuya.dp_numeric(102,{name="wooxTrv_eco_temperature",converter=half_degree,emit=custom("wooxTrvEcoTemperature")}),
-tuya.dp_numeric(101,{name="wooxTrv_comfort_temperature",converter=half_degree,emit=custom("wooxTrvComfortTemperature")}),
-tuya.dp_binary(106,{
-name="wooxTrv_boost_heating",
-converter=converter.lookup_from_to({ON=true,OFF=false}),
-emit=custom("wooxTrvBoostHeating"),
-}),
-tuya.dp_numeric(45,{name="wooxTrv_error_status",read_only=true,emit=custom("wooxTrvErrorStatus")}),
-tuya.dp_raw(103,{name="wooxTrv_holidays_schedule",read_only=true,converter=converter.from_only(comma_bytes),emit=custom("wooxTrvHolidaysSchedule")}),
-tuya.dp_raw(109,{name="wooxTrv_monday_schedule",read_only=true,converter=converter.from_only(comma_bytes),emit=custom("wooxTrvMondaySchedule")}),
-tuya.dp_raw(110,{name="wooxTrv_tuesday_schedule",read_only=true,converter=converter.from_only(comma_bytes),emit=custom("wooxTrvTuesdaySchedule")}),
-tuya.dp_raw(111,{name="wooxTrv_wednesday_schedule",read_only=true,converter=converter.from_only(comma_bytes),emit=custom("wooxTrvWednesdaySchedule")}),
-tuya.dp_raw(112,{name="wooxTrv_thursday_schedule",read_only=true,converter=converter.from_only(comma_bytes),emit=custom("wooxTrvThursdaySchedule")}),
-tuya.dp_raw(113,{name="wooxTrv_friday_schedule",read_only=true,converter=converter.from_only(comma_bytes),emit=custom("wooxTrvFridaySchedule")}),
-tuya.dp_raw(114,{name="wooxTrv_saturday_schedule",read_only=true,converter=converter.from_only(comma_bytes),emit=custom("wooxTrvSaturdaySchedule")}),
-tuya.dp_raw(115,{name="wooxTrv_sunday_schedule",read_only=true,converter=converter.from_only(comma_bytes),emit=custom("wooxTrvSundaySchedule")}),
-})
-woox.bind_basic_on_configure=true
-woox.named_mapping={
-named_mappings=named_overlay(woox,{
-current_heating_setpoint=woox_setpoint_write,
-system_mode=woox_mode_write,
-wooxTrv_away_mode=woox_away_write,
-wooxTrv_holidays_schedule=woox_schedule_no_wire,
-wooxTrv_monday_schedule=woox_schedule_no_wire,
-wooxTrv_tuesday_schedule=woox_schedule_no_wire,
-wooxTrv_wednesday_schedule=woox_schedule_no_wire,
-wooxTrv_thursday_schedule=woox_schedule_no_wire,
-wooxTrv_friday_schedule=woox_schedule_no_wire,
-wooxTrv_saturday_schedule=woox_schedule_no_wire,
-wooxTrv_sunday_schedule=woox_schedule_no_wire,
-}),
-}
-thermostat_metadata.attach(woox,{"auto","heat"},0,30,0.5)
-register_device_definition(woox,{
-device_helpers.create_fingerprint("_TZE200_wnvhlcgl","TS0601"),
-})
-return{
-id="ef00.thermostats.wave19.exact",
-registrations=device_definitions,
-}
+from_device=function(a)return(tonumber(a)or 0)<30 and 1 or 0 end
+}),b.dp_numeric(118,{name="wooxTrv_boost_time",read_only=true,emit=f"wooxTrvBoostTime"}),b.dp_numeric(102,{name="wooxTrv_eco_temperature",converter=m,emit=f"wooxTrvEcoTemperature"}),b.dp_numeric(101,{name="wooxTrv_comfort_temperature",converter=m,emit=f"wooxTrvComfortTemperature"}),b.dp_binary(106,{
+name="wooxTrv_boost_heating",converter=c.lookup_from_to{ON=true,OFF=false},emit=f"wooxTrvBoostHeating"}),b.dp_numeric(45,{name="wooxTrv_error_status",read_only=true,emit=f"wooxTrvErrorStatus"}),b.dp_raw(103,{name="wooxTrv_holidays_schedule",read_only=true,converter=c.from_only(j),emit=f"wooxTrvHolidaysSchedule"}),b.dp_raw(109,{name="wooxTrv_monday_schedule",read_only=true,converter=c.from_only(j),emit=f"wooxTrvMondaySchedule"}),b.dp_raw(110,{name="wooxTrv_tuesday_schedule",read_only=true,converter=c.from_only(j),emit=f"wooxTrvTuesdaySchedule"}),b.dp_raw(111,{name="wooxTrv_wednesday_schedule",read_only=true,converter=c.from_only(j),emit=f"wooxTrvWednesdaySchedule"}),b.dp_raw(112,{name="wooxTrv_thursday_schedule",read_only=true,converter=c.from_only(j),emit=f"wooxTrvThursdaySchedule"}),b.dp_raw(113,{name="wooxTrv_friday_schedule",read_only=true,converter=c.from_only(j),emit=f"wooxTrvFridaySchedule"}),b.dp_raw(114,{name="wooxTrv_saturday_schedule",read_only=true,converter=c.from_only(j),emit=f"wooxTrvSaturdaySchedule"}),b.dp_raw(115,{name="wooxTrv_sunday_schedule",read_only=true,converter=c.from_only(j),emit=f"wooxTrvSundaySchedule"})})Q.bind_basic_on_configure=true
+Q.named_mapping={
+named_mappings=v(Q,{
+current_heating_setpoint=w,system_mode=G,wooxTrv_away_mode=F,wooxTrv_holidays_schedule=e,wooxTrv_monday_schedule=e,wooxTrv_tuesday_schedule=e,wooxTrv_wednesday_schedule=e,wooxTrv_thursday_schedule=e,wooxTrv_friday_schedule=e,wooxTrv_saturday_schedule=e,wooxTrv_sunday_schedule=e})}o.attach(Q,{"auto","heat"},0,30,0.5)k(Q,{
+p.create_fingerprint("_TZE200_wnvhlcgl","TS0601")})return{
+id="ef00.thermostats.wave19.exact",registrations=z}

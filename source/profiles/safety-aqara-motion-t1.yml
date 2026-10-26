@@ -18,6 +18,7 @@ components:
     version: 1
   - id: concertmirror08464.aqT1Restarts
     version: 1
+  - {id: signalStrength, version: 1}
   categories:
   - name: MotionSensor
 preferences:

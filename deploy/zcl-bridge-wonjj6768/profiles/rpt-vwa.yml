@@ -1,0 +1,1 @@
+{name: rpt-vwa,components:[{id: main,capabilities:[{id: signalStrength,version: 1},{id: concertmirror08464.egonyV6Reset,version: 1},{id: refresh,version: 1},{id: concertmirror08464.zclHeartbeatReportMin,version: 1},{id: concertmirror08464.zclHeartbeatReportMax,version: 1},{id: concertmirror08464.zclHeartbeatReportChange20,version: 1}],categories:[{name: Bridges}]}]}

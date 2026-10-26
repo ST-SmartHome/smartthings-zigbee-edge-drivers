@@ -1,0 +1,75 @@
+name: rpt-ternccgue
+components:
+- id: main
+  capabilities:
+  - id: contactSensor
+    version: 1
+  - id: battery
+    version: 1
+  - id: firmwareUpdate
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMin
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMax
+    version: 1
+  - id: concertmirror08464.zclBatteryReportChange20
+    version: 1
+  categories:
+  - name: ContactSensor
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: contactSensor
+      version: 1
+      group: main
+    actions: []
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: contactSensor
+    version: 1
+  - component: main
+    capability: battery
+    version: 1
+  - component: main
+    capability: refresh
+    version: 1
+  - component: main
+    capability: concertmirror08464.zclBatteryReportMin
+    version: 1
+  - component: main
+    capability: concertmirror08464.zclBatteryReportMax
+    version: 1
+  - component: main
+    capability: concertmirror08464.zclBatteryReportChange20
+    version: 1
+  automation:
+    conditions:
+    - component: main
+      capability: contactSensor
+      version: 1
+    - component: main
+      capability: battery
+      version: 1
+    - component: main
+      capability: concertmirror08464.zclBatteryReportMin
+      version: 1
+    - component: main
+      capability: concertmirror08464.zclBatteryReportMax
+      version: 1
+    - component: main
+      capability: concertmirror08464.zclBatteryReportChange20
+      version: 1
+    actions:
+    - component: main
+      capability: concertmirror08464.zclBatteryReportMin
+      version: 1
+    - component: main
+      capability: concertmirror08464.zclBatteryReportMax
+      version: 1
+    - component: main
+      capability: concertmirror08464.zclBatteryReportChange20
+      version: 1

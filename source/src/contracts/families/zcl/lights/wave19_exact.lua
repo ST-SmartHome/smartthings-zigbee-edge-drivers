@@ -60,13 +60,10 @@ local candeo = {
     },
   },
   package_group = "wave19-light",
-  transport_classification = "ZCL",
-  z2m_converter_source = "modernExtend.light/electricityMeter + rd1p local converters",
   advanced_remote = true,
   unprefixed_remote_actions = true,
   remote_action_emit_name = "candeoRotaryDimAction",
   standard_command_action_resolver = candeo_action_resolver,
-  placeholder_custom_states = false,
   zcl_clusters = {
     zcl.switch({ endpoint = 1, minimum_interval = 0, maximum_interval = 65000, reportable_change = 1 }),
     zcl.level({ endpoint = 1, minimum_interval = 1, maximum_interval = 3600, reportable_change = 1 }),
@@ -261,9 +258,6 @@ end
 local terncy = {
   profile = "lights-wave19-terncy-dim003",
   package_group = "wave19-light",
-  transport_classification = "CUSTOM_ZCL",
-  z2m_converter_source = "custom 0xFCCC/0xFCCD + modernExtend.light",
-  placeholder_custom_states = false,
   zcl_clusters = {
     zcl.switch({ endpoint = 1 }),
     zcl.level({ endpoint = 1 }),
@@ -348,6 +342,13 @@ local terncy = {
 register_device_definition(terncy, {
   device_helpers.create_fingerprint("Xiaoyan", "DIM003"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-cmq"},
+  {2, "rpt-doh"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.lights.wave19.exact",

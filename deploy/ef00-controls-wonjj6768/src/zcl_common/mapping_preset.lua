@@ -1,117 +1,111 @@
-local function load_mapping_preset(zcl)
-local emit=require "capabilities.events.all"
-local data_types=require "st.zigbee.data_types"
-local zigbee_constants=require "st.zigbee.constants"
-local function merge_options(target,source)
-if type(target)~="table" then
-target={}
+local function m(G)
+local H=require"capabilities.events.all"
+local F=require"st.zigbee.data_types"
+local t=require"st.zigbee.constants"
+local E=require"st.utils.safe_xy_to_hsv"
+local function l(f,A)
+if type(f)~="table"then
+f={}
 end
-if type(source)~="table" then
-return target
+if type(A)~="table"then
+return f
 end
-for key,value in pairs(source)do
-target[key]=value
+for D,b in pairs(A)do
+f[D]=b
 end
-return target
+return f
 end
-local function apply_defaults(target,defaults)
-if type(target)~="table" or type(defaults)~="table" then
-return target
+local function k(f,a)
+if type(f)~="table"or type(a)~="table"then
+return f
 end
-for key,value in pairs(defaults)do
-if target[key]==nil then
-target[key]=value
+for D,b in pairs(a)do
+if f[D]==nil then
+f[D]=b
 end
 end
-return target
+return f
 end
-local function optional_emit(name,...)
-local factory=emit[name]
-if type(factory)=="function" then
-return factory(...)
+local function x(C,...)
+local o=H[C]
+if type(o)=="function"then
+return o(...)
 end
 return nil
 end
-local function normalize_preset_options(name_or_options,options)
-local resolved={}
-if type(name_or_options)=="string" then
-resolved.name=name_or_options
+local function j(c,i)
+local d={}if type(c)=="string"then
+d.name=c
 else
-merge_options(resolved,name_or_options)
+l(d,c)
 end
-merge_options(resolved,options)
-return resolved
+l(d,i)return d
 end
-local function zone_status_pair(mask)
+local function u(B)
 return{
-from=function(value)
-if type(value)=="table" then
-if mask==0x0001 then
-if type(value.is_alarm1_set)=="function" and value:is_alarm1_set()then
+from=function(b)
+if type(b)=="table"then
+if B==1 then
+if type(b.is_alarm1_set)=="function"and b:is_alarm1_set()then
 return true
 end
-if type(value.is_alarm2_set)=="function" and value:is_alarm2_set()then
+if type(b.is_alarm2_set)=="function"and b:is_alarm2_set()then
 return true
 end
-elseif mask==0x0004 and type(value.is_tamper_set)=="function" then
-return value:is_tamper_set()
-elseif value.value ~=nil then
-value=value.value
+elseif B==4 and type(b.is_tamper_set)=="function"then
+return b:is_tamper_set()elseif b.value~=nil then
+b=b.value
 else
-return value
+return b
 end
 end
-if type(value)~="number" then
-return value
+if type(b)~="number"then
+return b
 end
-return bit32.band(value,mask)~=0
-end,
+return bit32.band(b,B)~=0
+end
 }
 end
-local function extract_zone_status_from_command(zb_rx)
-local zone_status=zb_rx and zb_rx.body and zb_rx.body.zcl_body and zb_rx.body.zcl_body.zone_status or nil
-if zone_status==nil then
+local function g(y)
+local h=y and y.body and y.body.zcl_body and y.body.zcl_body.zone_status or nil
+if h==nil then
 return nil
 end
 return{
-raw_value=zone_status.value or zone_status,
-typed_value=zone_status,
-}
+raw_value=h.value or h,typed_value=h}
 end
-local function reporting_defaults(minimum_interval,maximum_interval,reportable_change)
+local function n(s,r,p)
 return{
-minimum_interval=minimum_interval,
-maximum_interval=maximum_interval,
-reportable_change=reportable_change,
-read_on_configure=true,
-}
+minimum_interval=s,maximum_interval=r,reportable_change=p,read_on_configure=true}
 end
-local function merge_defaults(...)
-local merged={}
-for _,defaults in ipairs({...})do
-apply_defaults(merged,defaults)
+local function v(...)
+local z={}for _,a in ipairs{...}do
+k(z,a)
 end
-return merged
+return z
 end
-local function define_preset(name,factory,defaults_builder)
-zcl[name]=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,defaults_builder(resolved))
-return factory(resolved)
+local function w(C,o,q)
+G[C]=function(c,i)
+local d=j(c,i)local e=d.configure_reporting
+local a=q(d)d.configure_reporting=nil
+if e==false then
+a.minimum_interval=nil
+a.maximum_interval=nil
+a.reportable_change=nil
+a.physical_reportable_change=nil
+a.reporting_defaults=nil
+end
+k(d,a)return o(d)
 end
 end
-define_preset("battery_low",zcl.ias_zone,function()
-return merge_defaults(
-{
-name="battery_low",
-emit=optional_emit("battery_low"),
-converter=zone_status_pair(0x0008),
-ias_configure_method=zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,
-command_id=0x00,
-command_extractor=extract_zone_status_from_command,
-},
-reporting_defaults(0,300,nil)
-)
+w("battery_low",G.ias_zone,function(i)
+local e=i.configure_reporting
+i.configure_reporting=nil
+local a={
+name="battery_low",emit=x"battery_low",converter=u(8),ias_configure_method=t.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=g,read_on_configure=true}if e==false then
+return a
+end
+return v(a,n(0,300,nil))
 end)
 end
-return load_mapping_preset
+return m

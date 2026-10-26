@@ -19,6 +19,12 @@ register_device_definition(water_tamper_battery_low_battery_sensor, {
   ),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(registrations, {
+  {1, "rpt-tej"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.sensors.wave19_exact_aliases",
   registrations = registrations,

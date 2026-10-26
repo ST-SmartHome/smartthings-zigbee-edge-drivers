@@ -64,9 +64,6 @@ local function definition(profile)
   return {
     profile = profile,
     package_group = "air-quality-sensor",
-    transport_classification = "EF00_DP",
-    z2m_converter_source = "meta.tuyaDatapoints",
-    wire_cluster = "manuSpecificTuya",
     magic_packet = true,
     query_on_configure = false,
     time_start = "off",

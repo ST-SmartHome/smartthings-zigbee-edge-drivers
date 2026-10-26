@@ -1,303 +1,218 @@
-local function load_mapping_preset(zcl)
-local emit=require "capabilities.events.all"
-local data_types=require "st.zigbee.data_types"
-local zigbee_constants=require "st.zigbee.constants"
-local function merge_options(target,source)
-if type(target)~="table" then
-target={}
+local function z(q)
+local x=require"capabilities.events.all"
+local w=require"st.zigbee.data_types"
+local s=require"st.zigbee.constants"
+local U=require"st.utils.safe_xy_to_hsv"
+local function y(l,R)
+if type(l)~="table"then
+l={}
 end
-if type(source)~="table" then
-return target
+if type(R)~="table"then
+return l
 end
-for key,value in pairs(source)do
-target[key]=value
+for O,d in pairs(R)do
+l[O]=d
 end
-return target
+return l
 end
-local function apply_defaults(target,defaults)
-if type(target)~="table" or type(defaults)~="table" then
-return target
+local function m(l,b)
+if type(l)~="table"or type(b)~="table"then
+return l
 end
-for key,value in pairs(defaults)do
-if target[key]==nil then
-target[key]=value
+for O,d in pairs(b)do
+if l[O]==nil then
+l[O]=d
 end
 end
-return target
+return l
 end
-local function optional_emit(name,...)
-local factory=emit[name]
-if type(factory)=="function" then
-return factory(...)
+local function o(T,...)
+local D=x[T]
+if type(D)=="function"then
+return D(...)
 end
 return nil
 end
-local function normalize_preset_options(name_or_options,options)
-local resolved={}
-if type(name_or_options)=="string" then
-resolved.name=name_or_options
+local function f(a,j)
+local c={}if type(a)=="string"then
+c.name=a
 else
-merge_options(resolved,name_or_options)
+y(c,a)
 end
-merge_options(resolved,options)
-return resolved
+y(c,j)return c
 end
-local function build_lookup_pair(map,default_from,default_to,aliases)
-local reverse={}
-for key,value in pairs(map)do
-reverse[value]=key
+local function n(W,B,J,N)
+local v={}for O,d in pairs(W)do
+v[d]=O
 end
-if type(aliases)=="table" then
-for alias,target in pairs(aliases)do
-if reverse[target]~=nil then
-reverse[alias]=reverse[target]
+if type(N)=="table"then
+for V,l in pairs(N)do
+if v[l]~=nil then
+v[V]=v[l]
 end
 end
 end
 return{
-from=function(value)
-local mapped=map[value]
-if mapped ~=nil then
-return mapped
+from=function(d)
+local C=W[d]if C~=nil then
+return C
 end
-if default_from ~=nil then
-return default_from
+if B~=nil then
+return B
 end
-return value
+return d
 end,
-to=function(value)
-local mapped=reverse[value]
-if mapped ~=nil then
-return mapped
+to=function(d)
+local C=v[d]if C~=nil then
+return C
 end
-if default_to ~=nil then
-return default_to
+if J~=nil then
+return J
 end
-return value
-end,
+return d
+end
 }
 end
-local function power_on_behavior_pair()
-return build_lookup_pair({
-[0]="off",
-[1]="on",
-[2]="previous",
-},nil,nil,{
-restore="previous",
-})
+local function u()
+return n({
+[0]="off",[1]="on",[2]="previous"},nil,nil,{
+restore="previous"})
 end
-local function switch_mode_pair()
-return build_lookup_pair({
-[0]="switch",
-[1]="scene",
-})
+local function I()
+return n{
+[0]="switch",[1]="scene"}
 end
-local function operation_mode_pair()
-return build_lookup_pair({
-[0]="command",
-[1]="event",
-})
+local function A()
+return n{
+[0]="command",[1]="event"}
 end
-local function define_enum_attribute(cluster_id,attribute_id,defaults)
-return function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-local converter=defaults.converter_factory()
-apply_defaults(resolved,{
-name=defaults.name,
-emit=defaults.emit,
-converter=converter,
-to_device=function(value)
-return converter.to(value)
+local function p(P,M,b)
+return function(a,j)
+local c=f(a,j)local K=b.converter_factory()m(c,{
+name=b.name,emit=b.emit,converter=K,
+to_device=function(d)
+return K.to(d)
 end,
-data_type=data_types.Enum8,
-write_type=data_types.Enum8,
-attribute_name=defaults.attribute_name,
-mfg_code=defaults.mfg_code,
-read_on_configure=true,
-})
-return zcl.cluster_attribute(cluster_id,attribute_id,resolved)
+data_type=w.Enum8,write_type=w.Enum8,attribute_name=b.attribute_name,mfg_code=b.mfg_code,read_on_configure=true})return q.cluster_attribute(P,M,c)
 end
 end
-local function zone_status_pair(mask)
+local function t(S)
 return{
-from=function(value)
-if type(value)=="table" then
-if mask==0x0001 then
-if type(value.is_alarm1_set)=="function" and value:is_alarm1_set()then
+from=function(d)
+if type(d)=="table"then
+if S==1 then
+if type(d.is_alarm1_set)=="function"and d:is_alarm1_set()then
 return true
 end
-if type(value.is_alarm2_set)=="function" and value:is_alarm2_set()then
+if type(d.is_alarm2_set)=="function"and d:is_alarm2_set()then
 return true
 end
-elseif mask==0x0004 and type(value.is_tamper_set)=="function" then
-return value:is_tamper_set()
-elseif value.value ~=nil then
-value=value.value
+elseif S==4 and type(d.is_tamper_set)=="function"then
+return d:is_tamper_set()elseif d.value~=nil then
+d=d.value
 else
-return value
+return d
 end
 end
-if type(value)~="number" then
-return value
+if type(d)~="number"then
+return d
 end
-return bit32.band(value,mask)~=0
-end,
+return bit32.band(d,S)~=0
+end
 }
 end
-local function extract_zone_status_from_command(zb_rx)
-local zone_status=zb_rx and zb_rx.body and zb_rx.body.zcl_body and zb_rx.body.zcl_body.zone_status or nil
-if zone_status==nil then
+local function k(L)
+local r=L and L.body and L.body.zcl_body and L.body.zcl_body.zone_status or nil
+if r==nil then
 return nil
 end
 return{
-raw_value=zone_status.value or zone_status,
-typed_value=zone_status,
-}
+raw_value=r.value or r,typed_value=r}
 end
-local function reporting_defaults(minimum_interval,maximum_interval,reportable_change)
+local function e(H,G,E)
 return{
-minimum_interval=minimum_interval,
-maximum_interval=maximum_interval,
-reportable_change=reportable_change,
-read_on_configure=true,
-}
+minimum_interval=H,maximum_interval=G,reportable_change=E,read_on_configure=true}
 end
-local function merge_defaults(...)
-local merged={}
-for _,defaults in ipairs({...})do
-apply_defaults(merged,defaults)
+local function i(...)
+local Q={}for _,b in ipairs{...}do
+m(Q,b)
 end
-return merged
+return Q
 end
-local function define_preset(name,factory,defaults_builder)
-zcl[name]=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,defaults_builder(resolved))
-return factory(resolved)
+local function g(T,D,F)
+q[T]=function(a,j)
+local c=f(a,j)local h=c.configure_reporting
+local b=F(c)c.configure_reporting=nil
+if h==false then
+b.minimum_interval=nil
+b.maximum_interval=nil
+b.reportable_change=nil
+b.physical_reportable_change=nil
+b.reporting_defaults=nil
+end
+m(c,b)return D(c)
 end
 end
-define_preset("battery",zcl.power_configuration_battery,function()
-return merge_defaults(
+g("battery",q.power_configuration_battery,function()
+return i(
 {
-emit=emit.battery(),
-scale=2,
-},
-reporting_defaults(300,21600,2)
-)
+emit=x.battery(),scale=2},e(300,21600,2))
 end)
-define_preset("switch",zcl.on_off,function(options)
-local configure_reporting=options.configure_reporting
-options.configure_reporting=nil
-if configure_reporting==false then
+g("switch",q.on_off,function(j)
+local h=j.configure_reporting
+j.configure_reporting=nil
+if h==false then
 return{
-emit=emit.switch(),
-}
+emit=x.switch()}
 end
-return merge_defaults(
+return i(
 {
-emit=emit.switch(),
-},
-reporting_defaults(0,300,nil)
-)
+emit=x.switch()},e(0,300,nil))
 end)
-zcl.power_on_behavior=define_enum_attribute(zcl.CLUSTER_ON_OFF,0x8002,{
-name="power_on_behavior",
-emit=optional_emit("power_on_behavior"),
-attribute_name="tuyaPowerOnBehavior",
-converter_factory=power_on_behavior_pair,
-})
-zcl.tuya_magic_packet=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,{
-name="tuya_magic_packet",
-read_only=true,
-read_on_configure=true,
-})
-return zcl.cluster_attribute(0x0000,0xFFFE,resolved)
+q.power_on_behavior=p(q.CLUSTER_ON_OFF,32770,{
+name="power_on_behavior",emit=o"power_on_behavior",attribute_name="tuyaPowerOnBehavior",converter_factory=u})
+q.tuya_magic_packet=function(a,j)
+local c=f(a,j)m(c,{
+name="tuya_magic_packet",read_only=true,read_on_configure=true})return q.cluster_attribute(0,65534,c)
 end
-zcl.operation_mode=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,{
-name="operation_mode",
-emit=optional_emit("operation_mode"),
-converter=operation_mode_pair(),
-data_type=data_types.Enum8,
-attribute_name="tuyaOperationMode",
-read_on_configure=true,
-})
-return zcl.cluster_attribute(zcl.CLUSTER_ON_OFF,0x8004,resolved)
+q.operation_mode=function(a,j)
+local c=f(a,j)m(c,{
+name="operation_mode",emit=o"operation_mode",converter=A(),data_type=w.Enum8,attribute_name="tuyaOperationMode",read_on_configure=true})return q.cluster_attribute(q.CLUSTER_ON_OFF,32772,c)
 end
-zcl.switch_mode=define_enum_attribute(0xE001,0xD000,{
-name="switch_mode",
-emit=optional_emit("switch_mode"),
-attribute_name="tuyaSwitchMode",
-mfg_code=0x1141,
-converter_factory=switch_mode_pair,
-})
-define_preset("power",zcl.electrical_measurement_power,function()
-return merge_defaults(
+q.switch_mode=p(57345,53248,{
+name="switch_mode",emit=o"switch_mode",attribute_name="tuyaSwitchMode",mfg_code=4417,converter_factory=I})
+g("power",q.electrical_measurement_power,function()
+return i(
 {
-emit=emit.power(),
-metering_kind="power",
-poll_interval=300,
-},
-reporting_defaults(5,300,1)
-)
+emit=x.power(),metering_kind="power",poll_interval=300},e(5,300,1))
 end)
-define_preset("current",zcl.electrical_measurement_current,function()
-return merge_defaults(
+g("current",q.electrical_measurement_current,function()
+return i(
 {
-emit=emit.current(),
-scale=1000,
-metering_kind="current",
-poll_interval=300,
-},
-reporting_defaults(5,300,1)
-)
+emit=x.current(),scale=1000,metering_kind="current",poll_interval=300},e(5,300,1))
 end)
-define_preset("voltage",zcl.electrical_measurement_voltage,function()
-return merge_defaults(
+g("voltage",q.electrical_measurement_voltage,function()
+return i(
 {
-emit=emit.voltage(),
-metering_kind="voltage",
-poll_interval=300,
-},
-reporting_defaults(5,300,1)
-)
+emit=x.voltage(),metering_kind="voltage",poll_interval=300},e(5,300,1))
 end)
-define_preset("energy",zcl.simple_metering,function()
+g("energy",q.simple_metering,function()
 return{
-emit=emit.energy(),
-read_on_configure=true,
-metering_kind="energy",
-poll_interval=900,
-}
+emit=x.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900}
 end)
-define_preset("tamper",zcl.ias_zone,function()
-return merge_defaults(
+g("tamper",q.ias_zone,function()
+return i(
 {
-name="tamper",
-emit=emit.tamper(),
-converter=zone_status_pair(0x0004),
-ias_configure_method=zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,
-command_id=0x00,
-command_extractor=extract_zone_status_from_command,
-},
-reporting_defaults(0,300,nil)
-)
+name="tamper",emit=x.tamper(),converter=t(4),ias_configure_method=s.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=k},e(0,300,nil))
 end)
-define_preset("battery_low",zcl.ias_zone,function()
-return merge_defaults(
-{
-name="battery_low",
-emit=optional_emit("battery_low"),
-converter=zone_status_pair(0x0008),
-ias_configure_method=zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,
-command_id=0x00,
-command_extractor=extract_zone_status_from_command,
-},
-reporting_defaults(0,300,nil)
-)
+g("battery_low",q.ias_zone,function(j)
+local h=j.configure_reporting
+j.configure_reporting=nil
+local b={
+name="battery_low",emit=o"battery_low",converter=t(8),ias_configure_method=s.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,command_id=0,command_extractor=k,read_on_configure=true}if h==false then
+return b
+end
+return i(b,e(0,300,nil))
 end)
 end
-return load_mapping_preset
+return z

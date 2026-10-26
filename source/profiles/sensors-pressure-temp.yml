@@ -10,43 +10,41 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: EnvironmentSensor
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: atmosphericPressureMeasurement
-        version: 1
-        group: main
-        values:
-          - label: "{{atmosphericPressure.value}} {{atmosphericPressure.unit}}"
-        composite: true
-      - component: main
-        capability: temperatureMeasurement
-        version: 1
-        group: main
-        values:
-          - label: " {{temperature.value}}{{temperature.unit}}"
-        composite: true
+    - component: main
+      capability: atmosphericPressureMeasurement
+      group: main
+      values:
+      - label: '{{atmosphericPressure.value}} {{atmosphericPressure.unit}}'
+      composite: true
+    - component: main
+      capability: temperatureMeasurement
+      group: main
+      values:
+      - label: ' {{temperature.value}}{{temperature.unit}}'
+      composite: true
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: atmosphericPressureMeasurement
-      version: 1
-    - component: main
-      capability: temperatureMeasurement
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: atmosphericPressureMeasurement
+  - component: main
+    capability: temperatureMeasurement
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: atmosphericPressureMeasurement
-        version: 1
-      - component: main
-        capability: temperatureMeasurement
-        version: 1
+    - component: main
+      capability: atmosphericPressureMeasurement
+    - component: main
+      capability: temperatureMeasurement
+    - component: main
+      capability: signalStrength
     actions: []

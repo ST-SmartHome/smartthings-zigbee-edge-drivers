@@ -1,15 +1,11 @@
-local function registrations(catalog,expected_id,module_name)
-assert(type(catalog)=="table","Canonical catalog must return a table: " .. module_name)
-for key in next,catalog do
-assert(key=="id" or key=="registrations","Canonical catalog has extra key: " .. module_name .. ":" .. tostring(key))
+local function c(a,d,module_name)
+assert(type(a)=="table","Canonical catalog must return a table: "..module_name)for f in next,a do
+assert(f=="id"or f=="registrations","Canonical catalog has extra key: "..module_name ..":"..tostring(f))
 end
-assert(catalog.id==expected_id,"Canonical catalog id mismatch: " .. module_name)
-assert(type(catalog.registrations)=="table","Canonical catalog registrations missing: " .. module_name)
-return catalog.registrations
+assert(a.id==d,"Canonical catalog id mismatch: "..module_name)assert(type(a.registrations)=="table","Canonical catalog registrations missing: "..module_name)return a.registrations
 end
-local entries={}
-local catalog_1=require "contracts.families.zcl.switches.easyiot_absorption"
-for _,entry in ipairs(registrations(catalog_1,"zcl.easyiot.absorption","contracts.families.zcl.switches.easyiot_absorption"))do
-entries[#entries + 1]=entry
+local b={}local e=require"contracts.families.zcl.switches.easyiot_absorption"
+for _,h in ipairs(c(e,"zcl.easyiot.absorption","contracts.families.zcl.switches.easyiot_absorption"))do
+b[#b+1]=h
 end
-return entries
+return b

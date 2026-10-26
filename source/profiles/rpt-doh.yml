@@ -1,0 +1,42 @@
+name: rpt-doh
+components:
+- id: main
+  capabilities:
+  - id: switch
+    version: 1
+  - id: switchLevel
+    version: 1
+  - id: colorTemperature
+    version: 1
+  - id: concertmirror08464.terncyDimRatedCurrent
+    version: 1
+  - id: concertmirror08464.terncyDimStartupCalibration
+    version: 1
+  - id: concertmirror08464.terncyDimMinKelvin
+    version: 1
+  - id: concertmirror08464.terncyDimMaxKelvin
+    version: 1
+  - id: concertmirror08464.terncyDimIoReversed
+    version: 1
+  - id: concertmirror08464.terncyDimLightCurve
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMax
+    version: 1
+  - id: concertmirror08464.zclLevelReportMin
+    version: 1
+  - id: concertmirror08464.zclLevelReportMax
+    version: 1
+  - id: concertmirror08464.zclLevelReportChange20
+    version: 1
+  - id: concertmirror08464.zclColorTempReportMin
+    version: 1
+  - id: concertmirror08464.zclColorTempReportMax
+    version: 1
+  - id: concertmirror08464.zclColorTempReportChange21
+    version: 1
+  categories:
+  - name: Light

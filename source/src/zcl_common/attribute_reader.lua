@@ -128,7 +128,7 @@ local function load_attribute_reader(zcl)
 
     for _, mapping in ipairs(zcl_clusters) do
       local meta = type(mapping) == "table" and zcl.mapping_meta(mapping) or nil
-      if meta ~= nil and not meta.write_only and meta.cluster_id ~= nil and meta.attribute_id ~= nil then
+      if meta ~= nil and not meta.write_only and meta.read_on_refresh ~= false and meta.cluster_id ~= nil and meta.attribute_id ~= nil then
         local mapping_context = zcl.build_mapping_context(device, mapping, nil)
         local key = string.format(
           "%04X:%04X:%s:%s",

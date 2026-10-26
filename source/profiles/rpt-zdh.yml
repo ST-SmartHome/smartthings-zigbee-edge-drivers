@@ -1,0 +1,254 @@
+name: rpt-zdh
+components:
+- id: main
+  capabilities:
+  - id: thermostatMode
+    version: 1
+  - id: thermostatHeatingSetpoint
+    version: 1
+  - id: thermostatOperatingState
+    version: 1
+  - id: temperatureMeasurement
+    version: 1
+  - id: relativeHumidityMeasurement
+    version: 1
+  - id: powerMeter
+    version: 1
+  - id: energyMeter
+    version: 1
+  - id: currentMeasurement
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclLocalTempReportMin
+    version: 1
+  - id: concertmirror08464.zclLocalTempReportMax
+    version: 1
+  - id: concertmirror08464.zclLocalTempReportChange29
+    version: 1
+  - id: concertmirror08464.zclHeatSetReportMin
+    version: 1
+  - id: concertmirror08464.zclHeatSetReportMax
+    version: 1
+  - id: concertmirror08464.zclHeatSetReportChange29
+    version: 1
+  - id: concertmirror08464.zclStateReportMin
+    version: 1
+  - id: concertmirror08464.zclStateReportMax
+    version: 1
+  - id: concertmirror08464.zclModeReportMin
+    version: 1
+  - id: concertmirror08464.zclModeReportMax
+    version: 1
+  - id: concertmirror08464.zclHumidityReportMin
+    version: 1
+  - id: concertmirror08464.zclHumidityReportMax
+    version: 1
+  - id: concertmirror08464.zclHumidityReportChange21
+    version: 1
+  - id: concertmirror08464.zclPowerReportMin
+    version: 1
+  - id: concertmirror08464.zclPowerReportMax
+    version: 1
+  - id: concertmirror08464.zclPowerReportChange29
+    version: 1
+  - id: concertmirror08464.zclCurrentReportMin
+    version: 1
+  - id: concertmirror08464.zclCurrentReportMax
+    version: 1
+  - id: concertmirror08464.zclCurrentReportChange21
+    version: 1
+  categories:
+  - name: Thermostat
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: temperatureMeasurement
+      version: 1
+      group: main
+      values:
+      - label: '{{temperature.value}}{{temperature.unit}}'
+    - component: main
+      capability: thermostatOperatingState
+      version: 1
+    actions: []
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: temperatureMeasurement
+    version: 1
+  - component: main
+    capability: thermostatMode
+    version: 1
+  - component: main
+    capability: thermostatHeatingSetpoint
+    version: 1
+  - component: main
+    capability: thermostatOperatingState
+    version: 1
+  - component: main
+    capability: relativeHumidityMeasurement
+    version: 1
+  - component: main
+    capability: powerMeter
+    version: 1
+  - component: main
+    capability: energyMeter
+    version: 1
+  - component: main
+    capability: currentMeasurement
+    version: 1
+  - component: main
+    capability: refresh
+    version: 1
+  - component: main
+    capability: concertmirror08464.zclLocalTempReportMin
+  - component: main
+    capability: concertmirror08464.zclLocalTempReportMax
+  - component: main
+    capability: concertmirror08464.zclLocalTempReportChange29
+  - component: main
+    capability: concertmirror08464.zclHeatSetReportMin
+  - component: main
+    capability: concertmirror08464.zclHeatSetReportMax
+  - component: main
+    capability: concertmirror08464.zclHeatSetReportChange29
+  - component: main
+    capability: concertmirror08464.zclStateReportMin
+  - component: main
+    capability: concertmirror08464.zclStateReportMax
+  - component: main
+    capability: concertmirror08464.zclModeReportMin
+  - component: main
+    capability: concertmirror08464.zclModeReportMax
+  - component: main
+    capability: concertmirror08464.zclHumidityReportMin
+  - component: main
+    capability: concertmirror08464.zclHumidityReportMax
+  - component: main
+    capability: concertmirror08464.zclHumidityReportChange21
+  - component: main
+    capability: concertmirror08464.zclPowerReportMin
+  - component: main
+    capability: concertmirror08464.zclPowerReportMax
+  - component: main
+    capability: concertmirror08464.zclPowerReportChange29
+  - component: main
+    capability: concertmirror08464.zclCurrentReportMin
+  - component: main
+    capability: concertmirror08464.zclCurrentReportMax
+  - component: main
+    capability: concertmirror08464.zclCurrentReportChange21
+  automation:
+    conditions:
+    - component: main
+      capability: temperatureMeasurement
+      version: 1
+    - component: main
+      capability: thermostatMode
+      version: 1
+    - component: main
+      capability: thermostatHeatingSetpoint
+      version: 1
+    - component: main
+      capability: thermostatOperatingState
+      version: 1
+    - component: main
+      capability: relativeHumidityMeasurement
+      version: 1
+    - component: main
+      capability: powerMeter
+      version: 1
+    - component: main
+      capability: energyMeter
+      version: 1
+    - component: main
+      capability: currentMeasurement
+      version: 1
+    - component: main
+      capability: concertmirror08464.zclLocalTempReportMin
+    - component: main
+      capability: concertmirror08464.zclLocalTempReportMax
+    - component: main
+      capability: concertmirror08464.zclLocalTempReportChange29
+    - component: main
+      capability: concertmirror08464.zclHeatSetReportMin
+    - component: main
+      capability: concertmirror08464.zclHeatSetReportMax
+    - component: main
+      capability: concertmirror08464.zclHeatSetReportChange29
+    - component: main
+      capability: concertmirror08464.zclStateReportMin
+    - component: main
+      capability: concertmirror08464.zclStateReportMax
+    - component: main
+      capability: concertmirror08464.zclModeReportMin
+    - component: main
+      capability: concertmirror08464.zclModeReportMax
+    - component: main
+      capability: concertmirror08464.zclHumidityReportMin
+    - component: main
+      capability: concertmirror08464.zclHumidityReportMax
+    - component: main
+      capability: concertmirror08464.zclHumidityReportChange21
+    - component: main
+      capability: concertmirror08464.zclPowerReportMin
+    - component: main
+      capability: concertmirror08464.zclPowerReportMax
+    - component: main
+      capability: concertmirror08464.zclPowerReportChange29
+    - component: main
+      capability: concertmirror08464.zclCurrentReportMin
+    - component: main
+      capability: concertmirror08464.zclCurrentReportMax
+    - component: main
+      capability: concertmirror08464.zclCurrentReportChange21
+    actions:
+    - component: main
+      capability: thermostatMode
+      version: 1
+    - component: main
+      capability: thermostatHeatingSetpoint
+      version: 1
+    - component: main
+      capability: energyMeter
+      version: 1
+    - component: main
+      capability: concertmirror08464.zclLocalTempReportMin
+    - component: main
+      capability: concertmirror08464.zclLocalTempReportMax
+    - component: main
+      capability: concertmirror08464.zclLocalTempReportChange29
+    - component: main
+      capability: concertmirror08464.zclHeatSetReportMin
+    - component: main
+      capability: concertmirror08464.zclHeatSetReportMax
+    - component: main
+      capability: concertmirror08464.zclHeatSetReportChange29
+    - component: main
+      capability: concertmirror08464.zclStateReportMin
+    - component: main
+      capability: concertmirror08464.zclStateReportMax
+    - component: main
+      capability: concertmirror08464.zclModeReportMin
+    - component: main
+      capability: concertmirror08464.zclModeReportMax
+    - component: main
+      capability: concertmirror08464.zclHumidityReportMin
+    - component: main
+      capability: concertmirror08464.zclHumidityReportMax
+    - component: main
+      capability: concertmirror08464.zclHumidityReportChange21
+    - component: main
+      capability: concertmirror08464.zclPowerReportMin
+    - component: main
+      capability: concertmirror08464.zclPowerReportMax
+    - component: main
+      capability: concertmirror08464.zclPowerReportChange29
+    - component: main
+      capability: concertmirror08464.zclCurrentReportMin
+    - component: main
+      capability: concertmirror08464.zclCurrentReportMax
+    - component: main
+      capability: concertmirror08464.zclCurrentReportChange21

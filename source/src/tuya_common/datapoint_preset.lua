@@ -73,21 +73,6 @@ local function load_datapoint_preset(tuya, shared, emit)
     return tuya.apply_fixed_send_policy(mapping)
   end
 
-  local function build_scaled_numeric_preset(dp, default_name, name_or_options, options)
-    local resolved = normalize_preset_options(name_or_options, options, default_name)
-    local scale = resolved.scale
-    if scale == nil then
-      scale = 10
-    end
-
-    if resolved.converter == nil and resolved.from_device == nil and resolved.to_device == nil and scale ~= 1 then
-      resolved.converter = converter.divide_by_pair(scale)
-    end
-
-    resolved.scale = nil
-    return tuya.dp_numeric(dp, resolved)
-  end
-
   local function build_divided_numeric_preset(dp, default_name, default_scale, name_or_options, options)
     local resolved = normalize_preset_options(name_or_options, options, default_name)
     local scale = resolved.scale
@@ -807,11 +792,11 @@ local function load_datapoint_preset(tuya, shared, emit)
   end
 
   function tuya.dp_temperature(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "temperature", name_or_options, options)
+    return build_divided_numeric_preset(dp, "temperature", 10, name_or_options, options)
   end
 
   function tuya.dp_humidity(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "humidity", name_or_options, options)
+    return build_divided_numeric_preset(dp, "humidity", 10, name_or_options, options)
   end
 
   function tuya.dp_battery(dp, name_or_options, options)
@@ -1098,19 +1083,19 @@ local function load_datapoint_preset(tuya, shared, emit)
   end
 
   function tuya.dp_local_temperature(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "local_temperature", name_or_options, options)
+    return build_divided_numeric_preset(dp, "local_temperature", 10, name_or_options, options)
   end
 
   function tuya.dp_current_heating_setpoint(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "current_heating_setpoint", name_or_options, options)
+    return build_divided_numeric_preset(dp, "current_heating_setpoint", 10, name_or_options, options)
   end
 
   function tuya.dp_occupied_heating_setpoint(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "occupied_heating_setpoint", name_or_options, options)
+    return build_divided_numeric_preset(dp, "occupied_heating_setpoint", 10, name_or_options, options)
   end
 
   function tuya.dp_occupied_cooling_setpoint(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "occupied_cooling_setpoint", name_or_options, options)
+    return build_divided_numeric_preset(dp, "occupied_cooling_setpoint", 10, name_or_options, options)
   end
 
   function tuya.dp_local_temperature_calibration(dp, name_or_options, options)
@@ -1118,27 +1103,27 @@ local function load_datapoint_preset(tuya, shared, emit)
   end
 
   function tuya.dp_open_window_temperature(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "open_window_temperature", name_or_options, options)
+    return build_divided_numeric_preset(dp, "open_window_temperature", 10, name_or_options, options)
   end
 
   function tuya.dp_comfort_temperature(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "comfort_temperature", name_or_options, options)
+    return build_divided_numeric_preset(dp, "comfort_temperature", 10, name_or_options, options)
   end
 
   function tuya.dp_eco_temperature(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "eco_temperature", name_or_options, options)
+    return build_divided_numeric_preset(dp, "eco_temperature", 10, name_or_options, options)
   end
 
   function tuya.dp_holiday_temperature(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "holiday_temperature", name_or_options, options)
+    return build_divided_numeric_preset(dp, "holiday_temperature", 10, name_or_options, options)
   end
 
   function tuya.dp_max_temperature_limit(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "max_temperature_limit", name_or_options, options)
+    return build_divided_numeric_preset(dp, "max_temperature_limit", 10, name_or_options, options)
   end
 
   function tuya.dp_min_temperature_limit(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "min_temperature_limit", name_or_options, options)
+    return build_divided_numeric_preset(dp, "min_temperature_limit", 10, name_or_options, options)
   end
 
   function tuya.dp_deadzone_temperature(dp, name_or_options, options)
@@ -1258,11 +1243,11 @@ local function load_datapoint_preset(tuya, shared, emit)
   end
 
   function tuya.dp_max_temperature_alarm(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "max_temperature_alarm", name_or_options, options)
+    return build_divided_numeric_preset(dp, "max_temperature_alarm", 10, name_or_options, options)
   end
 
   function tuya.dp_min_temperature_alarm(dp, name_or_options, options)
-    return build_scaled_numeric_preset(dp, "min_temperature_alarm", name_or_options, options)
+    return build_divided_numeric_preset(dp, "min_temperature_alarm", 10, name_or_options, options)
   end
 
   function tuya.dp_max_humidity_alarm(dp, name_or_options, options)

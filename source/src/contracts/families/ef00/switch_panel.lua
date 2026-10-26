@@ -1,5 +1,6 @@
 -- EF00 touch-panel and scene-panel families owned by the switch-panel package.
 local tuya = require "protocol.tuya"
+local zcl = require "protocol.zcl"
 local device_helpers = require "contracts.helpers.family"
 local emit = require "capabilities.events.all"
 local common = require "contracts.helpers.ef00_switches"
@@ -214,6 +215,7 @@ register_device_definition(switch_3gang_colored_backlight, device_helpers.create
 local switch_2gang_colored_backlight = {
   profile = "switches-switch-2-colored-backlight",
   package_group = "switch-panel",
+  component_to_endpoint_map = {main=1,switch2=1,switch3=1},
   datapoints = {
     tuya.dp_on_off(13, { name = "switch", component = "main" }),
     tuya.dp_on_off(1, { name = "switch", component = "switch2" }),
@@ -254,6 +256,7 @@ local switch_2gang_colored_backlight = {
 
 register_device_definition(switch_2gang_colored_backlight, device_helpers.create_fingerprints("TS0601", {
   "_TZE284_zpvusbtv",
+  "_TZE204_zpvusbtv",
 }))
 
 -- TS0601 touch panel switch family (Z2M tuya.ts:27846, 28137, 27921, 28007):
@@ -274,7 +277,11 @@ local switch_1gang_touch_panel = {
       converter = converter.lookup_from_to({ off = false, on = true }),
     }),
   },
-  query_on_configure = true,
+  magic_packet = true,
+  mcu_version_request_on_configure = true,
+  query_on_configure = false,
+  query_on_announce = false,
+  time_start = "off",
 }
 
 local switch_2gang_touch_panel = {
@@ -398,6 +405,7 @@ local switch_1gang_multifunction = {
 
 register_device_definition(switch_1gang_touch_panel, device_helpers.create_fingerprints("TS0601", {
   "_TZE204_gm8h14wy",
+  "_TZE28C1000000_yxun3xvr",
 }))
 
 register_device_definition(switch_2gang_touch_panel, device_helpers.create_fingerprints("TS0601", {
@@ -420,6 +428,7 @@ register_device_definition(switch_1gang_stairwell, device_helpers.create_fingerp
 
 register_device_definition(switch_1gang_multifunction, device_helpers.create_fingerprints("TS0601", {
   "_TZE284_7e6v8u9f",
+  "_TZE28C1000000_rzdkn5rx",
 }))
 
 -- TO-6 W/B (Z2M tuya.ts:6074): 6 relay outputs are DP24~29.  DP1~6 report the
@@ -1188,30 +1197,41 @@ register_device_definition(switch_16gang_pn16, device_helpers.create_fingerprint
 local switch_model_ts0601_switch_8_2 = {
   profile = "switches-switch-8-adlblwab",
   package_group = "switch-panel",
-  tuya.dp_on_off(1, { name = "switch", component = "main" }),
-  tuya.dp_on_off(2, { name = "switch", component = "switch2" }),
-  tuya.dp_on_off(3, { name = "switch", component = "switch3" }),
-  tuya.dp_on_off(4, { name = "switch", component = "switch4" }),
-  tuya.dp_on_off(5, { name = "switch", component = "switch5" }),
-  tuya.dp_on_off(6, { name = "switch", component = "switch6" }),
-  tuya.dp_on_off(7, { name = "switch", component = "switch7" }),
-  tuya.dp_on_off(8, { name = "switch", component = "switch8" }),
-  tuya.dp_countdown(9, { name = "countdown_l1", emit = emit.sw82Channel1Countdown() }),
-  tuya.dp_countdown(10, { name = "countdown_l2", emit = emit.sw82Channel2Countdown() }),
-  tuya.dp_countdown(11, { name = "countdown_l3", emit = emit.sw82Channel3Countdown() }),
-  tuya.dp_countdown(12, { name = "countdown_l4", emit = emit.sw82Channel4Countdown() }),
-  tuya.dp_countdown(13, { name = "countdown_l5", emit = emit.sw82Channel5Countdown() }),
-  tuya.dp_countdown(14, { name = "countdown_l6", emit = emit.sw82Channel6Countdown() }),
-  tuya.dp_countdown(15, { name = "countdown_l7", emit = emit.sw82Channel7Countdown() }),
-  tuya.dp_countdown(16, { name = "countdown_l8", emit = emit.sw82Channel8Countdown() }),
-  tuya.dp_power_on_behavior(27, { emit = emit.sw82PowerOnBehavior() }),
+  component_to_endpoint_map = { main = 1, switch2 = 1, switch3 = 1, switch4 = 1,
+    switch5 = 1, switch6 = 1, switch7 = 1, switch8 = 1 },
+  endpoint_to_component_map = { [1] = "main" },
+  tuya.dp_on_off(1, { name = "switch", component = "main", endpoint = 1 }),
+  tuya.dp_on_off(2, { name = "switch", component = "switch2", endpoint = 1 }),
+  tuya.dp_on_off(3, { name = "switch", component = "switch3", endpoint = 1 }),
+  tuya.dp_on_off(4, { name = "switch", component = "switch4", endpoint = 1 }),
+  tuya.dp_on_off(5, { name = "switch", component = "switch5", endpoint = 1 }),
+  tuya.dp_on_off(6, { name = "switch", component = "switch6", endpoint = 1 }),
+  tuya.dp_on_off(7, { name = "switch", component = "switch7", endpoint = 1 }),
+  tuya.dp_on_off(8, { name = "switch", component = "switch8", endpoint = 1 }),
+  tuya.dp_countdown(9, { name = "countdown_l1", endpoint = 1, emit = emit.sw82Channel1Countdown() }),
+  tuya.dp_countdown(10, { name = "countdown_l2", endpoint = 1, emit = emit.sw82Channel2Countdown() }),
+  tuya.dp_countdown(11, { name = "countdown_l3", endpoint = 1, emit = emit.sw82Channel3Countdown() }),
+  tuya.dp_countdown(12, { name = "countdown_l4", endpoint = 1, emit = emit.sw82Channel4Countdown() }),
+  tuya.dp_countdown(13, { name = "countdown_l5", endpoint = 1, emit = emit.sw82Channel5Countdown() }),
+  tuya.dp_countdown(14, { name = "countdown_l6", endpoint = 1, emit = emit.sw82Channel6Countdown() }),
+  tuya.dp_countdown(15, { name = "countdown_l7", endpoint = 1, emit = emit.sw82Channel7Countdown() }),
+  tuya.dp_countdown(16, { name = "countdown_l8", endpoint = 1, emit = emit.sw82Channel8Countdown() }),
+  tuya.dp_power_on_behavior(27, { endpoint = 1, emit = emit.sw82PowerOnBehavior() }),
+  magic_packet = true,
+  mcu_version_request_on_configure = true,
   query_on_configure = false,
+  query_on_announce = false,
+  initial_custom_state_query = false,
+  refresh_state_query = false,
   time_start = "off",
 }
 
 register_device_definition(switch_model_ts0601_switch_8_2, device_helpers.create_fingerprints("TS0601", {
   "_TZE204_adlblwab",
+  "_TZE284_adlblwab",
 }))
+
+
 
 
 

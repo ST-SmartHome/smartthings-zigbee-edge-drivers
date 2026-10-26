@@ -15,6 +15,12 @@ register_device_definition(dimmer_light, {
   device_helpers.create_fingerprint("Legrand", "Dimmer switch with neutral"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tmf"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.lights.schneider",
   registrations = device_definitions,

@@ -12,4 +12,5 @@ components:
       - {id: concertmirror08464.linptechEsOneFadingTime, version: 1}
       - {id: concertmirror08464.linptechEsOneLedIndicator, version: 1}
       - {id: refresh, version: 1}
+      - {id: signalStrength, version: 1}
     categories: [{name: PresenceSensor}]

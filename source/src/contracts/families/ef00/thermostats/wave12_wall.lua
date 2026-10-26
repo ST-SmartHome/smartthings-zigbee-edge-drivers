@@ -161,7 +161,7 @@ local eone_bat = {
   profile = "thermostats-wave12-engo-eone-batb",
   package_group = "wall-2",
   query_on_configure = true,
-  time_start = "2000",
+  time_start = "1970",
   tuya.dp_on_off(1, { name = "switch", emit = emit.switch() }),
   tuya.dp_system_mode(2, { name = "system_mode", converter = converter.lookup_from_to({ heat = 0, cool = 1 }), emit = emit.thermostat_mode() }),
   tuya.dp_running_state(3, {
@@ -370,7 +370,7 @@ local pilot = {
   wave12.enum(46, "moes_pilot_temp_unit", "moesPilotTempUnit", { c = 0, f = 1 }),
   tuya.dp_current_heating_setpoint(50, { scale = 10, emit = emit.heating_setpoint("C") }),
   wave12.numeric(102, "moes_pilot_boost_duration", "moesPilotBoostDuration", 1, false),
-  wave12.numeric(103, "moes_pilot_electricity", "moesPilotElectricity", 1, true),
+  wave12.numeric(103, "moes_pilot_electricity", "moesPilotElectricity", 10, true),
   wave12.numeric(104, "moes_pilot_daily_energy", "moesPilotDailyEnergy", 1, true),
   wave12.numeric(105, "moes_pilot_monthly_energy", "moesPilotMonthlyEnergy", 1, true),
   wave12.numeric(106, "moes_pilot_yearly_energy", "moesPilotYearlyEnergy", 1, true),

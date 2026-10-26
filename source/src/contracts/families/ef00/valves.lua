@@ -113,29 +113,30 @@ register_device_definition(battery_valve, device_helpers.create_fingerprints("TS
   "_TZE284_sdvbnmj5",
 }))
 
--- Z2M: FrankEver FK_V02 (frankever.ts:10)
--- legacy frankever_valve/threshold/timer: DP1 state, DP9 timer in seconds,
--- DP101 threshold as a multiple of 10 percent
 local frankever_valve = {
   profile = "valves-valve-threshold-timer-fkv02",
+  magic_packet = true,
+  mcu_version_request_on_configure = true,
+  query_on_configure = false,
+  query_on_announce = false,
+  refresh_state_query = false,
+  time_start = "off",
   tuya.dp_on_off(1, {
     name = "valve",
     emit = emit.valve(),
     converter = valve_open_closed_converter,
   }),
   tuya.dp_numeric(9, {
-    name = "timer",
-    emit = emit.fkv02Timer(),
-    converter = converter.divide_by_pair(60),
+    name = "fkv02_countdown",
+    emit = emit.fkv02Countdown(),
+  }),
+  tuya.dp_enum(27, {
+    name = "fkv02_power_off_state", emit = emit.fkv02PowerOffState(),
+    converter = converter.lookup_from_to({off = 0, on = 1, maintain = 2}),
   }),
   tuya.dp_numeric(101, {
     name = "threshold",
     emit = emit.fkv02Threshold(),
-    -- Z2M clamps writes to a multiple of 10 percent and reports the raw percent.
-    converter = converter.to_only(converter.pipe(
-      converter.clamp(0, 100),
-      converter.round_to_step(10)
-    )),
   }),
 }
 
@@ -455,6 +456,9 @@ local gx03_valve_state_converter = converter.lookup_from_to({
 
 local gx03_valve = {
   profile = "valves-valve-2-battery-timer-gx03",
+  magic_packet = true,
+  query_on_configure = true,
+  time_start = "off",
   tuya.dp_on_off(1, {
     name = "valve",
     component = "main",
@@ -501,6 +505,7 @@ local gx03_valve = {
 register_device_definition(gx03_valve, device_helpers.create_fingerprints("TS0601", {
   "_TZE284_8zizsafo",
   "_TZE284_iilebqoo",
+  "_TZE284_n41i9jyt",
 }))
 
 -- Z2M: Tuya TS0601_water_switch dual water valve (tuya.ts:15235)

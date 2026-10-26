@@ -1,0 +1,34 @@
+name: rpt-tcn
+components:
+- id: main
+  capabilities:
+  - id: switch
+    version: 1
+  - id: switchLevel
+    version: 1
+  - id: colorTemperature
+    version: 1
+  - id: concertmirror08464.luumrG9Effect
+    version: 1
+  - id: concertmirror08464.luumrG9DoNotDisturb
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMax
+    version: 1
+  - id: concertmirror08464.zclLevelReportMin
+    version: 1
+  - id: concertmirror08464.zclLevelReportMax
+    version: 1
+  - id: concertmirror08464.zclLevelReportChange20
+    version: 1
+  - id: concertmirror08464.zclColorTempReportMin
+    version: 1
+  - id: concertmirror08464.zclColorTempReportMax
+    version: 1
+  - id: concertmirror08464.zclColorTempReportChange21
+    version: 1
+  categories:
+  - name: Light

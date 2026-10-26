@@ -1,0 +1,36 @@
+name: safety-contact-sengled-g73
+components:
+- id: main
+  capabilities:
+  - {id: contactSensor, version: 1}
+  - {id: battery, version: 1}
+  - {id: voltageMeasurement, version: 1}
+  - {id: batteryLevel, version: 1}
+  - {id: tamperAlert, version: 1}
+  - {id: signalStrength, version: 1}
+  - {id: refresh, version: 1}
+  categories:
+  - name: ContactSensor
+deviceConfig:
+  dashboard:
+    states:
+    - {component: main, capability: contactSensor, group: main, composite: true}
+    actions: []
+    basicPlus: []
+  detailView:
+  - {component: main, capability: contactSensor}
+  - {component: main, capability: battery}
+  - {component: main, capability: voltageMeasurement}
+  - {component: main, capability: batteryLevel}
+  - {component: main, capability: tamperAlert}
+  - {component: main, capability: signalStrength}
+  - {component: main, capability: refresh}
+  automation:
+    conditions:
+    - {component: main, capability: contactSensor}
+    - {component: main, capability: battery}
+    - {component: main, capability: voltageMeasurement}
+    - {component: main, capability: batteryLevel}
+    - {component: main, capability: tamperAlert}
+    - {component: main, capability: signalStrength}
+    actions: []

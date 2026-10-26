@@ -1,24 +1,17 @@
-local tuya={
-EF00_CLUSTER=0xEF00,
-GET_DATA=0x01,
-SET_DATA_RESPONSE=0x02,
-REPORT_STATUS=0x05,
-ACTIVE_STATUS_REPORT=0x06,
-MCU_VERSION_RESPONSE=0x11,
-SET_TIME=0x24,
-CONNECTION_STATUS=0x25,
-}
-function tuya.build_base_preset(options)
-local preset={
-zcl_clusters=options and options.zcl_clusters or nil,
-datapoints=options and options.datapoints or nil,
-}
-function preset:start_configuration(...)return false end
-function preset:send_magic_packet(...)return false end
-function preset:send_state_request(...)return false end
-function preset:apply_message(...)return false end
-function preset:apply_announce(...)return false end
-function preset:apply_preferences_changed(...)return false end
-return preset
+local d={
+EF00_CLUSTER=61184,GET_DATA=1,SET_DATA_RESPONSE=2,REPORT_STATUS=5,ACTIVE_STATUS_REPORT=6,MCU_VERSION_RESPONSE=17,SET_TIME=36,CONNECTION_STATUS=37}
+function d.build_base_preset(a)
+a=a or{}local b={
+zcl_clusters=a.zcl_clusters,datapoints=a.datapoints}
+function b:start_configuration(...)return false end
+function b:send_magic_packet(...)return false end
+function b:send_state_request(...)return false end
+function b:apply_message(...)return false end
+function b:apply_announce(c)
+if type(a.announce_handler)~="function"then return false end
+return a.announce_handler(c,a)~=false
 end
-return tuya
+function b:apply_preferences_changed(...)return false end
+return b
+end
+return d

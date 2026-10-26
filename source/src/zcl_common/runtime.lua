@@ -8,18 +8,7 @@ local function load_runtime(zcl)
   local index_cache = setmetatable({}, { __mode = "k" })
   local prepared_mappings = setmetatable({}, { __mode = "k" })
 
-  local function is_callable_type(value)
-    if type(value) == "function" then
-      return true
-    end
-
-    if type(value) ~= "table" then
-      return false
-    end
-
-    local metatable = getmetatable(value)
-    return type(metatable) == "table" and type(metatable.__call) == "function"
-  end
+  local is_callable_type = require("runtime.capability_support").is_callable
 
   local function normalize_endpoint(endpoint)
     if type(endpoint) ~= "number" or endpoint % 1 ~= 0 then
@@ -73,7 +62,7 @@ local function load_runtime(zcl)
     return nil
   end
 
-  local function build_mapping_meta(mapping)
+  local function build_mapping_meta(mapping, cache)
     local cached = meta_cache[mapping]
     if cached ~= nil then
       return cached
@@ -111,6 +100,7 @@ local function load_runtime(zcl)
       custom_from_device = custom_from_device ~= nil,
       converter_from_device = converter_from_device ~= nil,
       prefer_typed_value = prefer_typed_value,
+      prefer_plain_attribute_write = mapping.prefer_plain_attribute_write == true,
       to_device = type(mapping.to_device) == "function" and mapping.to_device or
         (converter and type(converter.to) == "function" and converter.to or nil),
       emit = type(mapping.emit) == "function" and mapping.emit or nil,
@@ -127,15 +117,18 @@ local function load_runtime(zcl)
       minimum_interval = mapping.minimum_interval,
       maximum_interval = mapping.maximum_interval,
       reportable_change = mapping.reportable_change,
+      reporting_defaults = mapping.reporting_defaults,
       physical_reportable_change = type(mapping.physical_reportable_change) == "number" and
         mapping.physical_reportable_change or nil,
       read_on_configure = mapping.read_on_configure == true,
+      read_on_refresh = mapping.read_on_refresh,
       poll_interval = type(mapping.poll_interval) == "number" and mapping.poll_interval or nil,
       ias_configure_method = mapping.ias_configure_method,
       mfg_code = type(mapping.mfg_code) == "number" and mapping.mfg_code or nil,
       profile_id = type(mapping.profile_id) == "number" and mapping.profile_id or nil,
       metering_kind = type(mapping.metering_kind) == "string" and mapping.metering_kind or nil,
       scale = type(mapping.scale) == "number" and mapping.scale or nil,
+      ignore_reported_scaler = mapping.ignore_reported_scaler == true,
       attribute_def = attribute_def,
       data_type = configured_data_type or
         (attribute_def and attribute_def.base_type or nil),
@@ -146,7 +139,7 @@ local function load_runtime(zcl)
       attribute_id = mapping.attribute_id,
     }
 
-    meta_cache[mapping] = meta
+    if cache ~= false then meta_cache[mapping] = meta end
     return meta
   end
 
@@ -404,12 +397,12 @@ local function load_runtime(zcl)
     return normalize_endpoint(endpoint)
   end
 
-  function zcl.mapping_meta(mapping)
+  function zcl.mapping_meta(mapping, cache)
     if type(mapping) ~= "table" then
       return nil
     end
 
-    return build_mapping_meta(mapping)
+    return build_mapping_meta(mapping, cache)
   end
 
   function zcl.resolve_context_component_id(device, context)

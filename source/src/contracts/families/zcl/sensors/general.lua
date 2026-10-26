@@ -332,6 +332,32 @@ register_device_definition(build_illuminance_battery_clusters({
   "_TZ3000_j6adk9id",
 }))
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-sgy"},
+  {2, "rpt-sgy"},
+  {3, "rpt-sgy"},
+  {4, "rpt-tgdf"},
+  {5, "rpt-tgdf"},
+  {6, "rpt-sgy"},
+  {7, "rpt-sgy"},
+  {8, "rpt-sgy"},
+  {9, "rpt-sgy"},
+  {10, "rpt-tgdf"},
+  {11, "rpt-sgy"},
+  {12, "rpt-sgy"},
+  {13, "rpt-thw"},
+  {14, "rpt-tkh"},
+  {15, "rpt-tfe"},
+  {16, "rpt-tfe"},
+  {17, "rpt-tfe"},
+  {18, "rpt-tfe"},
+  {19, "rpt-tfe"},
+  {20, "rpt-tlna"},
+  {21, "rpt-tuh"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.sensors.general",
   registrations = device_definitions,

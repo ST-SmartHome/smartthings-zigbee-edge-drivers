@@ -1,0 +1,31 @@
+name: switches-ewelink-sw04
+components:
+  - id: main
+    label: Switch 1
+    capabilities:
+      - {id: switch, version: 1}
+      - {id: momentary, version: 1}
+      - {id: concertmirror08464.ewelinkSw04PowerOne, version: 1}
+      - {id: refresh, version: 1}
+    categories: [{name: Switch}]
+  - id: switch2
+    label: Switch 2
+    capabilities:
+      - {id: switch, version: 1}
+      - {id: momentary, version: 1}
+      - {id: concertmirror08464.ewelinkSw04PowerTwo, version: 1}
+    categories: [{name: Switch}]
+  - id: switch3
+    label: Switch 3
+    capabilities:
+      - {id: switch, version: 1}
+      - {id: momentary, version: 1}
+      - {id: concertmirror08464.ewelinkSw04PowerThree, version: 1}
+    categories: [{name: Switch}]
+  - id: switch4
+    label: Switch 4
+    capabilities:
+      - {id: switch, version: 1}
+      - {id: momentary, version: 1}
+      - {id: concertmirror08464.ewelinkSw04PowerFour, version: 1}
+    categories: [{name: Switch}]

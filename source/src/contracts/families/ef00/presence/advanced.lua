@@ -1,6 +1,5 @@
 -- presence-advanced package-owned presence family definitions.
 
-local capabilities = require "st.capabilities"
 local tuya = require "protocol.tuya"
 local emit = require "capabilities.events.all"
 local zcl = require "protocol.zcl"
@@ -545,133 +544,67 @@ register_presence_definition(presence_model_rt_zcz03z, ts0601_fingerprints({
 -- threshold /10 0..420 lx, DP111 breaker polarity NC/NO, DP112 block time /10
 -- 0..10 s, DP115 sensor state.  Entry filter time and block time previously
 -- allowed 0..600 s and the breaker polarity was never exposed.
-local presence_model_mtg075_zb_rl = {
-
-  profile = "safety-presence-mtg075-entry-controls-illuminance",
-  package_group = "presence-advanced",
-
-  named_datapoints = true,
-
-  datapoints = {
-
+local function mtg_datapoints(events, polarity, distance_report)
+  local datapoints = {
     tuya.dp_presence(1, { emit = emit.presence(), converter = converter.true_false1() }),
-
-    tuya.dp_numeric(2, { name = "radar_sensitivity", emit = emit.mtg075RadarSensitivity() }),
-
-    tuya.dp_numeric(3, {
-      name = "shield_range",
-      emit = emit.mtg075ShieldRange(),
-      converter = converter.divide_by_pair(100),
-    }),
-
-    tuya.dp_numeric(4, {
-      name = "detection_range",
-      emit = emit.mtg075DetectionRange(),
-      converter = converter.divide_by_pair(100),
-    }),
-
+    tuya.dp_numeric(2, { name = "radar_sensitivity", emit = events[1] }),
+    tuya.dp_numeric(3, { name = "shield_range", emit = events[2], converter = converter.divide_by_pair(100) }),
+    tuya.dp_numeric(4, { name = "detection_range", emit = events[3], converter = converter.divide_by_pair(100) }),
     tuya.dp_numeric(6, { name = "equipment_status", read_only = true }),
+    tuya.dp_numeric(9, { name = "target_distance", read_only = true, emit = events[4], converter = converter.divide_by_from_only(100) }),
+    tuya.dp_numeric(101, { name = "entry_filter_time", emit = events[5], converter = converter.divide_by_pair(10) }),
+    tuya.dp_numeric(102, { name = "departure_delay", emit = events[6] }),
+    tuya.dp_illuminance(104, { emit = emit.illuminance(), converter = converter.divide_by_from_only(10) }),
+    tuya.dp_numeric(105, { name = "entry_sensitivity", emit = events[7] }),
+    tuya.dp_numeric(106, { name = "entry_distance_indentation", emit = events[8], converter = converter.divide_by_pair(100) }),
+    tuya.dp_enum(107, { name = "breaker_mode", emit = events[9], converter = breaker_mode_converter }),
+    tuya.dp_enum(108, { name = "breaker_status", emit = events[10], converter = converter.lookup_from_to({ OFF = 0, ON = 1 }) }),
+    tuya.dp_enum(109, { name = "status_indication", emit = events[11], converter = converter.lookup_from_to({ OFF = 0, ON = 1 }) }),
+    tuya.dp_numeric(110, { name = "illuminance_threshold", emit = events[12], converter = converter.divide_by_pair(10) }),
+    tuya.dp_numeric(112, { name = "block_time", emit = events[13], converter = converter.divide_by_pair(10) }),
+    tuya.dp_enum(115, { name = "sensor_state", emit = events[14], converter = sensor_state_mode_converter }),
+  }
+  if polarity then
+    table.insert(datapoints, 16, tuya.dp_enum(111, {
+      name = "breaker_polarity", emit = polarity, converter = converter.lookup_from_to({ NC = 0, NO = 1 }),
+    }))
+  end
+  if distance_report then
+    datapoints[#datapoints + 1] = tuya.dp_enum(116, {
+      name = "distance_report", emit = distance_report, converter = converter.lookup_from_to({ OFF = 0, ON = 1 }),
+    })
+  end
+  return datapoints
+end
 
-    tuya.dp_numeric(9, {
-      name = "target_distance",
-      read_only = true,
-      emit = emit.mtg075TargetDistance(),
-      converter = converter.divide_by_from_only(100),
-    }),
-
-    tuya.dp_numeric(101, {
-      name = "entry_filter_time",
-      emit = emit.mtg075EntryFilterTime(),
-      converter = converter.divide_by_pair(10),
-    }),
-
-    tuya.dp_numeric(102, { name = "departure_delay", emit = emit.mtg075DepartureDelay() }),
-
-    tuya.dp_illuminance(104, { emit = emit.illuminance(), scale = 10 }),
-
-    tuya.dp_numeric(105, { name = "entry_sensitivity", emit = emit.mtg075EntrySensitivity() }),
-
-    tuya.dp_numeric(106, {
-      name = "entry_distance_indentation",
-      emit = emit.mtg075EntryIndentation(),
-      converter = converter.divide_by_pair(100),
-    }),
-
-    tuya.dp_enum(107, {
-      name = "breaker_mode",
-      emit = emit.mtg075BreakerMode(),
-      converter = breaker_mode_converter,
-    }),
-
-    tuya.dp_enum(108, {
-      name = "breaker_status",
-      emit = emit.mtg075BreakerStatus(),
-      converter = converter.lookup_from_to({ OFF = 0, ON = 1 }),
-    }),
-
-    tuya.dp_enum(109, {
-      name = "status_indication",
-      emit = emit.mtg075StatusIndication(),
-      converter = converter.lookup_from_to({ OFF = 0, ON = 1 }),
-    }),
-
-    tuya.dp_numeric(110, {
-      name = "illuminance_threshold",
-      emit = emit.mtg075IlluminanceThreshold(),
-      converter = converter.divide_by_pair(10),
-    }),
-
-    tuya.dp_enum(111, {
-      name = "breaker_polarity",
-      emit = emit.mtg075BreakerPolarity(),
-      converter = converter.lookup_from_to({ NC = 0, NO = 1 }),
-    }),
-
-    tuya.dp_numeric(112, {
-      name = "block_time",
-      emit = emit.mtg075BlockTime(),
-      converter = converter.divide_by_pair(10),
-    }),
-
-    tuya.dp_enum(115, {
-      name = "sensor_state",
-      emit = emit.mtg075SensorState(),
-      converter = sensor_state_mode_converter,
-    }),
-
-  },
-
+local presence_model_mtg075_zb_rl = {
+  profile = "safety-presence-mtg075-entry-controls-illuminance",
+  package_group = "presence-advanced", named_datapoints = true,
+  datapoints = mtg_datapoints({
+    emit.mtg075RadarSensitivity(), emit.mtg075ShieldRange(), emit.mtg075DetectionRange(),
+    emit.mtg075TargetDist(), emit.mtg075EntryFilterTime(), emit.mtg075DepartureDelay(),
+    emit.mtg075EntrySensitivity(), emit.mtg075EntryIndentation(), emit.mtg075BreakerMode(),
+    emit.mtg075BreakerStatus(), emit.mtg075StatusIndication(), emit.mtg075IlluminanceThreshold(),
+    emit.mtg075BlockTime(), emit.mtg075SensorState(),
+  }, emit.mtg075BreakerPolarity()),
 }
-
-
-
 register_presence_definition(presence_model_mtg075_zb_rl, ts0601_fingerprints({
-
-  "_TZE204_sbyx0lm6",
-
-  "_TZE204_clrdrnya",
-
-  "_TZE204_dtzziy1e",
-
-  "_TZE204_iaeejhvf",
-
-  "_TZE204_mtoaryre",
-
-  "_TZE200_mp902om5",
-
-  "_TZE204_pfayrzcw",
-
-  "_TZE284_4qznlkbu",
-
-  "_TZE200_clrdrnya",
-
-  "_TZE200_sbyx0lm6",
-
+  "_TZE204_sbyx0lm6", "_TZE204_iaeejhvf", "_TZE204_mtoaryre",
+  "_TZE200_mp902om5", "_TZE204_pfayrzcw", "_TZE284_4qznlkbu", "_TZE200_clrdrnya", "_TZE200_sbyx0lm6",
 }))
 
--- `Tuya / MTG275-ZB-RL`, `Tuya / MTG035-ZB-RL`, `Tuya / MTG235-ZB-RL` and
--- `QA / QASZ24R` are Z2M whiteLabel product rows for the exacts above, not
--- interviewed manufacturer/model pairs, so they are not registered.
+local presence_model_mtg275_zb_rl = {
+  profile = "safety-presence-mtg275-entry-controls-illuminance",
+  package_group = "presence-advanced", named_datapoints = true,
+  datapoints = mtg_datapoints({
+    emit.mtg275RadarSensitivity(), emit.mtg275ShieldRange(), emit.mtg275DetectionRange(),
+    emit.mtg275TargetDistance(), emit.mtg275EntryFilterTime(), emit.mtg275DepartureDelay(),
+    emit.mtg275EntrySensitivity(), emit.mtg275EntryIndentation(), emit.mtg275BreakerMode(),
+    emit.mtg275BreakerStatus(), emit.mtg275StatusIndication(), emit.mtg275IlluminanceThreshold(),
+    emit.mtg275BlockTime(), emit.mtg275SensorState(),
+  }, nil, emit.mtg275DistanceReport()),
+}
+register_presence_definition(presence_model_mtg275_zb_rl, ts0601_fingerprints({ "_TZE204_dtzziy1e" }))
 
 
 
@@ -1330,6 +1263,25 @@ register_presence_definition(presence_model_zp_301z, {
   device_helpers.create_fingerprint("B3876M9", "ZP-301Z"),
 
 })
+
+local presence_model_mtg235_zb_rl = {
+  profile = "safety-presence-mtg235-entry-controls-illuminance",
+  package_group = "presence-advanced", named_datapoints = true,
+  datapoints = mtg_datapoints({
+    emit.mtg235RadarSensitivity(), emit.mtg235ShieldRange(), emit.mtg235DetectionRange(),
+    emit.mtg235TargetDistance(), emit.mtg235EntryFilterTime(), emit.mtg235DepartureDelay(),
+    emit.mtg235EntrySensitivity(), emit.mtg235EntryIndentation(), emit.mtg235BreakerMode(),
+    emit.mtg235BreakerStatus(), emit.mtg235StatusIndication(), emit.mtg235IlluminanceThreshold(),
+    emit.mtg235BlockTime(), emit.mtg235SensorState(),
+  }, nil, emit.mtg235DistanceReport()),
+}
+register_presence_definition(presence_model_mtg235_zb_rl, ts0601_fingerprints({ "_TZE204_clrdrnya" }))
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {14, "rpt-tai"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "ef00.presence.advanced",

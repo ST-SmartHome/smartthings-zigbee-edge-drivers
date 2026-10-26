@@ -15,9 +15,6 @@ end
 local ecb = {
   profile = "controls-wave15-engo-ecb62zb",
   package_group = "heating-control-box",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = false,
   time_start = "2000",

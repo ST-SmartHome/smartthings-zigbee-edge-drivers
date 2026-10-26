@@ -28,6 +28,7 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: PresenceSensor
 preferences:
@@ -38,67 +39,52 @@ preferences:
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: presenceSensor
-        version: 1
-        group: main
+    - component: main
+      capability: presenceSensor
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: presenceSensor
-      version: 1
-    - component: main
-      capability: concertmirror08464.zg204zqFadingTime
-      version: 1
-    - component: main
-      capability: concertmirror08464.zg204zqHumidityCalibration
-      version: 1
-    - component: main
-      capability: concertmirror08464.zg204zqTemperatureCalibration
-      version: 1
-    - component: main
-      capability: concertmirror08464.zg204zqIlluminanceInterval
-      version: 1
-    - component: main
-      capability: concertmirror08464.zg204zqIndicator
-      version: 1
-    - component: main
-      capability: concertmirror08464.zg204zqTemperatureUnit
-      version: 1
-    - component: main
-      capability: concertmirror08464.driverMessage
-      version: 1
-    - component: main
-      capability: illuminanceMeasurement
-      version: 1
-    - component: main
-      capability: temperatureMeasurement
-      version: 1
-    - component: main
-      capability: relativeHumidityMeasurement
-      version: 1
-    - component: main
-      capability: battery
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: presenceSensor
+  - component: main
+    capability: concertmirror08464.zg204zqFadingTime
+  - component: main
+    capability: concertmirror08464.zg204zqHumidityCalibration
+  - component: main
+    capability: concertmirror08464.zg204zqTemperatureCalibration
+  - component: main
+    capability: concertmirror08464.zg204zqIlluminanceInterval
+  - component: main
+    capability: concertmirror08464.zg204zqIndicator
+  - component: main
+    capability: concertmirror08464.zg204zqTemperatureUnit
+  - component: main
+    capability: concertmirror08464.driverMessage
+  - component: main
+    capability: illuminanceMeasurement
+  - component: main
+    capability: temperatureMeasurement
+  - component: main
+    capability: relativeHumidityMeasurement
+  - component: main
+    capability: battery
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: presenceSensor
-        version: 1
-      - component: main
-        capability: temperatureMeasurement
-        version: 1
-      - component: main
-        capability: relativeHumidityMeasurement
-        version: 1
-      - component: main
-        capability: illuminanceMeasurement
-        version: 1
-      - component: main
-        capability: battery
-        version: 1
+    - component: main
+      capability: presenceSensor
+    - component: main
+      capability: temperatureMeasurement
+    - component: main
+      capability: relativeHumidityMeasurement
+    - component: main
+      capability: illuminanceMeasurement
+    - component: main
+      capability: battery
+    - component: main
+      capability: signalStrength
     actions: []

@@ -1,0 +1,47 @@
+name: thermostats-owon-ac221
+components:
+- id: main
+  label: AC221 IR controller
+  capabilities:
+  - id: temperatureMeasurement
+    version: 1
+  - id: thermostatHeatingSetpoint
+    version: 1
+    config:
+      values:
+      - key: heatingSetpoint.value
+        range: [8, 30]
+        step: 1
+  - id: thermostatCoolingSetpoint
+    version: 1
+    config:
+      values:
+      - key: coolingSetpoint.value
+        range: [8, 30]
+        step: 1
+  - id: thermostatMode
+    version: 1
+    config:
+      values:
+      - key: thermostatMode.value
+        enabledValues: ['off', auto, cool, heat, fanonly, dryair]
+  - id: airConditionerFanMode
+    version: 1
+    config:
+      values:
+      - key: fanMode.value
+        enabledValues: [low, medium, high, 'on', auto]
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.owonAc221OneKeyPairing
+    version: 1
+  - id: concertmirror08464.owonAc221PairingStatus
+    version: 1
+  - id: concertmirror08464.owonAc221PairingResult
+    version: 1
+  - id: concertmirror08464.owonAc221PairingCode
+    version: 1
+  - id: concertmirror08464.owonAc221Louver
+    version: 1
+  categories:
+  - name: AirConditioner

@@ -1,6 +1,11 @@
--- Full RX/TX ZCL facade without metering for EF00-owned hybrid packages.
+-- Full RX/TX ZCL facade for contracts without metering.
 
-local zcl = require "protocol.zcl.stub_base"()
+local zcl = {}
+
+function zcl.start_runtime(...) return false end
+function zcl.emit_power_polling_state(...) return false end
+function zcl.set_power_poll_interval(...) return false end
+function zcl.begin_power_poll_burst(...) return false end
 
 require "zcl_common.generated_helper"(zcl)
 require "zcl_common.cluster_mapping"(zcl)

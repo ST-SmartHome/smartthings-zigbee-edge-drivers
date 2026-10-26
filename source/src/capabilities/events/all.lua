@@ -14,18 +14,7 @@ local last_power_response_time_definition = custom_capabilities.by_emit_name.las
 local LAST_POWER_RESPONSE_AT_FIELD = "_tuya_last_power_response_at"
 local LAST_POWER_RESPONSE_WAITING_TEXT = "waiting"
 
-local function is_callable(value)
-  if type(value) == "function" then
-    return true
-  end
-
-  if type(value) ~= "table" then
-    return false
-  end
-
-  local metatable = getmetatable(value)
-  return type(metatable) == "table" and type(metatable.__call) == "function"
-end
+local is_callable = require("runtime.capability_support").is_callable
 
 local function resolve_capability_attribute(capability_id, attribute_name)
   local capability = capabilities[capability_id]
@@ -83,7 +72,7 @@ local function format_power_response_time(epoch)
     return LAST_POWER_RESPONSE_WAITING_TEXT
   end
 
-  return os.date("%Y-%m-%d %H:%M:%S", epoch)
+  return os.date("!%Y-%m-%d %H:%M:%S UTC", epoch)
 end
 
 local function last_power_response_event(device)
@@ -285,7 +274,13 @@ end
 
 function emit.alarm()
   return function(_, value)
-    if value then
+    if value == "strobe" then
+      return capabilities.alarm.alarm.strobe()
+    elseif value == "both" then
+      return capabilities.alarm.alarm.both()
+    elseif value == "off" then
+      return capabilities.alarm.alarm.off()
+    elseif value == "siren" or value then
       return capabilities.alarm.alarm.siren()
     else
       return capabilities.alarm.alarm.off()
@@ -381,21 +376,7 @@ function emit.pm25()
   end
 end
 
-function emit.power()
-  return function(device, value)
-    if value ~= nil then
-      local power_event = capabilities.powerMeter.power({ value = value, unit = "W" })
-      local response_event = last_power_response_event(device)
-      if response_event ~= nil then
-        return { power_event, response_event }
-      end
-
-      return power_event
-    end
-  end
-end
-
-local function explicit_energy_component_id(context)
+local function explicit_component_id(context)
   if type(context) ~= "table" then
     return nil
   end
@@ -413,7 +394,7 @@ local function explicit_energy_component_id(context)
   return nil
 end
 
-local function mapped_energy_component_id(context)
+local function mapped_component_id(context)
   if type(context) == "table" and type(context.component) == "string" and context.component ~= "" then
     return context.component
   end
@@ -421,13 +402,35 @@ local function mapped_energy_component_id(context)
   return nil
 end
 
+function emit.power()
+  return function(device, value, first_context, second_context)
+    if value ~= nil then
+      local power_event = capabilities.powerMeter.power({ value = value, unit = "W" })
+      local response_event = last_power_response_event(device)
+      if response_event ~= nil then
+        local component_id = explicit_component_id(second_context)
+          or explicit_component_id(first_context)
+          or mapped_component_id(second_context)
+          or mapped_component_id(first_context)
+        if component_id ~= nil and component_id ~= "main" then
+          device:emit_event(response_event)
+          return power_event
+        end
+        return { power_event, response_event }
+      end
+
+      return power_event
+    end
+  end
+end
+
 function emit.energy()
   return function(device, value, first_context, second_context)
     if value ~= nil then
-      local component_id = explicit_energy_component_id(second_context)
-        or explicit_energy_component_id(first_context)
-        or mapped_energy_component_id(second_context)
-        or mapped_energy_component_id(first_context)
+      local component_id = explicit_component_id(second_context)
+        or explicit_component_id(first_context)
+        or mapped_component_id(second_context)
+        or mapped_component_id(first_context)
 
       return capabilities.energyMeter.energy({
         value = energy_reset.apply_report(device, value, component_id),
@@ -655,7 +658,7 @@ local function emit_text_custom(definition, options)
       return
     end
 
-    local maximum_length = definition.maximum_length or 512
+    local maximum_length = definition.maximum_length or utf8_text.length(value)
     local message = utf8_text.truncate(value, maximum_length)
     if message == nil then
       return

@@ -6,6 +6,7 @@ local function load_mapping_preset(zcl)
   local emit = require "capabilities.events.all"
   local data_types = require "st.zigbee.data_types"
   local zigbee_constants = require "st.zigbee.constants"
+  local safe_xy_to_hsv = require "st.utils.safe_xy_to_hsv"
 
   local function merge_options(target, source)
     if type(target) ~= "table" then
@@ -119,14 +120,14 @@ local function load_mapping_preset(zcl)
           return value
         end
 
-        return math.floor((clamp(value, 0, 254) * 100 / 254) + 0.5)
+        return math.floor(clamp(value, 0, 254) * 100 / 254 + 0.5)
       end,
       to = function(value)
         if type(value) ~= "number" then
           return value
         end
 
-        return math.floor((clamp(value, 0, 100) * 254 / 100) + 0.5)
+        return math.floor(clamp(value, 0, 100) * 254 / 100 + 0.5)
       end,
     }
   end
@@ -138,14 +139,14 @@ local function load_mapping_preset(zcl)
           return value
         end
 
-        return math.floor((clamp(value, 0, 254) * 100 / 254) + 0.5)
+        return math.floor(clamp(value, 0, 254) * 100 / 254 + 0.5)
       end,
       to = function(value)
         if type(value) ~= "number" then
           return value
         end
 
-        return math.floor((clamp(value, 0, 100) * 254 / 100) + 0.5)
+        return math.floor(clamp(value, 0, 100) * 254 / 100 + 0.5)
       end,
     }
   end
@@ -318,14 +319,14 @@ local function load_mapping_preset(zcl)
           return value
         end
 
-        return math.floor(((clamp(value, 0, 1000) * 254) / 1000) + 1 + 0.5)
+        return math.floor(clamp(value, 0, 1000) * 254 / 1000 + 1 + 0.5)
       end,
       to = function(value)
         if type(value) ~= "number" then
           return value
         end
 
-        return math.floor((((clamp(value, 1, 255) - 1) * 1000) / 254) + 0.5)
+        return math.floor((clamp(value, 1, 255) - 1) * 1000 / 254 + 0.5)
       end,
     }
   end
@@ -426,7 +427,7 @@ local function load_mapping_preset(zcl)
       ((string.byte(body_bytes, 10) or 0) * 0x10000) +
       ((string.byte(body_bytes, 11) or 0) * 0x100) +
       (string.byte(body_bytes, 12) or 0)
-    return math.floor((seconds / 60) + 0.5)
+    return math.floor(seconds / 60 + 0.5)
   end
 
   local function build_threshold_payload(key, state_value, threshold_value)
@@ -513,14 +514,14 @@ local function load_mapping_preset(zcl)
           return value
         end
 
-        return math.floor((conversion_constant / value) + 0.5)
+        return math.floor(conversion_constant / value + 0.5)
       end,
       to = function(value)
         if type(value) ~= "number" or value <= 0 then
           return value
         end
 
-        return math.floor((conversion_constant / value) + 0.5)
+        return math.floor(conversion_constant / value + 0.5)
       end,
     }
   end
@@ -628,7 +629,17 @@ local function load_mapping_preset(zcl)
   local function define_preset(name, factory, defaults_builder)
     zcl[name] = function(name_or_options, options)
       local resolved = normalize_preset_options(name_or_options, options)
-      apply_defaults(resolved, defaults_builder(resolved))
+      local configure_reporting = resolved.configure_reporting
+      local defaults = defaults_builder(resolved)
+      resolved.configure_reporting = nil
+      if configure_reporting == false then
+        defaults.minimum_interval = nil
+        defaults.maximum_interval = nil
+        defaults.reportable_change = nil
+        defaults.physical_reportable_change = nil
+        defaults.reporting_defaults = nil
+      end
+      apply_defaults(resolved, defaults)
       return factory(resolved)
     end
   end
@@ -1026,7 +1037,7 @@ local function load_mapping_preset(zcl)
         end
 
         local clamped = clamp(value, 10, 1000)
-        return math.floor((((clamped - 10) * 100) / 990) + 0.5)
+        return math.floor((clamped - 10) * 100 / 990 + 0.5)
       end,
       to_device = function(value)
         if type(value) ~= "number" then
@@ -1034,7 +1045,7 @@ local function load_mapping_preset(zcl)
         end
 
         local percent = clamp(value, 0, 100)
-        return math.floor((10 + ((percent * 990) / 100)) + 0.5)
+        return math.floor(10 + percent * 990 / 100 + 0.5)
       end,
       read_on_configure = true,
     })
@@ -1075,7 +1086,9 @@ local function load_mapping_preset(zcl)
   zcl.occupancy = function(name_or_options, options)
     local resolved = normalize_preset_options(name_or_options, options)
     local ias_zone = resolved.ias_zone == true
+    local configure_reporting = resolved.configure_reporting
     resolved.ias_zone = nil
+    resolved.configure_reporting = nil
 
     if ias_zone then
       apply_defaults(resolved, merge_defaults(
@@ -1090,6 +1103,14 @@ local function load_mapping_preset(zcl)
         reporting_defaults(30, 300, nil)
       ))
       return zcl.ias_zone(resolved)
+    end
+
+    if configure_reporting == false then
+      apply_defaults(resolved, {
+        emit = emit.occupancy(),
+        read_on_configure = true,
+      })
+      return zcl.occupancy_sensing(resolved)
     end
 
     apply_defaults(resolved, merge_defaults(
@@ -1430,6 +1451,54 @@ local function load_mapping_preset(zcl)
     return zcl.cluster_attribute(resolved.cluster_id, resolved.attribute_id, resolved)
   end
 
+  function zcl.color_xy(options)
+    local function receive(value, device, context, mapping)
+      value = type(value) == "table" and value.value or value
+      local prefix = "_zcl_color_xy_" .. tostring(context.endpoint or 1) .. "_"
+      device:set_field(prefix .. mapping.name, value)
+      local x, y = device:get_field(prefix .. "color_x"), device:get_field(prefix .. "color_y")
+      local mode = device:get_field(prefix .. "color_mode")
+      if x ~= nil and y ~= nil and (mode == nil or mode == 0) then
+        local hue, saturation = safe_xy_to_hsv(x, y)
+        local component = context.component or { id = context.component_id or "main" }
+        device:emit_component_event(component, emit.color_hue()(device, hue))
+        device:emit_component_event(component, emit.color_saturation()(device, saturation))
+      end
+    end
+    local mappings = {}
+    for _, item in ipairs({ { "color_x", 0x0003 }, { "color_y", 0x0004 }, { "color_mode", 0x0008 } }) do
+      local resolved = merge_options({}, options)
+      resolved.name, resolved.read_only, resolved.from_device = item[1], true, receive
+      resolved.data_type = item[2] == 0x0008 and data_types.Enum8 or data_types.Uint16
+      mappings[#mappings + 1] = zcl.cluster_attribute(zcl.CLUSTER_COLOR_CONTROL, item[2], resolved)
+    end
+    return mappings
+  end
+
+  function zcl.send_light_effect(device, mapping, value, context)
+    local endpoint = context.endpoint or 1
+    local cluster, command, payload = 0x0003, 0x40, nil
+    if value == "colorloop" or value == "stop_colorloop" then
+      cluster, command = 0x0300, 0x01
+      payload = string.char(value == "colorloop" and 1 or 0, value == "colorloop" and 17 or 1, 0, 0)
+    else
+      local effect = ({ blink = 0, breathe = 1, okay = 2, channel_change = 11, finish_effect = 254, stop_effect = 255 })[value]
+      if effect == nil then return false end
+      payload = string.char(effect, 0)
+    end
+    local sent = zcl.send_raw_cluster_command(device, cluster, command, payload, endpoint)
+    if sent ~= false then
+      device:emit_component_event({ id = context.component_id or "main" }, mapping.emit(device, value))
+      if value == "stop_colorloop" then
+        device.thread:call_with_delay(0.1, function()
+          zcl.read_mapping(device, zcl.cluster_attribute(0x0300, 0x0000, { endpoint = endpoint }))
+          zcl.read_mapping(device, zcl.cluster_attribute(0x0300, 0x0008, { endpoint = endpoint }))
+        end, "light colorloop stopped")
+      end
+    end
+    return sent
+  end
+
   define_preset("contact", zcl.ias_zone, function()
     return merge_defaults(
       {
@@ -1458,11 +1527,11 @@ local function load_mapping_preset(zcl)
     )
   end)
 
-  define_preset("shelly_handle_position", zcl.ias_zone, function()
+  define_preset("shelly_handle_position", zcl.ias_zone, function(options)
     return merge_defaults(
       {
         name = "shelly_handle_position",
-        emit = emit.shellyBluDoorHandlePosition(),
+        emit = options.emit or emit.shellyBluDoorHandlePosition(),
         converter = shelly_handle_position_pair(),
         ias_configure_method = zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,
         command_id = 0x00,
@@ -1598,18 +1667,22 @@ local function load_mapping_preset(zcl)
     )
   end)
 
-  define_preset("motion", zcl.ias_zone, function()
-    return merge_defaults(
-      {
-        name = "motion",
-        emit = emit.motion(),
-        converter = zone_status_pair(0x0001),
-        ias_configure_method = zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,
-        command_id = 0x00,
-        command_extractor = extract_zone_status_from_command,
-      },
-      reporting_defaults(30, 300, nil)
-    )
+  define_preset("motion", zcl.ias_zone, function(options)
+    local configure_reporting = options.configure_reporting
+    options.configure_reporting = nil
+    local defaults = {
+      name = "motion",
+      emit = emit.motion(),
+      converter = zone_status_pair(0x0001),
+      ias_configure_method = zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,
+      command_id = 0x00,
+      command_extractor = extract_zone_status_from_command,
+      read_on_configure = true,
+    }
+    if configure_reporting == false then
+      return defaults
+    end
+    return merge_defaults(defaults, reporting_defaults(30, 300, nil))
   end)
 
   define_preset("tamper", zcl.ias_zone, function()
@@ -1626,18 +1699,22 @@ local function load_mapping_preset(zcl)
     )
   end)
 
-  define_preset("battery_low", zcl.ias_zone, function()
-    return merge_defaults(
-      {
-        name = "battery_low",
-        emit = optional_emit("battery_low"),
-        converter = zone_status_pair(0x0008),
-        ias_configure_method = zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,
-        command_id = 0x00,
-        command_extractor = extract_zone_status_from_command,
-      },
-      reporting_defaults(0, 300, nil)
-    )
+  define_preset("battery_low", zcl.ias_zone, function(options)
+    local configure_reporting = options.configure_reporting
+    options.configure_reporting = nil
+    local defaults = {
+      name = "battery_low",
+      emit = optional_emit("battery_low"),
+      converter = zone_status_pair(0x0008),
+      ias_configure_method = zigbee_constants.IAS_ZONE_CONFIGURE_TYPE.AUTO_ENROLL_RESPONSE,
+      command_id = 0x00,
+      command_extractor = extract_zone_status_from_command,
+      read_on_configure = true,
+    }
+    if configure_reporting == false then
+      return defaults
+    end
+    return merge_defaults(defaults, reporting_defaults(0, 300, nil))
   end)
 
   define_preset("hardware_fault", zcl.ias_zone, function()

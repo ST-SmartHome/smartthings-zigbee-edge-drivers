@@ -24,54 +24,46 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: PresenceSensor
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: presenceSensor
-        version: 1
-        group: main
+    - component: main
+      capability: presenceSensor
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: presenceSensor
-      version: 1
-    - component: main
-      capability: concertmirror08464.motionDetectionSensitivityZg204zx
-      version: 1
-    - component: main
-      capability: concertmirror08464.staticDetectionSensitivityZg204zx
-      version: 1
-    - component: main
-      capability: concertmirror08464.presenceDetectionRangeZg204zx
-      version: 1
-    - component: main
-      capability: concertmirror08464.presenceFadingTimeZg204zx
-      version: 1
-    - component: main
-      capability: concertmirror08464.antiInterferenceZg204zx
-      version: 1
-    - component: main
-      capability: concertmirror08464.indicatorZg204zx
-      version: 1
-    - component: main
-      capability: concertmirror08464.driverMessage
-      version: 1
-    - component: main
-      capability: battery
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: presenceSensor
+  - component: main
+    capability: concertmirror08464.motionDetectionSensitivityZg204zx
+  - component: main
+    capability: concertmirror08464.staticDetectionSensitivityZg204zx
+  - component: main
+    capability: concertmirror08464.presenceDetectionRangeZg204zx
+  - component: main
+    capability: concertmirror08464.presenceFadingTimeZg204zx
+  - component: main
+    capability: concertmirror08464.antiInterferenceZg204zx
+  - component: main
+    capability: concertmirror08464.indicatorZg204zx
+  - component: main
+    capability: concertmirror08464.driverMessage
+  - component: main
+    capability: battery
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: presenceSensor
-        version: 1
-      - component: main
-        capability: battery
-        version: 1
+    - component: main
+      capability: presenceSensor
+    - component: main
+      capability: battery
+    - component: main
+      capability: signalStrength
     actions: []

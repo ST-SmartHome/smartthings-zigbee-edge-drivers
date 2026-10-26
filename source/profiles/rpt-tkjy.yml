@@ -1,0 +1,18 @@
+name: rpt-tkjy
+components:
+- id: main
+  capabilities:
+  - id: alarm
+    version: 1
+  - id: audioVolume
+    version: 1
+  - id: firmwareUpdate
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclIasReportMin
+    version: 1
+  - id: concertmirror08464.zclIasReportMax
+    version: 1
+  categories:
+  - name: Siren

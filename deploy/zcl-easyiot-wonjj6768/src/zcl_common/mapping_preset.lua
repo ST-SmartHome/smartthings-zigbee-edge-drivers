@@ -1,70 +1,67 @@
-local function load_mapping_preset(zcl)
-local emit=require "capabilities.events.all"
-local data_types=require "st.zigbee.data_types"
-local zigbee_constants=require "st.zigbee.constants"
-local function merge_options(target,source)
-if type(target)~="table" then
-target={}
+local function i(z)
+local A=require"capabilities.events.all"
+local y=require"st.zigbee.data_types"
+local u=require"st.zigbee.constants"
+local x=require"st.utils.safe_xy_to_hsv"
+local function g(d,t)
+if type(d)~="table"then
+d={}
 end
-if type(source)~="table" then
-return target
+if type(t)~="table"then
+return d
 end
-for key,value in pairs(source)do
-target[key]=value
+for v,r in pairs(t)do
+d[v]=r
 end
-return target
+return d
 end
-local function apply_defaults(target,defaults)
-if type(target)~="table" or type(defaults)~="table" then
-return target
+local function f(d,a)
+if type(d)~="table"or type(a)~="table"then
+return d
 end
-for key,value in pairs(defaults)do
-if target[key]==nil then
-target[key]=value
+for v,r in pairs(a)do
+if d[v]==nil then
+d[v]=r
 end
 end
-return target
+return d
 end
-local function normalize_preset_options(name_or_options,options)
-local resolved={}
-if type(name_or_options)=="string" then
-resolved.name=name_or_options
+local function e(b,p)
+local c={}if type(b)=="string"then
+c.name=b
 else
-merge_options(resolved,name_or_options)
+g(c,b)
 end
-merge_options(resolved,options)
-return resolved
+g(c,p)return c
 end
-local function reporting_defaults(minimum_interval,maximum_interval,reportable_change)
+local function j(n,m,k)
 return{
-minimum_interval=minimum_interval,
-maximum_interval=maximum_interval,
-reportable_change=reportable_change,
-read_on_configure=true,
-}
+minimum_interval=n,maximum_interval=m,reportable_change=k,read_on_configure=true}
 end
-local function merge_defaults(...)
-local merged={}
-for _,defaults in ipairs({...})do
-apply_defaults(merged,defaults)
+local function o(...)
+local s={}for _,a in ipairs{...}do
+f(s,a)
 end
-return merged
+return s
 end
-local function define_preset(name,factory,defaults_builder)
-zcl[name]=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,defaults_builder(resolved))
-return factory(resolved)
+local function q(B,w,l)
+z[B]=function(b,p)
+local c=e(b,p)local h=c.configure_reporting
+local a=l(c)c.configure_reporting=nil
+if h==false then
+a.minimum_interval=nil
+a.maximum_interval=nil
+a.reportable_change=nil
+a.physical_reportable_change=nil
+a.reporting_defaults=nil
+end
+f(c,a)return w(c)
 end
 end
-define_preset("battery",zcl.power_configuration_battery,function()
-return merge_defaults(
+q("battery",z.power_configuration_battery,function()
+return o(
 {
-emit=emit.battery(),
-scale=2,
-},
-reporting_defaults(300,21600,2)
-)
+emit=A.battery(),scale=2},j(300,21600,2))
 end)
 end
-return load_mapping_preset
+return i

@@ -109,6 +109,17 @@ local function motor_state_converter(normal, reversed)
   end)
 end
 
+local function tubular_direction_converter(normal, reversed)
+  local pair = converter.lookup_from_to({ [normal] = 0, [reversed] = 1 })
+  return converter.from_to(
+    function(value)
+      if type(value) == "string" then return value == "back" and reversed or normal end
+      return pair.from(value)
+    end,
+    pair.to
+  )
+end
+
 local function append_position(definition, dp, options)
   options = options or {}
   definition.datapoints[#definition.datapoints + 1] = tuya.dp_numeric(dp, {
@@ -150,23 +161,17 @@ local function base_definition(profile)
   return {
     profile = profile,
     package_group = "cover",
-    transport_classification = "EF00_DP",
-    z2m_converter_source = "meta.tuyaDatapoints",
-    wire_cluster = "manuSpecificTuya",
     magic_packet = true,
     datapoints = {},
   }
 end
 
-local function exacts(model, manufacturers)
-  return device_helpers.create_fingerprints(model, manufacturers)
-end
+local exacts = device_helpers.create_fingerprints
 
 -- ADCBZI01 is a hybrid contract. Frozen Z2M orders standard WindowCovering
 -- setters before tuya.tz.datapoints, so DP1/2/3 are receive-only here and all
 -- shade commands use cluster 0x0102. DP3 is coverPositionInverted.
 local adcbzi = base_definition("covers-wave10-moes-adcbzi01")
-adcbzi.wire_cluster = "closuresWindowCovering+manuSpecificTuya"
 adcbzi.magic_packet = false
 adcbzi.query_on_configure = true
 adcbzi.zcl_clusters = {
@@ -277,21 +282,17 @@ end
 adcbzi.datapoints[#adcbzi.datapoints + 1] = tuya.dp_illuminance(107, {
   read_only = true, emit = emit.illuminance(),
 })
-adcbzi.datapoints[#adcbzi.datapoints + 1] = tuya.dp_numeric(108, {
-  name = "adcbzi_open_threshold", emit = emit.adcbziOpenThreshold(),
-})
-adcbzi.datapoints[#adcbzi.datapoints + 1] = tuya.dp_numeric(109, {
-  name = "adcbzi_close_threshold", emit = emit.adcbziCloseThreshold(),
-})
-adcbzi.datapoints[#adcbzi.datapoints + 1] = tuya.dp_numeric(110, {
-  name = "adcbzi_curtain_status", emit = emit.adcbziCurtainStatus(),
-})
-adcbzi.datapoints[#adcbzi.datapoints + 1] = tuya.dp_numeric(111, {
-  name = "adcbzi_factory_test", read_only = true, emit = emit.adcbziFactoryTest(),
-})
-adcbzi.datapoints[#adcbzi.datapoints + 1] = tuya.dp_numeric(112, {
-  name = "adcbzi_total_distance", read_only = true, emit = emit.adcbziTotalDistance(),
-})
+for _, mapping in ipairs({
+  {108, "adcbzi_open_threshold", emit.adcbziOpenThreshold},
+  {109, "adcbzi_close_threshold", emit.adcbziCloseThreshold},
+  {110, "adcbzi_curtain_status", emit.adcbziCurtainStatus},
+  {111, "adcbzi_factory_test", emit.adcbziFactoryTest, true},
+  {112, "adcbzi_total_distance", emit.adcbziTotalDistance, true},
+}) do
+  adcbzi.datapoints[#adcbzi.datapoints + 1] = tuya.dp_numeric(mapping[1], {
+    name = mapping[2], read_only = mapping[4], emit = mapping[3](),
+  })
+end
 register_device_definition(adcbzi, exacts("TS030F", {
   "_TZ3210_sxtfesc6",
   "_TZ3210_rundhkxp",
@@ -313,7 +314,10 @@ bl82.datapoints[#bl82.datapoints + 1] = tuya.dp_binary(6, {
   converter = converter.lookup_from_to({ ON = true, OFF = false }),
   emit = emit.blTyzAutoPower(),
 })
-register_device_definition(bl82, exacts("TS0601", { "_TZE284_7qc2wlqr" }))
+register_device_definition(bl82, exacts("TS0601", {
+  "_TZE284_7qc2wlqr",
+  "_TZE2841000000_7qc2wlqr",
+}))
 
 local zs_sr = base_definition("covers-wave10-moes-zs-sr-euc")
 append_cover_action(zs_sr, 1)
@@ -369,12 +373,26 @@ zc_lp.datapoints[#zc_lp.datapoints + 1] = tuya.dp_numeric(112, {
 register_device_definition(zc_lp, exacts("TS0601", { "_TZ3210_5rta89nj" }))
 
 local fwjz = base_definition("covers-wave10-moes-fwjzceh18a001")
+fwjz.mcu_version_request_on_configure = true
+fwjz.query_on_configure = false
+fwjz.query_on_announce = false
+fwjz.refresh_state = false
+fwjz.refresh_state_query = false
+fwjz.time_start = "off"
 append_cover_action(fwjz, 1)
+fwjz.datapoints[1].from_device = function(value)
+  return ({[0] = "open", [1] = "partially open", [2] = "closed", [3] = "partially open"})[value]
+end
 append_position(fwjz, 9)
 append_position(fwjz, 8, { name = "position_report", read_only = true })
 fwjz.datapoints[#fwjz.datapoints + 1] = tuya.dp_enum(11, {
   name = "fwjz_motor_direction",
   converter = converter.lookup_from_to({ normal = 0, reversed = 1 }),
+  receive_datatypes = {4, 3},
+  from_device = function(value)
+    if type(value) == "string" then return value == "back" and "reversed" or "normal" end
+    return ({[0] = "normal", [1] = "reversed"})[value]
+  end,
   emit = emit.fwjzMotorDirection(),
 })
 fwjz.datapoints[#fwjz.datapoints + 1] = tuya.dp_raw(13, {
@@ -474,7 +492,7 @@ append_cover_action(zn_usc, 1)
 append_position(zn_usc, 2)
 zn_usc.datapoints[#zn_usc.datapoints + 1] = tuya.dp_enum(8, {
   name = "zn_usc_motor_steering",
-  converter = converter.lookup_from_to({ FORWARD = 0, BACKWARD = 1 }),
+  converter = tubular_direction_converter("FORWARD", "BACKWARD"),
   emit = emit.znUscMotorSteering(),
 })
 zn_usc.datapoints[#zn_usc.datapoints + 1] = tuya.dp_numeric(10, {
@@ -508,6 +526,30 @@ zmp_one.datapoints[#zmp_one.datapoints + 1] = tuya.dp_enum(7, {
 })
 append_battery(zmp_one, 13)
 register_device_definition(zmp_one, exacts("TS0601", { "_TZE284_6hrnp30w" }))
+
+local zn2s_usc = base_definition("covers-zemismart-zn2s-usc1u")
+zn2s_usc.initial_custom_state_query = false
+zn2s_usc.time_start = "off"
+zn2s_usc.mcu_version_request_on_configure = true
+append_cover_action(zn2s_usc, 1)
+append_position(zn2s_usc, 2)
+zn2s_usc.datapoints[#zn2s_usc.datapoints + 1] = tuya.dp_enum(8, {
+  name = "zn2s_motor_direction", emit = emit.zn2sMotorDirection(),
+  converter = tubular_direction_converter("normal", "reversed"),
+})
+zn2s_usc.datapoints[#zn2s_usc.datapoints + 1] = tuya.dp_numeric(10, {
+  name = "zn2s_calibration_time", emit = emit.zn2sCalibrationTime(),
+})
+for _, mapping in ipairs(zn2s_usc.datapoints) do
+  if not mapping.read_only then mapping.transaction = 1 end
+end
+register_device_definition(zn2s_usc, exacts("TS0601", { "_TZE28C1000000_19jwhi8c" }))
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-thj"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "ef00.covers.wave10",

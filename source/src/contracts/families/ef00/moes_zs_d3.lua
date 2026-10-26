@@ -30,7 +30,6 @@ local definition = {
   time_start = "off",
   initial_custom_state_query = false,
   refresh_state_query = false,
-  placeholder_custom_states = false,
 
   tuya.dp_on_off(1, {
     name = "switch",

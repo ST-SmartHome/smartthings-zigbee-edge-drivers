@@ -1,0 +1,60 @@
+name: rpt-enc
+components:
+- id: main
+  capabilities:
+  - id: occupancySensor
+    version: 1
+  - id: illuminanceMeasurement
+    version: 1
+  - id: temperatureMeasurement
+    version: 1
+  - id: relativeHumidityMeasurement
+    version: 1
+  - id: battery
+    version: 1
+  - id: concertmirror08464.linknLinkEmotionAirAction
+    version: 1
+  - id: concertmirror08464.linknLinkEmotionAirActionGroup
+    version: 1
+  - id: concertmirror08464.linknLinkEmotionAirActionLevel
+    version: 1
+  - id: concertmirror08464.linknAirActionTransition
+    version: 1
+  - id: concertmirror08464.linknLinkEmotionAirActionRate
+    version: 1
+  - id: concertmirror08464.linknAirActionStepSize
+    version: 1
+  - id: refresh
+    version: 1
+  - id: signalStrength
+    version: 1
+  - id: concertmirror08464.zclTempReportMin
+    version: 1
+  - id: concertmirror08464.zclTempReportMax
+    version: 1
+  - id: concertmirror08464.zclTempReportChange29
+    version: 1
+  - id: concertmirror08464.zclHumidityReportMin
+    version: 1
+  - id: concertmirror08464.zclHumidityReportMax
+    version: 1
+  - id: concertmirror08464.zclHumidityReportChange21
+    version: 1
+  - id: concertmirror08464.zclLightReportMin
+    version: 1
+  - id: concertmirror08464.zclLightReportMax
+    version: 1
+  - id: concertmirror08464.zclLightReportChange21
+    version: 1
+  - id: concertmirror08464.zclOccupancyReportMin
+    version: 1
+  - id: concertmirror08464.zclOccupancyReportMax
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMin
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMax
+    version: 1
+  - id: concertmirror08464.zclBatteryReportChange20
+    version: 1
+  categories:
+  - name: PresenceSensor

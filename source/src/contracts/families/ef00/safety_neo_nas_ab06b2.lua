@@ -41,7 +41,6 @@ local definition = {
   query_on_configure = false,
   initial_custom_state_query = false,
   refresh_state_query = false,
-  placeholder_custom_states = false,
   time_start = "off",
 
   tuya.dp_enum(1, {

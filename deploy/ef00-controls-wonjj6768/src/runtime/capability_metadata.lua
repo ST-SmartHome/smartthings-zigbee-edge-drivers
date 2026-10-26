@@ -1,108 +1,79 @@
-local custom_capabilities={}
-local strings={"security_remote_action","securityRemoteAction","supportedSecurityRemoteActions","Security remote action","disarm","arm_day_zones","arm_night_zones","arm_all_zones","exit_delay","emergency","foriaSceneBacklight","foria_scene_backlight","Foria Scene Backlight","off","on","foriaSceneIlluminationDetection","foria_scene_illumination_detection","Foria Scene Illumination Detection","foriaSceneApproachDetection","foria_scene_approach_detection","Foria Scene Approach Detection","foriaSceneVibration","foria_scene_vibration","Foria Scene Vibration","last_power_response_time","lastPowerResponseTime","Last power response time"}
-local function string_value(value)
-if type(value)=="number" then return strings[value]end
-return value
+local a={}local H={"Learn","Delete","Saved","Transmit","off","on","code","transmit","security_remote_action","foriaSceneBacklight","foriaSceneIlluminationDetection","foriaSceneApproachDetection","foriaSceneVibration","securityRemoteAction","disarm","arm_day_zones","arm_night_zones","arm_all_zones","exit_delay","emergency","zrf01LearningMode","zrf01PacketMode","zrf01Code1","zrf01Transmit1","zrf01Code2","zrf01Transmit2","zrf01Code3","zrf01Transmit3","zrf01Code4","zrf01Transmit4","zrf01Code5","zrf01Transmit5","zrf01Code6","zrf01Transmit6","zrf01Code7","zrf01Transmit7","zrf01Code8","zrf01Transmit8","lastPowerResponseTime"}
+local function b(g)
+if type(g)=="number"then return H[g]end
+return g
 end
-local function capability_id(value)local suffix=string_value(value);if suffix==nil then return nil end;return "concertmirror08464." .. suffix end
-local table_groups={}
-local function grouped_table(group_id)
-if type(group_id)~="number" then return{}end
-local existing=table_groups[group_id]
-if existing ~=nil then return existing end
-local out={}
-table_groups[group_id]=out
-return out
+local function p(g)local suffix=b(g);if suffix==nil then return nil end;return"concertmirror08464."..suffix end
+local t={}
+local function q(k)
+if type(k)~="number"then return{}end
+local x=t[k]
+if x~=nil then return x end
+local n={}t[k]=n
+return n
 end
-local function string_list(values,group_id)
-if type(values)~="table" then return nil end
-local out=grouped_table(group_id)
-for index,value in ipairs(values)do out[index]=string_value(value)end
-return out
+local function s(D,k)
+if type(D)~="table"then return nil end
+local n=q(k)
+for A,g in ipairs(D)do n[A]=b(g)end
+return n
 end
-local function optional_string(value,default)
-if value==nil then return default end
-if value==0 then return nil end
-return string_value(value)
+local function i(g,E)
+if g==nil then return E end
+if g==0 then return nil end
+return b(g)
 end
-local function command_default(attribute_name)
-if type(attribute_name)~="string" or attribute_name=="" then return nil end
-return "set" .. attribute_name:sub(1,1):upper().. attribute_name:sub(2)
+local function m(attribute_name)
+if type(attribute_name)~="string"or attribute_name==""then return nil end
+return"set"..attribute_name:sub(1,1):upper()..attribute_name:sub(2)
 end
-local function range(value)
-if type(value)~="table" then return nil end
-local out=grouped_table(value[6])
-out.minimum=value[1]
-out.maximum=value[2]
-out.step=value[3]
-out.unit=string_value(value[4])
-out.allowed_values=string_list(value[5],value[7])
-return out
+local function J(g)
+if type(g)~="table"then return nil end
+local n=q(g[6])n.minimum=g[1]n.maximum=g[2]n.step=g[3]n.unit=b(g[4])n.allowed_values=s(g[5],g[7])return n
 end
-local function allowed_range(allowed_values,group_id)
-if allowed_values==nil and group_id==nil then return nil end
-local out=grouped_table(group_id)
-out.allowed_values=allowed_values
-return out
+local function w(j,k)
+if j==nil and k==nil then return nil end
+local n=q(k)n.allowed_values=j
+return n
 end
-local function numeric(row)
-local attribute_name=string_value(row[4])
-return{kind="numeric",emit_name=string_value(row[1]),range_key=string_value(row[2]),capability_id=capability_id(row[3]),attribute_name=attribute_name,range_attribute_name=string_value(row[5]),command_name=optional_string(row[6],command_default(attribute_name)),argument_name=optional_string(row[7],attribute_name),mapping_name=string_value(row[8]),label=string_value(row[9]),default_range=range(row[10]),event_minimum=row[11],event_maximum=row[12],event_unit=string_value(row[13])}
+local function G(f)
+local attribute_name=b(f[4])return{kind="numeric",emit_name=b(f[1]),range_key=b(f[2]),capability_id=p(f[3]),attribute_name=attribute_name,range_attribute_name=b(f[5]),command_name=i(f[6],m(attribute_name)),argument_name=i(f[7],attribute_name),mapping_name=b(f[8]),label=b(f[9]),default_range=J(f[10]),event_minimum=f[11],event_maximum=f[12],event_unit=b(f[13])}
 end
-local function enum(row)
-local attribute_name=string_value(row[4])
-local supported_values=string_list(row[10],row[12])
-local default_allowed_values=string_list(row[11],row[14])
-local default_range=allowed_range(default_allowed_values,row[13])
-return{kind="enum",emit_name=string_value(row[1]),range_key=string_value(row[2]),capability_id=capability_id(row[3]),attribute_name=attribute_name,supported_attribute_name=string_value(row[5]),command_name=optional_string(row[6],command_default(attribute_name)),argument_name=optional_string(row[7],attribute_name),mapping_name=string_value(row[8]),label=string_value(row[9]),supported_values=supported_values,default_range=default_range}
+local function K(f)
+local attribute_name=b(f[4])local u=s(f[10],f[12])local r=s(f[11],f[14])local d=w(r,f[13])return{kind="enum",emit_name=b(f[1]),range_key=b(f[2]),capability_id=p(f[3]),attribute_name=attribute_name,supported_attribute_name=b(f[5]),command_name=i(f[6],m(attribute_name)),argument_name=i(f[7],attribute_name),mapping_name=b(f[8]),label=b(f[9]),supported_values=u,default_range=d}
 end
-local function text(row)
-local attribute_name=string_value(row[3])
-return{kind="text",emit_name=string_value(row[1]),capability_id=capability_id(row[2]),attribute_name=attribute_name,command_name=optional_string(row[4],command_default(attribute_name)),argument_name=optional_string(row[5],attribute_name),mapping_name=string_value(row[6]),label=string_value(row[7]),maximum_length=row[8]}
+local function M(f)
+local attribute_name=b(f[3])return{kind="text",emit_name=b(f[1]),capability_id=p(f[2]),attribute_name=attribute_name,command_name=i(f[4],m(attribute_name)),argument_name=i(f[5],attribute_name),mapping_name=b(f[6]),label=b(f[7]),maximum_length=f[8]}
 end
-local function build(rows,factory)
-local out={}
-for _,row in ipairs(rows)do out[#out + 1]=factory(row)end
-return out
+local function z(L,F)
+local n={}
+for _,f in ipairs(L)do n[#n+1]=F(f)end
+return n
 end
-custom_capabilities.numeric=build({},numeric)
-custom_capabilities.enum=build({{1,1,2,2,3,nil,nil,1,4,{5,6,7,8,9,10},{5,6,7,8,9,10},1,2,1},{11,nil,11,11,nil,nil,nil,12,13,{14,15},{14,15},3,4,3},{16,nil,16,16,nil,nil,nil,17,18,{14,15},{14,15},5,6,5},{19,nil,19,19,nil,nil,nil,20,21,{14,15},{14,15},7,8,7},{22,nil,22,22,nil,nil,nil,23,24,{14,15},{14,15},9,10,9}},enum)
-custom_capabilities.text=build({{25,26,26,0,0,nil,27,64}},text)
-custom_capabilities.driver_message={["attribute_name"]="driverMessage",["capability_id"]="concertmirror08464.driverMessage",["emit_name"]="driver_message",["label"]="Driver message",["maximum_length"]=512}
-custom_capabilities.by_range_key={}
-custom_capabilities.by_emit_name={}
-custom_capabilities.by_capability_id={}
-local function index_metadata(definitions)
-for _,metadata in ipairs(definitions)do
-custom_capabilities.by_emit_name[metadata.emit_name]=metadata
-if type(metadata.capability_id)=="string" and metadata.capability_id ~="" then custom_capabilities.by_capability_id[metadata.capability_id]=metadata end
-if type(metadata.range_key)=="string" and metadata.range_key ~="" then custom_capabilities.by_range_key[metadata.range_key]=metadata end
+a.numeric=z({},G)a.enum=z({{9,9,14,14,"supportedSecurityRemoteActions",nil,nil,9,"Security remote action",{15,16,17,18,19,20},{15,16,17,18,19,20},1,2,1},{10,nil,10,10,nil,nil,nil,"foria_scene_backlight","Foria Scene Backlight",{5,6},{5,6},3,4,3},{11,nil,11,11,nil,nil,nil,"foria_scene_illumination_detection","Foria Scene Illumination Detection",{5,6},{5,6},5,6,5},{12,nil,12,12,nil,nil,nil,"foria_scene_approach_detection","Foria Scene Approach Detection",{5,6},{5,6},7,8,7},{13,nil,13,13,nil,nil,nil,"foria_scene_vibration","Foria Scene Vibration",{5,6},{5,6},9,10,9},{21,nil,21,"learningMode",nil,nil,nil,"zrf01_learning_mode","Zrf01Learning Mode",{6,5},{6,5},11,12,11},{22,nil,22,"packetMode",nil,nil,nil,"zrf01_packet_mode","Zrf01Packet Mode",{6,5},{6,5},13,14,13},{23,nil,23,7,nil,nil,nil,"zrf01_code_1","Zrf01Code1",{1,2,3},{1,2,3},15,16,15},{24,nil,24,8,nil,nil,nil,"zrf01_transmit_1","Zrf01Transmit1",{4},{4},17,18,17},{25,nil,25,7,nil,nil,nil,"zrf01_code_2","Zrf01Code2",{1,2,3},{1,2,3},19,20,19},{26,nil,26,8,nil,nil,nil,"zrf01_transmit_2","Zrf01Transmit2",{4},{4},21,22,21},{27,nil,27,7,nil,nil,nil,"zrf01_code_3","Zrf01Code3",{1,2,3},{1,2,3},23,24,23},{28,nil,28,8,nil,nil,nil,"zrf01_transmit_3","Zrf01Transmit3",{4},{4},25,26,25},{29,nil,29,7,nil,nil,nil,"zrf01_code_4","Zrf01Code4",{1,2,3},{1,2,3},27,28,27},{30,nil,30,8,nil,nil,nil,"zrf01_transmit_4","Zrf01Transmit4",{4},{4},29,30,29},{31,nil,31,7,nil,nil,nil,"zrf01_code_5","Zrf01Code5",{1,2,3},{1,2,3},31,32,31},{32,nil,32,8,nil,nil,nil,"zrf01_transmit_5","Zrf01Transmit5",{4},{4},33,34,33},{33,nil,33,7,nil,nil,nil,"zrf01_code_6","Zrf01Code6",{1,2,3},{1,2,3},35,36,35},{34,nil,34,8,nil,nil,nil,"zrf01_transmit_6","Zrf01Transmit6",{4},{4},37,38,37},{35,nil,35,7,nil,nil,nil,"zrf01_code_7","Zrf01Code7",{1,2,3},{1,2,3},39,40,39},{36,nil,36,8,nil,nil,nil,"zrf01_transmit_7","Zrf01Transmit7",{4},{4},41,42,41},{37,nil,37,7,nil,nil,nil,"zrf01_code_8","Zrf01Code8",{1,2,3},{1,2,3},43,44,43},{38,nil,38,8,nil,nil,nil,"zrf01_transmit_8","Zrf01Transmit8",{4},{4},45,46,45}},K)a.text=z({{"last_power_response_time",39,39,0,0,nil,"Last power response time",64}},M)a.driver_message={attribute_name="driverMessage",capability_id="concertmirror08464.driverMessage",emit_name="driver_message",label="Driver message",maximum_length=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
+local function o(y)
+for _,e in ipairs(y)do
+a.by_emit_name[e.emit_name]=e
+if type(e.capability_id)=="string"and e.capability_id~=""then a.by_capability_id[e.capability_id]=e end
+if type(e.range_key)=="string"and e.range_key~=""then a.by_range_key[e.range_key]=e end
 end
 end
-index_metadata(custom_capabilities.numeric)
-index_metadata(custom_capabilities.enum)
-index_metadata(custom_capabilities.text)
-custom_capabilities.by_emit_name[custom_capabilities.driver_message.emit_name]=custom_capabilities.driver_message
-custom_capabilities.by_capability_id[custom_capabilities.driver_message.capability_id]=custom_capabilities.driver_message
-local function clone_allowed_values(allowed_values)
-if type(allowed_values)~="table" then return nil end
-local copied={}
-for index,value in ipairs(allowed_values)do copied[index]=value end
-return copied
+o(a.numeric)o(a.enum)o(a.text)a.by_emit_name[a.driver_message.emit_name]=a.driver_message
+a.by_capability_id[a.driver_message.capability_id]=a.driver_message
+local function l(j)
+if type(j)~="table"then return nil end
+local B={}
+for A,g in ipairs(j)do B[A]=g end
+return B
 end
-function custom_capabilities.resolve_range(definition,metadata)
-if type(metadata)~="table" then return nil end
-local default_range=type(metadata.default_range)=="table" and metadata.default_range or nil
-local ranges=type(definition)=="table" and definition.presence_capability_ranges or nil
-local resolved=type(ranges)=="table" and ranges[metadata.range_key]or nil
-if type(resolved)~="table" then resolved=default_range end
-if type(resolved)~="table" then return nil end
+function a.resolve_range(v,e)
+if type(e)~="table"then return nil end
+local d=type(e.default_range)=="table"and e.default_range or nil
+local C=type(v)=="table"and v.presence_capability_ranges or nil
+local h=type(C)=="table"and C[e.range_key]or nil
+if type(h)~="table"then h=d end
+if type(h)~="table"then return nil end
 return{
-minimum=type(resolved.minimum)=="number" and resolved.minimum or(default_range and default_range.minimum or nil),
-maximum=type(resolved.maximum)=="number" and resolved.maximum or(default_range and default_range.maximum or nil),
-step=type(resolved.step)=="number" and resolved.step or(default_range and default_range.step or nil),
-unit=type(resolved.unit)=="string" and resolved.unit or(default_range and default_range.unit or nil),
-allowed_values=type(resolved.allowed_values)=="table" and clone_allowed_values(resolved.allowed_values)or clone_allowed_values(default_range and default_range.allowed_values or nil),
-}
+minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil)}
 end
-return custom_capabilities
+return a

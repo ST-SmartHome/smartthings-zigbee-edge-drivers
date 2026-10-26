@@ -1,197 +1,171 @@
-local component_mapping={}
-local function normalize_endpoint_value(endpoint)
-if type(endpoint)=="table" then
-endpoint=endpoint[1]
+local r={}
+local function g(c)
+if type(c)=="table"then
+c=c[1]
 end
-if type(endpoint)~="number" or endpoint % 1 ~=0 or endpoint < 1 then
+if type(c)~="number"or c%1~=0 or c<1 then
 return nil
 end
-return endpoint
+return c
 end
-local function sorted_profile_component_ids(device)
-local component_ids={}
-local seen={}
-if device and device.profile and type(device.profile.components)=="table" then
-for component_id,_ in pairs(device.profile.components)do
-if type(component_id)=="string" and component_id ~="" and not seen[component_id]then
-seen[component_id]=true
-component_ids[#component_ids + 1]=component_id
+local function i(f)
+local t={}local E={}if f and f.profile and type(f.profile.components)=="table"then
+for b,_ in pairs(f.profile.components)do
+if type(b)=="string"and b~=""and not E[b]then
+E[b]=true
+t[#t+1]=b
 end
 end
 end
-table.sort(component_ids,function(left,right)
-if left=="main" then
-return right ~="main"
+table.sort(t,function(G,F)
+if G=="main"then
+return F~="main"
 end
-if right=="main" then
+if F=="main"then
 return false
 end
-return left < right
+return G<F
 end)
-return component_ids
+return t
 end
-local function sorted_device_endpoints(device)
-local endpoints={}
-local seen={}
-if device and type(device.zigbee_endpoints)=="table" then
-for key,endpoint_data in pairs(device.zigbee_endpoints)do
-local endpoint=normalize_endpoint_value(key)
-if endpoint==nil and type(endpoint_data)=="table" then
-endpoint=normalize_endpoint_value(endpoint_data.id)
+local function q(f)
+local u={}local E={}if f and type(f.zigbee_endpoints)=="table"then
+for J,C in pairs(f.zigbee_endpoints)do
+local c=g(J)if c==nil and type(C)=="table"then
+c=g(C.id)
 end
-if endpoint ~=nil and not seen[endpoint]then
-seen[endpoint]=true
-endpoints[#endpoints + 1]=endpoint
+if c~=nil and not E[c]then
+E[c]=true
+u[#u+1]=c
 end
 end
 end
-if not seen[1]then
-endpoints[#endpoints + 1]=1
+if not E[1]then
+u[#u+1]=1
 end
-table.sort(endpoints)
-return endpoints
+table.sort(u)return u
 end
-local function assign_component_mapping(endpoint_to_component,component_to_endpoint,endpoint,component_id)
-endpoint=normalize_endpoint_value(endpoint)
-if endpoint==nil or type(component_id)~="string" or component_id=="" then
+local function e(a,d,c,b)
+c=g(c)if c==nil or type(b)~="string"or b==""then
 return false
 end
-endpoint_to_component[endpoint]=component_id
-component_to_endpoint[component_id]=endpoint
+a[c]=b
+d[b]=c
 return true
 end
-local function derive_maps_from_component_fn(device,component_fn,endpoint_to_component,component_to_endpoint)
-if type(component_fn)~="function" then
+local function w(f,m,a,d)
+if type(m)~="function"then
 return
 end
-for _,component_id in ipairs(sorted_profile_component_ids(device))do
-local endpoint=normalize_endpoint_value(component_fn(device,component_id))
-if endpoint ~=nil then
-assign_component_mapping(endpoint_to_component,component_to_endpoint,endpoint,component_id)
+for _,b in ipairs(i(f))do
+local c=g(m(f,b))if c~=nil then
+e(a,d,c,b)
 end
 end
 end
-local function derive_maps_from_endpoint_fn(device,endpoint_fn,endpoint_to_component,component_to_endpoint)
-if type(endpoint_fn)~="function" then
+local function y(f,o,a,d)
+if type(o)~="function"then
 return
 end
-for _,endpoint in ipairs(sorted_device_endpoints(device))do
-local component_id=endpoint_fn(device,endpoint)
-if type(component_id)=="string" and component_id ~="" then
-assign_component_mapping(endpoint_to_component,component_to_endpoint,endpoint,component_id)
+for _,c in ipairs(q(f))do
+local b=o(f,c)if type(b)=="string"and b~=""then
+e(a,d,c,b)
 end
 end
 end
-local function build_component_maps(device,definition,explicit_component_fn,explicit_endpoint_fn)
-local explicit_endpoint_map=type(definition)=="table" and definition.component_map or nil
-local explicit_component_map=type(definition)=="table" and definition.component_to_endpoint_map or nil
-local explicit_endpoint_to_component_map=type(definition)=="table" and definition.endpoint_to_component_map or nil
-local endpoint_to_component={}
-local component_to_endpoint={}
-if type(explicit_endpoint_map)=="table" then
-for endpoint,component_id in pairs(explicit_endpoint_map)do
-assign_component_mapping(endpoint_to_component,component_to_endpoint,endpoint,component_id)
+local function A(f,h,z,B)
+local v=type(h)=="table"and h.component_map or nil
+local s=type(h)=="table"and h.component_to_endpoint_map or nil
+local j=type(h)=="table"and h.endpoint_to_component_map or nil
+local a={}local d={}if type(v)=="table"then
+for c,b in pairs(v)do
+e(a,d,c,b)
 end
 end
-if type(explicit_component_map)=="table" then
-for component_id,endpoint in pairs(explicit_component_map)do
-assign_component_mapping(endpoint_to_component,component_to_endpoint,endpoint,component_id)
+if type(s)=="table"then
+for b,c in pairs(s)do
+e(a,d,c,b)
 end
 end
-if type(explicit_endpoint_to_component_map)=="table" then
-for endpoint,component_id in pairs(explicit_endpoint_to_component_map)do
-assign_component_mapping(endpoint_to_component,component_to_endpoint,endpoint,component_id)
+if type(j)=="table"then
+for c,b in pairs(j)do
+e(a,d,c,b)
 end
 end
-if type(definition)=="table" and type(definition.zcl_clusters)=="table" then
-for _,mapping in ipairs(definition.zcl_clusters)do
-if type(mapping)=="table" then
-assign_component_mapping(
-endpoint_to_component,
-component_to_endpoint,
-mapping.endpoint,
-mapping.component
-)
+if type(h)=="table"and type(h.zcl_clusters)=="table"then
+for _,D in ipairs(h.zcl_clusters)do
+if type(D)=="table"then
+e(
+a,d,D.endpoint,D.component)
 end
 end
 end
-derive_maps_from_component_fn(device,explicit_component_fn,endpoint_to_component,component_to_endpoint)
-derive_maps_from_endpoint_fn(device,explicit_endpoint_fn,endpoint_to_component,component_to_endpoint)
-local remaining_components={}
-for _,component_id in ipairs(sorted_profile_component_ids(device))do
-if component_to_endpoint[component_id]==nil then
-local endpoint=nil
-if component_id=="main" then
-endpoint=endpoint_to_component[1]==nil and 1 or nil
+w(f,z,a,d)y(f,B,a,d)local n={}for _,b in ipairs(i(f))do
+if d[b]==nil then
+local c
+if b=="main"then
+c=a[1]==nil and 1 or nil
 else
-endpoint=normalize_endpoint_value(tonumber(component_id:match("(%d+)$")))
-if endpoint ~=nil and endpoint_to_component[endpoint]~=nil then
-endpoint=nil
+c=g(tonumber(b:match"(%d+)$"))if c~=nil and a[c]~=nil then
+c=nil
 end
 end
-if endpoint ~=nil then
-assign_component_mapping(endpoint_to_component,component_to_endpoint,endpoint,component_id)
-else
-remaining_components[#remaining_components + 1]=component_id
+if c~=nil then
+e(a,d,c,b)else
+n[#n+1]=b
 end
 end
 end
-local remaining_endpoints={}
-for _,endpoint in ipairs(sorted_device_endpoints(device))do
-if endpoint_to_component[endpoint]==nil then
-remaining_endpoints[#remaining_endpoints + 1]=endpoint
+local p={}for _,c in ipairs(q(f))do
+if a[c]==nil then
+p[#p+1]=c
 end
 end
-for index,component_id in ipairs(remaining_components)do
-local endpoint=remaining_endpoints[index]
-if endpoint==nil then
+for H,b in ipairs(n)do
+local c=p[H]if c==nil then
 break
 end
-assign_component_mapping(endpoint_to_component,component_to_endpoint,endpoint,component_id)
+e(a,d,c,b)
 end
-if component_to_endpoint.main==nil and endpoint_to_component[1]==nil then
-assign_component_mapping(endpoint_to_component,component_to_endpoint,1,"main")
-elseif endpoint_to_component[1]==nil then
-endpoint_to_component[1]="main"
+if d.main==nil and a[1]==nil then
+e(a,d,1,"main")elseif a[1]==nil then
+a[1]="main"
 end
-return endpoint_to_component,component_to_endpoint
+return a,d
 end
-function component_mapping.sorted_profile_component_ids(device)
-return sorted_profile_component_ids(device)
+function r.sorted_profile_component_ids(f)
+return i(f)
 end
-function component_mapping.apply(device,definition)
-local explicit_component_to_endpoint=type(definition)=="table" and definition.component_to_endpoint or nil
-local explicit_endpoint_to_component=type(definition)=="table" and definition.endpoint_to_component or nil
-local component_fn=type(explicit_component_to_endpoint)=="function" and explicit_component_to_endpoint or nil
-local endpoint_fn=type(explicit_endpoint_to_component)=="function" and explicit_endpoint_to_component or nil
-local endpoint_to_component,component_to_endpoint=build_component_maps(device,definition,component_fn,endpoint_fn)
-if component_fn ~=nil then
-device:set_component_to_endpoint_fn(function(current_device,component_id)
-local endpoint=normalize_endpoint_value(component_fn(current_device,component_id))
-if endpoint ~=nil then
-return endpoint
+function r.apply(f,h)
+local k=type(h)=="table"and h.component_to_endpoint or nil
+local l=type(h)=="table"and h.endpoint_to_component or nil
+local m=type(k)=="function"and k or nil
+local o=type(l)=="function"and l or nil
+local a,d=A(f,h,m,o)if m~=nil then
+f:set_component_to_endpoint_fn(function(x,b)
+local c=g(m(x,b))if c~=nil then
+return c
 end
-endpoint=component_to_endpoint[component_id]or 1
-return endpoint
+c=d[b]or 1
+return c
 end)
 else
-device:set_component_to_endpoint_fn(function(_,component_id)
-local endpoint=component_to_endpoint[component_id]or 1
-return endpoint
+f:set_component_to_endpoint_fn(function(_,b)
+local c=d[b]or 1
+return c
 end)
 end
-if endpoint_fn ~=nil then
-device:set_endpoint_to_component_fn(function(current_device,endpoint)
-local component_id=endpoint_fn(current_device,endpoint)
-if type(component_id)=="string" and component_id ~="" then
-return component_id
+if o~=nil then
+f:set_endpoint_to_component_fn(function(x,c)
+local b=o(x,c)if type(b)=="string"and b~=""then
+return b
 end
-return endpoint_to_component[endpoint]or "main"
+return a[c]or"main"
 end)
 else
-device:set_endpoint_to_component_fn(function(_,endpoint)
-return endpoint_to_component[endpoint]or "main"
+f:set_endpoint_to_component_fn(function(_,c)
+return a[c]or"main"
 end)
 end
 end
-return component_mapping
+return r

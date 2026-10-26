@@ -1,108 +1,79 @@
-local custom_capabilities={}
-local strings={"min","nasThreeCountdown","countdown","naswv03b_countdown","Nas Three Countdown","nasThreeOnWithCountdown","onWithCountdown","naswv03b_on_with_countdown","Nas Three On With Countdown","nasThreeCountdownLeft","countdownLeft","naswv03b_countdown_left","Nas Three Countdown Left","s","nasThreeSingleWateringDuration","singleWateringDuration","naswv03b_single_watering_duration","Nas Three Single Watering Duration","L","nasThreeQuantitativeLiters","quantitativeWatering","naswv03b_quantitative_watering","Nas Three Quantitative Liters","nasThreeSingleAmountLiters","singleWateringAmount","naswv03b_single_watering_amount","Nas Three Single Amount Liters","nasThreeSurplusLiters","surplusFlow","naswv03b_surplus_flow","Nas Three Surplus Liters","L/min","nasThreeCurrentLiters","waterCurrent","naswv03b_water_current","Nas Three Current Liters","nasThreeTotalLiters","waterTotal","naswv03b_water_total","Nas Three Total Liters","gal","nasThreeQuantitativeGallons","Nas Three Quantitative Gallons","nasThreeSingleAmountGallons","Nas Three Single Amount Gallons","nasThreeSurplusGallons","Nas Three Surplus Gallons","gal/min","nasThreeCurrentGallons","Nas Three Current Gallons","nasThreeTotalGallons","Nas Three Total Gallons","V","batteryVoltage","battery_voltage","Battery Voltage","%","valvePositionHbnfokum","position","Valve Position Hbnfokum","valveCurrentPositionHbnfokum","position_current","Valve Current Position Hbnfokum","fkv02Threshold","threshold","Fkv02Threshold","fkv02Timer","timer","Fkv02Timer","zvg1WaterConsumed","waterConsumed","water_consumed","Zvg1Water Consumed","zvg1Timer","Zvg1Timer","zvg1TimerTimeLeft","timerTimeLeft","timer_time_left","Zvg1Timer Time Left","zvg1LastValveDuration","lastValveOpenDuration","last_valve_open_duration","Zvg1Last Valve Duration","zvlProCountdown","Zvl Pro Countdown","zvlProWaterOnce","waterOnce","water_once","Zvl Pro Water Once","gx03Timer","Gx03Timer","gx03LastDuration","lastDuration","last_duration","Gx03Last Duration","waterSwitchCountdown","Water Switch Countdown","waterSwitchDuration","valveDuration","valve_duration","Water Switch Duration","vuwtqx0tWaterConsumed","Vuwtqx0t Water Consumed","vuwtqx0tReverseConsumed","reverseWaterConsumed","reverse_water_consumed","Vuwtqx0t Reverse Consumed","vuwtqx0tMonthConsumption","monthConsumption","month_consumption","Vuwtqx0t Month Consumption","vuwtqx0tDailyConsumption","dailyConsumption","daily_consumption","Vuwtqx0t Daily Consumption","L/h","vuwtqx0tFlowRate","flowRate","flow_rate","Vuwtqx0t Flow Rate","nasThreeStatus","status","naswv03b_status","Nas Three Status","off","on_auto","button_locked","on_manual_app","on_manual_button","nasThreeRefresh","refreshStatus","naswv03b_refresh","Nas Three Refresh","refresh","nasThreeFlowSwitch","flowSwitch","naswv03b_flow_switch","Nas Three Flow Switch","on","nasThreeWaterTotalReset","waterTotalReset","naswv03b_water_total_reset","Nas Three Water Total Reset","reset","nasThreeFault","fault","naswv03b_fault","Nas Three Fault","normal","nasThreeChildLock","childLock","naswv03b_child_lock","Nas Three Child Lock","zpv01ValveState","valveState","valve_state","Zpv01Valve State","unknown","open","closed","zvg1WeatherDelay","weatherDelay","weather_delay","Zvg1Weather Delay","disabled","24h","48h","72h","zvg1TimerState","timerState","timer_state","Zvg1Timer State","active","enabled","zvlProWorkState","workState","work_state","Zvl Pro Work State","auto","manual","idle","gx03ValveState","Gx03Valve State","vuwtqx0tReportPeriod","reportPeriod","report_period","Vuwtqx0t Report Period","1h","2h","3h","4h","6h","8h","12h","autoCleanUltrasonicValve","auto_clean","Auto Clean Ultrasonic Valve","valveStatusDualIrrigationMode","valve_status","Valve Status Dual Irrigation Mode","last_power_response_time","lastPowerResponseTime","Last power response time","vuwtqx0tFaults","faults","Vuwtqx0t Faults","vuwtqx0tMeterId","meterId","meter_id","Vuwtqx0t Meter Id"}
-local function string_value(value)
-if type(value)=="number" then return strings[value]end
-return value
+local a={}local H={"L","min","s","off","gal","on","countdown","%","auto","manual","timer","closed","disabled","24h","idle","batteryVoltage","valvePositionHbnfokum","valveCurrentPositionHbnfokum","fault","autoCleanUltrasonicValve","valveStatusDualIrrigationMode","nasThreeCountdown","nasThreeOnWithCountdown","nasThreeCountdownLeft","nasThreeSingleWateringDuration","nasThreeQuantitativeLiters","quantitativeWatering","naswv03b_quantitative_watering","nasThreeSingleAmountLiters","singleWateringAmount","naswv03b_single_watering_amount","nasThreeSurplusLiters","surplusFlow","naswv03b_surplus_flow","L/min","nasThreeCurrentLiters","waterCurrent","naswv03b_water_current","nasThreeTotalLiters","waterTotal","naswv03b_water_total","nasThreeQuantitativeGallons","nasThreeSingleAmountGallons","nasThreeSurplusGallons","gal/min","nasThreeCurrentGallons","nasThreeTotalGallons","fkv02Threshold","threshold","zvg1WaterConsumed","waterConsumed","water_consumed","zvg1Timer","zvg1TimerTimeLeft","zvg1LastValveDuration","zvlProCountdown","zvlProWaterOnce","gx03Timer","gx03LastDuration","waterSwitchCountdown","waterSwitchDuration","vuwtqx0tWaterConsumed","vuwtqx0tReverseConsumed","vuwtqx0tMonthConsumption","vuwtqx0tDailyConsumption","vuwtqx0tFlowRate","fkv02Countdown","nasThreeStatus","on_auto","button_locked","on_manual_app","on_manual_button","nasThreeRefresh","refresh","nasThreeFlowSwitch","nasThreeWaterTotalReset","reset","nasThreeFault","normal","nasThreeChildLock","zpv01ValveState","valveState","valve_state","unknown","open","zvg1WeatherDelay","zvg1TimerState","active","enabled","zvlProWorkState","gx03ValveState","vuwtqx0tReportPeriod","fkv02PowerOffState","maintain","lastPowerResponseTime","vuwtqx0tFaults","faults","vuwtqx0tMeterId"}
+local function b(g)
+if type(g)=="number"then return H[g]end
+return g
 end
-local function capability_id(value)local suffix=string_value(value);if suffix==nil then return nil end;return "concertmirror08464." .. suffix end
-local table_groups={}
-local function grouped_table(group_id)
-if type(group_id)~="number" then return{}end
-local existing=table_groups[group_id]
-if existing ~=nil then return existing end
-local out={}
-table_groups[group_id]=out
-return out
+local function p(g)local suffix=b(g);if suffix==nil then return nil end;return"concertmirror08464."..suffix end
+local t={}
+local function q(k)
+if type(k)~="number"then return{}end
+local x=t[k]
+if x~=nil then return x end
+local n={}t[k]=n
+return n
 end
-local function string_list(values,group_id)
-if type(values)~="table" then return nil end
-local out=grouped_table(group_id)
-for index,value in ipairs(values)do out[index]=string_value(value)end
-return out
+local function s(D,k)
+if type(D)~="table"then return nil end
+local n=q(k)
+for A,g in ipairs(D)do n[A]=b(g)end
+return n
 end
-local function optional_string(value,default)
-if value==nil then return default end
-if value==0 then return nil end
-return string_value(value)
+local function i(g,E)
+if g==nil then return E end
+if g==0 then return nil end
+return b(g)
 end
-local function command_default(attribute_name)
-if type(attribute_name)~="string" or attribute_name=="" then return nil end
-return "set" .. attribute_name:sub(1,1):upper().. attribute_name:sub(2)
+local function m(attribute_name)
+if type(attribute_name)~="string"or attribute_name==""then return nil end
+return"set"..attribute_name:sub(1,1):upper()..attribute_name:sub(2)
 end
-local function range(value)
-if type(value)~="table" then return nil end
-local out=grouped_table(value[6])
-out.minimum=value[1]
-out.maximum=value[2]
-out.step=value[3]
-out.unit=string_value(value[4])
-out.allowed_values=string_list(value[5],value[7])
-return out
+local function J(g)
+if type(g)~="table"then return nil end
+local n=q(g[6])n.minimum=g[1]n.maximum=g[2]n.step=g[3]n.unit=b(g[4])n.allowed_values=s(g[5],g[7])return n
 end
-local function allowed_range(allowed_values,group_id)
-if allowed_values==nil and group_id==nil then return nil end
-local out=grouped_table(group_id)
-out.allowed_values=allowed_values
-return out
+local function w(j,k)
+if j==nil and k==nil then return nil end
+local n=q(k)n.allowed_values=j
+return n
 end
-local function numeric(row)
-local attribute_name=string_value(row[4])
-return{kind="numeric",emit_name=string_value(row[1]),range_key=string_value(row[2]),capability_id=capability_id(row[3]),attribute_name=attribute_name,range_attribute_name=string_value(row[5]),command_name=optional_string(row[6],command_default(attribute_name)),argument_name=optional_string(row[7],attribute_name),mapping_name=string_value(row[8]),label=string_value(row[9]),default_range=range(row[10]),event_minimum=row[11],event_maximum=row[12],event_unit=string_value(row[13])}
+local function G(f)
+local attribute_name=b(f[4])return{kind="numeric",emit_name=b(f[1]),range_key=b(f[2]),capability_id=p(f[3]),attribute_name=attribute_name,range_attribute_name=b(f[5]),command_name=i(f[6],m(attribute_name)),argument_name=i(f[7],attribute_name),mapping_name=b(f[8]),label=b(f[9]),default_range=J(f[10]),event_minimum=f[11],event_maximum=f[12],event_unit=b(f[13])}
 end
-local function enum(row)
-local attribute_name=string_value(row[4])
-local supported_values=string_list(row[10],row[12])
-local default_allowed_values=string_list(row[11],row[14])
-local default_range=allowed_range(default_allowed_values,row[13])
-return{kind="enum",emit_name=string_value(row[1]),range_key=string_value(row[2]),capability_id=capability_id(row[3]),attribute_name=attribute_name,supported_attribute_name=string_value(row[5]),command_name=optional_string(row[6],command_default(attribute_name)),argument_name=optional_string(row[7],attribute_name),mapping_name=string_value(row[8]),label=string_value(row[9]),supported_values=supported_values,default_range=default_range}
+local function K(f)
+local attribute_name=b(f[4])local u=s(f[10],f[12])local r=s(f[11],f[14])local d=w(r,f[13])return{kind="enum",emit_name=b(f[1]),range_key=b(f[2]),capability_id=p(f[3]),attribute_name=attribute_name,supported_attribute_name=b(f[5]),command_name=i(f[6],m(attribute_name)),argument_name=i(f[7],attribute_name),mapping_name=b(f[8]),label=b(f[9]),supported_values=u,default_range=d}
 end
-local function text(row)
-local attribute_name=string_value(row[3])
-return{kind="text",emit_name=string_value(row[1]),capability_id=capability_id(row[2]),attribute_name=attribute_name,command_name=optional_string(row[4],command_default(attribute_name)),argument_name=optional_string(row[5],attribute_name),mapping_name=string_value(row[6]),label=string_value(row[7]),maximum_length=row[8]}
+local function M(f)
+local attribute_name=b(f[3])return{kind="text",emit_name=b(f[1]),capability_id=p(f[2]),attribute_name=attribute_name,command_name=i(f[4],m(attribute_name)),argument_name=i(f[5],attribute_name),mapping_name=b(f[6]),label=b(f[7]),maximum_length=f[8]}
 end
-local function build(rows,factory)
-local out={}
-for _,row in ipairs(rows)do out[#out + 1]=factory(row)end
-return out
+local function z(L,F)
+local n={}
+for _,f in ipairs(L)do n[#n+1]=F(f)end
+return n
 end
-custom_capabilities.numeric=build({{2,nil,2,3,nil,nil,nil,4,5,{1,240,1,1,nil,1,nil},nil,nil,1},{6,nil,6,7,nil,nil,nil,8,9,{1,240,1,1,nil,2,nil},nil,nil,1},{10,nil,10,11,nil,0,0,12,13,{0,240,1,1,nil,3,nil},nil,nil,1},{15,nil,15,16,nil,0,0,17,18,{0,2147483647,1,14,nil,4,nil},nil,nil,14},{20,nil,20,21,nil,nil,nil,22,23,{1,10000,1,19,nil,5,nil},nil,nil,19},{24,nil,24,25,nil,0,0,26,27,{0,2147483647,1,19,nil,6,nil},nil,nil,19},{28,nil,28,29,nil,0,0,30,31,{0,2147483647,1,19,nil,7,nil},nil,nil,19},{33,nil,33,34,nil,0,0,35,36,{0,4294967.295,0.001,32,nil,8,nil},nil,nil,32},{37,nil,37,38,nil,0,0,39,40,{0,4294967.295,0.001,19,nil,9,nil},nil,nil,19},{42,nil,42,21,nil,nil,nil,22,43,{1,10000,1,41,nil,10,nil},nil,nil,41},{44,nil,44,25,nil,0,0,26,45,{0,2147483647,1,41,nil,11,nil},nil,nil,41},{46,nil,46,29,nil,0,0,30,47,{0,2147483647,1,41,nil,12,nil},nil,nil,41},{49,nil,49,34,nil,0,0,35,50,{0,4294967.295,0.001,48,nil,13,nil},nil,nil,48},{51,nil,51,38,nil,0,0,39,52,{0,4294967.295,0.001,41,nil,14,nil},nil,nil,41},{54,nil,54,54,nil,0,0,55,56,{0,10,0.001,53,nil,15,nil},nil,nil,53},{58,nil,58,58,nil,nil,nil,59,60,{0,100,10,57,nil,16,nil},nil,nil,57},{61,nil,61,61,nil,0,0,62,63,{0,100,10,57,nil,17,nil},nil,nil,57},{64,nil,64,65,nil,nil,nil,65,66,{0,100,10,57,nil,18,nil},nil,nil,57},{67,nil,67,68,nil,nil,nil,68,69,{0,600,1,1,nil,19,nil},nil,nil,1},{70,nil,70,71,nil,0,0,72,73,{0,999999,0.01,19,nil,20,nil},nil,nil,19},{74,nil,74,68,nil,nil,nil,68,75,{0,60,1,1,nil,21,nil},nil,nil,1},{76,nil,76,77,nil,0,0,78,79,{0,600,1,1,nil,22,nil},nil,nil,1},{80,nil,80,81,nil,0,0,82,83,{0,999999,1,1,nil,23,nil},nil,nil,1},{84,nil,84,3,nil,nil,nil,3,85,{0,86400,1,14,nil,24,nil},nil,nil,14},{86,nil,86,87,nil,0,0,88,89,{0,999999,1,19,nil,25,nil},nil,nil,19},{90,nil,90,68,nil,nil,nil,68,91,{1,1440,1,1,nil,26,nil},nil,nil,1},{92,nil,92,93,nil,0,0,94,95,{0,999999,1,14,nil,27,nil},nil,nil,14},{96,nil,96,3,nil,nil,nil,3,97,{0,1440,1,1,nil,28,nil},nil,nil,1},{98,nil,98,99,nil,0,0,100,101,{0,999999,1,14,nil,29,nil},nil,nil,14},{102,nil,102,71,nil,0,0,72,103,{0,999999,0.001,19,nil,30,nil},nil,nil,19},{104,nil,104,105,nil,0,0,106,107,{0,999999,0.001,19,nil,31,nil},nil,nil,19},{108,nil,108,109,nil,0,0,110,111,{0,999999,0.001,19,nil,32,nil},nil,nil,19},{112,nil,112,113,nil,0,0,114,115,{0,999999,0.001,19,nil,33,nil},nil,nil,19},{117,nil,117,118,nil,0,0,119,120,{0,999999,1,116,nil,34,nil},nil,nil,116}},numeric)
-custom_capabilities.enum=build({{121,nil,121,122,nil,0,0,123,124,{125,126,127,128,129},{125,126,127,128,129},35,36,35},{130,nil,130,131,nil,nil,nil,132,133,{134},{134},37,38,37},{135,nil,135,136,nil,nil,nil,137,138,{125,139},{125,139},39,40,39},{140,nil,140,141,nil,nil,nil,142,143,{144},{144},41,42,41},{145,nil,145,146,nil,0,0,147,148,{149,146},{149,146},43,44,43},{150,nil,150,151,nil,nil,nil,152,153,{125,139},{125,139},45,46,45},{154,nil,154,155,nil,0,0,156,157,{158,159,160},{158,159,160},47,48,47},{161,nil,161,162,nil,nil,nil,163,164,{165,166,167,168},{165,166,167,168},49,50,49},{169,nil,169,170,nil,0,0,171,172,{165,173,174},{165,173,174},51,52,51},{175,nil,175,176,nil,0,0,177,178,{179,180,181},{179,180,181},53,54,53},{182,nil,182,155,nil,0,0,156,183,{180,179,160},{180,179,160},55,56,55},{184,nil,184,185,nil,nil,nil,186,187,{188,189,190,191,192,193,194,166},{188,189,190,191,192,193,194,166},57,58,57},{195,nil,195,195,nil,nil,nil,196,197,{125,139},{125,139},59,60,59},{198,nil,198,198,nil,0,0,199,200,{180,179,181},{180,179,181},61,62,61}},enum)
-custom_capabilities.text=build({{201,202,202,0,0,nil,203,64},{204,204,205,0,0,205,206,256},{207,207,208,0,0,209,210,256}},text)
-custom_capabilities.driver_message={["attribute_name"]="driverMessage",["capability_id"]="concertmirror08464.driverMessage",["emit_name"]="driver_message",["label"]="Driver message",["maximum_length"]=512}
-custom_capabilities.by_range_key={}
-custom_capabilities.by_emit_name={}
-custom_capabilities.by_capability_id={}
-local function index_metadata(definitions)
-for _,metadata in ipairs(definitions)do
-custom_capabilities.by_emit_name[metadata.emit_name]=metadata
-if type(metadata.capability_id)=="string" and metadata.capability_id ~="" then custom_capabilities.by_capability_id[metadata.capability_id]=metadata end
-if type(metadata.range_key)=="string" and metadata.range_key ~="" then custom_capabilities.by_range_key[metadata.range_key]=metadata end
+a.numeric=z({{22,nil,22,7,nil,nil,nil,"naswv03b_countdown","Nas Three Countdown",{1,240,1,2,nil,1},nil,nil,2},{23,nil,23,"onWithCountdown",nil,nil,nil,"naswv03b_on_with_countdown","Nas Three On With Countdown",{1,240,1,2,nil,2},nil,nil,2},{24,nil,24,"countdownLeft",nil,0,0,"naswv03b_countdown_left","Nas Three Countdown Left",{0,240,1,2,nil,3},nil,nil,2},{25,nil,25,"singleWateringDuration",nil,0,0,"naswv03b_single_watering_duration","Nas Three Single Watering Duration",{0,2147483647,1,3,nil,4},nil,nil,3},{26,nil,26,27,nil,nil,nil,28,"Nas Three Quantitative Liters",{1,10000,1,1,nil,5},nil,nil,1},{29,nil,29,30,nil,0,0,31,"Nas Three Single Amount Liters",{0,2147483647,1,1,nil,6},nil,nil,1},{32,nil,32,33,nil,0,0,34,"Nas Three Surplus Liters",{0,2147483647,1,1,nil,7},nil,nil,1},{36,nil,36,37,nil,0,0,38,"Nas Three Current Liters",{0,4294967.295,0.001,35,nil,8},nil,nil,35},{39,nil,39,40,nil,0,0,41,"Nas Three Total Liters",{0,4294967.295,0.001,1,nil,9},nil,nil,1},{42,nil,42,27,nil,nil,nil,28,"Nas Three Quantitative Gallons",{1,10000,1,5,nil,10},nil,nil,5},{43,nil,43,30,nil,0,0,31,"Nas Three Single Amount Gallons",{0,2147483647,1,5,nil,11},nil,nil,5},{44,nil,44,33,nil,0,0,34,"Nas Three Surplus Gallons",{0,2147483647,1,5,nil,12},nil,nil,5},{46,nil,46,37,nil,0,0,38,"Nas Three Current Gallons",{0,4294967.295,0.001,45,nil,13},nil,nil,45},{47,nil,47,40,nil,0,0,41,"Nas Three Total Gallons",{0,4294967.295,0.001,5,nil,14},nil,nil,5},{16,nil,16,16,nil,0,0,"battery_voltage","Battery Voltage",{0,10,0.001,"V",nil,15},nil,nil,"V"},{17,nil,17,17,nil,nil,nil,"position","Valve Position Hbnfokum",{0,100,10,8,nil,16},nil,nil,8},{18,nil,18,18,nil,0,0,"position_current","Valve Current Position Hbnfokum",{0,100,10,8,nil,17},nil,nil,8},{48,nil,48,49,nil,nil,nil,49,"Fkv02Threshold",{0,100,10,8,nil,18},nil,nil,8},{50,nil,50,51,nil,0,0,52,"Zvg1Water Consumed",{0,999999,0.01,1,nil,19},nil,nil,1},{53,nil,53,11,nil,nil,nil,11,"Zvg1Timer",{0,60,1,2,nil,20},nil,nil,2},{54,nil,54,"timerTimeLeft",nil,0,0,"timer_time_left","Zvg1Timer Time Left",{0,600,1,2,nil,21},nil,nil,2},{55,nil,55,"lastValveOpenDuration",nil,0,0,"last_valve_open_duration","Zvg1Last Valve Duration",{0,999999,1,2,nil,22},nil,nil,2},{56,nil,56,7,nil,nil,nil,7,"Zvl Pro Countdown",{0,86400,1,3,nil,23},nil,nil,3},{57,nil,57,"waterOnce",nil,0,0,"water_once","Zvl Pro Water Once",{0,999999,1,1,nil,24},nil,nil,1},{58,nil,58,11,nil,nil,nil,11,"Gx03Timer",{1,1440,1,2,nil,25},nil,nil,2},{59,nil,59,"lastDuration",nil,0,0,"last_duration","Gx03Last Duration",{0,999999,1,3,nil,26},nil,nil,3},{60,nil,60,7,nil,nil,nil,7,"Water Switch Countdown",{0,1440,1,2,nil,27},nil,nil,2},{61,nil,61,"valveDuration",nil,0,0,"valve_duration","Water Switch Duration",{0,999999,1,3,nil,28},nil,nil,3},{62,nil,62,51,nil,0,0,52,"Vuwtqx0t Water Consumed",{0,999999,0.001,1,nil,29},nil,nil,1},{63,nil,63,"reverseWaterConsumed",nil,0,0,"reverse_water_consumed","Vuwtqx0t Reverse Consumed",{0,999999,0.001,1,nil,30},nil,nil,1},{64,nil,64,"monthConsumption",nil,0,0,"month_consumption","Vuwtqx0t Month Consumption",{0,999999,0.001,1,nil,31},nil,nil,1},{65,nil,65,"dailyConsumption",nil,0,0,"daily_consumption","Vuwtqx0t Daily Consumption",{0,999999,0.001,1,nil,32},nil,nil,1},{66,nil,66,"flowRate",nil,0,0,"flow_rate","Vuwtqx0t Flow Rate",{0,999999,1,"L/h",nil,33},nil,nil,"L/h"},{67,nil,67,7,nil,nil,nil,"fkv02_countdown","Fkv02Countdown",{0,43200,1,3,nil,34},nil,nil,3}},G)a.enum=z({{68,nil,68,"status",nil,0,0,"naswv03b_status","Nas Three Status",{4,69,70,71,72},{4,69,70,71,72},35,36,35},{73,nil,73,"refreshStatus",nil,nil,nil,"naswv03b_refresh","Nas Three Refresh",{74},{74},37,38,37},{75,nil,75,"flowSwitch",nil,nil,nil,"naswv03b_flow_switch","Nas Three Flow Switch",{4,6},{4,6},39,40,39},{76,nil,76,"waterTotalReset",nil,nil,nil,"naswv03b_water_total_reset","Nas Three Water Total Reset",{77},{77},41,42,41},{78,nil,78,19,nil,0,0,"naswv03b_fault","Nas Three Fault",{79,19},{79,19},43,44,43},{80,nil,80,"childLock",nil,nil,nil,"naswv03b_child_lock","Nas Three Child Lock",{4,6},{4,6},45,46,45},{81,nil,81,82,nil,0,0,83,"Zpv01Valve State",{84,85,12},{84,85,12},47,48,47},{86,nil,86,"weatherDelay",nil,nil,nil,"weather_delay","Zvg1Weather Delay",{13,14,"48h","72h"},{13,14,"48h","72h"},49,50,49},{87,nil,87,"timerState",nil,0,0,"timer_state","Zvg1Timer State",{13,88,89},{13,88,89},51,52,51},{90,nil,90,"workState",nil,0,0,"work_state","Zvl Pro Work State",{9,10,15},{9,10,15},53,54,53},{91,nil,91,82,nil,0,0,83,"Gx03Valve State",{10,9,12},{10,9,12},55,56,55},{92,nil,92,"reportPeriod",nil,nil,nil,"report_period","Vuwtqx0t Report Period",{"1h","2h","3h","4h","6h","8h","12h",14},{"1h","2h","3h","4h","6h","8h","12h",14},57,58,57},{20,nil,20,20,nil,nil,nil,"auto_clean","Auto Clean Ultrasonic Valve",{4,6},{4,6},59,60,59},{21,nil,21,21,nil,0,0,"valve_status","Valve Status Dual Irrigation Mode",{10,9,15},{10,9,15},61,62,61},{93,nil,93,"powerOffState",nil,nil,nil,"fkv02_power_off_state","Fkv02Power Off State",{4,6,94},{4,6,94},63,64,63}},K)a.text=z({{"last_power_response_time",95,95,0,0,nil,"Last power response time",64},{96,96,97,0,0,97,"Vuwtqx0t Faults",256},{98,98,"meterId",0,0,"meter_id","Vuwtqx0t Meter Id",256}},M)a.driver_message={attribute_name="driverMessage",capability_id="concertmirror08464.driverMessage",emit_name="driver_message",label="Driver message",maximum_length=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
+local function o(y)
+for _,e in ipairs(y)do
+a.by_emit_name[e.emit_name]=e
+if type(e.capability_id)=="string"and e.capability_id~=""then a.by_capability_id[e.capability_id]=e end
+if type(e.range_key)=="string"and e.range_key~=""then a.by_range_key[e.range_key]=e end
 end
 end
-index_metadata(custom_capabilities.numeric)
-index_metadata(custom_capabilities.enum)
-index_metadata(custom_capabilities.text)
-custom_capabilities.by_emit_name[custom_capabilities.driver_message.emit_name]=custom_capabilities.driver_message
-custom_capabilities.by_capability_id[custom_capabilities.driver_message.capability_id]=custom_capabilities.driver_message
-local function clone_allowed_values(allowed_values)
-if type(allowed_values)~="table" then return nil end
-local copied={}
-for index,value in ipairs(allowed_values)do copied[index]=value end
-return copied
+o(a.numeric)o(a.enum)o(a.text)a.by_emit_name[a.driver_message.emit_name]=a.driver_message
+a.by_capability_id[a.driver_message.capability_id]=a.driver_message
+local function l(j)
+if type(j)~="table"then return nil end
+local B={}
+for A,g in ipairs(j)do B[A]=g end
+return B
 end
-function custom_capabilities.resolve_range(definition,metadata)
-if type(metadata)~="table" then return nil end
-local default_range=type(metadata.default_range)=="table" and metadata.default_range or nil
-local ranges=type(definition)=="table" and definition.presence_capability_ranges or nil
-local resolved=type(ranges)=="table" and ranges[metadata.range_key]or nil
-if type(resolved)~="table" then resolved=default_range end
-if type(resolved)~="table" then return nil end
+function a.resolve_range(v,e)
+if type(e)~="table"then return nil end
+local d=type(e.default_range)=="table"and e.default_range or nil
+local C=type(v)=="table"and v.presence_capability_ranges or nil
+local h=type(C)=="table"and C[e.range_key]or nil
+if type(h)~="table"then h=d end
+if type(h)~="table"then return nil end
 return{
-minimum=type(resolved.minimum)=="number" and resolved.minimum or(default_range and default_range.minimum or nil),
-maximum=type(resolved.maximum)=="number" and resolved.maximum or(default_range and default_range.maximum or nil),
-step=type(resolved.step)=="number" and resolved.step or(default_range and default_range.step or nil),
-unit=type(resolved.unit)=="string" and resolved.unit or(default_range and default_range.unit or nil),
-allowed_values=type(resolved.allowed_values)=="table" and clone_allowed_values(resolved.allowed_values)or clone_allowed_values(default_range and default_range.allowed_values or nil),
-}
+minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil)}
 end
-return custom_capabilities
+return a

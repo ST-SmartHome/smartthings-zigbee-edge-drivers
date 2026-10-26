@@ -35,9 +35,6 @@ end
 local zbs_sixteen = {
   profile = "switches-wave13-avatto-zbs16",
   package_group = "energy",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = false,
   datapoints = {

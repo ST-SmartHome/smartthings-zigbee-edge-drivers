@@ -1,0 +1,216 @@
+name: rpt-tgm
+components:
+- id: main
+  capabilities:
+  - id: valve
+    version: 1
+  - id: concertmirror08464.powerOnBehavior
+    version: 1
+  - id: concertmirror08464.countdownTimerZclTwelveHours
+    version: 1
+  - id: concertmirror08464.childLock
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMax
+    version: 1
+  - id: concertmirror08464.zclSwitchTwoReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchTwoReportMax
+    version: 1
+  - id: concertmirror08464.zclSwitchThreeReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchThreeReportMax
+    version: 1
+  - id: concertmirror08464.zclSwitchFourReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchFourReportMax
+    version: 1
+  - id: concertmirror08464.zclSwitchFiveReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchFiveReportMax
+    version: 1
+  categories:
+  - name: WaterValve
+- id: valve2
+  capabilities:
+  - id: valve
+    version: 1
+  categories:
+  - name: WaterValve
+- id: valve3
+  capabilities:
+  - id: valve
+    version: 1
+  categories:
+  - name: WaterValve
+- id: valve4
+  capabilities:
+  - id: valve
+    version: 1
+  categories:
+  - name: WaterValve
+- id: valve5
+  capabilities:
+  - id: valve
+    version: 1
+  categories:
+  - name: WaterValve
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: valve
+      version: 1
+      group: main
+      composite: true
+    actions:
+    - component: main
+      capability: valve
+      version: 1
+      group: main
+      values:
+      - command: open
+      - command: close
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: valve
+    version: 1
+  - component: main
+    capability: concertmirror08464.powerOnBehavior
+    version: 1
+  - component: main
+    capability: concertmirror08464.countdownTimerZclTwelveHours
+    version: 1
+  - component: main
+    capability: concertmirror08464.childLock
+    version: 1
+  - component: main
+    capability: refresh
+    version: 1
+  - component: valve2
+    capability: valve
+    version: 1
+  - component: valve3
+    capability: valve
+    version: 1
+  - component: valve4
+    capability: valve
+    version: 1
+  - component: valve5
+    capability: valve
+    version: 1
+  - component: main
+    capability: concertmirror08464.zclSwitchReportMin
+  - component: main
+    capability: concertmirror08464.zclSwitchReportMax
+  - component: main
+    capability: concertmirror08464.zclSwitchTwoReportMin
+  - component: main
+    capability: concertmirror08464.zclSwitchTwoReportMax
+  - component: main
+    capability: concertmirror08464.zclSwitchThreeReportMin
+  - component: main
+    capability: concertmirror08464.zclSwitchThreeReportMax
+  - component: main
+    capability: concertmirror08464.zclSwitchFourReportMin
+  - component: main
+    capability: concertmirror08464.zclSwitchFourReportMax
+  - component: main
+    capability: concertmirror08464.zclSwitchFiveReportMin
+  - component: main
+    capability: concertmirror08464.zclSwitchFiveReportMax
+  automation:
+    conditions:
+    - component: main
+      capability: valve
+      version: 1
+    - component: valve2
+      capability: valve
+      version: 1
+    - component: valve3
+      capability: valve
+      version: 1
+    - component: valve4
+      capability: valve
+      version: 1
+    - component: valve5
+      capability: valve
+      version: 1
+    - component: main
+      capability: concertmirror08464.powerOnBehavior
+      version: 1
+    - component: main
+      capability: concertmirror08464.countdownTimerZclTwelveHours
+      version: 1
+    - component: main
+      capability: concertmirror08464.childLock
+      version: 1
+    - component: main
+      capability: concertmirror08464.zclSwitchReportMin
+    - component: main
+      capability: concertmirror08464.zclSwitchReportMax
+    - component: main
+      capability: concertmirror08464.zclSwitchTwoReportMin
+    - component: main
+      capability: concertmirror08464.zclSwitchTwoReportMax
+    - component: main
+      capability: concertmirror08464.zclSwitchThreeReportMin
+    - component: main
+      capability: concertmirror08464.zclSwitchThreeReportMax
+    - component: main
+      capability: concertmirror08464.zclSwitchFourReportMin
+    - component: main
+      capability: concertmirror08464.zclSwitchFourReportMax
+    - component: main
+      capability: concertmirror08464.zclSwitchFiveReportMin
+    - component: main
+      capability: concertmirror08464.zclSwitchFiveReportMax
+    actions:
+    - component: main
+      capability: valve
+      version: 1
+    - component: valve2
+      capability: valve
+      version: 1
+    - component: valve3
+      capability: valve
+      version: 1
+    - component: valve4
+      capability: valve
+      version: 1
+    - component: valve5
+      capability: valve
+      version: 1
+    - component: main
+      capability: concertmirror08464.powerOnBehavior
+      version: 1
+    - component: main
+      capability: concertmirror08464.countdownTimerZclTwelveHours
+      version: 1
+    - component: main
+      capability: concertmirror08464.childLock
+      version: 1
+    - component: main
+      capability: concertmirror08464.zclSwitchReportMin
+    - component: main
+      capability: concertmirror08464.zclSwitchReportMax
+    - component: main
+      capability: concertmirror08464.zclSwitchTwoReportMin
+    - component: main
+      capability: concertmirror08464.zclSwitchTwoReportMax
+    - component: main
+      capability: concertmirror08464.zclSwitchThreeReportMin
+    - component: main
+      capability: concertmirror08464.zclSwitchThreeReportMax
+    - component: main
+      capability: concertmirror08464.zclSwitchFourReportMin
+    - component: main
+      capability: concertmirror08464.zclSwitchFourReportMax
+    - component: main
+      capability: concertmirror08464.zclSwitchFiveReportMin
+    - component: main
+      capability: concertmirror08464.zclSwitchFiveReportMax

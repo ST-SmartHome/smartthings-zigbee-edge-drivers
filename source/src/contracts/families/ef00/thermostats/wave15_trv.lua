@@ -32,9 +32,6 @@ end
 local ztrv = {
   profile = "thermostats-wave15-moes-ztrv-s01",
   package_group = "trv",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = false,
   time_start = "2000",

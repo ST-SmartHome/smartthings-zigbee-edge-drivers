@@ -50,19 +50,20 @@ local function build_mh(profile, capability_prefix, mapping_prefix, gangs)
   local definition = {
     profile = profile,
     package_group = "screen-switch",
-    transport_classification = "EF00_DP",
-    z2m_converter_source = "meta.tuyaDatapoints",
-    wire_cluster = "manuSpecificTuya",
     magic_packet = true,
     query_on_configure = false,
     respond_to_mcu_version_response = true,
     datapoints = {},
+    component_to_endpoint_map = {},
+    endpoint_to_component_map = {[1] = "main"},
   }
 
   for index = 1, gangs do
+    definition.component_to_endpoint_map[component(index)] = 1
     append(definition, tuya.dp_on_off(state_dp(index), {
       name = "switch",
       component = component(index),
+      endpoint = 1,
       emit = emit.switch(),
     }))
   end
@@ -141,32 +142,42 @@ end
 local definitions = {
   {
     build_mh("switches-wave13-manhot-mh03-1", "mhOne", "mh_one", 1),
-    "_TZE284_ncc7uahd",
+    { "_TZE284_ncc7uahd", "_TZE28C1000000_ncc7uahd" },
   },
   {
     build_mh("switches-wave13-manhot-mh03-2", "mhTwo", "mh_two", 2),
-    "_TZE284_dnhhp8ew",
+    { "_TZE284_dnhhp8ew", "_TZE28C1000000_dnhhp8ew" },
   },
   {
     build_mh("switches-wave13-manhot-mh03-3", "mhThree", "mh_three", 3),
-    "_TZE284_59dz7ioi",
+    { "_TZE284_59dz7ioi", "_TZE28C1000000_59dz7ioi" },
   },
   {
     build_mh("switches-wave13-manhot-mh03-4", "mhFour", "mh_four", 4),
-    "_TZE284_esnu2jxv",
+    { "_TZE284_esnu2jxv", "_TZE28C1000000_esnu2jxv" },
   },
   {
     build_mh("switches-wave13-manhot-mh03-6", "mhSix", "mh_six", 6),
-    "_TZE284_zykra2yj",
+    {
+      "_TZE284_zykra2yj",
+      "_TZE28C1000000_zykra2yj",
+      "_TZE284_wkvfb2ld",
+      "_TZE28C1000000_wkvfb2ld",
+    },
   },
   {
     build_mh("switches-wave13-manhot-mh03-8", "mhEight", "mh_eight", 8),
-    "_TZE284_hwv3by9k",
+    {
+      "_TZE284_hwv3by9k",
+      "_TZE28C1000000_hwv3by9k",
+      "_TZE284_4ngwn2pj",
+      "_TZE28C1000000_4ngwn2pj",
+    },
   },
 }
 
 for _, item in ipairs(definitions) do
-  register_device_definition(item[1], device_helpers.create_fingerprints("TS0601", { item[2] }))
+  register_device_definition(item[1], device_helpers.create_fingerprints("TS0601", item[2]))
 end
 
 return {

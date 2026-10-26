@@ -1,154 +1,149 @@
-local zcl = require "protocol.zcl"
-local emit = require "capabilities.events.all"
-local device_helpers = require "contracts.helpers.family"
-local zcl_device_helpers = require "contracts.helpers.zcl"
-local data_types = require "st.zigbee.data_types"
-local capabilities = require "st.capabilities"
-local device_management = require "st.zigbee.device_management"
-local cluster_base = require "st.zigbee.cluster_base"
+local j = require "protocol.zcl"
+local J = require "capabilities.events.all"
+local r = require "contracts.helpers.family"
+local e = r.create_fingerprint
+local o = require "contracts.helpers.zcl"
+local c = require "st.zigbee.data_types"
+local D = require "st.capabilities"
+local v = require "st.zigbee.device_management"
+local aa = require "st.zigbee.cluster_base"
+local au = require "st.zigbee.generic_body"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local t, d = r.definition_registry()
 
-local function register_aliases(definition, aliases)
-  register_device_definition(definition, aliases)
-end
-
-local function create_model_fingerprints(manufacturer, models)
-  local fingerprints = {}
-  for _, model in ipairs(models) do
-    fingerprints[#fingerprints + 1] = device_helpers.create_fingerprint(manufacturer, model)
+local function w(ab, aw)
+  local A = {}
+  for _, aA in ipairs(aw) do
+    A[#A + 1] = r.create_fingerprint(ab, aA)
   end
-  return fingerprints
+  return A
 end
 
-local function switch_definition(profile, endpoints)
-  local clusters = {}
-  for index, endpoint in ipairs(endpoints) do
-    clusters[#clusters + 1] = zcl.switch({
+local function b(S, T)
+  local k = {}
+  for ao, endpoint in ipairs(T) do
+    k[#k + 1] = j.switch{
       endpoint = endpoint,
-      component = index == 1 and "main" or ("switch" .. tostring(index)),
-    })
+      component = ao == 1 and "main" or ("switch" .. tostring(ao))
+    }
   end
   return {
-    profile = profile,
-    zcl_clusters = clusters,
-    configure = function(driver, device)
-      for _, endpoint in ipairs(endpoints) do
-        device:send(device_management.build_bind_request(
-          device,
-          zcl.CLUSTER_ON_OFF,
-          driver.environment_info.hub_zigbee_eui,
+    profile = S,
+    zcl_clusters = k,
+    configure = function(E, g)
+      for _, endpoint in ipairs(T) do
+        g:send(v.build_bind_request(
+          g,
+          j.CLUSTER_ON_OFF,
+          E.environment_info.hub_zigbee_eui,
           endpoint
         ))
       end
-    end,
+    end
   }
 end
 
-local switch_1 = switch_definition("switches-switch-1", { 1 })
-local switch_2 = switch_definition("switches-switch-2", { 1, 2 })
-local switch_3 = switch_definition("switches-switch-3", { 1, 2, 3 })
-local heiman_switch_3 = switch_definition("switches-switch-3-device-temperature", { 1, 2, 3 })
-zcl_device_helpers.append_clusters(heiman_switch_3.zcl_clusters,
-  zcl.cluster_attribute(0x0002, 0x0000, {
-    name = "device_temperature",
-    endpoint = 1,
-    emit = emit.temperature("C"),
-    data_type = data_types.Int16,
-    read_on_configure = true,
-  })
-)
-local heiman_switch_3_on_off_configure = heiman_switch_3.configure
-heiman_switch_3.configure = function(driver, device)
-  heiman_switch_3_on_off_configure(driver, device)
-  device:send(device_management.build_bind_request(
-    device,
-    0x0002,
-    driver.environment_info.hub_zigbee_eui,
-    1
-  ))
+local s = b("switches-switch-1", { 1 })
+local ad = b("switches-switch-2", { 1, 2 })
+local C = {minimum_interval=0,maximum_interval=3600}
+local x = {minimum_interval=300,maximum_interval=3600,reportable_change=1}
+local function u(S, ah)
+  local k = {}
+  for endpoint = 1, ah do
+    k[#k+1] = j.switch{endpoint=endpoint,component=endpoint==1 and "main" or "switch"..endpoint,
+      configure_reporting=false,read_on_configure=false,suppress_optimistic_state=true,data_type=c.Boolean,
+      reporting_defaults=ah==1 and C or nil}
+  end
+  k[#k+1] = j.cluster_attribute(2,0,{name="device_temperature",endpoint=1,component="main",
+    data_type=c.Int16,read_only=true,read_on_configure=false,emit=J.temperature"C",
+    reporting_defaults=x})
+  return {profile=S,zcl_clusters=k,
+    configure=function(E,g)
+      local aC=E.environment_info.hub_zigbee_eui
+      for endpoint=1,ah do j.bind_cluster(g,6,aC,endpoint) end
+      j.bind_cluster(g,2,aC,1)
+      for _,p in ipairs(k) do
+        local B=p.reporting_defaults
+        if B then j.configure_reporting(g,{
+          cluster=p.cluster_id,attribute=p.attribute_id,data_type=p.data_type,
+          minimum_interval=B.minimum_interval,maximum_interval=B.maximum_interval,
+          reportable_change=B.reportable_change},p.endpoint,{defer_on_override=true}) end
+      end
+    end
+  }
 end
-local switch_1_ep10 = switch_definition("switches-switch-1", { 10 })
-local switch_2_ep10 = switch_definition("switches-switch-2", { 10, 11 })
-local switch_3_ep10 = switch_definition("switches-switch-3", { 10, 11, 12 })
-local switch_4 = switch_definition("switches-switch-4", { 1, 2, 3, 4 })
-local switch_5_ep5 = switch_definition("switches-switch-5", { 1, 2, 3, 4, 5 })
-local switch_5_ep5_tuya_options = switch_definition("switches-switch-5-tuya-options", { 1, 2, 3, 4, 5 })
-zcl_device_helpers.append_clusters(switch_5_ep5_tuya_options.zcl_clusters,
-  zcl.tuya_magic_packet(),
-  zcl.tuya_power_outage_memory(),
-  zcl.child_lock()
+local O = u("switches-heiman-one",1)
+local P = u("switches-heiman-two",2)
+local Q = u("switches-switch-3-device-temperature",3)
+
+local V = b("switches-switch-1", { 10 })
+local W = b("switches-switch-2", { 10, 11 })
+local X = b("switches-switch-3", { 10, 11, 12 })
+local am = b("switches-switch-4", { 1, 2, 3, 4 })
+local ae = b("switches-switch-5", { 1, 2, 3, 4, 5 })
+local y = b("switches-switch-5-tuya-options", { 1, 2, 3, 4, 5 })
+o.append_clusters(y.zcl_clusters,
+  j.tuya_magic_packet(),
+  j.tuya_power_outage_memory(),
+  j.child_lock()
 )
-local plug_1 = switch_definition("plugs-switch", { 1 })
-local plug_2 = switch_definition("plugs-switch-2", { 1, 2 })
-local battery_switch = {
+local ax = b("plugs-switch", { 1 })
+local ay = b("plugs-switch-2", { 1, 2 })
+local R = {
   profile = "switches-switch-1-battery",
   zcl_clusters = {
-    zcl.switch(),
-    zcl.battery(),
-  },
+    j.switch(),
+    j.battery()
+  }
 }
-local single_power_switch = {
-  profile = "switches-switch-1-power-options",
-  zcl_clusters = zcl_device_helpers.metering_clusters({
-    include_switch = true,
-    include_current = true,
-  }),
-}
-local dual_power_switch = {
-  profile = "switches-switch-2-power-options",
-  zcl_clusters = zcl_device_helpers.metering_clusters({
-    include_switch = true,
-    include_current = true,
-  }),
-}
-local dual_metered_switch_ep3 = switch_definition("switches-switch-2-power-options", { 1, 2 })
-for _, cluster in ipairs(zcl_device_helpers.metering_clusters({
+local f = b("switches-switch-2-power-options", { 1, 2 })
+for _, ap in ipairs(o.metering_clusters{
   endpoint = 3,
   include_switch = false,
-  include_current = true,
-})) do
-  dual_metered_switch_ep3.zcl_clusters[#dual_metered_switch_ep3.zcl_clusters + 1] = cluster
+  include_current = true
+}) do
+  f.zcl_clusters[#f.zcl_clusters + 1] = ap
 end
 
-local function candeo_power_on_behavior(endpoint, component)
-  return zcl.cluster_attribute(zcl.CLUSTER_ON_OFF, 0x4003, {
+local function n(endpoint, aj)
+  return j.cluster_attribute(j.CLUSTER_ON_OFF, 16387, {
     name = "candeo_sm30_power_on_behavior",
     endpoint = endpoint,
-    component = component,
-    emit = emit.candeoSm30PowerBehavior(),
-    from_device = function(value)
-      return ({ [0] = "off", [1] = "on", [2] = "previous" })[value]
+    component = aj,
+    emit = J.candeoSm30PowerBehavior(),
+    from_device = function(a)
+      a = type(a) == "table" and a.value or a
+      return ({ [0] = "off", [1] = "on", [255] = "previous" })[a]
     end,
-    to_device = function(value)
-      return ({ off = 0, on = 1, previous = 2 })[value]
+    to_device = function(a)
+      return ({ off = 0, on = 1, previous = 255 })[a]
     end,
-    data_type = data_types.Enum8,
-    write_type = data_types.Enum8,
-    read_on_configure = true,
+    data_type = c.Enum8,
+    write_type = c.Enum8,
+    read_on_configure = true
   })
 end
 
-dual_metered_switch_ep3.profile = "switches-candeo-sm30-2g"
-zcl_device_helpers.append_clusters(dual_metered_switch_ep3.zcl_clusters,
-  candeo_power_on_behavior(1, "main"),
-  candeo_power_on_behavior(2, "switch2")
+f.profile = "switches-candeo-sm30-2g"
+o.append_clusters(f.zcl_clusters,
+  n(1, "main"),
+  n(2, "switch2")
 )
-dual_metered_switch_ep3.configure = function(driver, device)
-  for _, endpoint in ipairs({ 1, 2 }) do
-    device:send(device_management.build_bind_request(
-      device,
-      zcl.CLUSTER_ON_OFF,
-      driver.environment_info.hub_zigbee_eui,
+f.configure = function(E, g)
+  for _, endpoint in ipairs{ 1, 2 } do
+    g:send(v.build_bind_request(
+      g,
+      j.CLUSTER_ON_OFF,
+      E.environment_info.hub_zigbee_eui,
       endpoint
     ))
-    device:send(cluster_base.configure_reporting(
-      device,
-      data_types.ClusterId(zcl.CLUSTER_ON_OFF),
-      data_types.AttributeId(0x4003),
-      data_types.ZigbeeDataType(data_types.Enum8.ID),
+    g:send(aa.configure_reporting(
+      g,
+      c.ClusterId(j.CLUSTER_ON_OFF),
+      c.AttributeId(16387),
+      c.ZigbeeDataType(c.Enum8.ID),
       0,
-      0xFFFF,
+      65535,
       1
     ):to_endpoint(endpoint))
   end
@@ -160,280 +155,352 @@ SONOFF functions, keeping their bytecode identities stable after the move.
 No plug registration or executable definition remains in this module.
 The package ownership boundary is enforced by the focused catalog test.
 ]]
-local SONOFF_CLUSTER = 0xFC11
-local SONOFF_MFG_CODE = 0x1286
-local SONOFF_CAPABILITY = "concertmirror08464.sonoffZbminir2"
+local h = 64529
+local N = 4742
+local H = "concertmirror08464.sonoffZbminir2"
 
-local function on_off_from_device(value)
-  return (value == true or value == 1) and "on" or "off"
+local function G(a)
+  return (a == true or a == 1) and "on" or "off"
 end
 
-local function on_off_to_device(value)
-  return value == "on" or value == true
+local function K(a)
+  return a == "on" or a == true
 end
 
-local function sonoff_boolean(attribute_id, name, emit_name, options)
-  options = options or {}
-  return zcl.cluster_attribute(SONOFF_CLUSTER, attribute_id, {
-    name = name,
-    emit = emit[emit_name](),
-    data_type = options.data_type or data_types.Boolean,
-    write_type = options.write_type or data_types.Boolean,
-    from_device = options.from_device or on_off_from_device,
-    to_device = options.to_device or on_off_to_device,
-    read_on_configure = true,
+local function q(Z, aE, ak, z)
+  z = z or {}
+  return j.cluster_attribute(h, Z, {
+    name = aE,
+    emit = J[ak](),
+    data_type = z.data_type or c.Boolean,
+    write_type = z.write_type or c.Boolean,
+    from_device = z.from_device or G,
+    to_device = z.to_device or K,
+    read_on_configure = true
   })
 end
 
-local function latest_sonoff_state(device, suffix, default)
-  local capability_id = SONOFF_CAPABILITY .. suffix
-  local attribute = suffix:sub(1, 1):lower() .. suffix:sub(2)
-  return device:get_latest_state("main", capability_id, attribute) or default
+local function l(g, suffix, ar)
+  local U = H .. suffix
+  local ai = suffix:sub(1, 1):lower() .. suffix:sub(2)
+  return g:get_latest_state("main", U, ai) or ar
 end
 
-local function send_sonoff_inching(device, mapping, value, context)
-  local control = latest_sonoff_state(device, "InchingControl", "off")
-  local time = tonumber(latest_sonoff_state(device, "InchingTime", 0.5)) or 0.5
-  local mode = latest_sonoff_state(device, "InchingMode", "off")
+local function m(g, p, a, aq)
+  local af = l(g, "InchingControl", "off")
+  local an = tonumber(l(g, "InchingTime", 0.5)) or 0.5
+  local av = l(g, "InchingMode", "off")
 
-  if mapping.name == "sonoff_zbmini_r2_inching_control" then
-    control = value
-  elseif mapping.name == "sonoff_zbmini_r2_inching_time" then
-    time = tonumber(value) or time
-  elseif mapping.name == "sonoff_zbmini_r2_inching_mode" then
-    mode = value
+  if p.name == "sonoff_zbmini_r2_inching_control" then
+    af = a
+  elseif p.name == "sonoff_zbmini_r2_inching_time" then
+    an = tonumber(a) or an
+  elseif p.name == "sonoff_zbmini_r2_inching_mode" then
+    av = a
   end
 
-  local encoded_time = math.floor((math.max(0.5, math.min(3599.5, time)) * 2) + 0.5)
-  local mode_byte = (control == "on" and 0x80 or 0) + (mode == "on" and 0x01 or 0)
-  local bytes = { 0x01, 0x17, 0x07, 0x80, mode_byte, 0x00, encoded_time % 0x100, math.floor(encoded_time / 0x100), 0x00, 0x00 }
-  local checksum = 0
-  for _, byte in ipairs(bytes) do checksum = bit32.bxor(checksum, byte) end
-  bytes[#bytes + 1] = checksum
+  local F = math.floor((math.max(0.5, math.min(3599.5, an)) * 2) + 0.5)
+  local al = (af == "on" and 128 or 0) + (av == "on" and 1 or 0)
+  local Y = { 1, 23, 7, 128, al, 0, F % 256, math.floor(F / 256), 0, 0 }
+  local I = 0
+  for _, aD in ipairs(Y) do I = bit32.bxor(I, aD) end
+  Y[#Y + 1] = I
 
-  return zcl.send_raw_cluster_command(
-    device,
-    SONOFF_CLUSTER,
-    0x01,
-    string.char(table.unpack(bytes)),
-    context.endpoint,
+  return j.send_raw_cluster_command(
+    g,
+    h,
+    1,
+    string.char(table.unpack(Y)),
+    aq.endpoint,
     nil,
-    SONOFF_MFG_CODE
+    N
   )
 end
 
-local sonoff_zbmini_r2 = {
+local L = {
   profile = "switches-switch-1-sonoff-zbmini-r2",
   zcl_clusters = {
-    zcl.switch(),
-    zcl.cluster_attribute(zcl.CLUSTER_ON_OFF, 0x4003, {
+    j.switch(),
+    j.cluster_attribute(j.CLUSTER_ON_OFF, 16387, {
       name = "sonoff_zbmini_r2_power_on_behavior",
-      emit = emit.sonoffZbminir2PowerOnBehavior(),
-      data_type = data_types.Enum8,
-      write_type = data_types.Enum8,
-      from_device = function(value)
-        return ({ [0] = "off", [1] = "on", [2] = "toggle", [255] = "previous" })[value]
+      emit = J.sonoffZbminir2PowerOnBehavior(),
+      data_type = c.Enum8,
+      write_type = c.Enum8,
+      from_device = function(a)
+        return ({ [0] = "off", [1] = "on", [2] = "toggle", [255] = "previous" })[a]
       end,
-      to_device = function(value)
-        return ({ off = 0, on = 1, toggle = 2, previous = 255 })[value]
+      to_device = function(a)
+        return ({ off = 0, on = 1, toggle = 2, previous = 255 })[a]
       end,
-      read_on_configure = true,
+      read_on_configure = true
     }),
-    zcl.cluster_attribute(zcl.CLUSTER_ON_OFF, zcl.ATTR_ON_OFF, {
+    j.cluster_attribute(j.CLUSTER_ON_OFF, j.ATTR_ON_OFF, {
       name = "sonoff_zbmini_r2_toggle",
-      emit = emit.switch(),
+      emit = J.switch(),
       read_only = true,
-      command_id = 0x02,
-      command_extractor = function(_, device)
-        return device:get_latest_state("main", capabilities.switch.ID, "switch") ~= "on"
-      end,
+      command_id = 2,
+      command_extractor = function(_, g)
+        return g:get_latest_state("main", D.switch.ID, "switch") ~= "on"
+      end
     }),
-    sonoff_boolean(0x0001, "sonoff_zbmini_r2_network_indicator", "sonoffZbminir2NetworkIndicator"),
-    sonoff_boolean(0x0012, "sonoff_zbmini_r2_turbo_mode", "sonoffZbminir2TurboMode", {
-      data_type = data_types.Int16,
-      write_type = data_types.Int16,
-      from_device = function(value) return value == 0x14 and "on" or "off" end,
-      to_device = function(value) return value == "on" and 0x14 or 0x09 end,
+    q(1, "sonoff_zbmini_r2_network_indicator", "sonoffZbminir2NetworkIndicator"),
+    q(18, "sonoff_zbmini_r2_turbo_mode", "sonoffZbminir2TurboMode", {
+      data_type = c.Int16,
+      write_type = c.Int16,
+      from_device = function(a) return a == 20 and "on" or "off" end,
+      to_device = function(a) return a == "on" and 20 or 9 end
     }),
-    sonoff_boolean(0x0014, "sonoff_zbmini_r2_delayed_power_on_state", "sonoffZbminir2DelayPowerState"),
-    zcl.cluster_attribute(SONOFF_CLUSTER, 0x0015, {
+    q(20, "sonoff_zbmini_r2_delayed_power_on_state", "sonoffZbminir2DelayPowerState"),
+    j.cluster_attribute(h, 21, {
       name = "sonoff_zbmini_r2_delayed_power_on_time",
-      emit = emit.sonoffZbminir2DelayPowerTime(),
-      data_type = data_types.Uint16,
-      write_type = data_types.Uint16,
-      from_device = function(value) return value / 2 end,
-      to_device = function(value) return value * 2 end,
+      emit = J.sonoffZbminir2DelayPowerTime(),
+      data_type = c.Uint16,
+      write_type = c.Uint16,
+      from_device = function(a) return a / 2 end,
+      to_device = function(a) return a * 2 end,
       numeric_range = { minimum = 0.5, maximum = 3599.5, step = 0.5, unit = "s" },
-      read_on_configure = true,
+      read_on_configure = true
     }),
-    sonoff_boolean(0x0017, "sonoff_zbmini_r2_detach_relay_mode", "sonoffZbminir2DetachRelayMode"),
-    zcl.cluster_attribute(SONOFF_CLUSTER, 0x0016, {
+    q(23, "sonoff_zbmini_r2_detach_relay_mode", "sonoffZbminir2DetachRelayMode"),
+    j.cluster_attribute(h, 22, {
       name = "sonoff_zbmini_r2_external_trigger_mode",
-      emit = emit.sonoffZbminir2ExtTriggerMode(),
-      data_type = data_types.Uint8,
-      write_type = data_types.Uint8,
-      from_device = function(value) return ({ [0] = "edge", [1] = "pulse", [2] = "following_off", [130] = "following_on" })[value] end,
-      to_device = function(value) return ({ edge = 0, pulse = 1, following_off = 2, following_on = 130 })[value] end,
-      read_on_configure = true,
+      emit = J.sonoffZbminir2ExtTriggerMode(),
+      data_type = c.Uint8,
+      write_type = c.Uint8,
+      from_device = function(a) return ({ [0] = "edge", [1] = "pulse", [2] = "following_off", [130] = "following_on" })[a] end,
+      to_device = function(a) return ({ edge = 0, pulse = 1, following_off = 2, following_on = 130 })[a] end,
+      read_on_configure = true
     }),
-    zcl.cluster_attribute(SONOFF_CLUSTER, nil, { name = "sonoff_zbmini_r2_inching_control", write_only = true, sender = send_sonoff_inching }),
-    zcl.cluster_attribute(SONOFF_CLUSTER, nil, { name = "sonoff_zbmini_r2_inching_time", write_only = true, sender = send_sonoff_inching }),
-    zcl.cluster_attribute(SONOFF_CLUSTER, nil, { name = "sonoff_zbmini_r2_inching_mode", write_only = true, sender = send_sonoff_inching }),
-  },
+    j.cluster_attribute(h, nil, { name = "sonoff_zbmini_r2_inching_control", write_only = true, sender = m }),
+    j.cluster_attribute(h, nil, { name = "sonoff_zbmini_r2_inching_time", write_only = true, sender = m }),
+    j.cluster_attribute(h, nil, { name = "sonoff_zbmini_r2_inching_mode", write_only = true, sender = m })
+  }
 }
 
-register_aliases(plug_1, {
-  device_helpers.create_fingerprint("Third Reality", "3RSP0186Z"),
-  device_helpers.create_fingerprint("Third Reality", "3RSPJ0187Z"),
-  device_helpers.create_fingerprint("Third Reality", "3RSPE02065Z"),
-  device_helpers.create_fingerprint("Third Reality", "3RSPU01080Z"),
+local M = {
+  profile = "buttons-zunzunbee-sswz8t",
+  button_actions = { "pushed", "held" },
+  zcl_clusters = {
+    j.cluster_attribute(j.CLUSTER_IAS_ZONE, j.ATTR_ZONE_STATUS, {
+      name = "zunzunbee_button_action",
+      endpoint = 1,
+      read_only = true,
+      read_on_refresh = false,
+      data_type = c.Bitmap16,
+      command_id = 0,
+      command_extractor = function(aB)
+        local as = aB.body.zcl_body
+        local ac = as.zone_status or as.zonestatus
+        return type(ac) == "table" and ac.value or ac
+      end,
+      from_device = function(a)
+        a = type(a) == "table" and a.value or a
+        local button = ({ [2] = 1, [4] = 2, [8] = 3, [16] = 4,
+          [32] = 5, [64] = 6, [128] = 7, [256] = 8 })[bit32.band(a, 510)]
+        if button == nil then return nil end
+        return { component = "button" .. button, action = a % 2 == 1 and "held" or "pushed" }
+      end,
+      handler = function(g, ag)
+        g:emit_component_event(
+          { id = ag.component },
+          D.button.button(ag.action, { state_change = true })
+        )
+        j.schedule_battery_refresh_after_button(g)
+      end
+    }),
+    j.battery{ endpoint = 1, minimum_interval = 3600, maximum_interval = 65000, reportable_change = 10 },
+    j.temperature{ endpoint = 1, minimum_interval = 10, maximum_interval = 3600, reportable_change = 100 }
+  }
+}
+
+d(ax, {
+  e("Third Reality", "3RSP0186Z"),
+  e("Third Reality", "3RSPJ0187Z"),
+  e("Third Reality", "3RSPE02065Z"),
+  e("Third Reality", "3RSPU01080Z")
 })
 
-register_aliases(plug_2, {
-  device_helpers.create_fingerprint("Third Reality", "3RWP01073Z"),
+d(ay, {
+  e("Third Reality", "3RWP01073Z")
 })
 
-register_aliases(battery_switch, {
-  device_helpers.create_fingerprint("Third Reality, Inc", "3RSS009Z"),
-  device_helpers.create_fingerprint("Third Reality, Inc", "3RSS008Z"),
+d(R, {
+  e("Third Reality, Inc", "3RSS009Z"),
+  e("Third Reality, Inc", "3RSS008Z")
 })
 
-register_aliases(switch_1, {
-  device_helpers.create_fingerprint("Third Reality, Inc", "3RSS007Z"),
+d(s, {
+  e("Third Reality, Inc", "3RSS007Z")
 })
 
-register_aliases(sonoff_zbmini_r2, {
-  device_helpers.create_fingerprint("SONOFF", "MINI-ZBD"),
-  device_helpers.create_fingerprint("SONOFF", "ZBMINIR2"),
+d(L, {
+  e("SONOFF", "MINI-ZBD"),
+  e("SONOFF", "ZBMINIR2")
 })
 
-register_aliases(dual_metered_switch_ep3, {
-  device_helpers.create_fingerprint("Candeo", "C-ZB-SM30-2G"),
+d(f, {
+  e("Candeo", "C-ZB-SM30-2G")
 })
 
-register_aliases(switch_1, {
-  device_helpers.create_fingerprint("Candeo", "C205"),
-  device_helpers.create_fingerprint("IKEA", "E2006"),
+d(s, {
+  e("Candeo", "C205"),
+  e("IKEA", "E2006")
 })
 
-register_aliases(switch_1, {
-  device_helpers.create_fingerprint("HEIMAN", "HS2SW1A-EF-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "HS2SW1A-EFR-3.0"),
+d(O, {
+  e("HEIMAN", "HS2SW1A-EF-3.0"),
+  e("HEIMAN", "HS2SW1A-EFR-3.0"),
+  e("HEIMAN", "HS2SW1L-EFR-3.0"),
+  e("HEIMAN", "HS6SW1A-W-EF-3.0")
 })
 
-register_aliases(switch_1, {
-  device_helpers.create_fingerprint("KlikAanKlikUit", "Built-in Switch"),
-  device_helpers.create_fingerprint("Oz Smart Things", "WSP403"),
-  device_helpers.create_fingerprint("Sibling", "Powerswitch-ZK(W)"),
-  device_helpers.create_fingerprint("Sunricher", "SR-ZG9101SAC-HP-SWITCH-B"),
-  device_helpers.create_fingerprint("BTicino", "3584C"),
-  device_helpers.create_fingerprint("BTicino", "3577C"),
-  device_helpers.create_fingerprint("BTicino", "FC80AC"),
-  device_helpers.create_fingerprint("BTicino", "FC80CC"),
-  device_helpers.create_fingerprint("BTicino", "FC80RC"),
-  device_helpers.create_fingerprint("BTicino", "LN4570CWI"),
-  device_helpers.create_fingerprint("Elko", "EKO07250"),
-  device_helpers.create_fingerprint("Elko", "EKO07251"),
-  device_helpers.create_fingerprint("Elko", "EKO07252"),
-  device_helpers.create_fingerprint("Elko", "EKO07253"),
-  device_helpers.create_fingerprint("Elko", "EKO20004"),
-  device_helpers.create_fingerprint("Elko", "EKO30198"),
-  device_helpers.create_fingerprint("Elko", "EKO30199"),
-  device_helpers.create_fingerprint("Gira", "2430-100"),
-  device_helpers.create_fingerprint("Gira", "2435-10"),
-  device_helpers.create_fingerprint("Jung", "ZLLHS4"),
-  device_helpers.create_fingerprint("Legrand", "199142"),
-  device_helpers.create_fingerprint("Sunricher", "SR-ZG9100A-S"),
+d(s, {
+  e("KlikAanKlikUit", "Built-in Switch"),
+  e("Oz Smart Things", "WSP403"),
+  e("Sibling", "Powerswitch-ZK(W)"),
+  e("Sunricher", "SR-ZG9101SAC-HP-SWITCH-B"),
+  e("BTicino", "3584C"),
+  e("BTicino", "3577C"),
+  e("BTicino", "FC80AC"),
+  e("BTicino", "FC80CC"),
+  e("BTicino", "FC80RC"),
+  e("BTicino", "LN4570CWI"),
+  e("Elko", "EKO07250"),
+  e("Elko", "EKO07251"),
+  e("Elko", "EKO07252"),
+  e("Elko", "EKO07253"),
+  e("Elko", "EKO20004"),
+  e("Elko", "EKO30198"),
+  e("Elko", "EKO30199"),
+  e("Gira", "2430-100"),
+  e("Gira", "2435-10"),
+  e("Jung", "ZLLHS4"),
+  e("Legrand", "199142"),
+  e("Sunricher", "SR-ZG9100A-S")
 })
 
-register_aliases(switch_1, {
-  device_helpers.create_fingerprint("Schneider Electric", "1GANG/SWITCH/1"),
-  device_helpers.create_fingerprint("Schneider Electric", "CH10AX/SWITCH/1"),
-  device_helpers.create_fingerprint("Schneider Electric", "CH2AX/SWITCH/1"),
-  device_helpers.create_fingerprint("Schneider Electric", "NHPB/SWITCH/1"),
-  device_helpers.create_fingerprint("Schneider Electric", "PUCK/SWITCH/1"),
-  device_helpers.create_fingerprint("Schneider Electric", "U201SRY2KWZB"),
+d(s, {
+  e("Schneider Electric", "1GANG/SWITCH/1"),
+  e("Schneider Electric", "CH10AX/SWITCH/1"),
+  e("Schneider Electric", "CH2AX/SWITCH/1"),
+  e("Schneider Electric", "NHPB/SWITCH/1"),
+  e("Schneider Electric", "PUCK/SWITCH/1"),
+  e("Schneider Electric", "U201SRY2KWZB")
 })
 
-register_aliases(switch_1, {
-  device_helpers.create_fingerprint("TERNCY", "TERNCY-LS01"),
+d(s, {
+  e("TERNCY", "TERNCY-LS01")
 })
 
-register_aliases(switch_1_ep10, {
-  device_helpers.create_fingerprint("Schneider Electric", "A3N31SR800ZB_xx_C1"),
-  device_helpers.create_fingerprint("Schneider Electric", "E8331SRY800ZB"),
+d(V, {
+  e("Schneider Electric", "A3N31SR800ZB_xx_C1"),
+  e("Schneider Electric", "E8331SRY800ZB")
 })
 
-register_aliases(switch_2_ep10, {
-  device_helpers.create_fingerprint("Schneider Electric", "A3N32SR800ZB_xx_C1"),
-  device_helpers.create_fingerprint("Schneider Electric", "E8332SRY800ZB"),
+d(W, {
+  e("Schneider Electric", "A3N32SR800ZB_xx_C1"),
+  e("Schneider Electric", "E8332SRY800ZB")
 })
 
-register_aliases(switch_3_ep10, {
-  device_helpers.create_fingerprint("Schneider Electric", "A3N33SR800ZB_xx_C1"),
-  device_helpers.create_fingerprint("Schneider Electric", "E8333SRY800ZB"),
+d(X, {
+  e("Schneider Electric", "A3N33SR800ZB_xx_C1"),
+  e("Schneider Electric", "E8333SRY800ZB")
 })
 
-register_aliases(switch_1, create_model_fingerprints("Sunricher", {
+d(s, w("Sunricher", {
   "ON/OFF",
   "ZIGBEE-SWITCH",
   "Micro Smart OnOff",
-  "HK-SL-RELAY-A",
+  "HK-SL-RELAY-A"
 }))
 
-register_aliases(switch_2, {
-  device_helpers.create_fingerprint("Candeo", "C-ZB-SM205-2G"),
+d(ad, {
+  e("Candeo", "C-ZB-SM205-2G")
 })
 
-register_aliases(switch_2, {
-  device_helpers.create_fingerprint("HEIMAN", "HS2SW2A-EF-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "HS2SW2A-EFR-3.0"),
+d(P, {
+  e("HEIMAN", "HS2SW2A-EF-3.0"),
+  e("HEIMAN", "HS2SW2A-EFR-3.0"),
+  e("HEIMAN", "HS2SW2L-EFR-3.0"),
+  e("HEIMAN", "HS6SW2A-W-EF-3.0")
 })
 
-register_aliases(switch_2, {
-  device_helpers.create_fingerprint("LED-Trading", "UP-SA-9127D"),
-  device_helpers.create_fingerprint("Sunricher", "ON/OFF(2CH)"),
-  device_helpers.create_fingerprint("Sunricher", "SR-ZG9101SAC-HP-SWITCH-2CH"),
+d(ad, {
+  e("LED-Trading", "UP-SA-9127D"),
+  e("Sunricher", "ON/OFF(2CH)"),
+  e("Sunricher", "SR-ZG9101SAC-HP-SWITCH-2CH")
 })
 
-register_aliases(heiman_switch_3, {
-  device_helpers.create_fingerprint("HEIMAN", "HS2SW3A-EF-3.0"),
-  device_helpers.create_fingerprint("HEIMAN", "HS2SW3A-EFR-3.0"),
+d(Q, {
+  e("HEIMAN", "HS2SW3A-EF-3.0"),
+  e("HEIMAN", "HS2SW3A-EFR-3.0"),
+  e("HEIMAN", "HS2SW3L-EFR-3.0"),
+  e("HEIMAN", "HS6SW3A-W-EF-3.0")
 })
 
-register_aliases(switch_4, {
-  device_helpers.create_fingerprint("Nova Digital", "TPZ-4"),
-  device_helpers.create_fingerprint("Tuya", "DS-111"),
-  device_helpers.create_fingerprint("MHCOZY", "TYWB 4ch-RF"),
-  device_helpers.create_fingerprint("AVATTO", "TS0004_1"),
-  device_helpers.create_fingerprint("AVATTO", "ZBTS60-04"),
-  device_helpers.create_fingerprint("RSH", "SB04-Zigbee"),
-  device_helpers.create_fingerprint("AVATTO", "ZWSM16-4"),
-  device_helpers.create_fingerprint("Moes", "ZM4LT4"),
-  device_helpers.create_fingerprint("iHseno", "_TZ3000_knoj8lpk"),
-  device_helpers.create_fingerprint("AVATTO", "ZWOT12"),
-  device_helpers.create_fingerprint("Coibeu", "ZB414"),
-  device_helpers.create_fingerprint("Nova Digital", "SA-4"),
-  device_helpers.create_fingerprint("Mercator Ikuü", "SSW04"),
-  device_helpers.create_fingerprint("OXT", "SWTZ27"),
-  device_helpers.create_fingerprint("TUYATEC", "GDKES-04TZXD"),
-  device_helpers.create_fingerprint("MakeGood", "MG-ZG04W/B/G"),
-  device_helpers.create_fingerprint("TERNCY", "TERNCY-WS01-S4"),
-  device_helpers.create_fingerprint("_TZ3210_qjvi92wz", "TS0014"),
-  device_helpers.create_fingerprint("_TZ3210_w3hl6rao", "TS0014"),
-  device_helpers.create_fingerprint("_TZ3210_z4hgsevd", "TS0014"),
-  device_helpers.create_fingerprint("Vizo", "VZ-221S"),
-  device_helpers.create_fingerprint("Vizo", "VZ-222S"),
-  device_helpers.create_fingerprint("Vizo", "VZ-223S"),
-  device_helpers.create_fingerprint("LELLKI", "WP33-EU"),
-  device_helpers.create_fingerprint("zunzunbee", "SSWZ8T"),
+d(am, {
+  e("Nova Digital", "TPZ-4"),
+  e("Tuya", "DS-111"),
+  e("MHCOZY", "TYWB 4ch-RF"),
+  e("AVATTO", "TS0004_1"),
+  e("AVATTO", "ZBTS60-04"),
+  e("RSH", "SB04-Zigbee"),
+  e("AVATTO", "ZWSM16-4"),
+  e("Moes", "ZM4LT4"),
+  e("iHseno", "_TZ3000_knoj8lpk"),
+  e("AVATTO", "ZWOT12"),
+  e("Coibeu", "ZB414"),
+  e("Nova Digital", "SA-4"),
+  e("Mercator Ikuü", "SSW04"),
+  e("OXT", "SWTZ27"),
+  e("TUYATEC", "GDKES-04TZXD"),
+  e("MakeGood", "MG-ZG04W/B/G"),
+  e("TERNCY", "TERNCY-WS01-S4"),
+  e("_TZ3210_qjvi92wz", "TS0014"),
+  e("_TZ3210_w3hl6rao", "TS0014"),
+  e("_TZ3210_z4hgsevd", "TS0014"),
+  e("Vizo", "VZ-221S"),
+  e("Vizo", "VZ-222S"),
+  e("Vizo", "VZ-223S"),
+  e("LELLKI", "WP33-EU")
 })
 
-register_aliases(switch_5_ep5, {
-  device_helpers.create_fingerprint("Sunricher", "SR-ZG9023A-EU"),
+d(ae, {
+  e("Sunricher", "SR-ZG9023A-EU")
 })
+
+d(M, {
+  e("zunzunbee", "SSWZ8T")
+})
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+j.attach_reporting_capabilities(t, {
+  {1, "rpt-zvs"},
+  {2, "rpt-zef", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {3, "rpt-zej"},
+  {4, "rpt-sit"},
+  {5, "rpt-mcf"},
+  {6, "rpt-cba", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {7, "rpt-sit"},
+  {8, "rpt-hzd"},
+  {9, "rpt-sit"},
+  {10, "rpt-sit"},
+  {11, "rpt-sit"},
+  {12, "rpt-sit"},
+  {13, "rpt-lpm", {zr0006000010 = "Switch", zr0006000011 = "SwitchTwo"}},
+  {14, "rpt-lek", {zr0006000010 = "Switch", zr0006000011 = "SwitchTwo", zr0006000012 = "SwitchThree"}},
+  {15, "rpt-sit"},
+  {16, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {17, "rpt-hjl"},
+  {18, "rpt-lpm", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {19, "rpt-hns"},
+  {20, "rpt-tmr", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour"}},
+  {21, "rpt-swt", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour", zr000600005 = "SwitchFive"}},
+  {22, "rpt-sfh"}
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.switches.retail_switches",
-  registrations = device_definitions,
+  registrations = t
 }

@@ -1,265 +1,194 @@
-local zcl=require "protocol.zcl"
-local emit=require "capabilities.events.all"
-local cluster_base=require "st.zigbee.cluster_base"
-local data_types=require "st.zigbee.data_types"
-local shelly={}
-shelly.MANUFACTURER_CODE=0x1490
-shelly.PROFILE_ID=0xC001
-shelly.ENDPOINT=239
-shelly.RPC_CLUSTER=0xFC01
-shelly.WIFI_CLUSTER=0xFC02
-shelly.LIGHT_LEVEL_CLUSTER=0xFC21
-local FULL_WIFI_SSID_FIELD="_shelly_gen4_full_wifi_ssid"
-local WIFI_ATTRIBUTES={
-status={id=0x0000,data_type=data_types.CharString},
-ip={id=0x0001,data_type=data_types.CharString},
-action_code={id=0x0002,data_type=data_types.Uint8},
-dhcp={id=0x0003,data_type=data_types.Boolean},
-enabled={id=0x0004,data_type=data_types.Boolean},
-ssid={id=0x0005,data_type=data_types.CharString},
-password={id=0x0006,data_type=data_types.CharString},
-static_ip={id=0x0007,data_type=data_types.CharString},
-net_mask={id=0x0008,data_type=data_types.CharString},
-gateway={id=0x0009,data_type=data_types.CharString},
-name_server={id=0x000A,data_type=data_types.CharString},
-}
-local function custom_emit(name)
-return assert(emit[name],"missing custom capability emitter: " .. tostring(name))()
+local ag=require"protocol.zcl"
+local ad=require"capabilities.events.all"
+local B=require"st.zigbee.cluster_base"
+local d=require"st.zigbee.data_types"
+local c={}c.MANUFACTURER_CODE=5264
+c.PROFILE_ID=49153
+c.ENDPOINT=239
+c.RPC_CLUSTER=64513
+c.WIFI_CLUSTER=64514
+c.LIGHT_LEVEL_CLUSTER=64545
+local q="_shelly_gen4_full_wifi_ssid"
+local h={
+status={id=0,data_type=d.CharString},ip={id=1,data_type=d.CharString},action_code={id=2,data_type=d.Uint8},dhcp={id=3,data_type=d.Boolean},enabled={id=4,data_type=d.Boolean},ssid={id=5,data_type=d.CharString},password={id=6,data_type=d.CharString},static_ip={id=7,data_type=d.CharString},net_mask={id=8,data_type=d.CharString},gateway={id=9,data_type=d.CharString},name_server={id=10,data_type=d.CharString}}
+local function N(s)
+return assert(ad[s],"missing custom capability emitter: "..tostring(s))()
 end
-local function shelly_request(request,endpoint)
-endpoint=endpoint or shelly.ENDPOINT
-if type(request.to_endpoint)=="function" then
-request=request:to_endpoint(endpoint)
+local function H(o,l)
+l=l or c.ENDPOINT
+if type(o.to_endpoint)=="function"then
+o=o:to_endpoint(l)
 end
-if request.address_header and request.address_header.profile then
-request.address_header.profile.value=shelly.PROFILE_ID
+if o.address_header and o.address_header.profile then
+o.address_header.profile.value=c.PROFILE_ID
 end
-return request
+return o
 end
-local function send_request(device,request,endpoint)
-device:send(shelly_request(request,endpoint))
-return true
+local function C(b,o,l)
+b:send(H(o,l))return true
 end
-local function write_attribute(device,cluster_id,attribute_id,data_type,value,endpoint)
-return send_request(device,cluster_base.write_manufacturer_specific_attribute(
-device,
-cluster_id,
-attribute_id,
-shelly.MANUFACTURER_CODE,
-data_type,
-value
-),endpoint)
+local function i(b,A,w,S,value,l)
+return C(b,B.write_manufacturer_specific_attribute(
+b,A,w,c.MANUFACTURER_CODE,S,value
+),l)
 end
-local function read_attribute(device,cluster_id,attribute_id,endpoint)
-return send_request(device,cluster_base.read_manufacturer_specific_attribute(
-device,
-cluster_id,
-attribute_id,
-shelly.MANUFACTURER_CODE
-),endpoint)
+local function G(b,A,w,l)
+return C(b,B.read_manufacturer_specific_attribute(
+b,A,w,c.MANUFACTURER_CODE
+),l)
 end
-local function boolean_from_device(value)
-local enabled=value==true or value==1
-return enabled and "true" or "false"
+local function t(value)
+local W=value==true or value==1
+return W and"true"or"false"
 end
-local function boolean_to_device(value)
-if value=="true" or value==true or value==1 then return true end
-if value=="false" or value==false or value==0 then return false end
+local function p(value)
+if value=="true"or value==true or value==1 then return true end
+if value=="false"or value==false or value==0 then return false end
 return nil
 end
-local function normalize_text(value)
-if type(value)~="string" or value=="" then return nil end
+local function n(value)
+if type(value)~="string"or value==""then return nil end
 return value
 end
-local function diagnostic_text_from_device(value)
-if type(value)~="string" then return nil end
+local function v(value)
+if type(value)~="string"then return nil end
 return value
 end
-local function get_known_full_wifi_ssid(device)
-if type(device)~="table" or type(device.get_field)~="function" then
+local function f(b)
+if type(b)~="table"or type(b.get_field)~="function"then
 return nil
 end
-local value=device:get_field(FULL_WIFI_SSID_FIELD)
-return normalize_text(value)
+local value=b:get_field(q)return n(value)
 end
-local function cache_full_wifi_ssid(device,value)
-value=normalize_text(value)
-if value==nil or type(device)~="table" or type(device.set_field)~="function" then
+local function r(b,value)
+value=n(value)
+if value==nil or type(b)~="table"or type(b.set_field)~="function"then
 return false
 end
-if get_known_full_wifi_ssid(device)~=value then
-device:set_field(FULL_WIFI_SSID_FIELD,value,{persist=true})
+if f(b)~=value then
+b:set_field(q,value,{persist=true})
 end
 return true
 end
-local function wifi_ssid_from_device(value,device)
-local reported=normalize_text(value)
-if reported==nil then return nil end
-local known=get_known_full_wifi_ssid(device)
-if known ~=nil and known:sub(1,#reported)==reported then
-return known
+local function z(value,b)
+local u=n(value)
+if u==nil then return nil end
+local E=f(b)if E~=nil and E:sub(1,#u)==u then
+return E
 end
-if known==nil or #reported > #known then
-cache_full_wifi_ssid(device,reported)
+if E==nil or #u>#E then
+r(b,u)
 end
-return reported
+return u
 end
-local function wifi_sender(attribute,allow_empty)
-return function(device,_,value)
+local function R(e,M)
+return function(b,_,value)
 local encoded=value
-if attribute.data_type==data_types.Boolean then
-encoded=boolean_to_device(value)
-elseif attribute.data_type==data_types.CharString then
-if type(value)~="string" or(value=="" and not allow_empty)then
+if e.data_type==d.Boolean then
+encoded=p(value)elseif e.data_type==d.CharString then
+if type(value)~="string"or(value==""and not M)then
 encoded=nil
 end
 end
 if encoded==nil then return false end
-write_attribute(device,shelly.WIFI_CLUSTER,attribute.id,attribute.data_type,encoded)
-write_attribute(device,shelly.WIFI_CLUSTER,WIFI_ATTRIBUTES.action_code.id,data_types.Uint8,1)
-if attribute.id==WIFI_ATTRIBUTES.ssid.id then
-cache_full_wifi_ssid(device,encoded)
+i(b,c.WIFI_CLUSTER,e.id,e.data_type,encoded)i(b,c.WIFI_CLUSTER,h.action_code.id,d.Uint8,1)if e.id==h.ssid.id then
+r(b,encoded)
 end
 return true
 end
 end
-local function wifi_mapping(name,emit_name,attribute_name,writable,options)
-options=options or{}
-local attribute=assert(WIFI_ATTRIBUTES[attribute_name],"unknown Shelly Wi-Fi attribute: " .. tostring(attribute_name))
-local mapping=zcl.cluster_attribute(shelly.WIFI_CLUSTER,attribute.id,{
-name=name,
-endpoint=shelly.ENDPOINT,
-emit=custom_emit(emit_name),
-data_type=attribute.data_type,
-write_type=attribute.data_type,
-mfg_code=shelly.MANUFACTURER_CODE,
-profile_id=shelly.PROFILE_ID,
-read_only=writable ~=true,
-sender=writable==true and wifi_sender(attribute,options.allow_empty==true)or nil,
-from_device=attribute_name=="ssid" and wifi_ssid_from_device or
-((attribute_name=="status" or attribute_name=="ip")and diagnostic_text_from_device or
-(attribute.data_type==data_types.Boolean and boolean_from_device or normalize_text)),
-})
-if options.suppress_optimistic_state==true then
-mapping.suppress_optimistic_state=true
+local function K(s,T,j,L,g)
+g=g or{}local e=assert(h[j],"unknown Shelly Wi-Fi attribute: "..tostring(j))local F=ag.cluster_attribute(c.WIFI_CLUSTER,e.id,{
+name=s,endpoint=c.ENDPOINT,emit=N(T),data_type=e.data_type,write_type=e.data_type,mfg_code=c.MANUFACTURER_CODE,profile_id=c.PROFILE_ID,read_only=L~=true,sender=L==true and R(e,g.allow_empty==true)or nil,from_device=j=="ssid"and z or
+((j=="status"or j=="ip")and v or
+(e.data_type==d.Boolean and t or n))})if g.suppress_optimistic_state==true then
+F.suppress_optimistic_state=true
 end
-if options.write_only==true then
-mapping.write_only=true
+if g.write_only==true then
+F.write_only=true
 end
-return mapping
+return F
 end
-function shelly.append_wifi_mappings(clusters,prefix,emit_prefix)
-local specs={
-{"wifi_status","WifiStatus","status",false},
-{"ip_address","IpAddress","ip",false},
-{"dhcp_enabled","DhcpEnabled","dhcp",false},
-{"wifi_enabled","WifiEnabled","enabled",true},
-{"wifi_ssid","WifiSsid","ssid",true},
-{"wifi_password","WifiPassword","password",true,true,true},
-{"static_ip","StaticIp","static_ip",true,false,false,true},
-{"net_mask","NetMask","net_mask",true,false,false,true},
-{"gateway","Gateway","gateway",true,false,false,true},
-{"name_server","NameServer","name_server",true,false,false,true},
-}
-for _,spec in ipairs(specs)do
-clusters[#clusters + 1]=wifi_mapping(
-prefix .. "_" .. spec[1],
-emit_prefix .. spec[2],
-spec[3],
-spec[4],
-{
-suppress_optimistic_state=spec[5]==true,
-write_only=spec[6]==true,
-allow_empty=spec[7]==true,
-}
-)
+function c.append_wifi_mappings(D,Y,O)
+local ac={
+{"wifi_status","WifiStatus","status",false},{"ip_address","IpAddress","ip",false},{"dhcp_enabled","DhcpEnabled","dhcp",false},{"wifi_enabled","WifiEnabled","enabled",true},{"wifi_ssid","WifiSsid","ssid",true},{"wifi_password","WifiPassword","password",true,true,true},{"static_ip","StaticIp","static_ip",true,false,false,true},{"net_mask","NetMask","net_mask",true,false,false,true},{"gateway","Gateway","gateway",true,false,false,true},{"name_server","NameServer","name_server",true,false,false,true}}for _,spec in ipairs(ac)do
+D[#D+1]=K(
+Y.."_"..spec[1],O..spec[2],spec[3],spec[4],{
+suppress_optimistic_state=spec[5]==true,write_only=spec[6]==true,allow_empty=spec[7]==true})
 end
-return clusters
+return D
 end
-function shelly.refresh_wifi(device)
-shelly.begin_wifi_refresh(device)
-for _,name in ipairs({
-"status","ip","enabled","dhcp","ssid","static_ip","net_mask","gateway","name_server",
-})do
-local attribute=WIFI_ATTRIBUTES[name]
-read_attribute(device,shelly.WIFI_CLUSTER,attribute.id)
+function c.refresh_wifi(b)
+c.begin_wifi_refresh(b)for _,s in ipairs{
+"status","ip","enabled","dhcp","ssid","static_ip","net_mask","gateway","name_server"}do
+local e=h[s]G(b,c.WIFI_CLUSTER,e.id)
 end
 return true
 end
-function shelly.begin_wifi_refresh(device)
-return write_attribute(device,shelly.WIFI_CLUSTER,WIFI_ATTRIBUTES.action_code.id,data_types.Uint8,0)
+function c.begin_wifi_refresh(b)
+return i(b,c.WIFI_CLUSTER,h.action_code.id,d.Uint8,0)
 end
-function shelly.get_known_full_wifi_ssid(device)
-return get_known_full_wifi_ssid(device)
+function c.get_known_full_wifi_ssid(b)
+return f(b)
 end
-local function json_scalar(value)
-if type(value)=="boolean" then return value and "true" or "false" end
-if type(value)=="number" then return tostring(value)end
-if type(value)~="string" then return nil end
-return '"' .. value:gsub('\\','\\\\'):gsub('"','\\"'):gsub('\b','\\b')
-:gsub('\f','\\f'):gsub('\n','\\n'):gsub('\r','\\r'):gsub('\t','\\t').. '"'
+local function P(value)
+if type(value)=="boolean"then return value and"true"or"false"end
+if type(value)=="number"then return tostring(value)end
+if type(value)~="string"then return nil end
+return'"'..value:gsub('\\','\\\\'):gsub('"','\\"'):gsub('\b','\\b'):gsub('\f','\\f'):gsub('\n','\\n'):gsub('\r','\\r'):gsub('\t','\\t')..'"'
 end
-local function nested_json(path,value)
-local encoded=json_scalar(value)
+local function Q(path,value)
+local encoded=P(value)
 if encoded==nil then return nil end
-for index=#path,1,-1 do
-encoded='{"' .. path[index].. '":' .. encoded .. '}'
+for ab=#path,1,-1 do
+encoded='{"'..path[ab]..'":'..encoded ..'}'
 end
 return encoded
 end
-local function rpc_message(method,params_json)
-return '{"id":1,"method":"' .. method .. '","params":' .. params_json .. '}'
+local function x(method,params_json)
+return'{"id":1,"method":"'..method ..'","params":'..params_json..'}'
 end
-function shelly.send_rpc_message(device,message)
-if type(message)~="string" or message=="" then return false end
-write_attribute(device,shelly.RPC_CLUSTER,0x0001,data_types.Uint32,#message)
-for offset=1,#message,40 do
-write_attribute(device,shelly.RPC_CLUSTER,0x0000,data_types.CharString,message:sub(offset,offset + 39))
+function c.send_rpc_message(b,y)
+if type(y)~="string"or y==""then return false end
+i(b,c.RPC_CLUSTER,1,d.Uint32,#y)for U=1,#y,40 do
+i(b,c.RPC_CLUSTER,0,d.CharString,y:sub(U,U+39))
 end
 return true
 end
-local function command_only_mapping(name,sender)
+local function k(s,Z)
 return{
-protocol="zcl",
-cluster_id=shelly.RPC_CLUSTER,
-name=name,
-endpoint=shelly.ENDPOINT,
-mfg_code=shelly.MANUFACTURER_CODE,
-write_only=true,
-sender=sender,
-}
+protocol="zcl",cluster_id=c.RPC_CLUSTER,name=s,endpoint=c.ENDPOINT,mfg_code=c.MANUFACTURER_CODE,write_only=true,sender=Z}
 end
-function shelly.rpc_presence_setting(name,path,options)
-options=options or{}
-return command_only_mapping(name,function(device,_,value)
-if options.reject_value ~=nil and value==options.reject_value then return false end
-if type(options.to_device)=="function" then value=options.to_device(value)end
-local config=nested_json(path,value)
+function c.rpc_presence_setting(s,path,g)
+g=g or{}
+return k(s,function(b,_,value)
+if g.reject_value~=nil and value==g.reject_value then return false end
+if type(g.to_device)=="function"then value=g.to_device(value)end
+local config=Q(path,value)
 if config==nil then return false end
-return shelly.send_rpc_message(device,rpc_message("Presence.SetConfig",'{"config":' .. config .. '}'))
+return c.send_rpc_message(b,x("Presence.SetConfig",'{"config":'..config..'}'))
 end)
 end
-function shelly.rpc_presence_zone_delay(name,field)
-return command_only_mapping(name,function(device,_,value)
+function c.rpc_presence_zone_delay(s,field)
+return k(s,function(b,_,value)
 value=tonumber(value)
 if value==nil then return false end
-value=math.max(0,math.min(3600,math.floor(value + 0.5)))
-local params='{"id":200,"config":{"' .. field .. '":' .. tostring(value).. '}}'
-return shelly.send_rpc_message(device,rpc_message("PresenceZone.SetConfig",params))
+value=math.max(0,math.min(3600,math.floor(value+0.5)))local I='{"id":200,"config":{"'..field ..'":'..tostring(value)..'}}'
+return c.send_rpc_message(b,x("PresenceZone.SetConfig",I))
 end)
 end
-function shelly.rpc_eco_mode(name)
-return command_only_mapping(name,function(device,_,value)
-value=boolean_to_device(value)
+function c.rpc_eco_mode(s)
+return k(s,function(b,_,value)
+value=p(value)
 if value==nil then return false end
-local params='{"config":{"device":{"eco_mode":' ..(value and "true" or "false").. '}}}'
-return shelly.send_rpc_message(device,rpc_message("Sys.SetConfig",params))
+local I='{"config":{"device":{"eco_mode":'..(value and"true"or"false")..'}}}'
+return c.send_rpc_message(b,x("Sys.SetConfig",I))
 end)
 end
-function shelly.boolean_from_device(value)
-return boolean_from_device(value)
+function c.boolean_from_device(value)
+return t(value)
 end
-function shelly.boolean_to_device(value)
-return boolean_to_device(value)
+function c.boolean_to_device(value)
+return p(value)
 end
-return shelly
+return c

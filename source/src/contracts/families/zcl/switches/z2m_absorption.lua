@@ -4,6 +4,7 @@ local device_helpers = require "contracts.helpers.family"
 local zcl_device_helpers = require "contracts.helpers.zcl"
 local device_management = require "st.zigbee.device_management"
 local data_types = require "st.zigbee.data_types"
+local cluster_base = require "st.zigbee.cluster_base"
 
 local device_definitions, register_device_definition = device_helpers.definition_registry()
 
@@ -36,8 +37,12 @@ local function build_switch(profile, count)
   }
 end
 
-local function append_option_clusters(clusters, ...)
-  return zcl_device_helpers.append_clusters(clusters, ...)
+local append_option_clusters = zcl_device_helpers.append_clusters
+
+local function fixed_metering(mapping, scale)
+  mapping.metering_kind = nil
+  mapping.scale = scale
+  return mapping
 end
 
 local function tuya_enum_mapping(name, cluster_id, attribute_id, emitter, from_values, to_values, options)
@@ -47,11 +52,12 @@ local function tuya_enum_mapping(name, cluster_id, attribute_id, emitter, from_v
     endpoint = options.endpoint,
     component = options.component,
     emit = emitter,
-    from_device = function(value) return from_values[value] end,
+    from_device = function(value) return from_values[type(value) == "table" and value.value or value] end,
     to_device = function(value) return to_values[value] end,
     data_type = options.data_type or data_types.Enum8,
     write_type = options.write_type or options.data_type or data_types.Enum8,
     mfg_code = options.mfg_code,
+    prefer_plain_attribute_write = options.prefer_plain_attribute_write == true,
     read_on_configure = options.read_on_configure ~= false,
   })
 end
@@ -369,6 +375,113 @@ for endpoint = 1, 2 do
 end
 nfzb2.configure = bind_on_off_endpoints(2)
 
+-- Candeo C-ZB-SSFS (Z2M v26.99.0, candeo.ts): switched fused spur
+-- with fixed electrical-measurement scalers and two private OnOff attributes.
+-- The device clears its temporary child lock after every regular on/off command,
+-- so mirror Z2M by reading the lock attribute immediately after the command.
+local candeo_ssfs_switch_delegate = zcl.switch({
+  endpoint = 1,
+  minimum_interval = 0,
+  maximum_interval = 0xFFFF,
+  reportable_change = 1,
+})
+local candeo_ssfs_switch = zcl.switch({
+  endpoint = 1,
+  minimum_interval = 0,
+  maximum_interval = 0xFFFF,
+  reportable_change = 1,
+})
+candeo_ssfs_switch.sender = function(device, _, value, context)
+  local endpoint = context.endpoint or 1
+  local sent = zcl.send_named_command(
+    device,
+    { candeo_ssfs_switch_delegate },
+    "switch",
+    value,
+    { component_id = context.component_id, endpoint = endpoint }
+  )
+  if sent then
+    zcl.read_attribute(device, zcl.CLUSTER_ON_OFF, 0x8000, endpoint)
+  end
+  return sent
+end
+
+local candeo_ssfs = {
+  profile = "switches-candeo-ssfs",
+  zcl_clusters = {
+    candeo_ssfs_switch,
+    fixed_metering(zcl.power({
+      endpoint = 1,
+      minimum_interval = 5,
+      maximum_interval = 300,
+      reportable_change = 10,
+    }), 1),
+    fixed_metering(zcl.voltage({
+      endpoint = 1,
+      minimum_interval = 5,
+      maximum_interval = 600,
+      reportable_change = 5,
+    }), 1),
+    fixed_metering(zcl.current({
+      endpoint = 1,
+      minimum_interval = 5,
+      maximum_interval = 900,
+      reportable_change = 10,
+    }), 1000),
+    fixed_metering(zcl.energy({
+      endpoint = 1,
+      minimum_interval = 5,
+      maximum_interval = 1800,
+      reportable_change = 50,
+    }), 100),
+    zcl.power_on_behavior({
+      name = "candeo_ssfs_power_on_behavior",
+      endpoint = 1,
+      emit = emit.candeoSsfsPowerBehavior(),
+      read_on_configure = true,
+    }),
+    zcl.child_lock({
+      name = "candeo_ssfs_child_lock",
+      endpoint = 1,
+      emit = emit.candeoSsfsChildLock(),
+      from_device = function(value)
+        return (value == true or value == 1) and "LOCK" or "UNLOCK"
+      end,
+      to_device = function(value)
+        return value == "LOCK"
+      end,
+      read_on_configure = true,
+    }),
+  },
+}
+
+-- Moes ZS-US1-LN (Z2M v26.99.0, tuya.ts): this exact TS0001 variant
+-- exposes three settings that the generic TS0001 family does not have.
+-- Keep the 0xE001 attributes family-specific and preserve the Enum8 wire type
+-- for the OnOff-cluster backlight switch at 0x5000.
+local moes_zsus1_ln = build_switch("switches-moes-zsus1-ln", 1)
+append_option_clusters(moes_zsus1_ln.zcl_clusters,
+  zcl.tuya_magic_packet(),
+  tuya_enum_mapping("moes_zsus1_power_on_behavior", 0xE001, 0xD010,
+    emit.moesZsus1PowerBehavior(),
+    { [0] = "off", [1] = "on", [2] = "previous" },
+    { off = 0, on = 1, previous = 2 }),
+  tuya_enum_mapping("moes_zsus1_switch_type", 0xE001, 0xD030,
+    emit.moesZsus1SwitchType(),
+    { [0] = "toggle", [1] = "state", [2] = "momentary" },
+    { toggle = 0, state = 1, momentary = 2 }),
+  tuya_enum_mapping("moes_zsus1_backlight_mode", zcl.CLUSTER_ON_OFF, 0x5000,
+    emit.moesZsus1BacklightMode(),
+    { [0] = "off", [1] = "on" },
+    { off = 0, on = 1 },
+    {
+      data_type = data_types.Enum8,
+      write_type = data_types.Enum8,
+      prefer_plain_attribute_write = true,
+    })
+)
+moes_zsus1_ln.configure = bind_on_off_endpoints(1)
+
 register_device_definition(mercator_ssw03g, device_helpers.create_fingerprints("TS0013", {
   "_TZ3000_khtlvdfc",
 }))
@@ -388,6 +501,267 @@ register_device_definition(mli_tint_smart_switch, {
   device_helpers.create_fingerprint("MLI", "tint Smart Switch"),
   device_helpers.create_fingerprint("MLI\0", "switch01\0"),
 })
+
+register_device_definition(candeo_ssfs, {
+  device_helpers.create_fingerprint("Candeo", "C-ZB-SSFS"),
+})
+
+register_device_definition(moes_zsus1_ln, {
+  device_helpers.create_fingerprint("_TZ3000_bzzgvet0", "TS0001"),
+})
+
+local zemismart_kes606 = build_switch("switches-zemismart-kes606", 1)
+zemismart_kes606.zcl_clusters[1].maximum_interval = 65000
+append_option_clusters(zemismart_kes606.zcl_clusters,
+  zcl.tuya_magic_packet({ read_on_configure = false }),
+  tuya_enum_mapping("kes606_power_on_behavior", 0xE001, 0xD010,
+    emit.kes606PowerBehavior(),
+    { [0] = "off", [1] = "on", [2] = "previous" },
+    { off = 0, on = 1, previous = 2 }, { read_on_configure = false }),
+  tuya_enum_mapping("kes606_indicator_mode", zcl.CLUSTER_ON_OFF, 0x8001,
+    emit.kes606IndicatorMode(),
+    { [0] = "off", [1] = "off/on", [2] = "on/off", [3] = "on" },
+    { off = 0, ["off/on"] = 1, ["on/off"] = 2, on = 3 }, { read_on_configure = false })
+)
+zemismart_kes606.configure = bind_on_off_endpoints(1)
+register_device_definition(zemismart_kes606, {
+  device_helpers.create_fingerprint("_TZ3000_w5s3mbyn", "TS0001"),
+})
+
+local ekaza_ts0003 = {
+  profile = "switches-ekaza-ts0003",
+  zcl_clusters = {
+    zcl.switch({endpoint = 1, component = "main", configure_reporting = false, read_on_configure = false}),
+    zcl.switch({endpoint = 2, component = "switch2", configure_reporting = false, read_on_configure = false}),
+    zcl.switch({endpoint = 3, component = "switch3", configure_reporting = false, read_on_configure = false}),
+    zcl.tuya_magic_packet({read_on_configure = false}),
+    tuya_enum_mapping("eka_ts0003_switch_type", 0xE001, 0xD030, emit.ekaTs0003SwitchType(),
+      {[0] = "toggle", [1] = "state", [2] = "momentary"},
+      {toggle = 0, state = 1, momentary = 2}, {mfg_code = 0x1141, read_on_configure = false}),
+    tuya_enum_mapping("eka_ts0003_indicator_mode", 0x0006, 0x8001, emit.ekaTs0003IndicatorMode(),
+      {[0] = "off", [1] = "off/on", [2] = "on/off", [3] = "on"},
+      {off = 0, ["off/on"] = 1, ["on/off"] = 2, on = 3}, {read_on_configure = false}),
+    zcl.countdown_timer({
+      name = "eka_ts0003_countdown_one", endpoint = 1, component = "main",
+      emit = emit.ekaTs0003CountdownOne(), read_on_configure = false,
+    }),
+    zcl.countdown_timer({
+      name = "eka_ts0003_countdown_two", endpoint = 2, component = "switch2",
+      emit = emit.ekaTs0003CountdownTwo(), read_on_configure = false,
+    }),
+    zcl.countdown_timer({
+      name = "eka_ts0003_countdown_three", endpoint = 3, component = "switch3",
+      emit = emit.ekaTs0003CountdownThree(), read_on_configure = false,
+    }),
+  },
+  configure = bind_on_off_endpoints(3),
+}
+register_device_definition(ekaza_ts0003, {
+  device_helpers.create_fingerprint("_TZ3000_f6pgzqob", "TS0003"),
+})
+
+local nous_b2z_switch_type = tuya_enum_mapping(
+  "nous_b2z_switch_type", 0xE001, 0xD030, emit.nousB2zSwitchType(),
+  {[0] = "toggle", [1] = "state", [2] = "momentary"},
+  {toggle = 0, state = 1, momentary = 2}, {read_on_configure = false}
+)
+nous_b2z_switch_type.sender = function(device, mapping, value, context)
+  local request = cluster_base.write_attribute(
+    device, data_types.ClusterId(0xE001), data_types.AttributeId(0xD030),
+    data_types.Enum8(mapping.to_device(value))
+  )
+  request.body.zcl_header.frame_ctrl:set_disable_default_response()
+  device:send(request:to_endpoint(context.endpoint or 1))
+  return true
+end
+
+local nous_b2z = {
+  profile = "switches-nous-b2z",
+  zcl_clusters = {
+    zcl.switch({endpoint = 1, configure_reporting = false, read_on_configure = false}),
+    zcl.electrical_measurement_power({
+      endpoint = 1, emit = emit.power(), read_only = true,
+      minimum_interval = 5, maximum_interval = 3600, reportable_change = 10,
+      from_device = function(value, device, context)
+        return zcl.scale_mapping_value(device, nil, value, {metering_kind = "power", scale = 1}, context)
+      end,
+    }),
+    zcl.electrical_measurement_voltage({
+      endpoint = 1, emit = emit.voltage(), read_only = true,
+      minimum_interval = 5, maximum_interval = 3600, reportable_change = 5,
+      from_device = function(value, device, context)
+        return zcl.scale_mapping_value(device, nil, value, {metering_kind = "voltage", scale = 1}, context)
+      end,
+    }),
+    zcl.electrical_measurement_current({
+      endpoint = 1, emit = emit.current(), scale = 1000, read_only = true,
+      minimum_interval = 5, maximum_interval = 3600, reportable_change = 50,
+    }),
+    zcl.simple_metering({
+      endpoint = 1, emit = emit.energy(), scale = 100, read_only = true,
+      minimum_interval = 5, maximum_interval = 3600, reportable_change = 257,
+    }),
+    zcl.tuya_magic_packet({read_on_configure = false}),
+    nous_b2z_switch_type,
+    tuya_enum_mapping("nous_b2z_power_outage_memory", 0x0006, 0x8002, emit.nousB2zPowerOutageMemory(),
+      {[0] = "off", [1] = "on", [2] = "restore"},
+      {off = 0, on = 1, restore = 2}, {read_on_configure = false}),
+  },
+  configure = function(driver, device)
+    for _, cluster in ipairs({0x0006, 0x0B04, 0x0702}) do
+      device:send(device_management.build_bind_request(device, cluster, driver.environment_info.hub_zigbee_eui, 1))
+    end
+  end,
+  parent_refresh = function(device)
+    for _, item in ipairs({{0x0006, 0}, {0x0006, 0x8002}, {0xE001, 0xD030}}) do
+      zcl.read_attribute(device, item[1], item[2], 1)
+    end
+  end,
+}
+register_device_definition(nous_b2z, {
+  device_helpers.create_fingerprint("_TZ3000_ahvrgyac", "TS0001"),
+})
+
+local tuya_p26_switch_type = tuya_enum_mapping(
+  "tuya_p26_switch_type", 0xE001, 0xD030, emit.tuyaP26SwitchType(),
+  {[0] = "toggle", [1] = "state", [2] = "momentary"},
+  {toggle = 0, state = 1, momentary = 2}, {read_on_configure = false}
+)
+tuya_p26_switch_type.sender = nous_b2z_switch_type.sender
+
+local tuya_p26 = {
+  profile = "switches-tuya-p26",
+  zcl_clusters = {
+    zcl.switch({endpoint = 1, configure_reporting = false, read_on_configure = false}),
+    zcl.tuya_magic_packet({read_on_configure = false}),
+    tuya_enum_mapping("tuya_p26_power_behavior", 0xE001, 0xD010, emit.tuyaP26PowerBehavior(),
+      {[0] = "off", [1] = "on", [2] = "previous"},
+      {off = 0, on = 1, previous = 2}, {read_on_configure = false}),
+    tuya_p26_switch_type,
+    tuya_enum_mapping("tuya_p26_backlight_mode", 0x0006, 0x5000, emit.tuyaP26BacklightMode(),
+      {[0] = "OFF", [1] = "ON"}, {OFF = 0, ON = 1}, {read_on_configure = false, prefer_plain_attribute_write = true}),
+    tuya_enum_mapping("tuya_p26_indicator_mode", 0x0006, 0x8001, emit.tuyaP26IndicatorMode(),
+      {[0] = "off", [1] = "off/on", [2] = "on/off", [3] = "on"},
+      {off = 0, ["off/on"] = 1, ["on/off"] = 2, on = 3}, {read_on_configure = false}),
+  },
+  configure = bind_on_off_endpoints(1),
+  parent_refresh = function(device)
+    for _, item in ipairs({{0x0006, 0}, {0xE001, 0xD010}, {0xE001, 0xD030}, {0x0006, 0x5000}, {0x0006, 0x8001}}) do
+      zcl.read_attribute(device, item[1], item[2], 1)
+    end
+  end,
+}
+register_device_definition(tuya_p26, {
+  device_helpers.create_fingerprint("_TZ3000_p26flek3", "TS0001"),
+})
+
+local qs_s10_switch_type = tuya_enum_mapping(
+  "qs_s10_switch_type", 0xE001, 0xD030, emit.qsS10SwitchType(),
+  {[0] = "toggle", [1] = "state", [2] = "momentary"},
+  {toggle = 0, state = 1, momentary = 2}, {read_on_configure = false}
+)
+qs_s10_switch_type.sender = nous_b2z_switch_type.sender
+
+local qs_s10_three = {
+  profile = "switches-qs-s10-three",
+  zcl_clusters = {
+    zcl.switch({endpoint = 1, component = "main", configure_reporting = false, read_on_configure = false}),
+    zcl.switch({endpoint = 2, component = "switch2", configure_reporting = false, read_on_configure = false}),
+    zcl.switch({endpoint = 3, component = "switch3", configure_reporting = false, read_on_configure = false}),
+    zcl.tuya_magic_packet({read_on_configure = false}),
+    qs_s10_switch_type,
+    tuya_enum_mapping("qs_s10_power_memory", 0x0006, 0x8002, emit.qsS10PowerMemory(),
+      {[0] = "off", [1] = "on", [2] = "restore"},
+      {off = 0, on = 1, restore = 2}, {read_on_configure = false}),
+  },
+  configure = bind_on_off_endpoints(3),
+}
+register_device_definition(qs_s10_three, {
+  device_helpers.create_fingerprint("_TZ3000_ly9apzky", "TS0003"),
+})
+
+local ewelink_switch_clusters = {
+  zcl.switch({endpoint=1,configure_reporting=false,read_on_configure=false,
+    suppress_optimistic_state=true,from_device=function(value,device,context)
+      local rx=context.zb_rx
+      if rx and zcl_device_helpers.duplicate_transaction(device,context.endpoint,
+          rx.body.zcl_header.seqno.value,"__ewelink_switch_transactions") then return end
+      return value==true or value==1
+    end}),
+}
+local ewelink_switch_writers = {
+  ewelink_toggle=function(device) return zcl.send_raw_cluster_command(device,6,2,"",1) end,
+}
+local ewelink_switch_commands = {
+  {capability_id="momentary",command_name="push",mapping_name="ewelink_toggle"},
+}
+local ewelink_sw01 = {
+  profile="switches-ewelink-sw01",zcl_clusters=ewelink_switch_clusters,
+  protocol_writers=ewelink_switch_writers,capability_commands=ewelink_switch_commands,
+}
+local ewelink_sa003 = {
+  profile="plugs-ewelink-sa003",zcl_clusters=ewelink_switch_clusters,
+  protocol_writers=ewelink_switch_writers,capability_commands=ewelink_switch_commands,
+  configure=bind_on_off_endpoints(1),
+}
+register_device_definition(ewelink_sw01,{device_helpers.create_fingerprint("eWeLink","ZB-SW01")})
+register_device_definition(ewelink_sa003,{device_helpers.create_fingerprint("eWeLink","SA-003-Zigbee")})
+
+
+local ewelink_power_from={[0]="off",[1]="on",[2]="toggle",[255]="previous"}
+local ewelink_power_to={off=0,on=1,toggle=2,previous=255}
+local ewelink_multi_writers={
+  ewelink_multi_toggle=function(device,_,command)
+    return zcl.send_raw_cluster_command(device,6,2,"",device:get_endpoint_for_component_id(command.component))
+  end,
+}
+local ewelink_multi_commands={
+  {capability_id="momentary",command_name="push",mapping_name="ewelink_multi_toggle"},
+}
+local function ewelink_multi(profile,powers)
+  local rows={}
+  for endpoint,item in ipairs(powers) do
+    local component=endpoint==1 and "main" or "switch"..endpoint
+    rows[#rows+1]=zcl.switch({endpoint=endpoint,component=component,configure_reporting=false,
+      read_on_configure=false,suppress_optimistic_state=true})
+    rows[#rows+1]=tuya_enum_mapping(item[1],6,0x4003,item[2],ewelink_power_from,ewelink_power_to,{
+      endpoint=endpoint,component=component,read_on_configure=false,prefer_plain_attribute_write=true})
+    rows[#rows].suppress_optimistic_state=true
+  end
+  return {profile=profile,zcl_clusters=rows,protocol_writers=ewelink_multi_writers,capability_commands=ewelink_multi_commands}
+end
+local ewelink_sw02=ewelink_multi("switches-ewelink-sw02",{
+  {"ewelink_sw02_power_one",emit.ewelinkSw02PowerOne()},
+  {"ewelink_sw02_power_two",emit.ewelinkSw02PowerTwo()},
+})
+local ewelink_sw03=ewelink_multi("switches-ewelink-sw03",{
+  {"ewelink_sw03_power_one",emit.ewelinkSw03PowerOne()},
+  {"ewelink_sw03_power_two",emit.ewelinkSw03PowerTwo()},
+  {"ewelink_sw03_power_three",emit.ewelinkSw03PowerThree()},
+})
+local ewelink_sw04=ewelink_multi("switches-ewelink-sw04",{
+  {"ewelink_sw04_power_one",emit.ewelinkSw04PowerOne()},
+  {"ewelink_sw04_power_two",emit.ewelinkSw04PowerTwo()},
+  {"ewelink_sw04_power_three",emit.ewelinkSw04PowerThree()},
+  {"ewelink_sw04_power_four",emit.ewelinkSw04PowerFour()},
+})
+register_device_definition(ewelink_sw02,{device_helpers.create_fingerprint("eWeLink","ZB-SW02")})
+register_device_definition(ewelink_sw03,{device_helpers.create_fingerprint("eWeLink","ZB-SW03")})
+register_device_definition(ewelink_sw04,{device_helpers.create_fingerprint("eWeLink","ZB-SW04")})
+
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tgv", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree"}},
+  {2, "rpt-tjh", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {3, "rpt-aft", {zr000600001 = "Switch", zr000600002 = "SwitchTwo"}},
+  {4, "rpt-tqs"},
+  {5, "rpt-cbp"},
+  {6, "rpt-tgk"},
+  {7, "rpt-tesc"},
+  {9, "rpt-tjs"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.switches.z2m_absorption",

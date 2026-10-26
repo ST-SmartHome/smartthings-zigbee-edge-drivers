@@ -1,147 +1,125 @@
-local function load_policy_helper(tuya,shared)
-local type_check=shared.type_check
-local merge_options=shared.merge_options
-local copy_table=shared.copy_table
-local string_lower=string.lower
-local send_policy_keys={
-"command_id",
-"transaction",
-"batch_key",
-"match_transaction",
-"response_dp",
-"response_dps",
-"match_response",
-}
-local function normalize_policy_options(command_id_or_options,options)
-local resolved={}
-if type_check(command_id_or_options)=="table" then
-merge_options(resolved,command_id_or_options)
-elseif command_id_or_options ~=nil then
-resolved.command_id=command_id_or_options
+local function r(k,x)
+local f=x.type_check
+local p=x.merge_options
+local A=x.copy_table
+local y=string.lower
+local o={
+"command_id","transaction","batch_key","match_transaction","response_dp","response_dps","match_response"}
+local function g(a,b)
+local c={}if f(a)=="table"then
+p(c,a)elseif a~=nil then
+c.command_id=a
 end
-merge_options(resolved,options)
-return resolved
+p(c,b)return c
 end
-local function normalize_state_value(value)
-if value==true or value==1 then
+local function e(h)
+if h==true or h==1 then
 return true
 end
-if value==false or value==0 then
+if h==false or h==0 then
 return false
 end
-if type_check(value)=="string" then
-local lowered=string_lower(value)
-if lowered=="on" then
+if f(h)=="string"then
+local z=y(h)if z=="on"then
 return true
 end
-if lowered=="off" then
+if z=="off"then
 return false
 end
 end
-return value
+return h
 end
-local function values_from_context(context)
-if type_check(context)~="table" then
+local function l(i)
+if f(i)~="table"then
 return nil
 end
-if type_check(context.values)=="table" then
-return context.values
+if f(i.values)=="table"then
+return i.values
 end
 return nil
 end
-local function state_matches(device,context,value,options)
-if type_check(options.current)=="function" then
-return normalize_state_value(options.current(device,context,value))==normalize_state_value(value)
+local function v(q,i,h,b)
+if f(b.current)=="function"then
+return e(b.current(q,i,h))==e(h)
 end
-local state_field=options.state_field
-if type_check(state_field)~="string" or state_field=="" then
-state_field="switch"
+local n=b.state_field
+if f(n)~="string"or n==""then
+n="switch"
 end
-return normalize_state_value(device:get_field(state_field))==normalize_state_value(value)
+return e(q:get_field(n))==e(h)
 end
-function tuya.build_send_policy(command_id_or_options,options)
-local resolved=normalize_policy_options(command_id_or_options,options)
-local policy={}
-for _,key in ipairs(send_policy_keys)do
-if resolved[key]~=nil then
-policy[key]=resolved[key]
+function k.build_send_policy(a,b)
+local c=g(a,b)local B={}for _,u in ipairs(o)do
+if c[u]~=nil then
+B[u]=c[u]
 end
 end
-return policy
+return B
 end
-function tuya.apply_send_policy(mapping,send_policy)
-if type_check(mapping)~="table" or type_check(send_policy)~="table" then
-return mapping
+function k.apply_send_policy(j,m)
+if f(j)~="table"or f(m)~="table"then
+return j
 end
-if mapping[1]~=nil and mapping.dp==nil then
-local list={}
-for index,item in ipairs(mapping)do
-if type_check(item)=="table" then
-list[index]=tuya.apply_send_policy(item,send_policy)
-else
-list[index]=item
+if j[1]~=nil and j.dp==nil then
+local C={}for D,w in ipairs(j)do
+if f(w)=="table"then
+C[D]=k.apply_send_policy(w,m)else
+C[D]=w
 end
 end
-return list
+return C
 end
-local applied=copy_table(mapping)
-for _,key in ipairs(send_policy_keys)do
-if applied[key]==nil and send_policy[key]~=nil then
-applied[key]=send_policy[key]
+local t=A(j)for _,u in ipairs(o)do
+if t[u]==nil and m[u]~=nil then
+t[u]=m[u]
 end
 end
-return applied
+return t
 end
-function tuya.build_fixed_send_policy(command_id_or_options,options)
-local resolved=normalize_policy_options(command_id_or_options,options)
-if resolved.transaction==nil then
-resolved.transaction=1
+function k.build_fixed_send_policy(a,b)
+local c=g(a,b)if c.transaction==nil then
+c.transaction=1
 end
-if resolved.match_transaction==nil then
-resolved.match_transaction=true
+if c.match_transaction==nil then
+c.match_transaction=true
 end
-return tuya.build_send_policy(resolved)
+return k.build_send_policy(c)
 end
-function tuya.apply_fixed_send_policy(mapping,command_id_or_options,options)
-return tuya.apply_send_policy(mapping,tuya.build_fixed_send_policy(command_id_or_options,options))
+function k.apply_fixed_send_policy(j,a,b)
+return k.apply_send_policy(j,k.build_fixed_send_policy(a,b))
 end
-function tuya.build_global_send_policy(command_id_or_options,options)
-local resolved=normalize_policy_options(command_id_or_options,options)
-if resolved.match_transaction==nil then
-resolved.match_transaction=false
+function k.build_global_send_policy(a,b)
+local c=g(a,b)if c.match_transaction==nil then
+c.match_transaction=false
 end
-return tuya.build_send_policy(resolved)
+return k.build_send_policy(c)
 end
-function tuya.apply_global_send_policy(mapping,command_id_or_options,options)
-return tuya.apply_send_policy(mapping,tuya.build_global_send_policy(command_id_or_options,options))
+function k.apply_global_send_policy(j,a,b)
+return k.apply_send_policy(j,k.build_global_send_policy(a,b))
 end
-function tuya.skip.state_on_and_brightness_present(options)
-options=options or{}
-local brightness_key=options.brightness_key
-if type_check(brightness_key)~="string" or brightness_key=="" then
-brightness_key="brightness"
+function k.skip.state_on_and_brightness_present(b)
+b=b or{}local d=b.brightness_key
+if f(d)~="string"or d==""then
+d="brightness"
 end
-return function(device,value,item,context)
-local values=values_from_context(context)
-if values==nil or values[brightness_key]==nil then
+return function(q,h,w,i)
+local s=l(i)if s==nil or s[d]==nil then
 return false
 end
-return state_matches(device,context,value,options)
+return v(q,i,h,b)
 end
 end
-function tuya.skip.state_on_and_brightness_present_only(options)
-options=options or{}
-local brightness_key=options.brightness_key
-if type_check(brightness_key)~="string" or brightness_key=="" then
-brightness_key="brightness"
+function k.skip.state_on_and_brightness_present_only(b)
+b=b or{}local d=b.brightness_key
+if f(d)~="string"or d==""then
+d="brightness"
 end
-return function(device,value,item,context)
-local values=values_from_context(context)
-if values==nil or values[brightness_key]==nil then
+return function(q,h,w,i)
+local s=l(i)if s==nil or s[d]==nil then
 return false
 end
-return normalize_state_value(value)==true
+return e(h)==true
 end
 end
 end
-return load_policy_helper
+return r

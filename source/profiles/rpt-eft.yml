@@ -1,0 +1,104 @@
+name: rpt-eft
+components:
+- id: main
+  capabilities:
+  - id: powerMeter
+    version: 1
+  - id: energyMeter
+    version: 1
+  - id: concertmirror08464.emizb132ReactivePower
+    version: 1
+  - id: concertmirror08464.emizb132InterfaceMode
+    version: 1
+  - id: signalStrength
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclTotalPwrReportMin
+    version: 1
+  - id: concertmirror08464.zclTotalPwrReportMax
+    version: 1
+  - id: concertmirror08464.zclTotalPwrReportChange2b
+    version: 1
+  - id: concertmirror08464.zclReactivePwrReportMin
+    version: 1
+  - id: concertmirror08464.zclReactivePwrReportMax
+    version: 1
+  - id: concertmirror08464.zclReactivePwrReportChange2b
+    version: 1
+  - id: concertmirror08464.zclVoltageReportMin
+    version: 1
+  - id: concertmirror08464.zclVoltageReportMax
+    version: 1
+  - id: concertmirror08464.zclVoltageReportChange21
+    version: 1
+  - id: concertmirror08464.zclCurrentReportMin
+    version: 1
+  - id: concertmirror08464.zclCurrentReportMax
+    version: 1
+  - id: concertmirror08464.zclCurrentReportChange21
+    version: 1
+  - id: concertmirror08464.zclVoltageBReportMin
+    version: 1
+  - id: concertmirror08464.zclVoltageBReportMax
+    version: 1
+  - id: concertmirror08464.zclVoltageBReportChange21
+    version: 1
+  - id: concertmirror08464.zclCurrentBReportMin
+    version: 1
+  - id: concertmirror08464.zclCurrentBReportMax
+    version: 1
+  - id: concertmirror08464.zclCurrentBReportChange21
+    version: 1
+  - id: concertmirror08464.zclVoltageCReportMin
+    version: 1
+  - id: concertmirror08464.zclVoltageCReportMax
+    version: 1
+  - id: concertmirror08464.zclVoltageCReportChange21
+    version: 1
+  - id: concertmirror08464.zclCurrentCReportMin
+    version: 1
+  - id: concertmirror08464.zclCurrentCReportMax
+    version: 1
+  - id: concertmirror08464.zclCurrentCReportChange21
+    version: 1
+  - id: concertmirror08464.zclEnergyReportMin
+    version: 1
+  - id: concertmirror08464.zclEnergyReportMax
+    version: 1
+  - id: concertmirror08464.zclEnergyReportChange25
+    version: 1
+  - id: concertmirror08464.zclExportReportMin
+    version: 1
+  - id: concertmirror08464.zclExportReportMax
+    version: 1
+  - id: concertmirror08464.zclExportReportChange25
+    version: 1
+  categories:
+  - name: PowerMeasurementSensor
+- id: production
+  label: Production
+  capabilities:
+  - id: energyMeter
+    version: 1
+- id: phaseA
+  label: Phase A
+  capabilities:
+  - id: voltageMeasurement
+    version: 1
+  - id: currentMeasurement
+    version: 1
+- id: phaseB
+  label: Phase B
+  capabilities:
+  - id: voltageMeasurement
+    version: 1
+  - id: currentMeasurement
+    version: 1
+- id: phaseC
+  label: Phase C
+  capabilities:
+  - id: voltageMeasurement
+    version: 1
+  - id: currentMeasurement
+    version: 1

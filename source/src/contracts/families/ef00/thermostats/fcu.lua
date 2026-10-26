@@ -65,7 +65,14 @@ local thermostat_bac003 = {
     emit = emit.temperature("C"),
   }),
   tuya.dp_deadzone_temperature(26, { scale = 1, emit = emit.bac003DeadzoneTemperature() }),
-  tuya.dp_local_temperature_calibration(27, { scale = 1, emit = emit.bac003TempCalibration() }),
+  tuya.dp_numeric(27, {
+    name = "local_temperature_calibration",
+    converter = converter.from_to(
+      function(value) return value > 4000 and value - 4096 or value end,
+      function(value) return value < 0 and 4096 + value or value end
+    ),
+    emit = emit.bac003TempCalibration(),
+  }),
   bac003_fan_mode,
   tuya.dp_child_lock(40, { emit = emit.bac003ChildLock() }),
 }

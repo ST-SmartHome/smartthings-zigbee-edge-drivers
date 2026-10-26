@@ -1,0 +1,84 @@
+name: rpt-ttq
+components:
+- id: main
+  capabilities:
+  - id: switch
+    version: 1
+  - id: powerMeter
+    version: 1
+  - id: energyMeter
+    version: 1
+  - id: voltageMeasurement
+    version: 1
+  - id: currentMeasurement
+    version: 1
+  - id: concertmirror08464.nousA11zPowerBehavior
+    version: 1
+  - id: concertmirror08464.nousA11zCountdown
+    version: 1
+  - id: concertmirror08464.nousA11zIndicatorMode
+    version: 1
+  - id: concertmirror08464.nousA11zChildLock
+    version: 1
+  - id: concertmirror08464.nousA11zSwitchType
+    version: 1
+  - id: concertmirror08464.nousA11zIdentify
+    version: 1
+  - id: concertmirror08464.powerPollIntervalV2
+    version: 1
+  - id: concertmirror08464.lastPowerResponseTime
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchReportMax
+    version: 1
+  - id: concertmirror08464.zclSwitchTwoReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchTwoReportMax
+    version: 1
+  - id: concertmirror08464.zclSwitchThreeReportMin
+    version: 1
+  - id: concertmirror08464.zclSwitchThreeReportMax
+    version: 1
+  - id: concertmirror08464.zclPowerReportMin
+    version: 1
+  - id: concertmirror08464.zclPowerReportMax
+    version: 1
+  - id: concertmirror08464.zclPowerReportChange29
+    version: 1
+  - id: concertmirror08464.zclVoltageReportMin
+    version: 1
+  - id: concertmirror08464.zclVoltageReportMax
+    version: 1
+  - id: concertmirror08464.zclVoltageReportChange21
+    version: 1
+  - id: concertmirror08464.zclCurrentReportMin
+    version: 1
+  - id: concertmirror08464.zclCurrentReportMax
+    version: 1
+  - id: concertmirror08464.zclCurrentReportChange21
+    version: 1
+  categories:
+  - name: SmartPlug
+- id: switch2
+  capabilities:
+  - id: switch
+    version: 1
+  - id: concertmirror08464.nousA11zPowerBehavior
+    version: 1
+  - id: concertmirror08464.nousA11zCountdown
+    version: 1
+  categories:
+  - name: Switch
+- id: switch3
+  capabilities:
+  - id: switch
+    version: 1
+  - id: concertmirror08464.nousA11zPowerBehavior
+    version: 1
+  - id: concertmirror08464.nousA11zCountdown
+    version: 1
+  categories:
+  - name: Switch

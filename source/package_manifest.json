@@ -372,6 +372,10 @@
         {
           "module": "contracts.families.zcl.switches.wave14_terncy_zcl",
           "id": "wave14.terncy.zcl_switch"
+        },
+        {
+          "module": "contracts.families.zcl.switches.emizb132",
+          "id": "zcl.switches.emizb132"
         }
       ]
     },
@@ -398,6 +402,10 @@
         {
           "module": "contracts.families.zcl.lights.wave19_exact",
           "id": "zcl.lights.wave19.exact"
+        },
+        {
+          "module": "contracts.families.zcl.lights.philips_flux",
+          "id": "zcl.lights.philips_flux"
         }
       ]
     },
@@ -432,10 +440,6 @@
         {
           "module": "contracts.families.zcl.sensors.sonoff",
           "id": "zcl.sensors.sonoff"
-        },
-        {
-          "module": "contracts.families.zcl.sensors.sonoff_safety",
-          "id": "zcl.sensors.sonoff_safety"
         },
         {
           "module": "contracts.families.zcl.sensors.sonoff_presence_advanced",
@@ -484,6 +488,10 @@
         {
           "module": "contracts.families.zcl.controls.wave18_javis_lock",
           "id": "zcl.controls.wave18_javis_lock"
+        },
+        {
+          "module": "contracts.families.zcl.controls.yale_yrd410",
+          "id": "zcl.controls.yale_yrd410"
         }
       ]
     },
@@ -516,6 +524,30 @@
         {
           "module": "contracts.families.zcl.thermostats.wave19_sber",
           "id": "zcl.thermostats.wave19.sber"
+        },
+        {
+          "module": "contracts.families.zcl.thermostats.aqara_w500",
+          "id": "zcl.thermostats.aqara_w500"
+        },
+        {
+          "module": "contracts.families.zcl.thermostats.namron_edge",
+          "id": "zcl.thermostats.namron_edge"
+        },
+        {
+          "module": "contracts.families.zcl.thermostats.meg5779",
+          "id": "zcl.thermostats.meg5779"
+        },
+        {
+          "module": "contracts.families.zcl.thermostats.owon_ac221",
+          "id": "zcl.thermostats.owon_ac221"
+        },
+        {
+          "module": "contracts.families.zcl.thermostats.owon_ac201",
+          "id": "zcl.thermostats.owon_ac201"
+        },
+        {
+          "id": "zcl.thermostats.nodon_irb",
+          "module": "contracts.families.zcl.thermostats.nodon_irb"
         }
       ]
     },
@@ -642,6 +674,10 @@
         {
           "module": "contracts.families.ef00.switches.wave15_box",
           "id": "ef00.switches.wave15_box"
+        },
+        {
+          "module": "contracts.families.ef00.switches.oxt",
+          "id": "ef00.switch.oxt4"
         }
       ]
     },
@@ -716,6 +752,10 @@
         {
           "module": "contracts.families.ef00.presence.wave19_sensors",
           "id": "ef00.presence.wave19.sensors"
+        },
+        {
+          "module": "contracts.families.ef00.presence.simple_sensors",
+          "id": "ef00.presence.simple_sensors"
         }
       ]
     },
@@ -844,6 +884,10 @@
         {
           "module": "contracts.families.ef00.thermostats.wave12_fcu",
           "id": "ef00.thermostats.wave12_fcu"
+        },
+        {
+          "module": "contracts.families.ef00.thermostats.z2m_absorption_wall",
+          "id": "ef00.thermostats.z2m_absorption_wall"
         }
       ]
     },
@@ -862,6 +906,10 @@
         {
           "module": "contracts.families.ef00.controls.wave17_fingerbot",
           "id": "ef00.controls.wave17_fingerbot"
+        },
+        {
+          "module": "contracts.families.ef00.controls.tuya_fingerbot_plus",
+          "id": "ef00.controls.tuya_fingerbot_plus"
         },
         {
           "module": "contracts.families.ef00.controls.wave18_keypads",
@@ -888,6 +936,28 @@
       ]
     },
     {
+      "name": "zcl-covers-2-wonjj6768",
+      "display_name": "ZCL Covers 2 wonjj6768",
+      "description": "Curtains, blinds and shades with explicit device fingerprints.",
+      "protocol": "zcl",
+      "generic_ids": [],
+      "runtime_features": [],
+      "catalogs": [
+        {
+          "module": "contracts.families.zcl.covers.z2m_absorption",
+          "id": "zcl.covers.z2m_absorption"
+        },
+        {
+          "module": "contracts.families.zcl.covers.md_gate",
+          "id": "zcl.covers.md_gate"
+        },
+        {
+          "module": "contracts.families.zcl.covers.somfy_tilt_lift",
+          "id": "zcl.covers.somfy_tilt_lift"
+        }
+      ]
+    },
+    {
       "name": "zcl-sensors-3-wonjj6768",
       "display_name": "ZCL Sensors 3 wonjj6768",
       "description": "Basic temperature, humidity, motion and safety sensors with explicit device fingerprints.",
@@ -898,6 +968,97 @@
         {
           "module": "contracts.families.zcl.sensors.simple_sensors",
           "id": "zcl.sensors.simple_sensors"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.shelly_environment",
+          "id": "zcl.sensors.shelly_environment"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.sonoff_safety",
+          "id": "zcl.sensors.sonoff_safety"
+        }
+      ]
+    },
+    {
+      "name": "zcl-chargers-wonjj6768",
+      "display_name": "ZCL EV Chargers wonjj6768",
+      "description": "Zigbee EV chargers with explicit device fingerprints.",
+      "protocol": "zcl",
+      "generic_ids": [],
+      "runtime_features": [],
+      "catalogs": [
+        {
+          "module": "contracts.families.zcl.plugs.futurehome",
+          "id": "zcl.plugs.futurehome"
+        }
+      ]
+    },
+    {
+      "name": "ef00-switch-panel-2-wonjj6768",
+      "display_name": "EF00 Switch Panel 2 wonjj6768",
+      "description": "Zigbee panel driver for independently audited new families.",
+      "protocol": "ef00",
+      "generic_ids": [],
+      "catalogs": [
+        {
+          "module": "contracts.families.ef00.switch_panel_m9pro",
+          "id": "ef00.switch.panel.m9pro"
+        }
+      ]
+    },
+    {
+      "name": "zcl-switch-3-wonjj6768",
+      "display_name": "ZCL Switch 3 wonjj6768",
+      "description": "Zigbee switches with explicit device fingerprints.",
+      "protocol": "zcl",
+      "generic_ids": [],
+      "runtime_features": [],
+      "catalogs": [
+        {
+          "module": "contracts.families.zcl.switches.sonoff_legacy_additions",
+          "id": "zcl.switches.sonoff_legacy_additions"
+        }
+      ]
+    },
+    {
+      "name": "zcl-sensors-4-wonjj6768",
+      "display_name": "ZCL Sensors 4 wonjj6768",
+      "description": "Zigbee sensors with explicit device fingerprints.",
+      "protocol": "zcl",
+      "generic_ids": [],
+      "runtime_features": [],
+      "catalogs": [
+        {
+          "module": "contracts.families.zcl.sensors.zigbeetlc_dual",
+          "id": "zcl.sensors.zigbeetlc_dual"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.multir_mirsr100",
+          "id": "zcl.sensors.multir_mirsr100"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.heiman_m_safety",
+          "id": "zcl.sensors.heiman_m_safety"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.somfy_opening",
+          "id": "zcl.sensors.somfy_opening"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.shelly_outdoor",
+          "id": "zcl.sensors.shelly_outdoor"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.zigbeetlc_zgzv_additions",
+          "id": "zcl.sensors.zigbeetlc_zgzv_additions"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.contact_water_additions",
+          "id": "zcl.sensors.contact_water_additions"
+        },
+        {
+          "module": "contracts.families.zcl.sensors.passive_alarm_additions",
+          "id": "zcl.sensors.passive_alarm_additions"
         }
       ]
     }

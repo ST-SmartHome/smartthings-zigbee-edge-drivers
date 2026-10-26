@@ -1,597 +1,359 @@
-local function load_mapping_preset(zcl)
-local emit=require "capabilities.events.all"
-local data_types=require "st.zigbee.data_types"
-local zigbee_constants=require "st.zigbee.constants"
-local function merge_options(target,source)
-if type(target)~="table" then
-target={}
+local function R(p)
+local N=require"capabilities.events.all"
+local A=require"st.zigbee.data_types"
+local az=require"st.zigbee.constants"
+local aD=require"st.utils.safe_xy_to_hsv"
+local function P(v,au)
+if type(v)~="table"then
+v={}
 end
-if type(source)~="table" then
-return target
+if type(au)~="table"then
+return v
 end
-for key,value in pairs(source)do
-target[key]=value
+for F,h in pairs(au)do
+v[F]=h
 end
-return target
+return v
 end
-local function apply_defaults(target,defaults)
-if type(target)~="table" or type(defaults)~="table" then
-return target
+local function n(v,g)
+if type(v)~="table"or type(g)~="table"then
+return v
 end
-for key,value in pairs(defaults)do
-if target[key]==nil then
-target[key]=value
+for F,h in pairs(g)do
+if v[F]==nil then
+v[F]=h
 end
 end
-return target
+return v
 end
-local function optional_emit(name,...)
-local factory=emit[name]
-if type(factory)=="function" then
-return factory(...)
+local function d(ay,...)
+local U=N[ay]
+if type(U)=="function"then
+return U(...)
 end
 return nil
 end
-local function normalize_preset_options(name_or_options,options)
-local resolved={}
-if type(name_or_options)=="string" then
-resolved.name=name_or_options
+local function f(a,c)
+local e={}if type(a)=="string"then
+e.name=a
 else
-merge_options(resolved,name_or_options)
+P(e,a)
 end
-merge_options(resolved,options)
-return resolved
+P(e,c)return e
 end
-local function build_lookup_pair(map,default_from,default_to,aliases)
-local reverse={}
-for key,value in pairs(map)do
-reverse[value]=key
+local function s(aH,S,aa,an)
+local M={}for F,h in pairs(aH)do
+M[h]=F
 end
-if type(aliases)=="table" then
-for alias,target in pairs(aliases)do
-if reverse[target]~=nil then
-reverse[alias]=reverse[target]
+if type(an)=="table"then
+for aF,v in pairs(an)do
+if M[v]~=nil then
+M[aF]=M[v]
 end
 end
 end
 return{
-from=function(value)
-local mapped=map[value]
-if mapped ~=nil then
-return mapped
+from=function(h)
+local T=aH[h]if T~=nil then
+return T
 end
-if default_from ~=nil then
-return default_from
+if S~=nil then
+return S
 end
-return value
+return h
 end,
-to=function(value)
-local mapped=reverse[value]
-if mapped ~=nil then
-return mapped
+to=function(h)
+local T=M[h]if T~=nil then
+return T
 end
-if default_to ~=nil then
-return default_to
+if aa~=nil then
+return aa
 end
-return value
-end,
+return h
+end
 }
 end
-local function clamp(value,min_value,max_value)
-if value < min_value then
-return min_value
+local function ak(h,ai,ah)
+if h<ai then
+return ai
 end
-if value > max_value then
-return max_value
+if h>ah then
+return ah
 end
-return value
+return h
 end
-local function indicator_mode_pair()
-return build_lookup_pair({
-[0]="off",
-[1]="off/on",
-[2]="on/off",
-[3]="on",
-},nil,nil,{
-off_on="off/on",
-on_off="on/off",
-normal="off/on",
-inverted="on/off",
-})
+local function Q()
+return s({
+[0]="off",[1]="off/on",[2]="on/off",[3]="on"},nil,nil,{
+off_on="off/on",on_off="on/off",normal="off/on",inverted="on/off"})
 end
-local function power_on_behavior_pair()
-return build_lookup_pair({
-[0]="off",
-[1]="on",
-[2]="previous",
-},nil,nil,{
-restore="previous",
-})
+local function E()
+return s({
+[0]="off",[1]="on",[2]="previous"},nil,nil,{
+restore="previous"})
 end
-local function power_outage_memory_pair()
-return build_lookup_pair({
-[0]="off",
-[1]="on",
-[2]="restore",
-},nil,nil,{
-previous="restore",
-})
+local function J()
+return s({
+[0]="off",[1]="on",[2]="restore"},nil,nil,{
+previous="restore"})
 end
-local function switch_type_pair()
-return build_lookup_pair({
-[0]="toggle",
-[1]="state",
-[2]="momentary",
-})
+local function Z()
+return s{
+[0]="toggle",[1]="state",[2]="momentary"}
 end
-local function gen_on_off_switch_type_pair()
-return build_lookup_pair({
-[0]="momentary",
-[1]="toggle",
-[2]="state",
-})
+local function G()
+return s{
+[0]="momentary",[1]="toggle",[2]="state"}
 end
-local function on_off_pair()
-return build_lookup_pair({
-[0]="off",
-[1]="on",
-})
+local function D()
+return s{
+[0]="off",[1]="on"}
 end
-local function encode_uint16_le(value)
-local numeric=math.floor(clamp(tonumber(value)or 0,0,0xFFFF)+ 0.5)
-return string.char(bit32.band(numeric,0xFF))..
-string.char(bit32.rshift(bit32.band(numeric,0xFF00),8))
+local function encode_uint16_le(h)
+local q=math.floor(ak(tonumber(h)or 0,0,65535)+0.5)return string.char(bit32.band(q,255))..
+string.char(bit32.rshift(bit32.band(q,65280),8))
 end
-local function encode_uint32_be(value)
-local numeric=math.floor(clamp(tonumber(value)or 0,0,0xFFFFFFFF)+ 0.5)
-return string.char(bit32.rshift(bit32.band(numeric,0xFF000000),24))..
-string.char(bit32.rshift(bit32.band(numeric,0xFF0000),16))..
-string.char(bit32.rshift(bit32.band(numeric,0xFF00),8))..
-string.char(bit32.band(numeric,0xFF))
+local function encode_uint32_be(h)
+local q=math.floor(ak(tonumber(h)or 0,0,0xFFFFFFFF)+0.5)return string.char(bit32.rshift(bit32.band(q,0xFF000000),24))..
+string.char(bit32.rshift(bit32.band(q,0xFF0000),16))..
+string.char(bit32.rshift(bit32.band(q,65280),8))..
+string.char(bit32.band(q,255))
 end
-local function define_enum_attribute(cluster_id,attribute_id,defaults)
-return function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-local converter=defaults.converter_factory()
-apply_defaults(resolved,{
-name=defaults.name,
-emit=defaults.emit,
-converter=converter,
-to_device=function(value)
-return converter.to(value)
+local function m(ao,al,g)
+return function(a,c)
+local e=f(a,c)local ae=g.converter_factory()n(e,{
+name=g.name,emit=g.emit,converter=ae,
+to_device=function(h)
+return ae.to(h)
 end,
-data_type=data_types.Enum8,
-write_type=data_types.Enum8,
-attribute_name=defaults.attribute_name,
-mfg_code=defaults.mfg_code,
-read_on_configure=true,
-})
-return zcl.cluster_attribute(cluster_id,attribute_id,resolved)
+data_type=A.Enum8,write_type=A.Enum8,attribute_name=g.attribute_name,mfg_code=g.mfg_code,read_on_configure=true})return p.cluster_attribute(ao,al,e)
 end
 end
-local function read_latest_state(device,capability_id,attribute_name,default)
-if type(device)=="table" and type(device.get_latest_state)=="function" then
-local latest=device:get_latest_state("main",capability_id,attribute_name)
-if latest ~=nil then
-return latest
+local function H(I,aj,ad,aB)
+if type(I)=="table"and type(I.get_latest_state)=="function"then
+local as=I:get_latest_state("main",aj,ad)if as~=nil then
+return as
 end
 end
-return default
+return aB
 end
-local function parse_threshold_entries(zb_rx)
-local body_bytes=zb_rx and zb_rx.body and zb_rx.body.zcl_body and zb_rx.body.zcl_body.body_bytes or nil
-if type(body_bytes)~="string" or #body_bytes < 4 then
+local function K(x)
+local i=x and x.body and x.body.zcl_body and x.body.zcl_body.body_bytes or nil
+if type(i)~="string"or #i<4 then
 return nil
 end
-local entries={}
-local index=1
-while index + 3 <=#body_bytes do
-local key=string.byte(body_bytes,index)
-if key==nil then
+local L={}local O=1
+while O+3<=#i do
+local F=string.byte(i,O)if F==nil then
 break
 end
-entries[key]={
-state=string.byte(body_bytes,index + 1)or 0,
-value=(((string.byte(body_bytes,index + 2)or 0)* 256)+(string.byte(body_bytes,index + 3)or 0)),
-}
-index=index + 4
+L[F]={
+state=string.byte(i,O+1)or 0,value=(((string.byte(i,O+2)or 0)*256)+(string.byte(i,O+3)or 0))}O=O+4
 end
-return entries
+return L
 end
-local function threshold_command_extractor(command_id,key,field)
-return function(zb_rx)
-local actual_command=zb_rx and zb_rx.body and zb_rx.body.zcl_header and zb_rx.body.zcl_header.cmd and zb_rx.body.zcl_header.cmd.value or nil
-if actual_command ~=command_id then
+local function b(ap,F,aG)
+return function(x)
+local ac=x and x.body and x.body.zcl_header and x.body.zcl_header.cmd and x.body.zcl_header.cmd.value or nil
+if ac~=ap then
 return nil
 end
-local entries=parse_threshold_entries(zb_rx)
-local entry=type(entries)=="table" and entries[key]or nil
-if type(entry)~="table" then
+local L=K(x)local aq=type(L)=="table"and L[F]or nil
+if type(aq)~="table"then
 return nil
 end
-if field=="state" then
-return entry.state
+if aG=="state"then
+return aq.state
 end
-return entry.value
+return aq.value
 end
 end
-local function ts0049_countdown_command_extractor(zb_rx)
-local body_bytes=zb_rx and zb_rx.body and zb_rx.body.zcl_body and zb_rx.body.zcl_body.body_bytes or nil
-if type(body_bytes)~="string" or #body_bytes < 12 then
+local function C(x)
+local i=x and x.body and x.body.zcl_body and x.body.zcl_body.body_bytes or nil
+if type(i)~="string"or #i<12 then
 return nil
 end
-local command=string.byte(body_bytes,3)
-local data_type=string.byte(body_bytes,7)
-local key=string.byte(body_bytes,8)
-if command ~=0x0A or key ~=0x0B or(data_type ~=0x05 and data_type ~=0x06)then
+local aA=string.byte(i,3)local ag=string.byte(i,7)local F=string.byte(i,8)if aA~=10 or F~=11 or(ag~=5 and ag~=6)then
 return nil
 end
-local seconds=((string.byte(body_bytes,9)or 0)* 0x1000000)+
-((string.byte(body_bytes,10)or 0)* 0x10000)+
-((string.byte(body_bytes,11)or 0)* 0x100)+
-(string.byte(body_bytes,12)or 0)
-return math.floor((seconds / 60)+ 0.5)
+local aE=((string.byte(i,9)or 0)*16777216)+
+((string.byte(i,10)or 0)*65536)+
+((string.byte(i,11)or 0)*256)+
+(string.byte(i,12)or 0)return math.floor(aE/60+0.5)
 end
-local function build_threshold_payload(key,state_value,threshold_value)
-local numeric=tonumber(threshold_value)
-if type(numeric)~="number" then
+local function B(F,am,ab)
+local q=tonumber(ab)if type(q)~="number"then
 return nil
 end
-numeric=math.floor(numeric + 0.5)
-if numeric < 0 then
-numeric=0
-elseif numeric > 0xFFFF then
-numeric=0xFFFF
+q=math.floor(q+0.5)if q<0 then
+q=0
+elseif q>65535 then
+q=65535
 end
-local state=state_value=="on" and 1 or 0
+local ar=am=="on"and 1 or 0
 return string.char(
-key,
-state,
-bit32.band(bit32.rshift(numeric,8),0xFF),
-bit32.band(numeric,0xFF)
-)
+F,ar,bit32.band(bit32.rshift(q,8),255),bit32.band(q,255))
 end
-local function threshold_value_to_device(key,sibling_capability_id,sibling_attribute_name)
-return function(value,device)
-local state=read_latest_state(device,sibling_capability_id,sibling_attribute_name,"off")
-return build_threshold_payload(key,state,value)
+local function l(F,y,w)
+return function(h,I)
+local ar=H(I,y,w,"off")return B(F,ar,h)
 end
 end
-local function threshold_breaker_to_device(key,sibling_capability_id,sibling_attribute_name)
-return function(value,device)
-local threshold=read_latest_state(device,sibling_capability_id,sibling_attribute_name,0)
-return build_threshold_payload(key,value,threshold)
+local function j(F,y,w)
+return function(h,I)
+local av=H(I,y,w,0)return B(F,h,av)
 end
 end
-local function reporting_defaults(minimum_interval,maximum_interval,reportable_change)
+local function r(Y,X,V)
 return{
-minimum_interval=minimum_interval,
-maximum_interval=maximum_interval,
-reportable_change=reportable_change,
-read_on_configure=true,
-}
+minimum_interval=Y,maximum_interval=X,reportable_change=V,read_on_configure=true}
 end
-local function merge_defaults(...)
-local merged={}
-for _,defaults in ipairs({...})do
-apply_defaults(merged,defaults)
+local function u(...)
+local at={}for _,g in ipairs{...}do
+n(at,g)
 end
-return merged
+return at
 end
-local function define_preset(name,factory,defaults_builder)
-zcl[name]=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,defaults_builder(resolved))
-return factory(resolved)
+local function t(ay,U,W)
+p[ay]=function(a,c)
+local e=f(a,c)local z=e.configure_reporting
+local g=W(e)e.configure_reporting=nil
+if z==false then
+g.minimum_interval=nil
+g.maximum_interval=nil
+g.reportable_change=nil
+g.physical_reportable_change=nil
+g.reporting_defaults=nil
+end
+n(e,g)return U(e)
 end
 end
-define_preset("temperature",zcl.temperature_measurement,function()
-return merge_defaults(
+t("temperature",p.temperature_measurement,function()
+return u(
 {
-emit=emit.temperature("C"),
-scale=100,
-},
-reporting_defaults(30,300,50)
-)
+emit=N.temperature"C",scale=100},r(30,300,50))
 end)
-define_preset("battery",zcl.power_configuration_battery,function()
-return merge_defaults(
+t("battery",p.power_configuration_battery,function()
+return u(
 {
-emit=emit.battery(),
-scale=2,
-},
-reporting_defaults(300,21600,2)
-)
+emit=N.battery(),scale=2},r(300,21600,2))
 end)
-define_preset("switch",zcl.on_off,function(options)
-local configure_reporting=options.configure_reporting
-options.configure_reporting=nil
-if configure_reporting==false then
+t("switch",p.on_off,function(c)
+local z=c.configure_reporting
+c.configure_reporting=nil
+if z==false then
 return{
-emit=emit.switch(),
-}
+emit=N.switch()}
 end
-return merge_defaults(
+return u(
 {
-emit=emit.switch(),
-},
-reporting_defaults(0,300,nil)
-)
+emit=N.switch()},r(0,300,nil))
 end)
-zcl.indicator_mode=define_enum_attribute(zcl.CLUSTER_ON_OFF,0x8001,{
-name="indicator_mode",
-emit=optional_emit("indicator_mode"),
-attribute_name="tuyaBacklightMode",
-converter_factory=indicator_mode_pair,
-})
-zcl.power_on_behavior=define_enum_attribute(zcl.CLUSTER_ON_OFF,0x8002,{
-name="power_on_behavior",
-emit=optional_emit("power_on_behavior"),
-attribute_name="tuyaPowerOnBehavior",
-converter_factory=power_on_behavior_pair,
-})
-zcl.power_outage_memory=define_enum_attribute(zcl.CLUSTER_ON_OFF,0x8002,{
-name="power_on_behavior",
-emit=optional_emit("power_on_behavior"),
-attribute_name="moesStartUpOnOff",
-converter_factory=power_on_behavior_pair,
-})
-zcl.tuya_power_outage_memory=define_enum_attribute(zcl.CLUSTER_ON_OFF,0x8002,{
-name="power_outage_memory",
-emit=optional_emit("power_outage_memory"),
-attribute_name="moesStartUpOnOff",
-converter_factory=power_outage_memory_pair,
-})
-zcl.child_lock=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,{
-name="child_lock",
-emit=optional_emit("childLock"),
-from_device=function(value)
-return value and "on" or "off"
+p.indicator_mode=m(p.CLUSTER_ON_OFF,32769,{
+name="indicator_mode",emit=d"indicator_mode",attribute_name="tuyaBacklightMode",converter_factory=Q})p.power_on_behavior=m(p.CLUSTER_ON_OFF,32770,{
+name="power_on_behavior",emit=d"power_on_behavior",attribute_name="tuyaPowerOnBehavior",converter_factory=E})p.power_outage_memory=m(p.CLUSTER_ON_OFF,32770,{
+name="power_on_behavior",emit=d"power_on_behavior",attribute_name="moesStartUpOnOff",converter_factory=E})p.tuya_power_outage_memory=m(p.CLUSTER_ON_OFF,32770,{
+name="power_outage_memory",emit=d"power_outage_memory",attribute_name="moesStartUpOnOff",converter_factory=J})
+p.child_lock=function(a,c)
+local e=f(a,c)n(e,{
+name="child_lock",emit=d"childLock",
+from_device=function(h)
+return h and"on"or"off"
 end,
-to_device=function(value)
-return value==true or value=="on" or value=="lock" or value=="LOCK"
+to_device=function(h)
+return h==true or h=="on"or h=="lock"or h=="LOCK"
 end,
-data_type=data_types.Boolean,
-write_type=data_types.Boolean,
-attribute_name="tuyaChildLock",
-read_on_configure=true,
-})
-return zcl.cluster_attribute(zcl.CLUSTER_ON_OFF,0x8000,resolved)
+data_type=A.Boolean,write_type=A.Boolean,attribute_name="tuyaChildLock",read_on_configure=true})return p.cluster_attribute(p.CLUSTER_ON_OFF,32768,e)
 end
-zcl.tuya_magic_packet=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,{
-name="tuya_magic_packet",
-read_only=true,
-read_on_configure=true,
-})
-return zcl.cluster_attribute(0x0000,0xFFFE,resolved)
+p.tuya_magic_packet=function(a,c)
+local e=f(a,c)n(e,{
+name="tuya_magic_packet",read_only=true,read_on_configure=true})return p.cluster_attribute(0,65534,e)
 end
-zcl.switch_type=define_enum_attribute(0xE001,0xD030,{
-name="switch_type",
-emit=optional_emit("switch_type"),
-attribute_name="tuyaExternalSwitchType",
-mfg_code=0x1141,
-converter_factory=switch_type_pair,
-})
-zcl.gen_on_off_switch_type=define_enum_attribute(zcl.CLUSTER_ON_OFF,0x8001,{
-name="switch_type",
-emit=optional_emit("switch_type"),
-attribute_name="tuyaExternalSwitchType",
-mfg_code=0x1141,
-converter_factory=gen_on_off_switch_type_pair,
-})
-zcl.countdown_timer=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,{
-name="countdown_timer",
-emit=optional_emit("countdownTimerZclTwelveHours","s"),
-data_type=data_types.Uint16,
-write_type=data_types.Uint16,
-tx_command_id=0x42,
-to_device=function(value)
-local countdown=clamp(tonumber(value)or 0,0,43200)
-return string.char(0x00).. encode_uint16_le(countdown).. encode_uint16_le(countdown)
+p.switch_type=m(57345,53296,{
+name="switch_type",emit=d"switch_type",attribute_name="tuyaExternalSwitchType",mfg_code=4417,converter_factory=Z})p.gen_on_off_switch_type=m(p.CLUSTER_ON_OFF,32769,{
+name="switch_type",emit=d"switch_type",attribute_name="tuyaExternalSwitchType",mfg_code=4417,converter_factory=G})
+p.countdown_timer=function(a,c)
+local e=f(a,c)n(e,{
+name="countdown_timer",emit=d("countdownTimerZclTwelveHours","s"),data_type=A.Uint16,write_type=A.Uint16,tx_command_id=66,
+to_device=function(h)
+local af=ak(tonumber(h)or 0,0,43200)return string.char(0)..encode_uint16_le(af)..encode_uint16_le(af)
 end,
 numeric_range={
-minimum=0,
-maximum=43200,
-step=1,
-unit="s",
-},
-attribute_name="onTime",
-read_on_configure=true,
-})
-return zcl.cluster_attribute(zcl.CLUSTER_ON_OFF,0x4001,resolved)
+minimum=0,maximum=43200,step=1,unit="s"},attribute_name="onTime",read_on_configure=true})return p.cluster_attribute(p.CLUSTER_ON_OFF,16385,e)
 end
-zcl.ts0049_countdown_timer=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,{
-name="countdown_timer",
-emit=optional_emit("valveCountdownTs0049Minutes","min"),
-tx_command_id=0xFE,
-command_id=0x0A,
-command_extractor=ts0049_countdown_command_extractor,
-to_device=function(value)
-local minutes=math.floor(clamp(tonumber(value)or 0,0,255)+ 0.5)
-return string.char(0x0B).. encode_uint32_be(minutes * 60)
+p.ts0049_countdown_timer=function(a,c)
+local e=f(a,c)n(e,{
+name="countdown_timer",emit=d("valveCountdownTs0049Minutes","min"),tx_command_id=254,command_id=10,command_extractor=C,
+to_device=function(h)
+local aC=math.floor(ak(tonumber(h)or 0,0,255)+0.5)return string.char(11)..encode_uint32_be(aC*60)
 end,
 numeric_range={
-minimum=0,
-maximum=255,
-step=1,
-unit="min",
-},
-attribute_name="tuyaTs0049Countdown",
-read_on_configure=false,
-})
-return zcl.cluster_attribute(0xE001,0x006F,resolved)
+minimum=0,maximum=255,step=1,unit="min"},attribute_name="tuyaTs0049Countdown",read_on_configure=false})return p.cluster_attribute(57345,111,e)
 end
-local function threshold_value_mapping(name_or_options,options,defaults)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,defaults)
-return zcl.cluster_attribute(0xE001,defaults.attribute_id,resolved)
+local function o(a,c,g)
+local e=f(a,c)n(e,g)return p.cluster_attribute(57345,g.attribute_id,e)
 end
-local function threshold_breaker_mapping(name_or_options,options,defaults)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,defaults)
-return zcl.cluster_attribute(0xE001,defaults.attribute_id,resolved)
+local function k(a,c,g)
+local e=f(a,c)n(e,g)return p.cluster_attribute(57345,g.attribute_id,e)
 end
-zcl.temperature_threshold=function(name_or_options,options)
-return threshold_value_mapping(name_or_options,options,{
-name="temperature_threshold",
-emit=optional_emit("temperature_threshold"),
-tx_command_id=0xE6,
-command_id=0xE6,
-command_extractor=threshold_command_extractor(0xE6,0x05,"value"),
-to_device=threshold_value_to_device(0x05,"concertmirror08464.temperatureBreaker","temperatureBreaker"),
-attribute_id=0xF105,
-})
+p.temperature_threshold=function(a,c)
+return o(a,c,{
+name="temperature_threshold",emit=d"temperature_threshold",tx_command_id=230,command_id=230,command_extractor=b(230,5,"value"),to_device=l(5,"concertmirror08464.temperatureBreaker","temperatureBreaker"),attribute_id=61701})
 end
-zcl.temperature_breaker=function(name_or_options,options)
-return threshold_breaker_mapping(name_or_options,options,{
-name="temperature_breaker",
-emit=optional_emit("temperature_breaker"),
-converter=on_off_pair(),
-tx_command_id=0xE6,
-command_id=0xE6,
-command_extractor=threshold_command_extractor(0xE6,0x05,"state"),
-to_device=threshold_breaker_to_device(0x05,"concertmirror08464.temperatureThreshold","temperatureThreshold"),
-attribute_id=0xF185,
-})
+p.temperature_breaker=function(a,c)
+return k(a,c,{
+name="temperature_breaker",emit=d"temperature_breaker",converter=D(),tx_command_id=230,command_id=230,command_extractor=b(230,5,"state"),to_device=j(5,"concertmirror08464.temperatureThreshold","temperatureThreshold"),attribute_id=61829})
 end
-zcl.power_threshold=function(name_or_options,options)
-return threshold_value_mapping(name_or_options,options,{
-name="power_threshold",
-emit=optional_emit("power_threshold"),
-tx_command_id=0xE6,
-command_id=0xE6,
-command_extractor=threshold_command_extractor(0xE6,0x07,"value"),
-to_device=threshold_value_to_device(0x07,"concertmirror08464.powerBreaker","powerBreaker"),
-attribute_id=0xF107,
-})
+p.power_threshold=function(a,c)
+return o(a,c,{
+name="power_threshold",emit=d"power_threshold",tx_command_id=230,command_id=230,command_extractor=b(230,7,"value"),to_device=l(7,"concertmirror08464.powerBreaker","powerBreaker"),attribute_id=61703})
 end
-zcl.power_breaker=function(name_or_options,options)
-return threshold_breaker_mapping(name_or_options,options,{
-name="power_breaker",
-emit=optional_emit("power_breaker"),
-converter=on_off_pair(),
-tx_command_id=0xE6,
-command_id=0xE6,
-command_extractor=threshold_command_extractor(0xE6,0x07,"state"),
-to_device=threshold_breaker_to_device(0x07,"concertmirror08464.powerThreshold","powerThreshold"),
-attribute_id=0xF187,
-})
+p.power_breaker=function(a,c)
+return k(a,c,{
+name="power_breaker",emit=d"power_breaker",converter=D(),tx_command_id=230,command_id=230,command_extractor=b(230,7,"state"),to_device=j(7,"concertmirror08464.powerThreshold","powerThreshold"),attribute_id=61831})
 end
-zcl.over_current_threshold=function(name_or_options,options)
-return threshold_value_mapping(name_or_options,options,{
-name="over_current_threshold",
-emit=optional_emit("over_current_threshold"),
-tx_command_id=0xE7,
-command_id=0xE7,
-command_extractor=threshold_command_extractor(0xE7,0x01,"value"),
-to_device=threshold_value_to_device(0x01,"concertmirror08464.overCurrentBreaker","overCurrentBreaker"),
-attribute_id=0xF101,
-})
+p.over_current_threshold=function(a,c)
+return o(a,c,{
+name="over_current_threshold",emit=d"over_current_threshold",tx_command_id=231,command_id=231,command_extractor=b(231,1,"value"),to_device=l(1,"concertmirror08464.overCurrentBreaker","overCurrentBreaker"),attribute_id=61697})
 end
-zcl.over_current_breaker=function(name_or_options,options)
-return threshold_breaker_mapping(name_or_options,options,{
-name="over_current_breaker",
-emit=optional_emit("over_current_breaker"),
-converter=on_off_pair(),
-tx_command_id=0xE7,
-command_id=0xE7,
-command_extractor=threshold_command_extractor(0xE7,0x01,"state"),
-to_device=threshold_breaker_to_device(0x01,"concertmirror08464.overCurrentThreshold","overCurrentThreshold"),
-attribute_id=0xF181,
-})
+p.over_current_breaker=function(a,c)
+return k(a,c,{
+name="over_current_breaker",emit=d"over_current_breaker",converter=D(),tx_command_id=231,command_id=231,command_extractor=b(231,1,"state"),to_device=j(1,"concertmirror08464.overCurrentThreshold","overCurrentThreshold"),attribute_id=61825})
 end
-zcl.over_voltage_threshold=function(name_or_options,options)
-return threshold_value_mapping(name_or_options,options,{
-name="over_voltage_threshold",
-emit=optional_emit("over_voltage_threshold"),
-tx_command_id=0xE7,
-command_id=0xE7,
-command_extractor=threshold_command_extractor(0xE7,0x03,"value"),
-to_device=threshold_value_to_device(0x03,"concertmirror08464.overVoltageBreaker","overVoltageBreaker"),
-attribute_id=0xF103,
-})
+p.over_voltage_threshold=function(a,c)
+return o(a,c,{
+name="over_voltage_threshold",emit=d"over_voltage_threshold",tx_command_id=231,command_id=231,command_extractor=b(231,3,"value"),to_device=l(3,"concertmirror08464.overVoltageBreaker","overVoltageBreaker"),attribute_id=61699})
 end
-zcl.over_voltage_breaker=function(name_or_options,options)
-return threshold_breaker_mapping(name_or_options,options,{
-name="over_voltage_breaker",
-emit=optional_emit("over_voltage_breaker"),
-converter=on_off_pair(),
-tx_command_id=0xE7,
-command_id=0xE7,
-command_extractor=threshold_command_extractor(0xE7,0x03,"state"),
-to_device=threshold_breaker_to_device(0x03,"concertmirror08464.overVoltageThreshold","overVoltageThreshold"),
-attribute_id=0xF183,
-})
+p.over_voltage_breaker=function(a,c)
+return k(a,c,{
+name="over_voltage_breaker",emit=d"over_voltage_breaker",converter=D(),tx_command_id=231,command_id=231,command_extractor=b(231,3,"state"),to_device=j(3,"concertmirror08464.overVoltageThreshold","overVoltageThreshold"),attribute_id=61827})
 end
-zcl.under_voltage_threshold=function(name_or_options,options)
-return threshold_value_mapping(name_or_options,options,{
-name="under_voltage_threshold",
-emit=optional_emit("under_voltage_threshold"),
-tx_command_id=0xE7,
-command_id=0xE7,
-command_extractor=threshold_command_extractor(0xE7,0x04,"value"),
-to_device=threshold_value_to_device(0x04,"concertmirror08464.underVoltageBreaker","underVoltageBreaker"),
-attribute_id=0xF104,
-})
+p.under_voltage_threshold=function(a,c)
+return o(a,c,{
+name="under_voltage_threshold",emit=d"under_voltage_threshold",tx_command_id=231,command_id=231,command_extractor=b(231,4,"value"),to_device=l(4,"concertmirror08464.underVoltageBreaker","underVoltageBreaker"),attribute_id=61700})
 end
-zcl.under_voltage_breaker=function(name_or_options,options)
-return threshold_breaker_mapping(name_or_options,options,{
-name="under_voltage_breaker",
-emit=optional_emit("under_voltage_breaker"),
-converter=on_off_pair(),
-tx_command_id=0xE7,
-command_id=0xE7,
-command_extractor=threshold_command_extractor(0xE7,0x04,"state"),
-to_device=threshold_breaker_to_device(0x04,"concertmirror08464.underVoltageThreshold","underVoltageThreshold"),
-attribute_id=0xF184,
-})
+p.under_voltage_breaker=function(a,c)
+return k(a,c,{
+name="under_voltage_breaker",emit=d"under_voltage_breaker",converter=D(),tx_command_id=231,command_id=231,command_extractor=b(231,4,"state"),to_device=j(4,"concertmirror08464.underVoltageThreshold","underVoltageThreshold"),attribute_id=61828})
 end
-define_preset("power",zcl.electrical_measurement_power,function()
-return merge_defaults(
+t("power",p.electrical_measurement_power,function()
+return u(
 {
-emit=emit.power(),
-metering_kind="power",
-poll_interval=300,
-},
-reporting_defaults(5,300,1)
-)
+emit=N.power(),metering_kind="power",poll_interval=300},r(5,300,1))
 end)
-define_preset("current",zcl.electrical_measurement_current,function()
-return merge_defaults(
+t("current",p.electrical_measurement_current,function()
+return u(
 {
-emit=emit.current(),
-scale=1000,
-metering_kind="current",
-poll_interval=300,
-},
-reporting_defaults(5,300,1)
-)
+emit=N.current(),scale=1000,metering_kind="current",poll_interval=300},r(5,300,1))
 end)
-define_preset("voltage",zcl.electrical_measurement_voltage,function()
-return merge_defaults(
+t("voltage",p.electrical_measurement_voltage,function()
+return u(
 {
-emit=emit.voltage(),
-metering_kind="voltage",
-poll_interval=300,
-},
-reporting_defaults(5,300,1)
-)
+emit=N.voltage(),metering_kind="voltage",poll_interval=300},r(5,300,1))
 end)
-define_preset("energy",zcl.simple_metering,function()
+t("energy",p.simple_metering,function()
 return{
-emit=emit.energy(),
-read_on_configure=true,
-metering_kind="energy",
-poll_interval=900,
-}
+emit=N.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900}
 end)
 end
-return load_mapping_preset
+return R

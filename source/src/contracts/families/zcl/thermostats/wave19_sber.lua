@@ -78,12 +78,6 @@ local function round_half(value)
   return math.floor(numeric * 2 + 0.5) / 2
 end
 
-local function clamp(value, minimum, maximum)
-  local numeric = tonumber(value)
-  if numeric == nil then return nil end
-  return math.max(minimum, math.min(maximum, numeric))
-end
-
 local function u16le(value)
   local numeric = math.floor(tonumber(value) or 0)
   if numeric < 0 then numeric = numeric + 0x10000 end
@@ -283,8 +277,8 @@ append(mappings, zcl.cluster_attribute(CLUSTER_THERMOSTAT, 0x0029, {
   from_device = function(value) return bit32.band(tonumber(value) or 0, 0x01) ~= 0 and "heating" or "idle" end,
   read_on_configure = false,
 }))
-append(mappings, mapping(CLUSTER_THERMOSTAT, 0x0010, "sber_therm_local_calibration", "sberThermLocalCalibration", data_types.Int8, {
-  scale = 10, numeric_range = { minimum = -2.5, maximum = 2.5, step = 0.1, unit = "C" },
+append(mappings, mapping(CLUSTER_THERMOSTAT, 0x0010, "sber_therm_local_calibration", "sber205Calibration", data_types.Int8, {
+  scale = 10, numeric_range = { minimum = -10, maximum = 10, step = 0.5, unit = "C" },
   read_on_configure = false,
 }))
 local control_from, control_to = lookup({ [2] = "heating_only" })
@@ -464,12 +458,8 @@ end
 local sber = {
   profile = "thermostats-wave19-sber-sbdv-00205",
   package_group = "wave19-thermostat-zcl",
-  transport_classification = "ZCL_CUSTOM_ATTRIBUTE_COMMAND",
-  z2m_converter_source = "sdevices fz/tz + thermostat/UI/weekly schedule converters",
-  wire_cluster = "standard ZCL + Sber 0xFCCF/0x152F",
   zcl_clusters = mappings,
   capability_commands = commands,
-  placeholder_custom_states = false,
   thermostat_supported_modes = { "off", "heat", "asleep" },
   heating_setpoint_range = { minimum = 1, maximum = 50, step = 0.5, unit = "C" },
   configure = configure,
@@ -498,6 +488,12 @@ end
 register_device_definition(sber, {
   device_helpers.create_fingerprint("SDevices", "SBDV-00205"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-sas"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.thermostats.wave19.sber",

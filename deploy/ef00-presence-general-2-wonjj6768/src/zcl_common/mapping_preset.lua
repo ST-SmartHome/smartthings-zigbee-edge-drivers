@@ -1,103 +1,96 @@
-local function load_mapping_preset(zcl)
-local emit=require "capabilities.events.all"
-local data_types=require "st.zigbee.data_types"
-local zigbee_constants=require "st.zigbee.constants"
-local function merge_options(target,source)
-if type(target)~="table" then
-target={}
+local function l(B)
+local z=require"capabilities.events.all"
+local A=require"st.zigbee.data_types"
+local v=require"st.zigbee.constants"
+local y=require"st.utils.safe_xy_to_hsv"
+local function k(f,u)
+if type(f)~="table"then
+f={}
 end
-if type(source)~="table" then
-return target
+if type(u)~="table"then
+return f
 end
-for key,value in pairs(source)do
-target[key]=value
+for w,g in pairs(u)do
+f[w]=g
 end
-return target
+return f
 end
-local function apply_defaults(target,defaults)
-if type(target)~="table" or type(defaults)~="table" then
-return target
+local function j(f,a)
+if type(f)~="table"or type(a)~="table"then
+return f
 end
-for key,value in pairs(defaults)do
-if target[key]==nil then
-target[key]=value
+for w,g in pairs(a)do
+if f[w]==nil then
+f[w]=g
 end
 end
-return target
+return f
 end
-local function normalize_preset_options(name_or_options,options)
-local resolved={}
-if type(name_or_options)=="string" then
-resolved.name=name_or_options
+local function i(b,h)
+local c={}if type(b)=="string"then
+c.name=b
 else
-merge_options(resolved,name_or_options)
+k(c,b)
 end
-merge_options(resolved,options)
-return resolved
+k(c,h)return c
 end
-local function illuminance_measurement_pair()
+local function d()
 return{
-from=function(value)
-if type(value)~="number" then
-return value
+from=function(g)
+if type(g)~="number"then
+return g
 end
-if value <=0 then
+if g<=0 then
 return 0
 end
-local lux=10 ^((value - 1)/ 10000)
-return math.floor(lux + 0.5)
+local D=10 ^((g-1)/10000)return math.floor(D+0.5)
 end,
-to=function(value)
-if type(value)~="number" then
-return value
+to=function(g)
+if type(g)~="number"then
+return g
 end
-if value <=0 then
+if g<=0 then
 return 0
 end
-local raw=10000 *(math.log(value)/ math.log(10))+ 1
-return math.floor(raw + 0.5)
-end,
+local E=10000*(math.log(g)/math.log(10))+1
+return math.floor(E+0.5)
+end
 }
 end
-local function reporting_defaults(minimum_interval,maximum_interval,reportable_change)
+local function m(q,p,n)
 return{
-minimum_interval=minimum_interval,
-maximum_interval=maximum_interval,
-reportable_change=reportable_change,
-read_on_configure=true,
-}
+minimum_interval=q,maximum_interval=p,reportable_change=n,read_on_configure=true}
 end
-local function merge_defaults(...)
-local merged={}
-for _,defaults in ipairs({...})do
-apply_defaults(merged,defaults)
+local function r(...)
+local t={}for _,a in ipairs{...}do
+j(t,a)
 end
-return merged
+return t
 end
-local function define_preset(name,factory,defaults_builder)
-zcl[name]=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,defaults_builder(resolved))
-return factory(resolved)
+local function s(C,x,o)
+B[C]=function(b,h)
+local c=i(b,h)local e=c.configure_reporting
+local a=o(c)c.configure_reporting=nil
+if e==false then
+a.minimum_interval=nil
+a.maximum_interval=nil
+a.reportable_change=nil
+a.physical_reportable_change=nil
+a.reporting_defaults=nil
+end
+j(c,a)return x(c)
 end
 end
-define_preset("illuminance",zcl.illuminance_measurement,function(options)
-local configure_reporting=options.configure_reporting
-options.configure_reporting=nil
-if configure_reporting==false then
+s("illuminance",B.illuminance_measurement,function(h)
+local e=h.configure_reporting
+h.configure_reporting=nil
+if e==false then
 return{
-emit=emit.illuminance(),
-converter=illuminance_measurement_pair(),
-read_on_configure=true,
-}
+emit=z.illuminance(),converter=d(),read_on_configure=true}
 end
-return merge_defaults(
+return r(
 {
-emit=emit.illuminance(),
-converter=illuminance_measurement_pair(),
-},
-reporting_defaults(30,300,100)
-)
+emit=z.illuminance(),converter=d()},m(30,300,100))
 end)
 end
-return load_mapping_preset
+return l

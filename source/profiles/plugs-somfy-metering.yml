@@ -1,0 +1,66 @@
+name: plugs-somfy-metering
+components:
+- id: main
+  capabilities:
+  - id: switch
+    version: 1
+  - id: powerMeter
+    version: 1
+  - id: energyMeter
+    version: 1
+  - id: refresh
+    version: 1
+  categories:
+  - name: SmartPlug
+- id: export
+  label: Produced energy
+  capabilities:
+  - id: energyMeter
+    version: 1
+  categories:
+  - name: SmartPlug
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: switch
+      group: main
+      composite: true
+    - component: main
+      capability: powerMeter
+      group: main
+      composite: true
+      values:
+      - label: ' {{power.value}}{{power.unit}}'
+    actions:
+    - component: main
+      capability: switch
+      group: main
+      values:
+      - command: 'on'
+      - command: 'off'
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: switch
+  - component: main
+    capability: powerMeter
+  - component: main
+    capability: energyMeter
+  - component: main
+    capability: refresh
+  - component: export
+    capability: energyMeter
+  automation:
+    conditions:
+    - component: main
+      capability: switch
+    - component: main
+      capability: powerMeter
+    - component: main
+      capability: energyMeter
+    - component: export
+      capability: energyMeter
+    actions:
+    - component: main
+      capability: switch

@@ -1,0 +1,107 @@
+name: safety-motion-zigbeetlc-zg204zv-th
+components:
+- id: main
+  capabilities:
+  - id: motionSensor
+    version: 1
+  - id: illuminanceMeasurement
+    version: 1
+  - id: battery
+    version: 1
+  - id: voltageMeasurement
+    version: 1
+  - id: switch
+    version: 1
+  - id: temperatureMeasurement
+    version: 1
+  - id: relativeHumidityMeasurement
+    version: 1
+  - id: concertmirror08464.zgZvThHoldTime
+    version: 1
+  - id: concertmirror08464.zgZvThMotionSensitivity
+    version: 1
+  - id: concertmirror08464.zgZvThPowerOnBehavior
+    version: 1
+  - id: concertmirror08464.zgZvThAction
+    version: 1
+  - id: refresh
+    version: 1
+  - id: signalStrength
+    version: 1
+  - id: concertmirror08464.zgZvThIdentify
+    version: 1
+  categories:
+  - name: MotionSensor
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: motionSensor
+    actions: []
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: motionSensor
+  - component: main
+    capability: illuminanceMeasurement
+  - component: main
+    capability: battery
+  - component: main
+    capability: voltageMeasurement
+  - component: main
+    capability: switch
+  - component: main
+    capability: temperatureMeasurement
+  - component: main
+    capability: relativeHumidityMeasurement
+  - component: main
+    capability: concertmirror08464.zgZvThHoldTime
+  - component: main
+    capability: concertmirror08464.zgZvThMotionSensitivity
+  - component: main
+    capability: concertmirror08464.zgZvThPowerOnBehavior
+  - component: main
+    capability: concertmirror08464.zgZvThAction
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
+  - component: main
+    capability: concertmirror08464.zgZvThIdentify
+  automation:
+    conditions:
+    - component: main
+      capability: motionSensor
+    - component: main
+      capability: illuminanceMeasurement
+    - component: main
+      capability: battery
+    - component: main
+      capability: voltageMeasurement
+    - component: main
+      capability: switch
+    - component: main
+      capability: temperatureMeasurement
+    - component: main
+      capability: relativeHumidityMeasurement
+    - component: main
+      capability: concertmirror08464.zgZvThHoldTime
+    - component: main
+      capability: concertmirror08464.zgZvThMotionSensitivity
+    - component: main
+      capability: concertmirror08464.zgZvThPowerOnBehavior
+    - component: main
+      capability: concertmirror08464.zgZvThAction
+    - component: main
+      capability: signalStrength
+    actions:
+    - component: main
+      capability: switch
+    - component: main
+      capability: concertmirror08464.zgZvThHoldTime
+    - component: main
+      capability: concertmirror08464.zgZvThMotionSensitivity
+    - component: main
+      capability: concertmirror08464.zgZvThPowerOnBehavior
+    - component: main
+      capability: concertmirror08464.zgZvThIdentify

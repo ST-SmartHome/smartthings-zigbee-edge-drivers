@@ -1,108 +1,80 @@
-local custom_capabilities={}
-local strings={"%","coverPositionReportRm28Le","coverPositionReportRmTwoEightLe","position_report","Cover Position Report Rm28Le","coverPositionReportZm79eDt","coverPositionReportZmSevenNineeDt","Cover Position Report Zm79e Dt","coverPositionReportBx82Tyz1","coverPositionReportBxEightTwoTyzOne","Cover Position Report Bx82Tyz1","favoritePositionZbSm","favorite_position","Favorite Position Zb Sm","zsm01PositionBest","positionBest","position_best","Zsm01Position Best","ms","zbSmCycleTime","cycleTime","cycle_time","Zb Sm Cycle Time","zbSmCycleCount","cycleCount","cycle_count","Zb Sm Cycle Count","mW","zbSmActivePower","activePower","active_power","Zb Sm Active Power","s","pims3028TimeTotal","timeTotal","time_total","Pims3028Time Total","pims3028PositionBest","Pims3028Position Best","°","pims3028AngleHorizontal","angleHorizontal","angle_horizontal","Pims3028Angle Horizontal","pims3028QuickCalibration","quickCalibration","quick_calibration","Pims3028Quick Calibration","rm28leCountdownLeft","countdownLeft","countdown_left","Rm28le Countdown Left","rm28leTimeTotal","Rm28le Time Total","rm28lePositionBest","Rm28le Position Best","coverOneMotorSpeed","motorSpeed","motor_speed","Cover One Motor Speed","coverSixIllumination","illumination","cover_six_illumination","Cover Six Illumination","switch_type","switchType","supportedSwitchTypes","Switch type","toggle","state","momentary","tiltModeMb60l","tiltModeMbSixZerol","tilt_mode","Tilt Mode Mb60l","off","on","manualModeEpjZbEnableDisable","manual_mode","Manual Mode Epj Zb Enable Disable","enable","disable","windowDetectionEpjZbState","window_detection","Window Detection Epj Zb State","opened","closed","pending","motorDirectionZbSmNormalRev","motor_direction","Motor Direction Zb Sm Normal Rev","normal","reversed","motorDirectionZm79eDtLeftRight","caprayirlspeprfrwwysgxh","Motor Direction Zm79e Dt Left Right","left","right","motorDirectionBxTyzNormalRev","capnfcnnbmfkahvrbckxcij","Motor Direction Bx Tyz Normal Rev","motorDirectionMbNormalRev","capultkjbczgdpnaciiuoqx","Motor Direction Mb Normal Rev","motorDirectionEpjZbSide","Motor Direction Epj Zb Side","left_side","right_side","coverWorkPimsActual","capcpcfsvmnkqqvbyfklqpl","work_state","Cover Work Pims Actual","opening","closing","value_123","coverWorkRmOpeningClosing","capmtldrdyfbzxvbdlnhcgl","Cover Work Rm Opening Closing","coverWorkStateZm79eDtLearning","coverWorkStateZmSevenNineeDtLearning","Cover Work State Zm79e Dt Learning","standby","success","learning","coverCalibrationPims3028StartEnd","capvonpjrddxpdpephlodgy","calibration","Cover Calibration Pims3028Start End","start","end","zsm01ControlBackMode","controlBackMode","control_back_mode","Zsm01Control Back Mode","forward","back","zsm01ClickControl","clickControl","click_control","Zsm01Click Control","up","down","zbSmMotorState","motorState","motor_state","Zb Sm Motor State","stopped","zbSmTopLimit","topLimit","top_limit","Zb Sm Top Limit","set","clear","zbSmBottomLimit","bottomLimit","bottom_limit","Zb Sm Bottom Limit","pims3028Mode","mode","Pims3028Mode","up_delete","remove_up_down","pims3028ControlBack","controlBack","control_back","Pims3028Control Back","pims3028AutoPower","autoPower","auto_power","Pims3028Auto Power","pims3028SituationSet","situationSet","situation_set","Pims3028Situation Set","fully_open","fully_close","pims3028Fault","fault","Pims3028Fault","pims3028Border","border","Pims3028Border","down_delete","remove_top_bottom","pims3028BestTrigger","bestTrigger","best_position_trigger","Pims3028Best Trigger","pims3028Reset","reset","Pims3028Reset","rm28leMode","Rm28le Mode","morning","night","rm28leAutoPower","Rm28le Auto Power","rm28leCountdown","countdown","Rm28le Countdown","cancel","1h","2h","3h","4h","rm28leSituationSet","Rm28le Situation Set","rm28leMotorFault","motorFault","motor_fault","Rm28le Motor Fault","rm28leBorder","Rm28le Border","rm28leClickControl","Rm28le Click Control","coverThreeReverseDirection","reverseDirection","reverse_direction","Cover Three Reverse Direction","coverThreeLimit","coverLimit","cover_limit","Cover Three Limit","set_up","set_down","delete_up","delete_down","delete_both","coverThreeClickControl","Cover Three Click Control","coverThreeMotorFault","Cover Three Motor Fault","coverOneReverseDirection","Cover One Reverse Direction","zm79eOpeningMode","openingMode","opening_mode","Zm79e Opening Mode","tilt","lift","zm79eSetUpperLimit","setUpperLimit","set_upper_limit","Zm79e Set Upper Limit","stop","zm79eFactoryReset","factoryReset","factory_reset","Zm79e Factory Reset","mb60lSetLimits","setLimits","set_limits","Mb60l Set Limits","mb60lChildLock","childLock","child_lock","Mb60l Child Lock","trwaxi57Calibration","Trwaxi57Calibration","trwaxi57Backlight","backlight","backlight_mode","Trwaxi57Backlight","trwaxi57MotorSteering","motorSteering","motor_steering","Trwaxi57Motor Steering","backward","trwaxi57ChildLock","Trwaxi57Child Lock","coverSixOpening","cover_six_opening","Cover Six Opening","coverSixWorkState","workState","cover_six_work_state","Cover Six Work State","coverSixDirection","motorDirection","cover_six_direction","Cover Six Direction","coverSixUpperLimit","upperLimit","cover_six_upper_limit","Cover Six Upper Limit","ts0301Direction","ts0301_direction","Ts0301Direction","last_power_response_time","lastPowerResponseTime","Last power response time","zbSmMotorType","motorType","motor_type","Zb Sm Motor Type"}
-local function string_value(value)
-if type(value)=="number" then return strings[value]end
-return value
+local a={}
+local H={"off","on","normal","%","forward","reversed","back","up","opening","closing","down","s","start","fault","reset","motor_direction","stopped","set","calibration","motorDirection","ms","°","left","right","standby","success","learning","end","clickControl","clear","mode","up_delete","fully_open","fully_close","border","down_delete","remove_top_bottom","tilt","lift","stop","position_report","favoritePositionZbSm","positionBest","position_best","switch_type","manualModeEpjZbEnableDisable","windowDetectionEpjZbState","motorDirectionZbSmNormalRev","motorDirectionEpjZbSide","work_state","click_control","motorState","autoPower","reverseDirection","coverPositionReportRm28Le","coverPositionReportZm79eDt","coverPositionReportBx82Tyz1","zsm01PositionBest","zbSmCycleTime","zbSmCycleCount","zbSmActivePower","pims3028TimeTotal","timeTotal","time_total","pims3028PositionBest","pims3028AngleHorizontal","pims3028QuickCalibration","rm28leCountdownLeft","rm28leTimeTotal","rm28lePositionBest","coverOneMotorSpeed","motorSpeed","coverSixIllumination","dreamBlindsMotorSpeed","dreamBlindsFlipAngle","ts130fXbCalibTime","switchType","toggle","state","momentary","tiltModeMb60l","enable","disable","opened","closed","pending","motorDirectionZm79eDtLeftRight","motorDirectionBxTyzNormalRev","motorDirectionMbNormalRev","left_side","right_side","coverWorkPimsActual","value_123","coverWorkRmOpeningClosing","coverWorkStateZm79eDtLearning","coverCalibrationPims3028StartEnd","zsm01ControlBackMode","zsm01ClickControl","zbSmMotorState","zbSmTopLimit","zbSmBottomLimit","pims3028Mode","remove_up_down","pims3028ControlBack","pims3028AutoPower","auto_power","pims3028SituationSet","situationSet","situation_set","pims3028Fault","pims3028Border","pims3028BestTrigger","pims3028Reset","rm28leMode","morning","rm28leAutoPower","rm28leCountdown","countdown","cancel","rm28leSituationSet","rm28leMotorFault","motorFault","motor_fault","rm28leBorder","rm28leClickControl","coverThreeReverseDirection","reverse_direction","coverThreeLimit","set_up","set_down","delete_up","delete_down","delete_both","coverThreeClickControl","coverThreeMotorFault","coverOneReverseDirection","zm79eOpeningMode","openingMode","zm79eSetUpperLimit","zm79eFactoryReset","mb60lSetLimits","mb60lChildLock","childLock","child_lock","trwaxi57Calibration","trwaxi57Backlight","backlight_mode","trwaxi57MotorSteering","backward","trwaxi57ChildLock","coverSixOpening","coverSixWorkState","coverSixDirection","coverSixUpperLimit","ts0301Direction","dreamBlindsReverseDirection","zm25rxMotorDirection","zm25rxMotorState","zm25rxProgram","set_bottom","set_upper","zm25rxClickControl","upper_micro","lower_micro","cover15MotorDirection","cover15AutoPower","disabled","enabled","cover15MotorState","ts130fXbCalibration","ts130fXbDirection","ts130fXbBacklight","lastPowerResponseTime","zbSmMotorType"}
+local function b(g)
+if type(g)=="number"then return H[g]end
+return g
 end
-local function capability_id(value)local suffix=string_value(value);if suffix==nil then return nil end;return "concertmirror08464." .. suffix end
-local table_groups={}
-local function grouped_table(group_id)
-if type(group_id)~="number" then return{}end
-local existing=table_groups[group_id]
-if existing ~=nil then return existing end
-local out={}
-table_groups[group_id]=out
-return out
+local function p(g)local suffix=b(g);if suffix==nil then return nil end;return"concertmirror08464."..suffix end
+local t={}
+local function q(k)
+if type(k)~="number"then return{}end
+local x=t[k]
+if x~=nil then return x end
+local n={}t[k]=n
+return n
 end
-local function string_list(values,group_id)
-if type(values)~="table" then return nil end
-local out=grouped_table(group_id)
-for index,value in ipairs(values)do out[index]=string_value(value)end
-return out
+local function s(D,k)
+if type(D)~="table"then return nil end
+local n=q(k)
+for A,g in ipairs(D)do n[A]=b(g)end
+return n
 end
-local function optional_string(value,default)
-if value==nil then return default end
-if value==0 then return nil end
-return string_value(value)
+local function i(g,E)
+if g==nil then return E end
+if g==0 then return nil end
+return b(g)
 end
-local function command_default(attribute_name)
-if type(attribute_name)~="string" or attribute_name=="" then return nil end
-return "set" .. attribute_name:sub(1,1):upper().. attribute_name:sub(2)
+local function m(attribute_name)
+if type(attribute_name)~="string"or attribute_name==""then return nil end
+return"set"..attribute_name:sub(1,1):upper()..attribute_name:sub(2)
 end
-local function range(value)
-if type(value)~="table" then return nil end
-local out=grouped_table(value[6])
-out.minimum=value[1]
-out.maximum=value[2]
-out.step=value[3]
-out.unit=string_value(value[4])
-out.allowed_values=string_list(value[5],value[7])
-return out
+local function J(g)
+if type(g)~="table"then return nil end
+local n=q(g[6])n.minimum=g[1]n.maximum=g[2]n.step=g[3]n.unit=b(g[4])n.allowed_values=s(g[5],g[7])return n
 end
-local function allowed_range(allowed_values,group_id)
-if allowed_values==nil and group_id==nil then return nil end
-local out=grouped_table(group_id)
-out.allowed_values=allowed_values
-return out
+local function w(j,k)
+if j==nil and k==nil then return nil end
+local n=q(k)n.allowed_values=j
+return n
 end
-local function numeric(row)
-local attribute_name=string_value(row[4])
-return{kind="numeric",emit_name=string_value(row[1]),range_key=string_value(row[2]),capability_id=capability_id(row[3]),attribute_name=attribute_name,range_attribute_name=string_value(row[5]),command_name=optional_string(row[6],command_default(attribute_name)),argument_name=optional_string(row[7],attribute_name),mapping_name=string_value(row[8]),label=string_value(row[9]),default_range=range(row[10]),event_minimum=row[11],event_maximum=row[12],event_unit=string_value(row[13])}
+local function G(f)
+local attribute_name=b(f[4])return{kind="numeric",emit_name=b(f[1]),range_key=b(f[2]),capability_id=p(f[3]),attribute_name=attribute_name,range_attribute_name=b(f[5]),command_name=i(f[6],m(attribute_name)),argument_name=i(f[7],attribute_name),mapping_name=b(f[8]),label=b(f[9]),default_range=J(f[10]),event_minimum=f[11],event_maximum=f[12],event_unit=b(f[13])}
 end
-local function enum(row)
-local attribute_name=string_value(row[4])
-local supported_values=string_list(row[10],row[12])
-local default_allowed_values=string_list(row[11],row[14])
-local default_range=allowed_range(default_allowed_values,row[13])
-return{kind="enum",emit_name=string_value(row[1]),range_key=string_value(row[2]),capability_id=capability_id(row[3]),attribute_name=attribute_name,supported_attribute_name=string_value(row[5]),command_name=optional_string(row[6],command_default(attribute_name)),argument_name=optional_string(row[7],attribute_name),mapping_name=string_value(row[8]),label=string_value(row[9]),supported_values=supported_values,default_range=default_range}
+local function K(f)
+local attribute_name=b(f[4])local u=s(f[10],f[12])local r=s(f[11],f[14])local d=w(r,f[13])return{kind="enum",emit_name=b(f[1]),range_key=b(f[2]),capability_id=p(f[3]),attribute_name=attribute_name,supported_attribute_name=b(f[5]),command_name=i(f[6],m(attribute_name)),argument_name=i(f[7],attribute_name),mapping_name=b(f[8]),label=b(f[9]),supported_values=u,default_range=d}
 end
-local function text(row)
-local attribute_name=string_value(row[3])
-return{kind="text",emit_name=string_value(row[1]),capability_id=capability_id(row[2]),attribute_name=attribute_name,command_name=optional_string(row[4],command_default(attribute_name)),argument_name=optional_string(row[5],attribute_name),mapping_name=string_value(row[6]),label=string_value(row[7]),maximum_length=row[8]}
+local function M(f)
+local attribute_name=b(f[3])return{kind="text",emit_name=b(f[1]),capability_id=p(f[2]),attribute_name=attribute_name,command_name=i(f[4],m(attribute_name)),argument_name=i(f[5],attribute_name),mapping_name=b(f[6]),label=b(f[7]),maximum_length=f[8]}
 end
-local function build(rows,factory)
-local out={}
-for _,row in ipairs(rows)do out[#out + 1]=factory(row)end
-return out
+local function z(L,F)
+local n={}
+for _,f in ipairs(L)do n[#n+1]=F(f)end
+return n
 end
-custom_capabilities.numeric=build({{2,nil,2,3,nil,0,0,4,5,{0,100,1,1,nil,1,nil},nil,nil,1},{6,nil,6,7,nil,0,0,4,8,{0,100,1,1,nil,2,nil},nil,nil,1},{9,nil,9,10,nil,0,0,4,11,{0,100,1,1,nil,3,nil},nil,nil,1},{12,nil,12,12,nil,nil,nil,13,14,{0,100,1,1,nil,4,nil},nil,nil,1},{15,nil,15,16,nil,nil,nil,17,18,{0,100,1,1,nil,5,nil},nil,nil,1},{20,nil,20,21,nil,0,0,22,23,{0,999999,1,19,nil,6,nil},nil,nil,19},{24,nil,24,25,nil,0,0,26,27,{0,999999,1,nil,nil,7,nil},nil,nil,nil},{29,nil,29,30,nil,0,0,31,32,{0,999999,1,28,nil,8,nil},nil,nil,28},{34,nil,34,35,nil,0,0,36,37,{0,600,1,33,nil,9,nil},nil,nil,33},{38,nil,38,16,nil,nil,nil,17,39,{1,100,1,1,nil,10,nil},nil,nil,1},{41,nil,41,42,nil,nil,nil,43,44,{0,100,25,40,nil,11,nil},nil,nil,40},{45,nil,45,46,nil,nil,nil,47,48,{0,900,1,33,nil,12,nil},nil,nil,33},{49,nil,49,50,nil,0,0,51,52,{0,86400,1,33,nil,13,nil},nil,nil,33},{53,nil,53,35,nil,0,0,36,54,{0,999999,1,19,nil,14,nil},nil,nil,19},{55,nil,55,16,nil,nil,nil,17,56,{0,100,1,1,nil,15,nil},nil,nil,1},{57,nil,57,58,nil,nil,nil,59,60,{0,255,1,nil,nil,16,nil},nil,nil,nil},{61,nil,61,62,nil,0,0,63,64,{nil,nil,nil,1,nil,17,nil},nil,nil,1}},numeric)
-custom_capabilities.enum=build({{65,65,66,66,67,nil,nil,65,68,{69,70,71},{69,70,71},18,19,18},{72,nil,72,73,nil,nil,nil,74,75,{76,77},{76,77},20,21,20},{78,nil,78,78,nil,nil,nil,79,80,{81,82},{81,82},22,23,22},{83,nil,83,83,nil,nil,nil,84,85,{86,87,88},{86,87,88},24,25,24},{89,nil,89,89,nil,nil,nil,90,91,{92,93},{92,93},26,27,26},{94,nil,94,95,nil,nil,nil,90,96,{97,98},{97,98},28,29,28},{99,nil,99,100,nil,nil,nil,90,101,{92,93},{92,93},30,31,30},{102,nil,102,103,nil,nil,nil,90,104,{92,93},{92,93},32,33,32},{105,nil,105,105,nil,nil,nil,90,106,{107,108},{107,108},34,35,34},{109,nil,109,110,nil,0,0,111,112,{113,114,115},{113,114,115},36,37,36},{116,nil,116,117,nil,0,0,111,118,{113,114},{113,114},38,39,38},{119,nil,119,120,nil,0,0,111,121,{122,123,124},{122,123,124},40,41,40},{125,nil,125,126,nil,nil,nil,127,128,{129,130},{129,130},42,43,42},{131,nil,131,132,nil,nil,nil,133,134,{135,136},{135,136},44,45,44},{137,nil,137,138,nil,nil,nil,139,140,{141,142},{141,142},46,47,46},{143,nil,143,144,nil,0,0,145,146,{113,147,114},{113,147,114},48,49,48},{148,nil,148,149,nil,nil,nil,150,151,{152,153},{152,153},50,51,50},{154,nil,154,155,nil,nil,nil,156,157,{152,153},{152,153},52,53,52},{158,nil,158,159,nil,nil,nil,159,160,{141,161,162},{141,161,162},54,55,54},{163,nil,163,164,nil,nil,nil,165,166,{135,136},{135,136},56,57,56},{167,nil,167,168,nil,nil,nil,169,170,{76,77},{76,77},58,59,58},{171,nil,171,172,nil,0,0,173,174,{175,176},{175,176},60,61,60},{177,nil,177,178,nil,0,0,178,179,{92,178},{92,178},62,63,62},{180,nil,180,181,nil,nil,nil,181,182,{183,184},{183,184},64,65,64},{185,nil,185,186,nil,nil,nil,187,188,{76,77},{76,77},66,67,66},{189,nil,189,190,nil,nil,nil,190,191,{190},{190},68,69,68},{192,nil,192,159,nil,nil,nil,159,193,{194,195},{194,195},70,71,70},{196,nil,196,168,nil,nil,nil,169,197,{76,77},{76,77},72,73,72},{198,nil,198,199,nil,nil,nil,199,200,{201,202,203,204,205},{201,202,203,204,205},74,75,74},{206,nil,206,172,nil,0,0,173,207,{175,176},{175,176},76,77,76},{208,nil,208,209,nil,0,0,210,211,{92,178},{92,178},78,79,78},{212,nil,212,181,nil,nil,nil,181,213,{141,142,161,183,184},{141,142,161,183,184},80,81,80},{214,nil,214,138,nil,nil,nil,139,215,{141,142},{141,142},82,83,82},{216,nil,216,217,nil,nil,nil,218,219,{135,136},{135,136},84,85,84},{220,nil,220,221,nil,nil,nil,222,223,{224,225,226,227,228},{224,225,226,227,228},86,87,86},{229,nil,229,138,nil,nil,nil,139,230,{141,142},{141,142},88,89,88},{231,nil,231,209,nil,0,0,210,232,{92,178},{92,178},90,91,90},{233,nil,233,217,nil,nil,nil,218,234,{135,136},{135,136},92,93,92},{235,nil,235,236,nil,nil,nil,237,238,{239,240},{239,240},94,95,94},{241,nil,241,242,nil,nil,nil,243,244,{129,245},{129,245},96,97,96},{246,nil,246,247,nil,nil,nil,248,249,{152},{152},98,99,98},{250,nil,250,251,nil,nil,nil,252,253,{141,142,190},{141,142,190},100,101,100},{254,nil,254,255,nil,nil,nil,256,257,{76,77},{76,77},102,103,102},{258,nil,258,127,nil,nil,nil,127,259,{129,130},{129,130},104,105,104},{260,nil,260,261,nil,nil,nil,262,263,{76,77},{76,77},106,107,106},{264,nil,264,265,nil,nil,nil,266,267,{135,268},{135,268},108,109,108},{269,nil,269,255,nil,nil,nil,256,270,{76,77},{76,77},110,111,110},{271,nil,271,236,nil,nil,nil,272,273,{239,240},{239,240},112,113,112},{274,nil,274,275,nil,0,0,276,277,{122,123,124},{122,123,124},114,115,114},{278,nil,278,279,nil,nil,nil,280,281,{97,98},{97,98},116,117,116},{282,nil,282,283,nil,nil,nil,284,285,{129,245},{129,245},118,119,118},{286,nil,286,279,nil,nil,nil,287,288,{135,136},{135,136},120,121,120}},enum)
-custom_capabilities.text=build({{289,290,290,0,0,nil,291,64},{292,292,293,0,0,294,295,32}},text)
-custom_capabilities.driver_message={["attribute_name"]="driverMessage",["capability_id"]="concertmirror08464.driverMessage",["emit_name"]="driver_message",["label"]="Driver message",["maximum_length"]=512}
-custom_capabilities.by_range_key={}
-custom_capabilities.by_emit_name={}
-custom_capabilities.by_capability_id={}
-local function index_metadata(definitions)
-for _,metadata in ipairs(definitions)do
-custom_capabilities.by_emit_name[metadata.emit_name]=metadata
-if type(metadata.capability_id)=="string" and metadata.capability_id ~="" then custom_capabilities.by_capability_id[metadata.capability_id]=metadata end
-if type(metadata.range_key)=="string" and metadata.range_key ~="" then custom_capabilities.by_range_key[metadata.range_key]=metadata end
+a.numeric=z({{55,nil,55,"coverPositionReportRmTwoEightLe",nil,0,0,41,"Cover Position Report Rm28Le",{0,100,1,4,nil,1},nil,nil,4},{56,nil,56,"coverPositionReportZmSevenNineeDt",nil,0,0,41,"Cover Position Report Zm79e Dt",{0,100,1,4,nil,2},nil,nil,4},{57,nil,57,"coverPositionReportBxEightTwoTyzOne",nil,0,0,41,"Cover Position Report Bx82Tyz1",{0,100,1,4,nil,3},nil,nil,4},{42,nil,42,42,nil,nil,nil,"favorite_position","Favorite Position Zb Sm",{0,100,1,4,nil,4},nil,nil,4},{58,nil,58,43,nil,nil,nil,44,"Zsm01Position Best",{0,100,1,4,nil,5},nil,nil,4},{59,nil,59,"cycleTime",nil,0,0,"cycle_time","Zb Sm Cycle Time",{0,999999,1,21,nil,6},nil,nil,21},{60,nil,60,"cycleCount",nil,0,0,"cycle_count","Zb Sm Cycle Count",{0,999999,1,nil,nil,7}},{61,nil,61,"activePower",nil,0,0,"active_power","Zb Sm Active Power",{0,999999,1,"mW",nil,8},nil,nil,"mW"},{62,nil,62,63,nil,0,0,64,"Pims3028Time Total",{0,600,1,12,nil,9},nil,nil,12},{65,nil,65,43,nil,nil,nil,44,"Pims3028Position Best",{1,100,1,4,nil,10},nil,nil,4},{66,nil,66,"angleHorizontal",nil,nil,nil,"angle_horizontal","Pims3028Angle Horizontal",{0,100,25,22,nil,11},nil,nil,22},{67,nil,67,"quickCalibration",nil,nil,nil,"quick_calibration","Pims3028Quick Calibration",{0,900,1,12,nil,12},nil,nil,12},{68,nil,68,"countdownLeft",nil,0,0,"countdown_left","Rm28le Countdown Left",{0,86400,1,12,nil,13},nil,nil,12},{69,nil,69,63,nil,0,0,64,"Rm28le Time Total",{0,999999,1,21,nil,14},nil,nil,21},{70,nil,70,43,nil,nil,nil,44,"Rm28le Position Best",{0,100,1,4,nil,15},nil,nil,4},{71,nil,71,72,nil,nil,nil,"motor_speed","Cover One Motor Speed",{0,255,1,nil,nil,16}},{73,nil,73,"illumination",nil,0,0,"cover_six_illumination","Cover Six Illumination",{nil,nil,nil,4,nil,17},nil,nil,4},{74,nil,74,72,nil,nil,nil,"dream_blinds_motor_speed","Dream Blinds Motor Speed",{0,255,1,nil,nil,18}},{75,nil,75,"flipAngle",nil,nil,nil,"dream_blinds_flip_angle","Dream Blinds Flip Angle",{0,180,1,22,nil,19},nil,nil,22},{76,nil,76,"calibrationTime",nil,0,0,"calibration_time","Ts130f Xb Calib Time",{nil,nil,nil,12,nil,20},nil,nil,12}},G)a.enum=z({{45,45,77,77,"supportedSwitchTypes",nil,nil,45,"Switch type",{78,79,80},{78,79,80},21,22,21},{81,nil,81,"tiltModeMbSixZerol",nil,nil,nil,"tilt_mode","Tilt Mode Mb60l",{1,2},{1,2},23,24,23},{46,nil,46,46,nil,nil,nil,"manual_mode","Manual Mode Epj Zb Enable Disable",{82,83},{82,83},25,26,25},{47,nil,47,47,nil,nil,nil,"window_detection","Window Detection Epj Zb State",{84,85,86},{84,85,86},27,28,27},{48,nil,48,48,nil,nil,nil,16,"Motor Direction Zb Sm Normal Rev",{3,6},{3,6},29,30,29},{87,nil,87,"caprayirlspeprfrwwysgxh",nil,nil,nil,16,"Motor Direction Zm79e Dt Left Right",{23,24},{23,24},31,32,31},{88,nil,88,"capnfcnnbmfkahvrbckxcij",nil,nil,nil,16,"Motor Direction Bx Tyz Normal Rev",{3,6},{3,6},33,34,33},{89,nil,89,"capultkjbczgdpnaciiuoqx",nil,nil,nil,16,"Motor Direction Mb Normal Rev",{3,6},{3,6},35,36,35},{49,nil,49,49,nil,nil,nil,16,"Motor Direction Epj Zb Side",{90,91},{90,91},37,38,37},{92,nil,92,"capcpcfsvmnkqqvbyfklqpl",nil,0,0,50,"Cover Work Pims Actual",{9,10,93},{9,10,93},39,40,39},{94,nil,94,"capmtldrdyfbzxvbdlnhcgl",nil,0,0,50,"Cover Work Rm Opening Closing",{9,10},{9,10},41,42,41},{95,nil,95,"coverWorkStateZmSevenNineeDtLearning",nil,0,0,50,"Cover Work State Zm79e Dt Learning",{25,26,27},{25,26,27},43,44,43},{96,nil,96,"capvonpjrddxpdpephlodgy",nil,nil,nil,19,"Cover Calibration Pims3028Start End",{13,28},{13,28},45,46,45},{97,nil,97,"controlBackMode",nil,nil,nil,"control_back_mode","Zsm01Control Back Mode",{5,7},{5,7},47,48,47},{98,nil,98,29,nil,nil,nil,51,"Zsm01Click Control",{8,11},{8,11},49,50,49},{99,nil,99,52,nil,0,0,"motor_state","Zb Sm Motor State",{9,17,10},{9,17,10},51,52,51},{100,nil,100,"topLimit",nil,nil,nil,"top_limit","Zb Sm Top Limit",{18,30},{18,30},53,54,53},{101,nil,101,"bottomLimit",nil,nil,nil,"bottom_limit","Zb Sm Bottom Limit",{18,30},{18,30},55,56,55},{102,nil,102,31,nil,nil,nil,31,"Pims3028Mode",{8,32,103},{8,32,103},57,58,57},{104,nil,104,"controlBack",nil,nil,nil,"control_back","Pims3028Control Back",{5,7},{5,7},59,60,59},{105,nil,105,53,nil,nil,nil,106,"Pims3028Auto Power",{1,2},{1,2},61,62,61},{107,nil,107,108,nil,0,0,109,"Pims3028Situation Set",{33,34},{33,34},63,64,63},{110,nil,110,14,nil,0,0,14,"Pims3028Fault",{3,14},{3,14},65,66,65},{111,nil,111,35,nil,nil,nil,35,"Pims3028Border",{36,37},{36,37},67,68,67},{112,nil,112,"bestTrigger",nil,nil,nil,"best_position_trigger","Pims3028Best Trigger",{1,2},{1,2},69,70,69},{113,nil,113,15,nil,nil,nil,15,"Pims3028Reset",{15},{15},71,72,71},{114,nil,114,31,nil,nil,nil,31,"Rm28le Mode",{115,"night"},{115,"night"},73,74,73},{116,nil,116,53,nil,nil,nil,106,"Rm28le Auto Power",{1,2},{1,2},75,76,75},{117,nil,117,118,nil,nil,nil,118,"Rm28le Countdown",{119,"1h","2h","3h","4h"},{119,"1h","2h","3h","4h"},77,78,77},{120,nil,120,108,nil,0,0,109,"Rm28le Situation Set",{33,34},{33,34},79,80,79},{121,nil,121,122,nil,0,0,123,"Rm28le Motor Fault",{3,14},{3,14},81,82,81},{124,nil,124,35,nil,nil,nil,35,"Rm28le Border",{8,11,32,36,37},{8,11,32,36,37},83,84,83},{125,nil,125,29,nil,nil,nil,51,"Rm28le Click Control",{8,11},{8,11},85,86,85},{126,nil,126,54,nil,nil,nil,127,"Cover Three Reverse Direction",{5,7},{5,7},87,88,87},{128,nil,128,"coverLimit",nil,nil,nil,"cover_limit","Cover Three Limit",{129,130,131,132,133},{129,130,131,132,133},89,90,89},{134,nil,134,29,nil,nil,nil,51,"Cover Three Click Control",{8,11},{8,11},91,92,91},{135,nil,135,122,nil,0,0,123,"Cover Three Motor Fault",{3,14},{3,14},93,94,93},{136,nil,136,54,nil,nil,nil,127,"Cover One Reverse Direction",{5,7},{5,7},95,96,95},{137,nil,137,138,nil,nil,nil,"opening_mode","Zm79e Opening Mode",{38,39},{38,39},97,98,97},{139,nil,139,"setUpperLimit",nil,nil,nil,"set_upper_limit","Zm79e Set Upper Limit",{13,40},{13,40},99,100,99},{140,nil,140,"factoryReset",nil,nil,nil,"factory_reset","Zm79e Factory Reset",{18},{18},101,102,101},{141,nil,141,"setLimits",nil,nil,nil,"set_limits","Mb60l Set Limits",{8,11,15},{8,11,15},103,104,103},{142,nil,142,143,nil,nil,nil,144,"Mb60l Child Lock",{1,2},{1,2},105,106,105},{145,nil,145,19,nil,nil,nil,19,"Trwaxi57Calibration",{13,28},{13,28},107,108,107},{146,nil,146,"backlight",nil,nil,nil,147,"Trwaxi57Backlight",{1,2},{1,2},109,110,109},{148,nil,148,"motorSteering",nil,nil,nil,"motor_steering","Trwaxi57Motor Steering",{5,149},{5,149},111,112,111},{150,nil,150,143,nil,nil,nil,144,"Trwaxi57Child Lock",{1,2},{1,2},113,114,113},{151,nil,151,138,nil,nil,nil,"cover_six_opening","Cover Six Opening",{38,39},{38,39},115,116,115},{152,nil,152,"workState",nil,0,0,"cover_six_work_state","Cover Six Work State",{25,26,27},{25,26,27},117,118,117},{153,nil,153,20,nil,nil,nil,"cover_six_direction","Cover Six Direction",{23,24},{23,24},119,120,119},{154,nil,154,"upperLimit",nil,nil,nil,"cover_six_upper_limit","Cover Six Upper Limit",{13,40},{13,40},121,122,121},{155,nil,155,20,nil,nil,nil,"ts0301_direction","Ts0301Direction",{5,7},{5,7},123,124,123},{156,nil,156,54,nil,nil,nil,"dream_blinds_reverse_direction","Dream Blinds Reverse Direction",{5,7},{5,7},125,126,125},{157,nil,157,20,nil,nil,nil,"zm25rx_motor_direction","Zm25rx Motor Direction",{3,6},{3,6},127,128,127},{158,nil,158,52,nil,0,0,"zm25rx_motor_state","Zm25rx Motor State",{9,10,17},{9,10,17},129,130,129},{159,nil,159,"program",nil,nil,nil,"zm25rx_program","Zm25rx Program",{160,161,15},{160,161,15},131,132,131},{162,nil,162,29,nil,nil,nil,"zm25rx_click_control","Zm25rx Click Control",{"upper",163,"lower",164},{"upper",163,"lower",164},133,134,133},{165,nil,165,20,nil,nil,nil,"cover15_motor_direction","Cover15Motor Direction",{3,6},{3,6},135,136,135},{166,nil,166,53,nil,nil,nil,"cover15_auto_power","Cover15Auto Power",{167,168},{167,168},137,138,137},{169,nil,169,52,nil,0,0,"cover15_motor_state","Cover15Motor State",{9,10,17},{9,10,17},139,140,139},{170,nil,170,19,nil,nil,nil,19,"Ts130f Xb Calibration",{2,1},{2,1},141,142,141},{171,nil,171,20,nil,nil,nil,16,"Ts130f Xb Direction",{3,6},{3,6},143,144,143},{172,nil,172,"backlightMode",nil,nil,nil,147,"Ts130f Xb Backlight",{2,1},{2,1},145,146,145}},K)a.text=z({{"last_power_response_time",173,173,0,0,nil,"Last power response time",64},{174,174,"motorType",0,0,"motor_type","Zb Sm Motor Type",32}},M)a.driver_message={attribute_name="driverMessage",capability_id="concertmirror08464.driverMessage",emit_name="driver_message",label="Driver message",maximum_length=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
+local function o(y)
+for _,e in ipairs(y)do
+a.by_emit_name[e.emit_name]=e
+if type(e.capability_id)=="string"and e.capability_id~=""then a.by_capability_id[e.capability_id]=e end
+if type(e.range_key)=="string"and e.range_key~=""then a.by_range_key[e.range_key]=e end
 end
 end
-index_metadata(custom_capabilities.numeric)
-index_metadata(custom_capabilities.enum)
-index_metadata(custom_capabilities.text)
-custom_capabilities.by_emit_name[custom_capabilities.driver_message.emit_name]=custom_capabilities.driver_message
-custom_capabilities.by_capability_id[custom_capabilities.driver_message.capability_id]=custom_capabilities.driver_message
-local function clone_allowed_values(allowed_values)
-if type(allowed_values)~="table" then return nil end
-local copied={}
-for index,value in ipairs(allowed_values)do copied[index]=value end
-return copied
+o(a.numeric)o(a.enum)o(a.text)a.by_emit_name[a.driver_message.emit_name]=a.driver_message
+a.by_capability_id[a.driver_message.capability_id]=a.driver_message
+local function l(j)
+if type(j)~="table"then return nil end
+local B={}
+for A,g in ipairs(j)do B[A]=g end
+return B
 end
-function custom_capabilities.resolve_range(definition,metadata)
-if type(metadata)~="table" then return nil end
-local default_range=type(metadata.default_range)=="table" and metadata.default_range or nil
-local ranges=type(definition)=="table" and definition.presence_capability_ranges or nil
-local resolved=type(ranges)=="table" and ranges[metadata.range_key]or nil
-if type(resolved)~="table" then resolved=default_range end
-if type(resolved)~="table" then return nil end
+function a.resolve_range(v,e)
+if type(e)~="table"then return nil end
+local d=type(e.default_range)=="table"and e.default_range or nil
+local C=type(v)=="table"and v.presence_capability_ranges or nil
+local h=type(C)=="table"and C[e.range_key]or nil
+if type(h)~="table"then h=d end
+if type(h)~="table"then return nil end
 return{
-minimum=type(resolved.minimum)=="number" and resolved.minimum or(default_range and default_range.minimum or nil),
-maximum=type(resolved.maximum)=="number" and resolved.maximum or(default_range and default_range.maximum or nil),
-step=type(resolved.step)=="number" and resolved.step or(default_range and default_range.step or nil),
-unit=type(resolved.unit)=="string" and resolved.unit or(default_range and default_range.unit or nil),
-allowed_values=type(resolved.allowed_values)=="table" and clone_allowed_values(resolved.allowed_values)or clone_allowed_values(default_range and default_range.allowed_values or nil),
-}
+minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil)}
 end
-return custom_capabilities
+return a

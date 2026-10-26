@@ -14,7 +14,6 @@ local definition = {
   auto_connection_status = false,
   initial_custom_state_query = false,
   refresh_state_query = false,
-  placeholder_custom_states = false,
 
   tuya.dp_numeric(3, {
     name = "qoto_qt_five_water_flow",

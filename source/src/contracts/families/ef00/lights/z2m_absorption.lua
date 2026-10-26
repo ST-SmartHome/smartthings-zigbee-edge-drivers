@@ -351,6 +351,9 @@ end
   -- DP14 power-on behavior. All option capabilities are family-specific.
   local avatto_zdms16_1 = {
     profile = "lights-dimmer-zdms16-1",
+    -- Current tuyaBase always requests the MCU firmware identifier during
+    -- configure. Keep the exact family lifecycle aligned with that contract.
+    mcu_version_request_on_configure = true,
     tuya.dp_on_off(1, { name = "switch", emit = emit.switch() }),
     tuya.dp_numeric(2, { name = "brightness", emit = emit.level(), converter = zdms16_brightness }),
     tuya.dp_numeric(3, { name = "zdms161_minimum_brightness", emit = emit.zdmsOneMinimumBrightness(), converter = zdms16_brightness }),
@@ -362,7 +365,105 @@ end
 
 register_device_definition(avatto_zdms16_1, device_helpers.create_fingerprints("TS0601", {
   "_TZE28C1000000_nqqylykc",
+  "_TZE28C1000000_huu3td85",
 }))
+
+  -- MakeGood MG-DIM02Z. Current Z2M tuya.ts maps DP141 state, DP142
+  -- brightness (raw 0..1000), and readonly DP21/22/23 current/power/voltage.
+  -- Its brightness writer turns the relay off for zero and sends ON before a
+  -- positive level, so preserve that ordered two-frame wire contract here.
+  local mg_dim02z_brightness = converter.from_only(function(value)
+    return clamp(round((tonumber(value) or 0) / 10), 0, 100)
+  end)
+  local function mg_dim02z_brightness_write(_, value)
+    local level = clamp(round(tonumber(value) or 0), 0, 100)
+    if level <= 0 then
+      return {
+        { dp = 141, datatype = tuya.DP_TYPE_BOOL, value = false, transaction = 1 },
+      }
+    end
+    return {
+      { dp = 141, datatype = tuya.DP_TYPE_BOOL, value = true, transaction = 1 },
+      { dp = 142, datatype = tuya.DP_TYPE_VALUE, value = level * 10, transaction = 2 },
+    }
+  end
+  local mg_dim02z = {
+    profile = "lights-dimmer-power-voltage-current-core",
+    magic_packet = true,
+    mcu_version_request_on_configure = true,
+    query_on_configure = false,
+    time_start = "off",
+    named_mapping = {
+      named_mappings = {
+        brightness = mg_dim02z_brightness_write,
+      },
+    },
+    datapoints = {
+      tuya.dp_on_off(141, { name = "switch", emit = emit.switch() }),
+      tuya.dp_numeric(142, {
+        name = "brightness",
+        read_only = true,
+        emit = emit.level(),
+        converter = mg_dim02z_brightness,
+      }),
+      tuya.dp_current(21, { name = "current", scale = 1000, read_only = true, emit = emit.current() }),
+      tuya.dp_power(22, { name = "power", scale = 10, read_only = true, emit = emit.power() }),
+      tuya.dp_voltage(23, { name = "voltage", scale = 10, read_only = true, emit = emit.voltage() }),
+    },
+  }
+
+  register_device_definition(mg_dim02z, device_helpers.create_fingerprints("TS0601", {
+    "_TZE284_da26abzz",
+  }))
+
+  local tuya_brightness_limit = converter.from_to(
+    function(value) return round(value * 254 / 1000) end,
+    function(value) return round(value * 1000 / 254) end
+  )
+  local sfd02_brightness = converter.scale_pair(0, 1000, 0, 100)
+  local moes_sfd02_core = {
+    profile = "lights-dimmer-moes-sfd02-core",
+    magic_packet = true,
+    mcu_version_request_on_configure = true,
+    query_on_configure = false,
+    query_on_announce = false,
+    refresh_state_query = false,
+    time_start = "off",
+    tuya.dp_on_off(1, { name = "switch", emit = emit.switch(), skip = tuya.skip.state_on_and_brightness_present() }),
+    tuya.dp_numeric(2, { name = "brightness", emit = emit.level(), converter = sfd02_brightness }),
+    tuya.dp_numeric(3, { name = "moes_sfd02_min_brightness", emit = emit.moesSfd02MinBrightness(), converter = tuya_brightness_limit }),
+    tuya.dp_numeric(5, { name = "moes_sfd02_max_brightness", emit = emit.moesSfd02MaxBrightness(), converter = tuya_brightness_limit }),
+    tuya.dp_numeric(4, {
+      name = "moes_sfd02_light_type", emit = emit.moesSfd02LightType(), receive_datatypes = {2, 4},
+      converter = converter.lookup_from_to({led = 0, incandescent = 1, halogen = 2}),
+    }),
+    tuya.dp_countdown(6, { name = "moes_sfd02_countdown", emit = emit.moesSfd02Countdown() }),
+    tuya.dp_numeric(14, {
+      name = "moes_sfd02_power_behavior", emit = emit.moesSfd02PowerBehavior(), receive_datatypes = {2, 4},
+      converter = converter.lookup_from_to({off = 0, on = 1, previous = 2}),
+    }),
+    tuya.dp_enum(21, {
+      name = "moes_sfd02_backlight_mode", emit = emit.moesSfd02BacklightMode(),
+      converter = converter.lookup_from_to({off = 0, normal = 1, inverted = 2}),
+    }),
+    tuya.dp_binary(26, {
+      name = "moes_sfd02_induction_mode", emit = emit.moesSfd02InductionMode(),
+      converter = converter.lookup_from_to({ON = true, OFF = false}),
+    }),
+    tuya.dp_enum(101, {
+      name = "moes_sfd02_indicator_status", emit = emit.moesSfd02IndicatorStatus(),
+      converter = converter.lookup_from_to({off = 0, relay = 1, invert = 2}),
+    }),
+    tuya.dp_enum(102, {
+      name = "moes_sfd02_vibration_mode", emit = emit.moesSfd02VibrationMode(),
+      converter = converter.lookup_from_to({["Gear 0"] = 0, ["Gear 1"] = 1, ["Gear 2"] = 2, ["Gear 3"] = 3}),
+    }),
+  }
+
+  register_device_definition(moes_sfd02_core, device_helpers.create_fingerprints("TS0601", {
+    "_TZE284_t88bjhfu",
+    "_TZE284_z98viqa6",
+  }))
 
   -- Mercator Ikuü SISWD11-ZB. Z2M v26.99.0 mercator.ts:191-204 uses
   -- BOOL DP1 and VALUE DP2 raw 0..1000. Z2M represents the latter as 0..254;
@@ -386,6 +487,124 @@ register_device_definition(avatto_zdms16_1, device_helpers.create_fingerprints("
   register_device_definition(light_model_mercator_siswd11_zb, device_helpers.create_fingerprints("TS0601", {
     "_TZE200_jowqowye",
   }))
+
+  -- Tuya MS032Z stair-light controller core. Current Z2M maps DP1 to the
+  -- light relay and DP127 to brightness. The controller firmware uses a
+  -- native 0..100 value on DP127, which matches SmartThings switchLevel.
+  -- Hardware traffic captured for Z2M confirms DP128/129 are the separately
+  -- paired upper/lower stair motion channels. Strip layout, effects and
+  -- timing remain deferred until their own family-specific capability audit.
+  local tuya_ms032z_core = {
+    profile = "lights-stair-ms032z-core",
+    magic_packet = true,
+    mcu_version_request_on_configure = true,
+    query_on_configure = true,
+    query_on_announce = true,
+    time_start = "off",
+    datapoints = {
+      tuya.dp_on_off(1, { name = "switch", emit = emit.switch() }),
+      tuya.dp_numeric(127, { name = "brightness", emit = emit.level() }),
+      tuya.dp_occupancy(128, {
+        name = "motion_up",
+        component = "motionUp",
+        read_only = true,
+        emit = emit.motion(),
+      }),
+      tuya.dp_occupancy(129, {
+        name = "motion_down",
+        component = "motionDown",
+        read_only = true,
+        emit = emit.motion(),
+      }),
+    },
+  }
+
+  register_device_definition(tuya_ms032z_core, device_helpers.create_fingerprints("TS0601", {
+    "_TZE284_rovbuqdo",
+  }))
+
+local qadz1lr_brightness = converter.from_to(
+  function(value) return round(value/10) end,
+  function(value) return round(value*10) end
+)
+local qadz1lr = {
+  profile="lights-qa-qadz1lr",
+  magic_packet=true,
+  mcu_version_request_on_configure=true,
+  query_on_configure=false,
+  query_on_announce=false,
+  time_start="off",
+  datapoints={
+    tuya.dp_on_off(1,{name="switch",emit=emit.switch(),skip=tuya.skip.state_on_and_brightness_present()}),
+    tuya.dp_numeric(2,{name="brightness",emit=emit.level(),converter=qadz1lr_brightness}),
+    tuya.dp_numeric(3,{name="qadz1lr_min_brightness",emit=emit.qadz1lrMinBrightness(),converter=tuya_brightness_limit}),
+    tuya.dp_numeric(5,{name="qadz1lr_max_brightness",emit=emit.qadz1lrMaxBrightness(),converter=tuya_brightness_limit}),
+    tuya.dp_countdown(6,{name="qadz1lr_countdown",emit=emit.qadz1lrCountdown()}),
+    tuya.dp_enum(14,{
+      name="qadz1lr_power_on_behavior",emit=emit.qadz1lrPowerBehavior(),
+      converter=converter.lookup_from_to({off=0,on=1,previous=2}),
+    }),
+    tuya.dp_enum(101,{
+      name="qadz1lr_switch_type",emit=emit.qadz1lrSwitchType(),
+      converter=converter.lookup_from_to({toggle=0,momentary=1}),
+    }),
+    tuya.dp_numeric(102,{name="qadz1lr_dimming_time",emit=emit.qadz1lrDimmingTime()}),
+  },
+}
+register_device_definition(qadz1lr,device_helpers.create_fingerprints("TS0601",{"_TZE28C1000000_brx4eku5"}))
+
+local function sp107_color_part(value, offset, divisor)
+  if type(value) ~= "string" or #value ~= 12 then return nil end
+  local raw = tonumber(value:sub(offset, offset + 3), 16)
+  return raw and raw / divisor or nil
+end
+
+local function sp107_color_write(device, value, context)
+  local component = context and context.component_id or "main"
+  local hue = value.hue or device:get_latest_state(component, "colorControl", "hue") or 0
+  local saturation = value.saturation or device:get_latest_state(component, "colorControl", "saturation") or 100
+  return { dp = component == "fallingDot" and 113 or 5, datatype = tuya.DP_TYPE_STRING,
+    value = string.format("%04x%04x03e8", round(clamp(hue, 0, 100) * 3.6), round(clamp(saturation, 0, 100) * 10)) }
+end
+
+local sp107e = {
+  profile = "lights-sp107e", named_datapoints = true,
+  magic_packet = true, query_on_configure = true, auto_on_before_light_command = false,
+  datapoints = {
+    tuya.dp_on_off(1, { name = "switch", emit = emit.switch() }),
+    tuya.dp_numeric(106, { name = "brightness", emit = emit.level() }),
+    tuya.dp_numeric(101, { name = "sp107_segment_count", emit = emit.sp107SegmentCount() }),
+    tuya.dp_numeric(102, { name = "sp107_segment_pixels", emit = emit.sp107SegmentPixels() }),
+    tuya.dp_enum(103, { name = "sp107_rgb_order", emit = emit.sp107RgbOrder(),
+      converter = converter.lookup_from_to({ RGB = 0, RBG = 1, GRB = 2, GBR = 3, BRG = 4, BGR = 5 }) }),
+    tuya.dp_enum(104, { name = "sp107_mode", emit = emit.sp107Mode(),
+      converter = converter.lookup_from_to({ solid = 1, effects = 2, music_strip = 3, music_screen = 4 }) }),
+    tuya.dp_numeric(107, { name = "sp107_speed", emit = emit.sp107Speed() }),
+    tuya.dp_numeric(108, { name = "sp107_effect", emit = emit.sp107Effect() }),
+    tuya.dp_numeric(109, { name = "sp107_strip_pattern", emit = emit.sp107StripPattern() }),
+    tuya.dp_numeric(110, { name = "sp107_sensitivity", emit = emit.sp107Sensitivity() }),
+    tuya.dp_enum(112, { name = "sp107_led_chip", emit = emit.sp107LedChip(),
+      converter = converter.lookup_from_to({ WS2811 = 0, DMX512 = 1, FW1935 = 2, APA102 = 3, SC6803 = 4,
+        WS2801 = 5, UCS1903 = 6, TM1812 = 7, TM1814 = 8, SK6812 = 9 }) }),
+    tuya.dp_numeric(114, { name = "sp107_screen_pattern", emit = emit.sp107ScreenPattern() }),
+  },
+  named_mapping = { named_mappings = {
+    color = sp107_color_write,
+    color_hue = function(device, value, context) return sp107_color_write(device, { hue = value }, context) end,
+    color_saturation = function(device, value, context) return sp107_color_write(device, { saturation = value }, context) end,
+  } },
+}
+for _, item in ipairs({ { 5, "main" }, { 113, "fallingDot" } }) do
+  sp107e.datapoints[#sp107e.datapoints + 1] = tuya.dp_string(item[1], {
+    name = "color_hue", component = item[2], read_only = true,
+    converter = converter.from_only(function(value) return sp107_color_part(value, 1, 3.6) end), emit = emit.color_hue(),
+  })
+  sp107e.datapoints[#sp107e.datapoints + 1] = tuya.dp_string(item[1], {
+    name = "color_saturation", component = item[2], read_only = true,
+    converter = converter.from_only(function(value) return sp107_color_part(value, 5, 10) end), emit = emit.color_saturation(),
+  })
+end
+register_device_definition(sp107e, device_helpers.create_fingerprints("TS0601", { "_TZE204_zajeikkt" }))
 
 return {
   id = "ef00.lights.z2m_absorption",

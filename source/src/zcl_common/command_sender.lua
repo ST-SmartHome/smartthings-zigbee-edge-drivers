@@ -170,6 +170,10 @@ local function load_command_sender(zcl)
       return false
     end
 
+    if meta.prefer_plain_attribute_write == true then
+      return true
+    end
+
     if meta.mfg_code ~= nil then
       return true
     end
@@ -317,6 +321,9 @@ local function load_command_sender(zcl)
 
     local mapping_context = build_or_reuse_mapping_context(device, mapping, context, value)
     local encoded = encode_command_value(device, mapping, value, mapping_context)
+    if meta.to_device ~= nil and encoded == nil then
+      return false
+    end
     local generated_command = nil
 
     if meta.tx_command_direction == "client" then
@@ -327,7 +334,7 @@ local function load_command_sender(zcl)
         zcl.get_generated_server_command(meta.cluster_id, meta.tx_command_id) or nil
     end
 
-    if generated_command ~= nil then
+    if generated_command ~= nil and type(encoded) ~= "string" then
       return send_request(device, generated_command(device, table.unpack(normalize_command_args(encoded))), mapping_context.endpoint)
     end
 

@@ -5,7 +5,7 @@ local data_types = require "st.zigbee.data_types"
 local capabilities = require "st.capabilities"
 local device_management = require "st.zigbee.device_management"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
 local SONOFF_MANUFACTURER_CODE = 0x1286
 local OCCUPANCY_CLUSTER = 0x0406
@@ -223,7 +223,6 @@ local snzb_05p = {
       minimum_interval = 3600,
       maximum_interval = 65000,
       reportable_change = 10,
-      read_on_configure = true,
     }),
   },
 }
@@ -251,14 +250,11 @@ local snzb_04p = {
     zcl.battery({
       minimum_interval = 3600,
       maximum_interval = 7200,
-      reportable_change = 2,
-      read_on_configure = true,
     }),
     zcl.battery_voltage({
       minimum_interval = 3600,
       maximum_interval = 7200,
       reportable_change = 100,
-      read_on_configure = true,
     }),
   },
 }
@@ -287,8 +283,6 @@ local snzb_04pr2 = {
     zcl.battery({
       minimum_interval = 3600,
       maximum_interval = 7200,
-      reportable_change = 2,
-      read_on_configure = true,
     }),
     zcl.power_configuration_battery_voltage({
       name = "battery_voltage",
@@ -322,6 +316,18 @@ local snzb_09p = {
       write_only = true,
       sender = sonoff_alert_sender,
     }),
+    -- Firmware 1.1.9+ reports the current alert origin here in addition to
+    -- command 0x0F. Keep this report-only so older firmware is never probed
+    -- for an attribute it does not implement.
+    zcl.cluster_attribute(SONOFF_CLUSTER, 0x202E, {
+      name = "sonoff_safety_alarm_status",
+      emit = emit.alarm(),
+      converter = enum_converter({ [0] = "off", [1] = "siren", [2] = "siren" }),
+      data_type = data_types.Uint8,
+      read_only = true,
+      read_on_configure = false,
+      read_on_refresh = false,
+    }),
     zcl.cluster_attribute(SONOFF_CLUSTER, 0x0024, {
       name = "sonoff_safety_power_source",
       emit = power_source_emit,
@@ -337,7 +343,6 @@ local snzb_09p = {
       maximum_interval = 65000,
       reportable_change = 10,
       read_only = true,
-      read_on_configure = true,
     }),
     zcl.cluster_attribute(SONOFF_CLUSTER, 0x2026, {
       name = "sonoff_safety_alarm_sound_enable",
@@ -426,26 +431,35 @@ zcl.register_cluster_command_handler(SONOFF_CLUSTER, SONOFF_ALERT_COMMAND, funct
   return true
 end)
 
-register_device_definition(snzb_06p, {
+register(snzb_06p, {
   device_helpers.create_fingerprint("SONOFF", "SNZB-06P"),
 })
 
-register_device_definition(snzb_05p, {
+register(snzb_05p, {
   device_helpers.create_fingerprint("SONOFF", "SNZB-05P"),
 })
 
-register_device_definition(snzb_04p, {
+register(snzb_04p, {
   device_helpers.create_fingerprint("eWeLink", "SNZB-04P"),
   device_helpers.create_fingerprint("SONOFF", "SNZB-04P"),
 })
 
-register_device_definition(snzb_04pr2, {
+register(snzb_04pr2, {
   device_helpers.create_fingerprint("SONOFF", "SNZB-04PR2"),
 })
 
-register_device_definition(snzb_09p, {
+register(snzb_09p, {
   device_helpers.create_fingerprint("SONOFF", "SNZB-09P"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {2, "rpt-sqg"},
+  {3, "rpt-smj"},
+  {4, "rpt-siu"},
+  {5, "rpt-smjs"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.sonoff_safety",

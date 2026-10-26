@@ -53,6 +53,12 @@ register_device_definition(ir_controller, device_helpers.create_fingerprints("ZS
   "_TZ3290_yac64inudpovoaba",
 }))
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {2, "rpt-tes"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.controls.ir",
   registrations = device_definitions,

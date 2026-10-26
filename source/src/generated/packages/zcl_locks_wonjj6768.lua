@@ -19,4 +19,9 @@ for _, entry in ipairs(registrations(catalog_1, "zcl.controls.wave18_javis_lock"
   entries[#entries + 1] = entry
 end
 
+local catalog_2 = require "contracts.families.zcl.controls.yale_yrd410"
+for _, entry in ipairs(registrations(catalog_2, "zcl.controls.yale_yrd410", "contracts.families.zcl.controls.yale_yrd410")) do
+  entries[#entries + 1] = entry
+end
+
 return entries

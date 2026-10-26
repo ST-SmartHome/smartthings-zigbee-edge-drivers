@@ -54,9 +54,6 @@ end
 local frankever = {
   profile = "valves-wave19-frankever-fk-bv05",
   package_group = "wave19-valve",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = false,
   time_start = "off",
@@ -253,9 +250,6 @@ end
 local lidl = {
   profile = "valves-wave19-lidl-psbzs-a-one",
   package_group = "wave19-valve",
-  transport_classification = "CUSTOM_PAYLOAD",
-  z2m_converter_source = "meta.tuyaDatapoints+valueConverterLocal.watering*",
-  wire_cluster = "manuSpecificTuya + genOnOff configure-only",
   magic_packet = true,
   query_on_configure = false,
   force_time_updates = true,

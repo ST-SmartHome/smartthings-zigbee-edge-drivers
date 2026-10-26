@@ -1,142 +1,198 @@
-local function load_mapping_preset(zcl)
-local emit=require "capabilities.events.all"
-local data_types=require "st.zigbee.data_types"
-local zigbee_constants=require "st.zigbee.constants"
-local function merge_options(target,source)
-if type(target)~="table" then
-target={}
+local function q(n)
+local o=require"capabilities.events.all"
+local H=require"st.zigbee.data_types"
+local D=require"st.zigbee.constants"
+local G=require"st.utils.safe_xy_to_hsv"
+local function p(l,C)
+if type(l)~="table"then
+l={}
 end
-if type(source)~="table" then
-return target
+if type(C)~="table"then
+return l
 end
-for key,value in pairs(source)do
-target[key]=value
+for E,d in pairs(C)do
+l[E]=d
 end
-return target
+return l
 end
-local function apply_defaults(target,defaults)
-if type(target)~="table" or type(defaults)~="table" then
-return target
+local function m(l,c)
+if type(l)~="table"or type(c)~="table"then
+return l
 end
-for key,value in pairs(defaults)do
-if target[key]==nil then
-target[key]=value
+for E,d in pairs(c)do
+if l[E]==nil then
+l[E]=d
 end
 end
-return target
+return l
 end
-local function normalize_preset_options(name_or_options,options)
-local resolved={}
-if type(name_or_options)=="string" then
-resolved.name=name_or_options
+local function k(h,i)
+local g={}if type(h)=="string"then
+g.name=h
 else
-merge_options(resolved,name_or_options)
+p(g,h)
 end
-merge_options(resolved,options)
-return resolved
+p(g,i)return g
 end
-local function reporting_defaults(minimum_interval,maximum_interval,reportable_change)
+local function A(d,z,y)
+if d<z then
+return z
+end
+if d>y then
+return y
+end
+return d
+end
+local function r()
 return{
-minimum_interval=minimum_interval,
-maximum_interval=maximum_interval,
-reportable_change=reportable_change,
-read_on_configure=true,
+from=function(d)
+if type(d)~="number"then
+return d
+end
+return math.floor(A(d,0,254)*100/254+0.5)
+end,
+to=function(d)
+if type(d)~="number"then
+return d
+end
+return math.floor(A(d,0,100)*254/100+0.5)
+end
 }
 end
-local function merge_defaults(...)
-local merged={}
-for _,defaults in ipairs({...})do
-apply_defaults(merged,defaults)
-end
-return merged
-end
-local function define_preset(name,factory,defaults_builder)
-zcl[name]=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,defaults_builder(resolved))
-return factory(resolved)
-end
-end
-define_preset("battery",zcl.power_configuration_battery,function()
-return merge_defaults(
-{
-emit=emit.battery(),
-scale=2,
-},
-reporting_defaults(300,21600,2)
-)
-end)
-define_preset("battery_voltage",zcl.power_configuration_battery_voltage,function()
-return merge_defaults(
-{
-emit=emit.voltage(),
-scale=10,
-},
-reporting_defaults(300,21600,1)
-)
-end)
-define_preset("switch",zcl.on_off,function(options)
-local configure_reporting=options.configure_reporting
-options.configure_reporting=nil
-if configure_reporting==false then
+local function j()
 return{
-emit=emit.switch(),
+from=function(d)
+if type(d)~="number"then
+return d
+end
+return math.floor(A(d,0,254)*100/254+0.5)
+end,
+to=function(d)
+if type(d)~="number"then
+return d
+end
+return math.floor(A(d,0,100)*254/100+0.5)
+end
 }
 end
-return merge_defaults(
-{
-emit=emit.switch(),
-},
-reporting_defaults(0,300,nil)
-)
-end)
-zcl.tuya_magic_packet=function(name_or_options,options)
-local resolved=normalize_preset_options(name_or_options,options)
-apply_defaults(resolved,{
-name="tuya_magic_packet",
-read_only=true,
-read_on_configure=true,
-})
-return zcl.cluster_attribute(0x0000,0xFFFE,resolved)
-end
-define_preset("power",zcl.electrical_measurement_power,function()
-return merge_defaults(
-{
-emit=emit.power(),
-metering_kind="power",
-poll_interval=300,
-},
-reporting_defaults(5,300,1)
-)
-end)
-define_preset("current",zcl.electrical_measurement_current,function()
-return merge_defaults(
-{
-emit=emit.current(),
-scale=1000,
-metering_kind="current",
-poll_interval=300,
-},
-reporting_defaults(5,300,1)
-)
-end)
-define_preset("voltage",zcl.electrical_measurement_voltage,function()
-return merge_defaults(
-{
-emit=emit.voltage(),
-metering_kind="voltage",
-poll_interval=300,
-},
-reporting_defaults(5,300,1)
-)
-end)
-define_preset("energy",zcl.simple_metering,function()
+local function a(v,u,s)
 return{
-emit=emit.energy(),
-read_on_configure=true,
-metering_kind="energy",
-poll_interval=900,
-}
-end)
+minimum_interval=v,maximum_interval=u,reportable_change=s,read_on_configure=true}
 end
-return load_mapping_preset
+local function f(...)
+local B={}for _,c in ipairs{...}do
+m(B,c)
+end
+return B
+end
+local function e(J,F,t)
+n[J]=function(h,i)
+local g=k(h,i)local b=g.configure_reporting
+local c=t(g)g.configure_reporting=nil
+if b==false then
+c.minimum_interval=nil
+c.maximum_interval=nil
+c.reportable_change=nil
+c.physical_reportable_change=nil
+c.reporting_defaults=nil
+end
+m(g,c)return F(g)
+end
+end
+e("temperature",n.temperature_measurement,function()
+return f(
+{
+emit=o.temperature"C",scale=100},a(30,300,50))
+end)
+e("battery",n.power_configuration_battery,function()
+return f(
+{
+emit=o.battery(),scale=2},a(300,21600,2))
+end)
+e("battery_voltage",n.power_configuration_battery_voltage,function()
+return f(
+{
+emit=o.voltage(),scale=10},a(300,21600,1))
+end)
+e("switch",n.on_off,function(i)
+local b=i.configure_reporting
+i.configure_reporting=nil
+if b==false then
+return{
+emit=o.switch()}
+end
+return f(
+{
+emit=o.switch()},a(0,300,nil))
+end)
+n.tuya_magic_packet=function(h,i)
+local g=k(h,i)m(g,{
+name="tuya_magic_packet",read_only=true,read_on_configure=true})return n.cluster_attribute(0,65534,g)
+end
+e("level",n.level_control,function(i)
+local b=i.configure_reporting
+i.configure_reporting=nil
+local c={
+name="brightness",emit=o.level(),converter=r()}
+if b==false then return c end
+return f(c,a(1,3600,1))
+end)
+e("power",n.electrical_measurement_power,function()
+return f(
+{
+emit=o.power(),metering_kind="power",poll_interval=300},a(5,300,1))
+end)
+e("current",n.electrical_measurement_current,function()
+return f(
+{
+emit=o.current(),scale=1000,metering_kind="current",poll_interval=300},a(5,300,1))
+end)
+e("voltage",n.electrical_measurement_voltage,function()
+return f(
+{
+emit=o.voltage(),metering_kind="voltage",poll_interval=300},a(5,300,1))
+end)
+e("energy",n.simple_metering,function()
+return{
+emit=o.energy(),read_on_configure=true,metering_kind="energy",poll_interval=900}
+end)
+e("color_hue",n.color_control_hue,function(i)
+local b=i.configure_reporting
+i.configure_reporting=nil
+local c={
+name="color_hue",emit=o.color_hue(),converter=j(),tx_command_id=0,
+to_device=function(d)
+local x=j().to(d)return{x,0,0,0,0}
+end
+}
+if b==false then return c end
+return f(c,a(1,300,1))
+end)
+e("color_saturation",n.color_control_saturation,function(i)
+local b=i.configure_reporting
+i.configure_reporting=nil
+local c={
+name="color_saturation",emit=o.color_saturation(),converter=j(),tx_command_id=3,
+to_device=function(d)
+local x=j().to(d)return{x,0,0,0}
+end
+}
+if b==false then return c end
+return f(c,a(1,300,1))
+end)
+n.color=function(h,i)
+local g=k(h,i)m(g,{
+name="color",cluster_id=n.CLUSTER_COLOR_CONTROL,attribute_id=n.ATTR_CURRENT_HUE,write_only=true,tx_command_id=6,
+to_device=function(d)
+if type(d)~="table"then
+return d
+end
+local I=j().to(d.hue)local w=j().to(d.saturation)if type(I)~="number"or type(w)~="number"then
+return nil
+end
+return{I,w,0,0,0}
+end
+})return n.cluster_attribute(g.cluster_id,g.attribute_id,g)
+end
+end
+return q

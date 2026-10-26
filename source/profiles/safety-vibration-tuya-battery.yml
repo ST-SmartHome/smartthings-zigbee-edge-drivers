@@ -7,28 +7,50 @@ components:
       - {id: concertmirror08464.tuyaVibrationDismissAlarm, version: 1}
       - {id: concertmirror08464.tuyaVibrationSilentMode, version: 1}
       - {id: battery, version: 1}
+      - {id: signalStrength, version: 1}
     categories: [{name: GenericSensor}]
 deviceConfig:
   dashboard:
     states:
-      - {component: main, capability: concertmirror08464.tuyaVibrationAlarmStatus, version: 1, group: main}
-      - {component: main, capability: battery, version: 1, group: main}
+    - component: main
+      capability: concertmirror08464.tuyaVibrationAlarmStatus
+      group: main
+    - component: main
+      capability: battery
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - {component: main, capability: concertmirror08464.tuyaVibrationAlarmStatus, version: 1}
-    - {component: main, capability: concertmirror08464.tuyaVibrationSensitivity, version: 1}
-    - {component: main, capability: concertmirror08464.tuyaVibrationDismissAlarm, version: 1}
-    - {component: main, capability: concertmirror08464.tuyaVibrationSilentMode, version: 1}
-    - {component: main, capability: battery, version: 1}
+  - component: main
+    capability: concertmirror08464.tuyaVibrationAlarmStatus
+  - component: main
+    capability: concertmirror08464.tuyaVibrationSensitivity
+  - component: main
+    capability: concertmirror08464.tuyaVibrationDismissAlarm
+  - component: main
+    capability: concertmirror08464.tuyaVibrationSilentMode
+  - component: main
+    capability: battery
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - {component: main, capability: concertmirror08464.tuyaVibrationAlarmStatus, version: 1}
-      - {component: main, capability: concertmirror08464.tuyaVibrationSensitivity, version: 1}
-      - {component: main, capability: concertmirror08464.tuyaVibrationDismissAlarm, version: 1}
-      - {component: main, capability: concertmirror08464.tuyaVibrationSilentMode, version: 1}
-      - {component: main, capability: battery, version: 1}
+    - component: main
+      capability: concertmirror08464.tuyaVibrationAlarmStatus
+    - component: main
+      capability: concertmirror08464.tuyaVibrationSensitivity
+    - component: main
+      capability: concertmirror08464.tuyaVibrationDismissAlarm
+    - component: main
+      capability: concertmirror08464.tuyaVibrationSilentMode
+    - component: main
+      capability: battery
+    - component: main
+      capability: signalStrength
     actions:
-      - {component: main, capability: concertmirror08464.tuyaVibrationSensitivity, version: 1}
-      - {component: main, capability: concertmirror08464.tuyaVibrationDismissAlarm, version: 1}
-      - {component: main, capability: concertmirror08464.tuyaVibrationSilentMode, version: 1}
+    - component: main
+      capability: concertmirror08464.tuyaVibrationSensitivity
+    - component: main
+      capability: concertmirror08464.tuyaVibrationDismissAlarm
+    - component: main
+      capability: concertmirror08464.tuyaVibrationSilentMode

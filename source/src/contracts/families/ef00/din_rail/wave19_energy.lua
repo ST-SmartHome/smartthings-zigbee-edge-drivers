@@ -65,15 +65,11 @@ local on_off_converter = converter.lookup_from_to(ON_OFF)
 local moes_zm_six = {
   profile = "meters-wave19-moes-zm6lt1",
   package_group = "wave19-energy",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = true,
   query_interval_seconds = 60,
   named_datapoints = true,
   time_start = "off",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_energy(1, {
       name = "energy",
@@ -379,14 +375,10 @@ end
 local d_five = {
   profile = "meters-wave19-nous-d5z",
   package_group = "wave19-energy",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = true,
   named_datapoints = true,
   time_start = "off",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_energy(1, { name = "energy", scale = 100, read_only = true, transaction = 1, emit = emit.energy() }),
     tuya.dp_raw(6, {
@@ -508,14 +500,10 @@ register_device_definition(d_five, {
 local qa_qaszp = {
   profile = "meters-wave19-qa-qaszp",
   package_group = "wave19-energy",
-  transport_classification = "HYBRID_ZCL_EF00",
-  z2m_converter_source = "fromZigbee electrical_measurement/metering + meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya + ElectricalMeasurement + SimpleMetering",
   magic_packet = true,
   query_on_configure = false,
   named_datapoints = true,
   time_start = "off",
-  placeholder_custom_states = false,
   datapoints = {
     tuya.dp_energy(17, { name = "energy", scale = 1000, read_only = true, command_id = tuya.SEND_DATA, transaction = 1, emit = emit.energy() }),
     tuya.dp_current(18, { name = "current", scale = 1000, read_only = true, command_id = tuya.SEND_DATA, transaction = 1, emit = emit.current() }),

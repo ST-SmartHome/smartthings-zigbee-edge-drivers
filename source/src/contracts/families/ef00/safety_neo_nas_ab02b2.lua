@@ -42,7 +42,6 @@ local definition = {
   time_start = "off",
   initial_custom_state_query = false,
   refresh_state_query = false,
-  placeholder_custom_states = false,
 
   tuya.dp_binary(13, {
     name = "alarm",

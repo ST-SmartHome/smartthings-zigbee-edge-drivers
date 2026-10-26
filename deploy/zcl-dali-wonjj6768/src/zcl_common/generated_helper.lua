@@ -1,145 +1,100 @@
-local function load_generated_helper(zcl)
-local cluster_base=require "st.zigbee.cluster_base"
-local generated_clusters=require "st.zigbee.generated.zcl_clusters"
-local cluster_cache={}
-local cluster_name_cache={}
-local attribute_cache={}
-local attribute_name_cache={}
-local server_command_cache={}
-local client_command_cache={}
-local dynamic_attribute_cache={}
-local function cache_key(cluster_id,item_id)
-return string.format("%04X:%04X",cluster_id,item_id)
+local function u(A)
+local D=require"st.zigbee.cluster_base"
+local q=require"st.zigbee.generated.zcl_clusters"
+local r={}local o={}local k={}local l={}local w={}local v={}local j={}
+local function x(b,G)
+return string.format("%04X:%04X",b,G)
 end
-local function get_cluster(cluster_id)
-local cached=cluster_cache[cluster_id]
-if cached ~=nil then
-return cached
+local function n(b)
+local e=r[b]if e~=nil then
+return e
 end
-local cluster=generated_clusters.get_cluster_from_id(cluster_id)
-cluster_cache[cluster_id]=cluster or false
-return cluster
+local a=q.get_cluster_from_id(b)r[b]=a or false
+return a
 end
-local function get_cluster_by_name(cluster_name)
-local cached=cluster_name_cache[cluster_name]
-if cached ~=nil then
-return cached
+local function m(d)
+local e=o[d]if e~=nil then
+return e
 end
-local cluster=generated_clusters[cluster_name]
-cluster_name_cache[cluster_name]=cluster or false
-if cluster ~=nil and cluster ~=false and cluster.ID ~=nil then
-cluster_cache[cluster.ID]=cluster
+local a=q[d]o[d]=a or false
+if a~=nil and a~=false and a.ID~=nil then
+r[a.ID]=a
 end
-return cluster
+return a
 end
-local function get_attribute(cluster_id,attribute_id)
-local key=cache_key(cluster_id,attribute_id)
-local cached=attribute_cache[key]
-if cached ~=nil then
-return cached
+local function C(b,g)
+local y=x(b,g)local e=k[y]if e~=nil then
+return e
 end
-local cluster=get_cluster(cluster_id)
-local attribute=nil
-if cluster ~=nil and cluster ~=false then
-local attr_name=cluster.attr_id_map and cluster.attr_id_map()[attribute_id]or nil
-if attr_name ~=nil and cluster.server and cluster.server.attributes then
-attribute=cluster.server.attributes[attr_name]
+local a=n(b)local c
+if a~=nil and a~=false then
+local B=a.attr_id_map and a.attr_id_map()[g]or nil
+if B~=nil and a.server and a.server.attributes then
+c=a.server.attributes[B]
 end
 end
-attribute_cache[key]=attribute or false
-return attribute
+k[y]=c or false
+return c
 end
-local function get_attribute_by_name(cluster_name,attribute_name)
-local key=string.format("%s:%s",tostring(cluster_name),tostring(attribute_name))
-local cached=attribute_name_cache[key]
-if cached ~=nil then
-return cached
+local function t(d,f)
+local y=string.format("%s:%s",tostring(d),tostring(f))local e=l[y]if e~=nil then
+return e
 end
-local attribute=nil
-local cluster=get_cluster_by_name(cluster_name)
-if cluster ~=nil and cluster ~=false and cluster.server and cluster.server.attributes then
-attribute=cluster.server.attributes[attribute_name]
-if attribute ~=nil and attribute ~=false and attribute.ID ~=nil then
-attribute_cache[cache_key(cluster.ID,attribute.ID)]=attribute
+local c
+local a=m(d)if a~=nil and a~=false and a.server and a.server.attributes then
+c=a.server.attributes[f]if c~=nil and c~=false and c.ID~=nil then
+k[x(a.ID,c.ID)]=c
 end
 end
-attribute_name_cache[key]=attribute or false
-return attribute
+l[y]=c or false
+return c
 end
-local function get_command(cluster_id,command_id,direction,cache)
-local key=cache_key(cluster_id,command_id)
-local cached=cache[key]
-if cached ~=nil then
-return cached
+local function z(b,h,p,F)
+local y=x(b,h)local e=F[y]if e~=nil then
+return e
 end
-local cluster=get_cluster(cluster_id)
-local command=nil
-if cluster ~=nil and cluster ~=false then
-local name=direction=="client" and cluster.client_id_map and cluster.client_id_map()[command_id]
-or direction=="server" and cluster.server_id_map and cluster.server_id_map()[command_id]
-or nil
-if name ~=nil and cluster[direction]and cluster[direction].commands then
-command=cluster[direction].commands[name]
+local a=n(b)local i
+if a~=nil and a~=false then
+local H=p=="client"and a.client_id_map and a.client_id_map()[h]or p=="server"and a.server_id_map and a.server_id_map()[h]or nil
+if H~=nil and a[p]and a[p].commands then
+i=a[p].commands[H]
 end
 end
-cache[key]=command or false
-return command
+F[y]=i or false
+return i
 end
-function zcl.get_generated_cluster(cluster_id)
-local cluster=get_cluster(cluster_id)
-return cluster ~=false and cluster or nil
+function A.get_generated_cluster(b)
+local a=n(b)return a~=false and a or nil
 end
-function zcl.get_generated_cluster_by_name(cluster_name)
-local cluster=get_cluster_by_name(cluster_name)
-return cluster ~=false and cluster or nil
+function A.get_generated_cluster_by_name(d)
+local a=m(d)return a~=false and a or nil
 end
-function zcl.get_generated_cluster_id(cluster_name)
-local cluster=zcl.get_generated_cluster_by_name(cluster_name)
-return cluster and cluster.ID or nil
+function A.get_generated_cluster_id(d)
+local a=A.get_generated_cluster_by_name(d)return a and a.ID or nil
 end
-function zcl.get_generated_attribute(cluster_id,attribute_id)
-local attribute=get_attribute(cluster_id,attribute_id)
-return attribute ~=false and attribute or nil
+function A.get_generated_attribute(b,g)
+local c=C(b,g)return c~=false and c or nil
 end
-function zcl.get_generated_attribute_by_name(cluster_name,attribute_name)
-local attribute=get_attribute_by_name(cluster_name,attribute_name)
-return attribute ~=false and attribute or nil
+function A.get_generated_attribute_by_name(d,f)
+local c=t(d,f)return c~=false and c or nil
 end
-function zcl.get_generated_server_command(cluster_id,command_id)
-local command=get_command(cluster_id,command_id,"server",server_command_cache)
-return command ~=false and command or nil
+function A.get_generated_server_command(b,h)
+local i=z(b,h,"server",w)return i~=false and i or nil
 end
-function zcl.get_generated_client_command(cluster_id,command_id)
-local command=get_command(cluster_id,command_id,"client",client_command_cache)
-return command ~=false and command or nil
+function A.get_generated_client_command(b,h)
+local i=z(b,h,"client",v)return i~=false and i or nil
 end
-function zcl.build_dynamic_attribute(cluster_id,attribute_id,base_type,writable,attribute_name,is_complex)
-local cluster=get_cluster(cluster_id)
-if cluster==nil or cluster==false or type(base_type)~="table" or base_type.ID==nil then
+function A.build_dynamic_attribute(b,g,s,writable,f,is_complex)
+local a=n(b)if a==nil or a==false or type(s)~="table"or s.ID==nil then
 return nil
 end
-local key=table.concat({
-tostring(cluster_id),
-tostring(attribute_id),
-tostring(base_type.ID),
-writable==false and "0" or "1",
-is_complex==true and "1" or "0",
-tostring(attribute_name or ""),
-},":")
-local cached=dynamic_attribute_cache[key]
-if cached ~=nil then
-return cached ~=false and cached or nil
+local y=table.concat({
+tostring(b),tostring(g),tostring(s.ID),writable==false and"0"or"1",is_complex==true and"1"or"0",tostring(f or"")},":")local e=j[y]if e~=nil then
+return e~=false and e or nil
 end
-local attribute=cluster_base.build_cluster_attribute(
-cluster,
-attribute_id,
-attribute_name or string.format("Attribute%04X",attribute_id),
-base_type,
-writable ~=false,
-is_complex==true
-)
-dynamic_attribute_cache[key]=attribute or false
-return attribute
+local c=D.build_cluster_attribute(
+a,g,f or string.format("Attribute%04X",g),s,writable~=false,is_complex==true)j[y]=c or false
+return c
 end
 end
-return load_generated_helper
+return u

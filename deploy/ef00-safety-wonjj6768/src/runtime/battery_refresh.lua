@@ -1,119 +1,112 @@
-local capabilities=require "st.capabilities"
-local battery_refresh={}
-local BATTERY_REFRESH_INTERVAL=24 * 60 * 60
-local LAST_BATTERY_REPORT_FIELD="__battery_refresh_last_report_at"
-local LAST_BATTERY_REQUEST_FIELD="__battery_refresh_last_request_at"
-local BATTERY_REFRESH_TIMER_FIELD="__battery_refresh_timer"
-local requester=nil
-local requester_supports=nil
-local function now()
+local h=require"st.capabilities"
+local b={}local e=24*60*60
+local f="__battery_refresh_last_report_at"
+local d="__battery_refresh_last_request_at"
+local c="__battery_refresh_timer"
+local i
+local g
+local function w()
 return os.time()
 end
-local function cancel_timer(device)
-local timer=device:get_field(BATTERY_REFRESH_TIMER_FIELD)
-if timer ~=nil and type(timer.cancel)=="function" then
+local function k(a)
+local o=a:get_field(c)
+if o~=nil and type(o.cancel)=="function"then
 pcall(function()
-timer:cancel()
+o:cancel()
 end)
 end
-device:set_field(BATTERY_REFRESH_TIMER_FIELD,nil,{persist=false})
+a:set_field(c,nil,{persist=false})
 end
-function battery_refresh.set_requester(callback,supports)
-requester=callback
-requester_supports=supports
+function b.set_requester(u,v)
+i=u
+g=v
 end
-local function can_request(device)
-if type(requester)~="function" then
+local function j(a)
+if type(i)~="function"then
 return false
 end
-if type(requester_supports)=="function" then
-return requester_supports(device)==true
+if type(g)=="function"then
+return g(a)==true
 end
 return true
 end
-function battery_refresh.has_battery(device)
-if type(device)~="table" then
+function b.has_battery(a)
+if type(a)~="table"then
 return false
 end
-if type(device.supports_capability_by_id)=="function" and device:supports_capability_by_id(capabilities.battery.ID,"main")then
+if type(a.supports_capability_by_id)=="function"and a:supports_capability_by_id(h.battery.ID,"main")then
 return true
 end
-local components=device.profile and device.profile.components or nil
-if type(components)~="table" then
+local q=a.profile and a.profile.components or nil
+if type(q)~="table"then
 return false
 end
-for component_id,_ in pairs(components)do
-if type(component_id)=="string"
-and type(device.supports_capability_by_id)=="function"
-and device:supports_capability_by_id(capabilities.battery.ID,component_id)then
+for l,_ in pairs(q)do
+if type(l)=="string"
+and type(a.supports_capability_by_id)=="function"
+and a:supports_capability_by_id(h.battery.ID,l)then
 return true
 end
 end
 return false
 end
-function battery_refresh.note_report(device)
-if type(device)=="table" and type(device.set_field)=="function" then
-device:set_field(LAST_BATTERY_REPORT_FIELD,now(),{persist=true})
+function b.note_report(a)
+if type(a)=="table"and type(a.set_field)=="function"then
+a:set_field(f,w(),{persist=true})
 end
 end
-function battery_refresh.should_request(device)
-if not can_request(device)or not battery_refresh.has_battery(device)then
+function b.should_request(a)
+if not j(a)or not b.has_battery(a)then
 return false
 end
-local current=now()
-local last_report=device:get_field(LAST_BATTERY_REPORT_FIELD)
-if type(last_report)=="number" and current - last_report < BATTERY_REFRESH_INTERVAL then
+local t=w()local p=a:get_field(f)if type(p)=="number"and t-p<e then
 return false
 end
-local last_request=device:get_field(LAST_BATTERY_REQUEST_FIELD)
-if type(last_request)=="number" and current - last_request < BATTERY_REFRESH_INTERVAL then
+local m=a:get_field(d)if type(m)=="number"and t-m<e then
 return false
 end
 return true
 end
-function battery_refresh.request_if_due(device)
-if not battery_refresh.should_request(device)then
+function b.request_if_due(a)
+if not b.should_request(a)then
 return false
 end
-device:set_field(LAST_BATTERY_REQUEST_FIELD,now(),{persist=true})
-return requester(device)
+a:set_field(d,w(),{persist=true})return i(a)
 end
-function battery_refresh.schedule_after_button(device)
-if type(device)~="table" or device.thread==nil or type(device.thread.call_with_delay)~="function" then
+function b.schedule_after_button(a)
+if type(a)~="table"or a.thread==nil or type(a.thread.call_with_delay)~="function"then
 return false
 end
-if not battery_refresh.should_request(device)then
+if not b.should_request(a)then
 return false
 end
-device:set_field(LAST_BATTERY_REQUEST_FIELD,now(),{persist=true})
-device.thread:call_with_delay(1,function()
-if can_request(device)and battery_refresh.has_battery(device)then
-requester(device)
+a:set_field(d,w(),{persist=true})
+a.thread:call_with_delay(1,function()
+if j(a)and b.has_battery(a)then
+i(a)
 end
 end,"battery read after button")
 return true
 end
-function battery_refresh.maybe_schedule_after_event(device,event)
-local capability_id=event and event.capability and event.capability.ID or nil
-local attribute_name=event and event.attribute and event.attribute.NAME or nil
-if capability_id==capabilities.button.ID and attribute_name=="button" then
-return battery_refresh.schedule_after_button(device)
+function b.maybe_schedule_after_event(a,n)
+local s=n and n.capability and n.capability.ID or nil
+local r=n and n.attribute and n.attribute.NAME or nil
+if s==h.button.ID and r=="button"then
+return b.schedule_after_button(a)
 end
 return false
 end
-function battery_refresh.start_daily(device)
-if type(device)~="table" or device.thread==nil or type(device.thread.call_on_schedule)~="function" then
+function b.start_daily(a)
+if type(a)~="table"or a.thread==nil or type(a.thread.call_on_schedule)~="function"then
 return false
 end
-if not battery_refresh.has_battery(device)or not can_request(device)then
-cancel_timer(device)
-return false
+if not b.has_battery(a)or not j(a)then
+k(a)return false
 end
-cancel_timer(device)
-local timer=device.thread:call_on_schedule(BATTERY_REFRESH_INTERVAL,function()
-battery_refresh.request_if_due(device)
+k(a)
+local o=a.thread:call_on_schedule(e,function()
+b.request_if_due(a)
 end,"battery voltage daily read")
-device:set_field(BATTERY_REFRESH_TIMER_FIELD,timer,{persist=false})
-return timer ~=nil
+a:set_field(c,o,{persist=false})return o~=nil
 end
-return battery_refresh
+return b

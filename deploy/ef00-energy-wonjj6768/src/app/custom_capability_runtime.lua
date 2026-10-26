@@ -1,703 +1,512 @@
-local capabilities=require "st.capabilities"
-local custom_capabilities=require "runtime.capability_metadata"
-local capability_support=require "runtime.capability_support"
-local utf8_text=require "runtime.utf8_text"
-local log=require "log"
-local tuya=require "protocol.tuya"
-local zcl=require "protocol.zcl"
-local MAIN_COMPONENT="main"
-local INITIAL_CUSTOM_STATE_QUERY_KEY="__initialCustomStateQueryRequested"
-local UNKNOWN_PROFILE_TOKEN="__unknown_profile__"
-local REFRESHED_PROFILE_CAPABILITIES={}
-local PLACEHOLDER_STATE_DELAY_S=30
-local numeric_definitions=custom_capabilities.numeric
-local enum_definitions=custom_capabilities.enum
-local text_definitions=custom_capabilities.text
-local driver_message_definition=custom_capabilities.driver_message
-local METADATA_GROUPS={
-{kind="numeric",definitions=numeric_definitions},
-{kind="enum",definitions=enum_definitions},
-{kind="text",definitions=text_definitions},
-}
-local COMMAND_GROUPS={
-{kind="numeric",definitions=numeric_definitions},
-{kind="enum",definitions=enum_definitions},
-{kind="text",definitions=text_definitions},
-}
-local function device_name(device)
-if type(device)~="table" then
-return "device"
+local aK=require"st.capabilities"
+local r=require"runtime.capability_metadata"
+local ac=require"runtime.capability_support"
+local aY=require"runtime.utf8_text"
+local aQ=require"log"
+local bz=require"protocol.tuya"
+local bx=require"protocol.zcl"
+local d="main"
+local B="__initialCustomStateQueryRequested"
+local S="__unknown_profile__"
+local C={}local H=r.numeric
+local Q=r.enum
+local as=r.text
+local l=r.driver_message
+local au={
+{kind="numeric",definitions=H},{kind="enum",definitions=Q},{kind="text",definitions=as}}local aW={
+{kind="numeric",definitions=H},{kind="enum",definitions=Q},{kind="text",definitions=as}}
+local function u(b)
+if type(b)~="table"then
+return"device"
 end
-return device.label or device.id or "device"
+return b.label or b.id or"device"
 end
-local function profile_token(device)
-if type(device)~="table" then
-return UNKNOWN_PROFILE_TOKEN
+local function aZ(b)
+if type(b)~="table"then
+return S
 end
-local profile=device.profile
-local profile_id=type(profile)=="table" and profile.id or nil
-if type(profile_id)=="string" and profile_id ~="" then
-return profile_id
+local bh=b.profile
+local aG=type(bh)=="table"and bh.id or nil
+if type(aG)=="string"and aG~=""then
+return aG
 end
-return UNKNOWN_PROFILE_TOKEN
+return S
 end
-local function get_profile_refresh_state(device)
-local token=profile_token(device)
-local state=REFRESHED_PROFILE_CAPABILITIES[token]
-if state==nil then
-state={}
-REFRESHED_PROFILE_CAPABILITIES[token]=state
+local function al(b)
+local bo=aZ(b)local bb=C[bo]if bb==nil then
+bb={}C[bo]=bb
 end
-return state
+return bb
 end
-local function is_callable(value)
-if type(value)=="function" then
-return true
+local aP=ac.is_callable
+local function aa(j,J)
+local D=aK[j]local f=D and D[J]or nil
+if not aP(f)and D and type(D.attributes)=="table"then
+f=D.attributes[J]
 end
-if type(value)~="table" then
-return false
+return D,f
 end
-local metatable=getmetatable(value)
-return type(metatable)=="table" and type(metatable.__call)=="function"
+local function o(b,c,j)
+return ac.supports(b,j,c)
 end
-local function resolve_capability_attribute(capability_id,attribute_name)
-local capability=capabilities[capability_id]
-local attribute=capability and capability[attribute_name]or nil
-if not is_callable(attribute)and capability and type(capability.attributes)=="table" then
-attribute=capability.attributes[attribute_name]
+local function N(q,bj,aD)
+local a=r.by_range_key[bj]if a==nil and type(aD)=="table"then
+a={
+range_key=bj,default_range=aD}
 end
-return capability,attribute
+return r.resolve_range(q,a)
 end
-local function profile_supports_capability(device,component_id,capability_id)
-return capability_support.supports(device,capability_id,component_id)
+local function Y(q,a)
+local p=N(q,a.range_key,{
+allowed_values=a.supported_values})return type(p)=="table"and p.allowed_values or a.supported_values
 end
-local function resolve_metadata_range(definition,key,fallback)
-local metadata=custom_capabilities.by_range_key[key]
-if metadata==nil and type(fallback)=="table" then
-metadata={
-range_key=key,
-default_range=fallback,
-}
+local function ba(i,w,aS)
+if type(aS)~="number"or aS<=0 then
+return i
 end
-return custom_capabilities.resolve_range(definition,metadata)
+local bs=type(w)=="number"and w or 0
+local br=math.floor(((i-bs)/aS)+0.5)local an=bs+(br*aS)local bc=tostring(aS):match"%.(%d+)"if bc~=nil then
+an=tonumber(string.format("%."..tostring(#bc).."f",an))
 end
-local function resolve_enum_values(definition,metadata)
-local range=resolve_metadata_range(definition,metadata.range_key,{
-allowed_values=metadata.supported_values,
-})
-return type(range)=="table" and range.allowed_values or metadata.supported_values
+return an
 end
-local function round_to_step(value,minimum,step)
-if type(step)~="number" or step <=0 then
-return value
+local function ay(i,e)
+if type(e)~="table"or #e==0 then
+return i
 end
-local base=type(minimum)=="number" and minimum or 0
-local rounded=math.floor(((value - base)/ step)+ 0.5)
-local adjusted=base +(rounded * step)
-local decimals=tostring(step):match("%.(%d+)")
-if decimals ~=nil then
-adjusted=tonumber(string.format("%." .. tostring(#decimals).. "f",adjusted))
-end
-return adjusted
-end
-local function snap_to_allowed_values(value,allowed_values)
-if type(allowed_values)~="table" or #allowed_values==0 then
-return value
-end
-local best=nil
-local best_distance=nil
-for _,candidate in ipairs(allowed_values)do
-if type(candidate)=="number" then
-local distance=math.abs(candidate - value)
-if best==nil or distance < best_distance then
-best=candidate
-best_distance=distance
+local bk
+local aI
+for _,ab in ipairs(e)do
+if type(ab)=="number"then
+local bd=math.abs(ab-i)if bk==nil or bd<aI then
+bk=ab
+aI=bd
 end
 end
 end
-return best or value
+return bk or i
 end
-local function normalize_custom_numeric_value(raw_value,minimum,maximum,step,allowed_values)
-if type(raw_value)~="number" then
+local function W(k,w,A,aS,e)
+if type(k)~="number"then
 return nil,false
 end
-local value=raw_value
-if type(minimum)=="number" and value < minimum then
-value=minimum
+local i=k
+if type(w)=="number"and i<w then
+i=w
 end
-if type(maximum)=="number" and value > maximum then
-value=maximum
+if type(A)=="number"and i>A then
+i=A
 end
-value=round_to_step(value,minimum,step)
-value=snap_to_allowed_values(value,allowed_values)
-return value,value ~=raw_value
+i=ba(i,w,aS)i=ay(i,e)return i,i~=k
 end
-local function normalize_custom_enum_value(raw_value,allowed_values)
-if type(raw_value)~="string" or raw_value=="" then
+local function ae(k,e)
+if type(k)~="string"or k==""then
 return nil
 end
-if type(allowed_values)~="table" or allowed_values[1]==nil then
-return raw_value
+if type(e)~="table"or e[1]==nil then
+return k
 end
-for _,candidate in ipairs(allowed_values)do
-if raw_value==candidate then
-return raw_value
-end
-end
-return nil
-end
-local function resolve_numeric_event_unit(metadata,range)
-if type(range)=="table" and type(range.unit)=="string" and range.unit ~="" then
-return range.unit
-end
-if type(metadata)=="table" then
-if type(metadata.event_unit)=="string" and metadata.event_unit ~="" then
-return metadata.event_unit
-end
-local default_range=metadata.default_range
-if type(default_range)=="table" and type(default_range.unit)=="string" and default_range.unit ~="" then
-return default_range.unit
+for _,ab in ipairs(e)do
+if k==ab then
+return k
 end
 end
 return nil
 end
-local function emit_event(device,component_id,event)
-component_id=component_id or MAIN_COMPONENT
-if component_id==MAIN_COMPONENT then
-device:emit_event(event)
-else
-device:emit_component_event({id=component_id},event)
+local function aj(a,p)
+if type(p)=="table"and type(p.unit)=="string"and p.unit~=""then
+return p.unit
+end
+if type(a)=="table"then
+if type(a.event_unit)=="string"and a.event_unit~=""then
+return a.event_unit
+end
+local O=a.default_range
+if type(O)=="table"and type(O.unit)=="string"and O.unit~=""then
+return O.unit
 end
 end
-local function for_each_definition_group(callback)
-for _,group in ipairs(METADATA_GROUPS)do
-callback(group.definitions,group.kind)
+return nil
+end
+local function K(b,c,bn)
+c=c or d
+if c==d then
+b:emit_event(bn)else
+b:emit_component_event({id=c},bn)
 end
 end
-local function for_each_supported_metadata(device,definitions,component_id,callback)
-component_id=component_id or MAIN_COMPONENT
-for _,metadata in ipairs(definitions)do
-if profile_supports_capability(device,component_id,metadata.capability_id)then
-callback(metadata,component_id)
+local function I(Z)
+for _,aF in ipairs(au)do
+Z(aF.definitions,aF.kind)
+end
+end
+local function E(b,x,c,Z)
+c=c or d
+for _,a in ipairs(x)do
+if o(b,c,a.capability_id)then
+Z(a,c)
 end
 end
 end
-local function apply_numeric_metadata_bounds(metadata,minimum,maximum)
-if type(metadata)~="table" then
-return minimum,maximum
+local function X(a,w,A)
+if type(a)~="table"then
+return w,A
 end
-if type(metadata.event_minimum)=="number" and(type(minimum)~="number" or minimum < metadata.event_minimum)then
-minimum=metadata.event_minimum
+if type(a.event_minimum)=="number"and(type(w)~="number"or w<a.event_minimum)then
+w=a.event_minimum
 end
-if type(metadata.event_maximum)=="number" and(type(maximum)~="number" or maximum > metadata.event_maximum)then
-maximum=metadata.event_maximum
+if type(a.event_maximum)=="number"and(type(A)~="number"or A>a.event_maximum)then
+A=a.event_maximum
 end
-if type(minimum)=="number" and type(maximum)=="number" and minimum > maximum then
-minimum=maximum
+if type(w)=="number"and type(A)=="number"and w>A then
+w=A
 end
-return minimum,maximum
+return w,A
 end
-local function schedule_device_task(device,delay_s,label,callback)
-if type(callback)~="function" then
+local function aH(b,bq,bw,Z)
+if type(Z)~="function"then
 return false
 end
-if device ~=nil and device.thread ~=nil and type(device.thread.call_with_delay)=="function" then
-device.thread:call_with_delay(delay_s,callback,label)
-return true
+if b~=nil and b.thread~=nil and type(b.thread.call_with_delay)=="function"then
+b.thread:call_with_delay(bq,Z,bw)return true
 end
 return false
 end
-local function create(options)
-local get_preset=assert(options and options.get_preset,"custom capability runtime requires get_preset")
-local send=assert(options and options.send,"custom capability runtime requires send")
-local resolve_definition=assert(options and options.resolve_definition,"custom capability runtime requires resolve_definition")
-local function log_missing_custom_binding(device,metadata,reason)
-if type(device)~="table" or type(metadata)~="table" then
+local function bt(am)
+local aE=assert(am and am.get_preset,"custom capability runtime requires get_preset")local bm=assert(am and am.send,"custom capability runtime requires send")local ag=assert(am and am.resolve_definition,"custom capability runtime requires resolve_definition")
+local function G(b,a,aU)
+if type(b)~="table"or type(a)~="table"then
 return
 end
-local key=string.format("__custom_driver_missing__:%s:%s",metadata.capability_id or "unknown",reason or "unknown")
-if device.get_field ~=nil and device.set_field ~=nil and device:get_field(key)then
+local bj=string.format("__custom_driver_missing__:%s:%s",a.capability_id or"unknown",aU or"unknown")if b.get_field~=nil and b.set_field~=nil and b:get_field(bj)then
 return
 end
-if device.set_field ~=nil then
-device:set_field(key,true,{persist=false})
+if b.set_field~=nil then
+b:set_field(bj,true,{persist=false})
 end
-log.error(string.format(
-"[%s] Custom capability driver binding missing (%s): %s.%s",
-device_name(device),
-reason or "unknown",
-metadata.capability_id or "unknown",
-metadata.attribute_name or "unknown"
-))
+aQ.error(string.format(
+"[%s] Custom capability driver binding missing (%s): %s.%s",u(b),aU or"unknown",a.capability_id or"unknown",a.attribute_name or"unknown"))
 end
-local function resolve_attribute_binding(device,metadata,attribute_name,log_missing)
-local capability,attribute=resolve_capability_attribute(metadata.capability_id,attribute_name)
-if is_callable(attribute)then
-return attribute
+local function g(b,a,J,bg)
+local D,f=aa(a.capability_id,J)if aP(f)then
+return f
 end
-if log_missing then
-if capability==nil then
-log_missing_custom_binding(device,metadata,"capability")
-else
-log_missing_custom_binding(device,metadata,"attribute")
+if bg then
+if D==nil then
+G(b,a,"capability")else
+G(b,a,"attribute")
 end
 end
 return nil
 end
-local function resolve_numeric_range(device,definition,metadata,component_id,fallback)
-local mapping_range=nil
-local preset=get_preset(device)
-if preset ~=nil and type(preset.zcl_clusters)=="table" and type(metadata.mapping_name)=="string" and metadata.mapping_name ~="" then
-local mapping=zcl.find_mapping_by_name(preset.zcl_clusters,metadata.mapping_name,device,{
-component_id=component_id or MAIN_COMPONENT,
-})
-if type(mapping)=="table" and type(mapping.numeric_range)=="table" then
-mapping_range=mapping.numeric_range
+local function U(b,q,a,c,aD)
+local aJ
+local n=aE(b)if n~=nil and type(n.zcl_clusters)=="table"and type(a.mapping_name)=="string"and a.mapping_name~=""then
+local m=bx.find_mapping_by_name(n.zcl_clusters,a.mapping_name,b,{
+component_id=c or d})if type(m)=="table"and type(m.numeric_range)=="table"then
+aJ=m.numeric_range
 end
 end
-local range=resolve_metadata_range(definition,metadata.range_key,fallback or mapping_range or metadata.default_range)
-if type(range)~="table" then
+local p=N(q,a.range_key,aD or aJ or a.default_range)if type(p)~="table"then
 return nil
 end
-range.minimum,range.maximum=apply_numeric_metadata_bounds(metadata,range.minimum,range.maximum)
-return range
+p.minimum,p.maximum=X(a,p.minimum,p.maximum)return p
 end
-local function find_mapping(device,component_id,mapping_name)
-local preset=get_preset(device)
-local mappings=preset
-and(preset.named_mappings_by_name or preset.named_mappings or preset.datapoints)
-local mapping=mappings and mappings[mapping_name]
-if mapping==nil and preset and preset.datapoints then
-mapping=tuya.build_named_map(preset.datapoints,"name")[mapping_name]
+local function ap(b,c,v)
+local n=aE(b)local be=n
+and(n.named_mappings_by_name or n.named_mappings or n.datapoints)local m=be and be[v]if m==nil and n and n.datapoints then
+m=bz.build_named_map(n.datapoints,"name")[v]
 end
-if mapping==nil and preset and preset.zcl_clusters then
-mapping=zcl.find_mapping_by_name(preset.zcl_clusters,mapping_name,device,{
-component_id=component_id or MAIN_COMPONENT,
-})
+if m==nil and n and n.zcl_clusters then
+m=bx.find_mapping_by_name(n.zcl_clusters,v,b,{
+component_id=c or d})
 end
-return mapping
+if m==nil and n and n.protocol_writers then
+m=n.protocol_writers[v]
 end
-local function suppresses_state(device,component_id,mapping_name)
-local mapping=find_mapping(device,component_id,mapping_name)
-return type(mapping)=="table" and mapping.suppress_optimistic_state==true
+return m
 end
-local function is_latest_state_missing(device,component_id,metadata)
-return not suppresses_state(device,component_id,metadata.mapping_name)
-and device:get_latest_state(component_id,metadata.capability_id,metadata.attribute_name)==nil
+local function F(b,c,v)
+local m=ap(b,c,v)return type(m)=="table"and m.suppress_optimistic_state==true
 end
-local function emit_driver_message(device,message)
-if type(message)~="string" or message=="" then
+local function at(b,c,a)
+return not F(b,c,a.mapping_name)and b:get_latest_state(c,a.capability_id,a.attribute_name)==nil
+end
+local function h(b,aX)
+if type(aX)~="string"or aX==""then
 return
 end
-if not profile_supports_capability(device,MAIN_COMPONENT,driver_message_definition.capability_id)then
+if not o(b,d,l.capability_id)then
 return
 end
-local attribute=resolve_attribute_binding(
-device,
-driver_message_definition,
-driver_message_definition.attribute_name,
-true
-)
-if attribute==nil then
+local f=g(
+b,l,l.attribute_name,true)if f==nil then
 return
 end
-local maximum_length=driver_message_definition.maximum_length or 512
-local normalized=utf8_text.truncate(message,maximum_length)
-if normalized==nil then
+local L=l.maximum_length or 512
+local s=aY.truncate(aX,L)if s==nil then
 return
 end
-log.info(string.format("[%s] Driver message emit requested: %s",device_name(device),normalized))
-emit_event(device,MAIN_COMPONENT,attribute({value=normalized}))
+aQ.info(string.format("[%s] Driver message emit requested: %s",u(b),s))K(b,d,f{value=s})
 end
-local function emit_custom_numeric_state(device,component_id,metadata,value,unit)
-if type(metadata)~="table" or type(metadata.attribute_name)~="string" or value==nil then
+local function ak(b,c,a,i,bv)
+if type(a)~="table"or type(a.attribute_name)~="string"or i==nil then
 return
 end
-local attribute=resolve_attribute_binding(device,metadata,metadata.attribute_name,true)
-if attribute==nil then
+local f=g(b,a,a.attribute_name,true)if f==nil then
 return
 end
-local payload=unit ~=nil and{value=value,unit=unit}or{value=value}
-log.info(string.format("[%s] Custom numeric emit requested: %s=%s",device_name(device),metadata.capability_id,tostring(value)))
-emit_event(device,component_id,attribute(payload))
+local aM=bv~=nil and{value=i,unit=bv}or{value=i}aQ.info(string.format("[%s] Custom numeric emit requested: %s=%s",u(b),a.capability_id,tostring(i)))K(b,c,f(aM))
 end
-local function emit_custom_enum_state(device,component_id,metadata,value)
-if type(metadata)~="table" or type(metadata.attribute_name)~="string" or type(value)~="string" or value=="" then
+local function aw(b,c,a,i)
+if type(a)~="table"or type(a.attribute_name)~="string"or type(i)~="string"or i==""then
 return
 end
-local attribute=resolve_attribute_binding(device,metadata,metadata.attribute_name,true)
-if attribute==nil then
+local f=g(b,a,a.attribute_name,true)if f==nil then
 return
 end
-log.info(string.format("[%s] Custom enum emit requested: %s=%s",device_name(device),metadata.capability_id,tostring(value)))
-emit_event(device,component_id,attribute({value=value}))
+aQ.info(string.format("[%s] Custom enum emit requested: %s=%s",u(b),a.capability_id,tostring(i)))K(b,c,f{value=i})
 end
-local function emit_custom_text_state(device,component_id,metadata,value)
-if type(metadata)~="table" or type(metadata.attribute_name)~="string"
-or type(value)~="string" then
+local function ax(b,c,a,i)
+if type(a)~="table"or type(a.attribute_name)~="string"
+or type(i)~="string"then
 return
 end
-local attribute=resolve_attribute_binding(device,metadata,metadata.attribute_name,true)
-if attribute==nil then
+local f=g(b,a,a.attribute_name,true)if f==nil then
 return
 end
-log.info(string.format("[%s] Custom text emit requested: %s=%s",device_name(device),metadata.capability_id,value))
-emit_event(device,component_id,attribute({value=value}))
+aQ.info(string.format("[%s] Custom text emit requested: %s=%s",u(b),a.capability_id,i))K(b,c,f{value=i})
 end
-local function refresh_profile_definitions(device)
-if type(device)~="table" then
+local function af(b)
+if type(b)~="table"then
 return
 end
-local refresh_state=get_profile_refresh_state(device)
-if refresh_state.__complete==true then
+local P=al(b)if P.__complete==true then
 return
 end
-local seen={}
-local incomplete_refresh=false
-local function refresh(capability_id)
-if type(capability_id)~="string" or capability_id=="" or seen[capability_id]then
+local bu={}local ad=false
+local function bi(j)
+if type(j)~="string"or j==""or bu[j]then
 return
 end
-if not profile_supports_capability(device,MAIN_COMPONENT,capability_id)then
+if not o(b,d,j)then
 return
 end
-if refresh_state[capability_id]==true then
+if P[j]==true then
 return
 end
-seen[capability_id]=true
-local ok,err=pcall(capabilities.get_capability_definition,capability_id,1,true)
-if not ok then
-incomplete_refresh=true
-log.warn(string.format("[%s] Failed to refresh capability definition for %s: %s",device_name(device),capability_id,tostring(err)))
-return
+bu[j]=true
+local ok,bA=pcall(aK.get_capability_definition,j,1,true)if not ok then
+ad=true
+aQ.warn(string.format("[%s] Failed to refresh capability definition for %s: %s",u(b),j,tostring(bA)))return
 end
-refresh_state[capability_id]=true
+P[j]=true
 end
-for_each_definition_group(function(definitions)
-for _,metadata in ipairs(definitions)do
-refresh(metadata.capability_id)
+I(function(x)
+for _,a in ipairs(x)do
+bi(a.capability_id)
 end
 end)
-refresh(driver_message_definition.capability_id)
-if not incomplete_refresh then
-refresh_state.__complete=true
+bi(l.capability_id)if not ad then
+P.__complete=true
 end
 end
-local function emit_numeric_metadata(device,definition)
-for_each_supported_metadata(device,numeric_definitions,MAIN_COMPONENT,function(metadata)
-local range=resolve_numeric_range(device,definition,metadata,MAIN_COMPONENT)
-local range_attribute=resolve_attribute_binding(device,metadata,metadata.range_attribute_name,false)
-if range ~=nil and range_attribute ~=nil then
-local payload={
+local function az(b,q)
+E(b,H,d,function(a)
+local p=U(b,q,a,d)local av=g(b,a,a.range_attribute_name,false)if p~=nil and av~=nil then
+local aM={
 value={
-minimum=range.minimum,
-maximum=range.maximum,
-step=range.step,
-},
-}
-if range.unit ~=nil then
-payload.unit=range.unit
+minimum=p.minimum,maximum=p.maximum,step=p.step}}if p.unit~=nil then
+aM.unit=p.unit
 end
-emit_event(device,MAIN_COMPONENT,range_attribute(payload))
+K(b,d,av(aM))
 end
 end)
 end
-local function emit_enum_metadata(device,definition)
-for_each_supported_metadata(device,enum_definitions,MAIN_COMPONENT,function(metadata)
-local attribute=resolve_attribute_binding(device,metadata,metadata.supported_attribute_name,false)
-local allowed_values=resolve_enum_values(definition,metadata)
-if attribute ~=nil and type(allowed_values)=="table" and allowed_values[1]~=nil then
-emit_event(device,MAIN_COMPONENT,attribute({value=allowed_values}))
+local function aL(b,q)
+E(b,Q,d,function(a)
+local f=g(b,a,a.supported_attribute_name,false)local e=Y(q,a)if f~=nil and type(e)=="table"and e[1]~=nil then
+K(b,d,f{value=e})
 end
 end)
 end
-local function emit_placeholder_states(device,definition)
-for_each_supported_metadata(device,numeric_definitions,MAIN_COMPONENT,function(metadata)
-if is_latest_state_missing(device,MAIN_COMPONENT,metadata)then
-local range=resolve_numeric_range(device,definition,metadata,MAIN_COMPONENT)
-if type(range)=="table" and range.minimum ~=nil then
-emit_custom_numeric_state(device,MAIN_COMPONENT,metadata,range.minimum,range.unit)
-end
-end
-end)
-for_each_supported_metadata(device,enum_definitions,MAIN_COMPONENT,function(metadata)
-if is_latest_state_missing(device,MAIN_COMPONENT,metadata)then
-local allowed_values=resolve_enum_values(definition,metadata)
-if type(allowed_values)=="table" and allowed_values[1]~=nil then
-emit_custom_enum_state(device,MAIN_COMPONENT,metadata,allowed_values[1])
-end
-end
-end)
-end
-local function schedule_placeholder_states(device,definition)
-if type(definition)=="table" and definition.placeholder_custom_states==false then
-return false
-end
-local function run()
-emit_placeholder_states(device,definition)
-end
-if schedule_device_task(device,PLACEHOLDER_STATE_DELAY_S,"custom placeholder states",run)then
+local function aN(b)
+if type(b)~="table"then
 return
 end
-run()
-end
-local function diagnose_bindings(device)
-if type(device)~="table" then
+local function aq(a,c)
+c=c or d
+if not o(b,c,a.capability_id)then
 return
 end
-local function inspect_metadata(metadata,component_id)
-component_id=component_id or MAIN_COMPONENT
-if not profile_supports_capability(device,component_id,metadata.capability_id)then
+local f=g(b,a,a.attribute_name,true)if f==nil then
 return
 end
-local attribute=resolve_attribute_binding(device,metadata,metadata.attribute_name,true)
-if attribute==nil then
-return
+aQ.info(string.format(
+"[%s] Custom capability ready: %s.%s",u(b),a.capability_id,a.attribute_name))
 end
-log.info(string.format(
-"[%s] Custom capability ready: %s.%s",
-device_name(device),
-metadata.capability_id,
-metadata.attribute_name
-))
-end
-for_each_definition_group(function(definitions)
-for _,metadata in ipairs(definitions)do
-inspect_metadata(metadata)
+I(function(x)
+for _,a in ipairs(x)do
+aq(a)
 end
 end)
-inspect_metadata(driver_message_definition)
+aq(l)
 end
-local function has_missing_state_in_group(device,definitions)
-for _,metadata in ipairs(definitions)do
-if profile_supports_capability(device,MAIN_COMPONENT,metadata.capability_id)
-and is_latest_state_missing(device,MAIN_COMPONENT,metadata)then
+local function ai(b,x)
+for _,a in ipairs(x)do
+if o(b,d,a.capability_id)and at(b,d,a)then
 return true
 end
 end
 return false
 end
-local function device_has_missing_custom_state(device)
-for _,group in ipairs(METADATA_GROUPS)do
-if has_missing_state_in_group(device,group.definitions)then
+local function V(b)
+for _,aF in ipairs(au)do
+if ai(b,aF.definitions)then
 return true
 end
 end
 return false
 end
-local function maybe_request_initial_custom_state(device,preset)
-if preset==nil or preset.datapoints==nil then
+local function M(b,n)
+if n==nil or n.datapoints==nil then
 return false
 end
-if preset.initial_custom_state_query==false then
+if n.initial_custom_state_query==false then
 return false
 end
-if not device_has_missing_custom_state(device)then
+if not V(b)then
 return false
 end
-if device:get_field(INITIAL_CUSTOM_STATE_QUERY_KEY)then
+if b:get_field(B)then
 return false
 end
-device:set_field(INITIAL_CUSTOM_STATE_QUERY_KEY,true,{persist=false})
-emit_driver_message(device,"Initial custom state query requested.")
-if schedule_device_task(device,2,"initial custom state query",function()
-preset:send_state_request(device)
-emit_driver_message(device,"Initial custom state query sent.")
+b:set_field(B,true,{persist=false})h(b,"Initial custom state query requested.")
+if aH(b,2,"initial custom state query",function()
+n:send_state_request(b)h(b,"Initial custom state query sent.")
 end)then
 return true
 end
-preset:send_state_request(device)
-emit_driver_message(device,"Initial custom state query sent.")
-return true
+n:send_state_request(b)h(b,"Initial custom state query sent.")return true
 end
-local function resolve_numeric_optimistic_value(device,component_id,mapping_name,value)
-local preset=get_preset(device)
-local datapoints=preset and preset.datapoints or nil
-if type(datapoints)~="table" then
-return value
+local function R(b,c,v,i)
+local n=aE(b)local aT=n and n.datapoints or nil
+if type(aT)~="table"then
+return i
 end
-local selected_component=component_id or MAIN_COMPONENT
-for _,mapping in ipairs(datapoints)do
-if type(mapping)=="table"
-and(mapping.name==mapping_name or mapping.key==mapping_name)
-and(mapping.component==nil or mapping.component==selected_component)
-and type(mapping.optimistic_value)=="function" then
-local ok,resolved=pcall(
-mapping.optimistic_value,
-value,
-device,
-{component_id=selected_component,mapping=mapping}
-)
-if ok and type(resolved)=="number" then
-return resolved
+local ah=c or d
+for _,m in ipairs(aT)do
+if type(m)=="table"
+and(m.name==v or m.key==v)and(m.component==nil or m.component==ah)
+and type(m.optimistic_value)=="function"then
+local ok,bf=pcall(
+m.optimistic_value,i,b,{component_id=ah,mapping=m})if ok and type(bf)=="number"then
+return bf
 end
-return value
+return i
 end
 end
-return value
+return i
 end
-local function emit_numeric_zero_rollback(device,component_id,metadata,range)
-component_id=component_id or MAIN_COMPONENT
-emit_custom_numeric_state(device,component_id,metadata,0,resolve_numeric_event_unit(metadata,range))
-schedule_device_task(device,1,string.format("unsupported numeric rollback %s",tostring(metadata.capability_id or "unknown")),function()
-emit_custom_numeric_state(device,component_id,metadata,0,resolve_numeric_event_unit(metadata,range))
-end)
+local function y(b,a,aU)
+h(b,string.format("%s %s No change applied.",a.label,aU))
 end
-local function rollback_numeric_capability(device,component_id,metadata,range,message)
-emit_numeric_zero_rollback(device,component_id,metadata,range)
-if type(message)=="string" and message ~="" then
-emit_driver_message(device,message)
+local function ar(t,a)
+t[a.capability_id]=t[a.capability_id]or{}
+t[a.capability_id][a.command_name]=function(_,b,z)
+local c=z.component or d
+if not ap(b,c,a.mapping_name)then
+y(b,a,"is not supported by this device.")return
 end
+local k=z.args and z.args[a.argument_name]or nil
+local q=ag(b)local p=U(b,q,a,c)local s,an=W(
+k,p and p.minimum or nil,p and p.maximum or nil,p and p.step or nil,p and p.allowed_values or nil)if s==nil then
+y(b,a,"value is invalid.")return
 end
-local function reject_numeric_command(device,component_id,metadata,range,reason)
-rollback_numeric_capability(
-device,
-component_id,
-metadata,
-range,
-string.format("%s %s",metadata.label,reason)
-)
+if an then
+h(b,string.format("%s adjusted from %s to %s.",a.label,tostring(k),tostring(s)))
 end
-local function register_numeric_handler(handlers,metadata)
-handlers[metadata.capability_id]=handlers[metadata.capability_id]or{}
-handlers[metadata.capability_id][metadata.command_name]=function(_,device,command)
-local component_id=command.component or MAIN_COMPONENT
-if not find_mapping(device,component_id,metadata.mapping_name)then
-reject_numeric_command(device,component_id,metadata,metadata.default_range,"is not supported by this device. Reverted to 0.")
+local aC,T=pcall(bm,b,z,a.mapping_name,s)if not aC then
+y(b,a,"command failed.")aQ.error(string.format("[%s] Failed to send %s: %s",u(b),a.capability_id,tostring(T)))return
+end
+if not T then
+y(b,a,"is not supported by this device.")return
+end
+if F(b,c,a.mapping_name)then
 return
 end
-local raw_value=command.args and command.args[metadata.argument_name]or nil
-local definition=resolve_definition(device)
-local range=resolve_numeric_range(device,definition,metadata,component_id)
-local normalized,adjusted=normalize_custom_numeric_value(
-raw_value,
-range and range.minimum or nil,
-range and range.maximum or nil,
-range and range.step or nil,
-range and range.allowed_values or nil
-)
-if normalized==nil then
-reject_numeric_command(device,component_id,metadata,range,"value is invalid. Reverted to 0.")
+local aR=R(
+b,c,a.mapping_name,s)ak(
+b,c,a,aR,aj(a,p))
+end
+end
+local function aA(t,a)
+t[a.capability_id]=t[a.capability_id]or{}
+t[a.capability_id][a.command_name]=function(_,b,z)
+local q=ag(b)local k=z.args and z.args[a.argument_name]or nil
+local e=Y(q,a)local s=ae(k,e)if s==nil then
+local aV=type(e)=="table"and table.concat(e,", ")or"none"
+h(b,string.format("%s value is invalid. Supported values: %s.",a.label,aV))return
+end
+local aC,T=pcall(bm,b,z,a.mapping_name,s)if not aC then
+h(b,string.format("%s command failed. No change applied.",a.label))aQ.error(string.format("[%s] Failed to send %s: %s",u(b),a.capability_id,tostring(T)))return
+end
+if not T then
+h(b,string.format("%s is not supported by this device. No change applied.",a.label))return
+end
+local c=z.component or d
+if F(b,c,a.mapping_name)then
 return
 end
-if adjusted then
-emit_driver_message(device,string.format("%s adjusted from %s to %s.",metadata.label,tostring(raw_value),tostring(normalized)))
+aw(b,c,a,s)
 end
-local send_ok,handled=pcall(send,device,command,metadata.mapping_name,normalized)
-if not send_ok then
-reject_numeric_command(device,component_id,metadata,range,"command failed. Reverted to 0.")
-log.error(string.format("[%s] Failed to send %s: %s",device_name(device),metadata.capability_id,tostring(handled)))
+end
+local function aB(t,a)
+t[a.capability_id]=t[a.capability_id]or{}
+t[a.capability_id][a.command_name]=function(_,b,z)
+local c=z.component or d
+local k=z.args and z.args[a.argument_name]or nil
+if type(k)~="string"then
 return
 end
-if not handled then
-reject_numeric_command(device,component_id,metadata,range,"is not supported by this device. Reverted to 0.")
+local L=a.maximum_length
+local ao=aY.length(k)if ao==nil
+or(type(L)=="number"and ao>L)then
 return
 end
-local optimistic_value=resolve_numeric_optimistic_value(
-device,
-component_id,
-metadata.mapping_name,
-normalized
-)
-emit_custom_numeric_state(
-device,
-component_id,
-metadata,
-optimistic_value,
-resolve_numeric_event_unit(metadata,range)
-)
-end
-end
-local function register_enum_handler(handlers,metadata)
-handlers[metadata.capability_id]=handlers[metadata.capability_id]or{}
-handlers[metadata.capability_id][metadata.command_name]=function(_,device,command)
-local definition=resolve_definition(device)
-local raw_value=command.args and command.args[metadata.argument_name]or nil
-local allowed_values=resolve_enum_values(definition,metadata)
-local normalized=normalize_custom_enum_value(raw_value,allowed_values)
-if normalized==nil then
-local supported_label=type(allowed_values)=="table" and table.concat(allowed_values,", ")or "none"
-emit_driver_message(device,string.format("%s value is invalid. Supported values: %s.",metadata.label,supported_label))
+if not ap(b,c,a.mapping_name)then
 return
 end
-local send_ok,handled=pcall(send,device,command,metadata.mapping_name,normalized)
-if not send_ok then
-emit_driver_message(device,string.format("%s command failed. No change applied.",metadata.label))
-log.error(string.format("[%s] Failed to send %s: %s",device_name(device),metadata.capability_id,tostring(handled)))
+local aC,T=pcall(bm,b,z,a.mapping_name,k)if not aC then
+aQ.error(string.format("[%s] Failed to send %s: %s",u(b),a.capability_id,tostring(T)))return
+end
+if not T then
 return
 end
-if not handled then
-emit_driver_message(device,string.format("%s is not supported by this device. No change applied.",metadata.label))
+if F(b,c,a.mapping_name)then
 return
 end
-local component_id=command.component or MAIN_COMPONENT
-if suppresses_state(device,component_id,metadata.mapping_name)then
-return
-end
-emit_custom_enum_state(device,component_id,metadata,normalized)
+ax(b,c,a,k)
 end
 end
-local function register_text_handler(handlers,metadata)
-handlers[metadata.capability_id]=handlers[metadata.capability_id]or{}
-handlers[metadata.capability_id][metadata.command_name]=function(_,device,command)
-local component_id=command.component or MAIN_COMPONENT
-local raw_value=command.args and command.args[metadata.argument_name]or nil
-if type(raw_value)~="string" then
-return
-end
-local maximum_length=metadata.maximum_length
-local character_length=utf8_text.length(raw_value)
-if character_length==nil
-or(type(maximum_length)=="number" and character_length > maximum_length)then
-return
-end
-if not find_mapping(device,component_id,metadata.mapping_name)then
-return
-end
-local send_ok,handled=pcall(send,device,command,metadata.mapping_name,raw_value)
-if not send_ok then
-log.error(string.format("[%s] Failed to send %s: %s",device_name(device),metadata.capability_id,tostring(handled)))
-return
-end
-if not handled then
-return
-end
-if suppresses_state(device,component_id,metadata.mapping_name)then
-return
-end
-emit_custom_text_state(device,component_id,metadata,raw_value)
-end
-end
-local function register_handlers(handlers)
-for _,group in ipairs(COMMAND_GROUPS)do
-local definitions=group.definitions
-local kind=group.kind
-for _,metadata in ipairs(definitions)do
-if type(metadata.command_name)=="string" and metadata.command_name ~=""
-and type(metadata.mapping_name)=="string" and metadata.mapping_name ~="" then
-if kind=="numeric" then
-register_numeric_handler(handlers,metadata)
-elseif kind=="enum" then
-register_enum_handler(handlers,metadata)
-elseif kind=="text" then
-register_text_handler(handlers,metadata)
+local function aO(t)
+for _,aF in ipairs(aW)do
+local x=aF.definitions
+local bl=aF.kind
+for _,a in ipairs(x)do
+if type(a.command_name)=="string"and a.command_name~=""
+and type(a.mapping_name)=="string"and a.mapping_name~=""then
+if bl=="numeric"then
+ar(t,a)elseif bl=="enum"then
+aA(t,a)elseif bl=="text"then
+aB(t,a)
 end
 end
 end
 end
 end
 return{
-diagnose_bindings=diagnose_bindings,
-emit_driver_message=emit_driver_message,
-emit_enum_metadata=emit_enum_metadata,
-emit_numeric_metadata=emit_numeric_metadata,
-emit_placeholder_states=emit_placeholder_states,
-maybe_request_initial_custom_state=maybe_request_initial_custom_state,
-schedule_placeholder_states=schedule_placeholder_states,
-refresh_definitions=refresh_profile_definitions,
-register_handlers=register_handlers,
-}
+diagnose_bindings=aN,emit_driver_message=h,emit_enum_metadata=aL,emit_numeric_metadata=az,maybe_request_initial_custom_state=M,refresh_definitions=af,register_handlers=aO}
 end
 return{
-create=create,
-}
+create=bt}

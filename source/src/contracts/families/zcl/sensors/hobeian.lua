@@ -5,7 +5,7 @@ local device_helpers = require "contracts.helpers.family"
 local capabilities = require "st.capabilities"
 local data_types = require "st.zigbee.data_types"
 
-local registrations, register_device_definition = device_helpers.definition_registry()
+local registrations, register = device_helpers.definition_registry()
 
 local function status_bit(mask)
   return function(value)
@@ -57,7 +57,7 @@ local zg222z = {
     zcl.battery({
       endpoint = 1, read_only = true, from_device = battery_percentage,
       minimum_interval = 3600, maximum_interval = 65000,
-      reportable_change = 0, read_on_configure = true,
+      reportable_change = 0, 
     }),
     -- fz.battery also accepts a reported BatteryAlarmState. Do not request or
     -- configure it: this definition configures only BatteryPercentageRemaining.
@@ -74,9 +74,57 @@ local zg222z = {
   end,
 }
 
-register_device_definition(zg222z, {
+register(zg222z, {
   device_helpers.create_fingerprint("HOBEIAN", "ZG-222Z"),
 })
+
+local zg102z = {
+  profile = "hobeian-zg102z-contact",
+  zcl_clusters = {
+    passive_ias(zcl.contact({endpoint = 1, read_only = true})),
+    passive_ias(zcl.tamper({endpoint = 1, read_only = true})),
+    passive_ias(zcl.battery_low({endpoint = 1, read_only = true, emit = battery_low_emit})),
+    zcl.cluster_attribute(0x0001, 0x0021, {
+      name = "battery_percentage_reporting", endpoint = 1, data_type = data_types.Uint8,
+      read_only = true, read_on_configure = true,
+      minimum_interval = 3600, maximum_interval = 65000, reportable_change = 0,
+      -- The voltage curve replaces the device's reported percentage in Z2M.
+      from_device = function() return nil end,
+    }),
+    zcl.cluster_attribute(0x0001, 0x0020, {
+      name = "battery_voltage", endpoint = 1, data_type = data_types.Uint8,
+      read_only = true, read_on_configure = true,
+      minimum_interval = 3600, maximum_interval = 65000, reportable_change = 0,
+      emit = function(_, value)
+        if value == 0xFF then return nil end
+        local percentage = math.floor(math.max(0, math.min(100, 235 - 370000 / (value * 100 + 1))) + 0.5)
+        return {
+          capabilities.battery.battery(percentage),
+          capabilities.voltageMeasurement.voltage({value = value / 10, unit = "V"}),
+        }
+      end,
+    }),
+    zcl.cluster_attribute(0x0001, 0x003E, {
+      name = "battery_alarm_state", endpoint = 1, data_type = data_types.Bitmap32,
+      read_only = true, from_device = status_bit(0x00F03C0F), emit = battery_low_emit,
+    }),
+  },
+  configure = function(driver, device)
+    zcl.bind_cluster(device, 0x0001, driver.environment_info.hub_zigbee_eui, 1)
+  end,
+  parent_refresh = function() end,
+}
+
+register(zg102z, {
+  device_helpers.create_fingerprint("HOBEIAN", "ZG-102Z"),
+})
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(registrations, {
+  {1, "rpt-zmq"},
+  {2, "rpt-zpd"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.hobeian",

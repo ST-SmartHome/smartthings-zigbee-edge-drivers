@@ -1,713 +1,535 @@
-local function load_metering(zcl)
-local capabilities=require "st.capabilities"
-local custom_capabilities=require "runtime.capability_metadata"
-local capability_support=require "runtime.capability_support"
-local zigbee_constants=require "st.zigbee.constants"
-local device_management=require "st.zigbee.device_management"
-local POWER_POLL_INTERVAL_METADATA=custom_capabilities.by_emit_name.power_poll_interval
-local LAST_POWER_RESPONSE_TIME_METADATA=custom_capabilities.by_emit_name.last_power_response_time
-local POWER_POLL_INTERVAL_FIELD="_zcl_power_poll_interval_seconds"
-local LAST_POWER_RESPONSE_AT_FIELD="_zcl_last_power_response_at"
-local SWITCH_STATE_FIELD="_zcl_switch_state"
-local POWER_POLL_INTERVAL_DEFAULT_RANGE=POWER_POLL_INTERVAL_METADATA and POWER_POLL_INTERVAL_METADATA.default_range or{}
-local POWER_POLL_INTERVAL_MIN=POWER_POLL_INTERVAL_DEFAULT_RANGE.minimum or 5
-local POWER_POLL_INTERVAL_MAX=POWER_POLL_INTERVAL_DEFAULT_RANGE.maximum or 3600
-local POWER_POLL_INTERVAL_STEP=POWER_POLL_INTERVAL_DEFAULT_RANGE.step or 5
-local POWER_POLL_INTERVAL_UNIT=POWER_POLL_INTERVAL_DEFAULT_RANGE.unit or "s"
-local LAST_POWER_RESPONSE_WAITING_TEXT="--"
-local OFF_STATE_POLL_INTERVAL=3600
-local ON_STATE_CONFIRM_POLL_DELAYS={1,3,10,30}
-local OFF_STATE_CONFIRM_POLL_DELAYS={1,3}
-local metering_specs={}
-local poll_timers=setmetatable({},{__mode="k"})
-local scaler_pair_reports=setmetatable({},{__mode="k"})
-local function normalize_numeric(value)
-if type(value)=="table" then
-value=value.value
+local function bg(s)
+local au=require"st.capabilities"
+local ai=require"runtime.capability_metadata"
+local X=require"runtime.capability_support"
+local R=require"st.zigbee.constants"
+local f=ai.by_emit_name.power_poll_interval
+local p=ai.by_emit_name.last_power_response_time
+local U="_zcl_power_poll_interval_seconds"
+local G="_zcl_last_power_response_at"
+local W="_zcl_switch_state"
+local i=f and f.default_range or{}local o=i.minimum or 5
+local n=i.maximum or 3600
+local A=i.step or 5
+local V=i.unit or"s"
+local ac="--"
+local ay=3600
+local aj={1,3,10,30}local ah={1,3}local j={}local N={demand="energy",summation="energy"}local T=setmetatable({},{__mode="k"})local D=setmetatable({},{__mode="k"})
+local function aP(e)
+if type(e)=="table"then
+e=e.value
 end
-if type(value)~="number" then
+if type(e)~="number"then
 return nil
 end
-return value
+return e
 end
-local function normalize_endpoint(endpoint)
-return zcl.normalize_endpoint(endpoint)or 1
+local function q(c)
+return s.normalize_endpoint(c)or 1
 end
-local function normalize_integer(value)
-if type(value)=="table" then
-value=value.value
+local function aO(e)
+if type(e)=="table"then
+e=e.value
 end
-if type(value)=="string" and value ~="" then
-local parsed=tonumber(value)
-if parsed ~=nil then
-value=parsed
+if type(e)=="string"and e~=""then
+local bt=tonumber(e)if bt~=nil then
+e=bt
 end
 end
-if type(value)~="number" or value ~=value or value==math.huge or value==-math.huge then
+if type(e)~="number"or e~=e or e==math.huge or e==-math.huge then
 return nil
 end
-return math.floor(value + 0.5)
+return math.floor(e+0.5)
 end
-local function clamp_power_poll_interval(value)
-value=normalize_integer(value)
-if value==nil then
+local function y(e)
+e=aO(e)if e==nil then
 return nil
 end
-if value < POWER_POLL_INTERVAL_MIN then
-value=POWER_POLL_INTERVAL_MIN
-elseif value > POWER_POLL_INTERVAL_MAX then
-value=POWER_POLL_INTERVAL_MAX
+if e<o then
+e=o
+elseif e>n then
+e=n
 end
-value=math.floor((value / POWER_POLL_INTERVAL_STEP)+ 0.5)* POWER_POLL_INTERVAL_STEP
-if value < POWER_POLL_INTERVAL_MIN then
-value=POWER_POLL_INTERVAL_MIN
-elseif value > POWER_POLL_INTERVAL_MAX then
-value=POWER_POLL_INTERVAL_MAX
+e=math.floor((e/A)+0.5)*A
+if e<o then
+e=o
+elseif e>n then
+e=n
 end
-return value
+return e
 end
-local function supports_main_capability(device,capability)
-if capability==nil then
+local function B(a,m)
+if m==nil then
 return false
 end
-return capability_support.supports(device,capability.ID,"main")
+return X.supports(a,m.ID,"main")
 end
-local function supports_main_capability_id(device,capability_id)
-return capability_support.supports(device,capability_id,"main")
+local function ap(a,bf)
+return X.supports(a,bf,"main")
 end
-local function emit_main_event(device,event)
-if event==nil then
+local function af(a,bn)
+if bn==nil then
 return false
 end
-if type(device.emit_component_event)=="function" then
-device:emit_component_event({id="main"},event)
-return true
+if type(a.emit_component_event)=="function"then
+a:emit_component_event({id="main"},bn)return true
 end
-if type(device.emit_event)=="function" then
-device:emit_event(event)
-return true
+if type(a.emit_event)=="function"then
+a:emit_event(bn)return true
 end
 return false
 end
-local function is_callable(value)
-if type(value)=="function" then
-return true
-end
-if type(value)~="table" then
-return false
-end
-local metatable=getmetatable(value)
-return type(metatable)=="table" and type(metatable.__call)=="function"
-end
-local function resolve_capability_attribute(device,metadata,attribute_name)
-if type(metadata)~="table" or type(attribute_name)~="string" or attribute_name=="" then
+local aR=X.is_callable
+local function u(a,aV,Z)
+if type(aV)~="table"or type(Z)~="string"or Z==""then
 return nil,nil
 end
-if not supports_main_capability_id(device,metadata.capability_id)then
+if not ap(a,aV.capability_id)then
 return nil,nil
 end
-local capability=capabilities[metadata.capability_id]
-local attribute=capability and capability[attribute_name]or nil
-if not is_callable(attribute)and capability and type(capability.attributes)=="table" then
-attribute=capability.attributes[attribute_name]
+local m=au[aV.capability_id]local x=m and m[Z]or nil
+if not aR(x)and m and type(m.attributes)=="table"then
+x=m.attributes[Z]
 end
-if not is_callable(attribute)then
-attribute=nil
+if not aR(x)then
+x=nil
 end
-return capability,attribute
+return m,x
 end
-local function format_power_response_time(epoch)
-if type(epoch)~="number" or epoch <=0 then
-return LAST_POWER_RESPONSE_WAITING_TEXT
+local function aq(aM)
+if type(aM)~="number"or aM<=0 then
+return ac
 end
-return os.date("%Y-%m-%d %H:%M:%S",epoch)
+return os.date("!%Y-%m-%d %H:%M:%S UTC",aM)
 end
-local function select_primary_power_mapping(device,zcl_clusters)
-if type(zcl_clusters)~="table" then
+local function M(a,b)
+if type(b)~="table"then
 return nil
 end
-local first_match=nil
-for _,mapping in ipairs(zcl_clusters)do
-if type(mapping)=="table" then
-local meta=zcl.mapping_meta(mapping)
-if meta ~=nil and meta.metering_kind=="power" and not meta.write_only then
-local context=zcl.build_mapping_context(device,mapping,nil)
-local candidate={
-mapping=mapping,
-meta=meta,
-context=context,
-}
-if context.component_id=="main" then
-return candidate
+local aC
+for _,h in ipairs(b)do
+if type(h)=="table"then
+local d=s.mapping_meta(h)if d~=nil and d.metering_kind=="power"and not d.write_only then
+local aL=s.build_mapping_context(a,h,nil)local bc={
+mapping=h,meta=d,context=aL}if aL.component_id=="main"then
+return bc
 end
-if first_match==nil then
-first_match=candidate
+if aC==nil then
+aC=bc
 end
 end
 end
 end
-return first_match
+return aC
 end
-local function default_power_poll_interval(device,zcl_clusters)
-local entry=select_primary_power_mapping(device,zcl_clusters)
-if entry==nil then
+local function P(a,b)
+local bv=M(a,b)if bv==nil then
 return nil
 end
-return clamp_power_poll_interval(entry.meta.poll_interval)
+return y(bv.meta.poll_interval)
 end
-local function resolved_power_poll_interval(device,zcl_clusters)
-local override=clamp_power_poll_interval(device:get_field(POWER_POLL_INTERVAL_FIELD))
-if override ~=nil then
-return override
+local function K(a,b)
+local bi=y(a:get_field(U))if bi~=nil then
+return bi
 end
-return default_power_poll_interval(device,zcl_clusters)
+return P(a,b)
 end
-local function current_time_epoch()
-local epoch=os.time()
-if type(epoch)=="number" then
-return epoch
+local function F(e)
+if e==true or e=="on"then
+return"on"
+end
+if e==false or e=="off"then
+return"off"
 end
 return nil
 end
-local function normalize_switch_state(value)
-if value==true or value=="on" then
-return "on"
+local function Y(a)
+local bw=F(a:get_field(W))if bw~=nil then
+return bw
 end
-if value==false or value=="off" then
-return "off"
-end
-return nil
-end
-local function switch_state_value(device)
-local state=normalize_switch_state(device:get_field(SWITCH_STATE_FIELD))
-if state ~=nil then
-return state
-end
-local latest=normalize_switch_state(type(device.get_latest_state)=="function" and
-device:get_latest_state("main",capabilities.switch.ID,"switch")or nil)
-if latest ~=nil then
-return latest
+local bs=F(type(a.get_latest_state)=="function"and
+a:get_latest_state("main",au.switch.ID,"switch")or nil)if bs~=nil then
+return bs
 end
 return nil
 end
-local function switch_aware_polling_enabled(device)
-return supports_main_capability(device,capabilities.switch)
+local function v(a)
+return B(a,au.switch)
 end
-local function read_metering_mappings_once(device,zcl_clusters)
-if type(zcl_clusters)~="table" then
+local function an(a,b)
+if type(b)~="table"then
 return false
 end
-local read_count=0
-local seen={}
-for _,mapping in ipairs(zcl_clusters)do
-if type(mapping)=="table" then
-local meta=zcl.mapping_meta(mapping)
-if meta ~=nil and meta.metering_kind ~=nil and not meta.write_only then
-local mapping_context=zcl.build_mapping_context(device,mapping,nil)
-local key=string.format(
-"%04X:%04X:%s:%s",
-meta.cluster_id or 0,
-meta.attribute_id or 0,
-tostring(mapping_context.endpoint),
-tostring(meta.mfg_code)
-)
-if not seen[key]then
-seen[key]=true
-zcl.read_mapping(device,mapping,mapping_context)
-read_count=read_count + 1
+local aI=0
+local ak={}for _,h in ipairs(b)do
+if type(h)=="table"then
+local d=s.mapping_meta(h)if d~=nil and d.metering_kind~=nil and not d.write_only then
+local k=s.build_mapping_context(a,h,nil)local aY=string.format(
+"%04X:%04X:%s:%s",d.cluster_id or 0,d.attribute_id or 0,tostring(k.endpoint),tostring(d.mfg_code))if not ak[aY]then
+ak[aY]=true
+s.read_mapping(a,h,k)aI=aI+1
 end
 end
 end
 end
-return read_count > 0
+return aI>0
 end
-local function schedule_state_confirm_polls(device,zcl_clusters,expected_state,delays,timer_name)
-if type(zcl_clusters)~="table" or device.thread==nil or type(device.thread.call_with_delay)~="function" then
+local function L(a,b,bb,bq,bp)
+if type(b)~="table"or a.thread==nil or type(a.thread.call_with_delay)~="function"then
 return false
 end
-if type(delays)~="table" then
+if type(bq)~="table"then
 return false
 end
-local scheduled=false
-local timers=poll_timers[device]
-if type(timers)~="table" then
-timers={}
-poll_timers[device]=timers
+local be=false
+local O=T[a]if type(O)~="table"then
+O={}T[a]=O
 end
-for _,delay in ipairs(delays)do
-if type(delay)=="number" and delay > 0 then
-local timer=device.thread:call_with_delay(delay,function()
-if switch_state_value(device)==expected_state then
-read_metering_mappings_once(device,zcl_clusters)
+for _,bm in ipairs(bq)do
+if type(bm)=="number"and bm>0 then
+local aB=a.thread:call_with_delay(bm,function()
+if Y(a)==bb then
+an(a,b)
 end
-end,timer_name)
-if timer ~=nil then
-timers[#timers + 1]=timer
-scheduled=true
+end,bp)
+if aB~=nil then
+O[#O+1]=aB
+be=true
 end
 end
 end
-return scheduled
+return be
 end
-local function effective_poll_interval(device,zcl_clusters,meta)
-if meta==nil then
+local function az(a,b,d)
+if d==nil then
 return nil
 end
-local poll_interval=meta.poll_interval
-if meta.metering_kind=="power" then
-poll_interval=resolved_power_poll_interval(device,zcl_clusters)
+local l=d.poll_interval
+if d.metering_kind=="power"then
+l=K(a,b)
 end
-if type(poll_interval)~="number" or poll_interval <=0 then
-return poll_interval
+if type(l)~="number"or l<=0 then
+return l
 end
-if not switch_aware_polling_enabled(device)or meta.metering_kind==nil then
-return poll_interval
+if not v(a)or d.metering_kind==nil then
+return l
 end
-if switch_state_value(device)=="off" and meta.metering_kind ~="voltage" then
-return OFF_STATE_POLL_INTERVAL
+if Y(a)=="off"and d.metering_kind~="voltage"then
+return ay
 end
-return poll_interval
+return l
 end
-local function emit_power_poll_interval_state(device,zcl_clusters)
-local interval=resolved_power_poll_interval(device,zcl_clusters)
-local capability,attribute=resolve_capability_attribute(
-device,
-POWER_POLL_INTERVAL_METADATA,
-POWER_POLL_INTERVAL_METADATA and POWER_POLL_INTERVAL_METADATA.attribute_name or nil
-)
-if interval==nil or attribute==nil or not supports_main_capability(device,capability)then
+local function ag(a,b)
+local aw=K(a,b)local m,x=u(
+a,f,f and f.attribute_name or nil)if aw==nil or x==nil or not B(a,m)then
 return false
 end
-local _,range_attribute=resolve_capability_attribute(
-device,
-POWER_POLL_INTERVAL_METADATA,
-POWER_POLL_INTERVAL_METADATA and POWER_POLL_INTERVAL_METADATA.range_attribute_name or nil
-)
-if range_attribute ~=nil then
-emit_main_event(device,range_attribute({
+local _,aA=u(
+a,f,f and f.range_attribute_name or nil)if aA~=nil then
+af(a,aA{
 value={
-minimum=POWER_POLL_INTERVAL_MIN,
-maximum=POWER_POLL_INTERVAL_MAX,
-step=POWER_POLL_INTERVAL_STEP,
-},
-unit=POWER_POLL_INTERVAL_UNIT,
-}))
+minimum=o,maximum=n,step=A},unit=V})
 end
-emit_main_event(device,attribute({
-value=interval,
-unit=POWER_POLL_INTERVAL_UNIT,
-}))
-return true
+af(a,x{
+value=aw,unit=V})return true
 end
-local function emit_last_power_response_state(device)
-local capability,attribute=resolve_capability_attribute(
-device,
-LAST_POWER_RESPONSE_TIME_METADATA,
-LAST_POWER_RESPONSE_TIME_METADATA and LAST_POWER_RESPONSE_TIME_METADATA.attribute_name or nil
-)
-if attribute==nil or not supports_main_capability(device,capability)then
+local function E(a)
+local m,x=u(
+a,p,p and p.attribute_name or nil)if x==nil or not B(a,m)then
 return false
 end
-emit_main_event(device,attribute({
-value=format_power_response_time(device:get_field(LAST_POWER_RESPONSE_AT_FIELD)),
-}))
-return true
+af(a,x{
+value=aq(a:get_field(G))})return true
 end
-local function field_key(kind,field_name,endpoint)
-return string.format("_zcl_metering:%s:%s:%d",tostring(kind),tostring(field_name),normalize_endpoint(endpoint))
+local function bd(bu,w,c)
+return string.format("_zcl_metering:%s:%s:%d",tostring(bu),tostring(w),q(c))
 end
-local function build_spec(kind,cluster_name,multiplier_name,divisor_name,multiplier_store_key,divisor_store_key)
-local cluster_id=zcl.get_generated_cluster_id(cluster_name)
-local multiplier=zcl.get_generated_attribute_by_name(cluster_name,multiplier_name)
-local divisor=zcl.get_generated_attribute_by_name(cluster_name,divisor_name)
-if cluster_id==nil or multiplier==nil or divisor==nil then
+local function ae(bu,av,aZ,bh,aH,aN)
+local as=s.get_generated_cluster_id(av)local z=s.get_generated_attribute_by_name(av,aZ)local I=s.get_generated_attribute_by_name(av,bh)if as==nil or z==nil or I==nil then
 return nil
 end
 return{
-kind=kind,
-cluster_id=cluster_id,
-multiplier_attribute_id=multiplier.ID,
-divisor_attribute_id=divisor.ID,
-multiplier_store_key=multiplier_store_key,
-divisor_store_key=divisor_store_key,
-}
+kind=bu,cluster_id=as,multiplier_attribute_id=z.ID,divisor_attribute_id=I.ID,multiplier_store_key=aH,divisor_store_key=aN}
 end
-local function set_scaler(device,spec,field_name,value,endpoint)
-local numeric=normalize_numeric(value)
-if numeric==nil then
+local function ba(a,g,w,e,c)
+local S=aP(e)if S==nil then
 return false
 end
-device:set_field(field_key(spec.kind,field_name,endpoint),numeric,{persist=true})
-if normalize_endpoint(endpoint)==1 then
-if field_name=="multiplier" and spec.multiplier_store_key ~=nil then
-device:set_field(spec.multiplier_store_key,numeric,{persist=true})
-elseif field_name=="divisor" and spec.divisor_store_key ~=nil then
-device:set_field(spec.divisor_store_key,numeric,{persist=true})
+a:set_field(bd(g.kind,w,c),S,{persist=true})if q(c)==1 then
+if w=="multiplier"and g.multiplier_store_key~=nil then
+a:set_field(g.multiplier_store_key,S,{persist=true})elseif w=="divisor"and g.divisor_store_key~=nil then
+a:set_field(g.divisor_store_key,S,{persist=true})
 end
 end
 return true
 end
-local function get_scaler(device,spec,field_name,endpoint)
-endpoint=normalize_endpoint(endpoint)
-local numeric=device:get_field(field_key(spec.kind,field_name,endpoint))
-if type(numeric)=="number" then
-return numeric
+local function at(a,g,w,c)
+c=q(c)local S=a:get_field(bd(g.kind,w,c))if type(S)=="number"then
+return S
 end
-if endpoint==1 then
-local compatibility_key=field_name=="multiplier" and spec.multiplier_store_key or spec.divisor_store_key
-if compatibility_key ~=nil then
-numeric=device:get_field(compatibility_key)
-if type(numeric)=="number" then
-return numeric
+if c==1 then
+local ar=w=="multiplier"and g.multiplier_store_key or g.divisor_store_key
+if ar~=nil then
+S=a:get_field(ar)if type(S)=="number"then
+return S
 end
 end
 end
 return nil
 end
-local function exact_raw_reportable_change(device,mapping,meta,spec,endpoint)
-local physical=meta.physical_reportable_change
-if type(physical)~="number" or physical <=0 then
+local function am(a,h,d,g,c)
+local aW=d.physical_reportable_change
+if type(aW)~="number"or aW<=0 then
 return nil
 end
-local multiplier=get_scaler(device,spec,"multiplier",endpoint)
-local divisor=get_scaler(device,spec,"divisor",endpoint)
-if type(multiplier)~="number" or multiplier <=0 or type(divisor)~="number" or divisor <=0 then
+local z=at(a,g,"multiplier",c)local I=at(a,g,"divisor",c)if type(z)~="number"or z<=0 or type(I)~="number"or I<=0 then
 return nil
 end
-local raw=physical * divisor / multiplier
-if raw ~=raw or raw==math.huge or raw==-math.huge then
+local bl=aW*I/z
+if bl~=bl or bl==math.huge or bl==-math.huge then
 return nil
 end
-local integer=math.floor(raw + 0.5)
-if integer <=0 or math.abs(raw - integer)> 0.000000001 then
+local aF=math.floor(bl+0.5)if aF<=0 or math.abs(bl-aF)>0.000000001 then
 return nil
 end
-if type(meta.data_type)=="function" then
-return meta.data_type(integer)
+if type(d.data_type)=="function"then
+return d.data_type(aF)
 end
-if type(meta.data_type)=="table" then
-local mt=getmetatable(meta.data_type)
-if type(mt)=="table" and type(mt.__call)=="function" then
-return meta.data_type(integer)
+if type(d.data_type)=="table"then
+local mt=getmetatable(d.data_type)
+if type(mt)=="table"and type(mt.__call)=="function"then
+return d.data_type(aF)
 end
 end
-return integer
+return aF
 end
-local function send_scaler_aware_reporting(device,spec,endpoint,zcl_clusters)
-if type(zcl_clusters)~="table" or type(device.send)~="function" then
+local function ao(a,g,c,b)
+if type(b)~="table"or type(a.send)~="function"then
 return false
 end
-local sent=false
-local seen={}
-for _,mapping in ipairs(zcl_clusters)do
-local meta=type(mapping)=="table" and zcl.mapping_meta(mapping)or nil
-if meta ~=nil and meta.metering_kind==spec.kind and meta.physical_reportable_change ~=nil then
-local context=zcl.build_mapping_context(device,mapping,nil)
-local mapping_endpoint=normalize_endpoint(context.endpoint)
-if mapping_endpoint==endpoint and meta.cluster_id ~=nil and meta.attribute_id ~=nil then
-local key=string.format("%04X:%04X:%d",meta.cluster_id,meta.attribute_id,endpoint)
-if not seen[key]then
-seen[key]=true
-local reportable_change=exact_raw_reportable_change(device,mapping,meta,spec,endpoint)
-if reportable_change ~=nil then
-local request=device_management.attr_config(device,{
-cluster=meta.cluster_id,
-attribute=meta.attribute_id,
-minimum_interval=meta.minimum_interval or 0,
-maximum_interval=meta.maximum_interval or 300,
-data_type=meta.data_type,
-reportable_change=reportable_change,
-mfg_code=meta.mfg_code,
-})
-if type(request.to_endpoint)=="function" then
-request=request:to_endpoint(endpoint)
-end
-device:send(request)
-sent=true
+local aK=false
+local ak={}for _,h in ipairs(b)do
+local d=type(h)=="table"and s.mapping_meta(h)or nil
+if d~=nil and d.metering_kind==g.kind and d.physical_reportable_change~=nil then
+local aL=s.build_mapping_context(a,h,nil)local aU=q(aL.endpoint)if aU==c and d.cluster_id~=nil and d.attribute_id~=nil then
+local aY=string.format("%04X:%04X:%d",d.cluster_id,d.attribute_id,c)if not ak[aY]then
+ak[aY]=true
+local ab=am(a,h,d,g,c)if ab~=nil then
+local aJ=require"zcl_common.reporting"
+local bx=aJ.configuration(s,a,h,ab)or{
+cluster=d.cluster_id,attribute=d.attribute_id,minimum_interval=d.minimum_interval or 0,maximum_interval=d.maximum_interval or 300,data_type=d.data_type,reportable_change=ab,mfg_code=d.mfg_code}local aX=aJ.describe(s,h,a)aJ.send_config(a,aX and aX.key,bx,c)aK=true
 end
 end
 end
 end
 end
-return sent
+return aK
 end
-local function note_scaler_pair_report(device,spec,field_name,endpoint,zcl_clusters)
-local by_kind=scaler_pair_reports[device]
-if by_kind==nil then
-by_kind={}
-scaler_pair_reports[device]=by_kind
+local function aa(a,g,w,c,b)
+local t=D[a]if t==nil then
+t={}D[a]=t
 end
-by_kind[spec.kind]=by_kind[spec.kind]or{}
-local pair=by_kind[spec.kind][endpoint]or{}
-by_kind[spec.kind][endpoint]=pair
-pair[field_name]=true
-if pair.multiplier ~=true or pair.divisor ~=true then
+t[g.kind]=t[g.kind]or{}local bo=t[g.kind][c]or{}t[g.kind][c]=bo
+bo[w]=true
+if bo.multiplier~=true or bo.divisor~=true then
 return false
 end
-by_kind[spec.kind][endpoint]={}
-return send_scaler_aware_reporting(device,spec,endpoint,zcl_clusters)
+t[g.kind][c]={}return ao(a,g,c,b)
 end
-local function reset_scaler_pair_report(device,spec,endpoint)
-local by_kind=scaler_pair_reports[device]
-if by_kind==nil then
-by_kind={}
-scaler_pair_reports[device]=by_kind
+local function ax(a,g,c)
+local t=D[a]if t==nil then
+t={}D[a]=t
 end
-by_kind[spec.kind]=by_kind[spec.kind]or{}
-by_kind[spec.kind][endpoint]={}
+t[g.kind]=t[g.kind]or{}t[g.kind][c]={}
 end
-local function read_scaler(device,spec,attribute_id,endpoint)
-if zcl.read_attribute==nil then
+local function aS(a,g,ad,c)
+if s.read_attribute==nil then
 return false
 end
-return zcl.read_attribute(device,spec.cluster_id,attribute_id,endpoint)
+return s.read_attribute(a,g.cluster_id,ad,c)
 end
-local function cancel_poll_timers(device)
-local timers=poll_timers[device]
-if type(timers)~="table" or device.thread==nil or type(device.thread.cancel_timer)~="function" then
-poll_timers[device]=nil
+local function al(a)
+local O=T[a]
+if type(O)~="table"or a.thread==nil or type(a.thread.cancel_timer)~="function"then
+T[a]=nil
 return
 end
-for _,timer in ipairs(timers)do
-if timer ~=nil then
-device.thread:cancel_timer(timer)
+for _,aB in ipairs(O)do
+if aB~=nil then
+a.thread:cancel_timer(aB)
 end
 end
-poll_timers[device]=nil
+T[a]=nil
 end
-local function ensure_metering_specs()
-if next(metering_specs)~=nil then
+local function J()
+if next(j)~=nil then
 return
 end
-metering_specs.energy=build_spec(
-"energy",
-"SimpleMetering",
-"Multiplier",
-"Divisor",
-zigbee_constants.SIMPLE_METERING_MULTIPLIER_KEY,
-zigbee_constants.SIMPLE_METERING_DIVISOR_KEY
-)
-metering_specs.power=build_spec(
-"power",
-"ElectricalMeasurement",
-"ACPowerMultiplier",
-"ACPowerDivisor",
-zigbee_constants.ELECTRICAL_MEASUREMENT_MULTIPLIER_KEY,
-zigbee_constants.ELECTRICAL_MEASUREMENT_DIVISOR_KEY
-)
-metering_specs.voltage=build_spec(
-"voltage",
-"ElectricalMeasurement",
-"ACVoltageMultiplier",
-"ACVoltageDivisor"
-)
-metering_specs.current=build_spec(
-"current",
-"ElectricalMeasurement",
-"ACCurrentMultiplier",
-"ACCurrentDivisor"
-)
-metering_specs.frequency=build_spec(
-"frequency",
-"ElectricalMeasurement",
-"ACFrequencyMultiplier",
-"ACFrequencyDivisor"
-)
-for _,spec in pairs(metering_specs)do
-if spec ~=nil then
-zcl.register_attribute(spec.cluster_id,spec.multiplier_attribute_id)
-zcl.register_attribute(spec.cluster_id,spec.divisor_attribute_id)
+j.energy=ae(
+"energy","SimpleMetering","Multiplier","Divisor",R.SIMPLE_METERING_MULTIPLIER_KEY,R.SIMPLE_METERING_DIVISOR_KEY)j.power=ae(
+"power","ElectricalMeasurement","ACPowerMultiplier","ACPowerDivisor",R.ELECTRICAL_MEASUREMENT_MULTIPLIER_KEY,R.ELECTRICAL_MEASUREMENT_DIVISOR_KEY)j.voltage=ae(
+"voltage","ElectricalMeasurement","ACVoltageMultiplier","ACVoltageDivisor")j.current=ae(
+"current","ElectricalMeasurement","ACCurrentMultiplier","ACCurrentDivisor")j.frequency=ae(
+"frequency","ElectricalMeasurement","ACFrequencyMultiplier","ACFrequencyDivisor")for _,g in pairs(j)do
+if g~=nil then
+s.register_attribute(g.cluster_id,g.multiplier_attribute_id)s.register_attribute(g.cluster_id,g.divisor_attribute_id)
 end
 end
 end
-function zcl.handle_internal_attribute(device,cluster_id,attribute_id,raw_value,attribute_info)
-ensure_metering_specs()
-local endpoint=normalize_endpoint(type(attribute_info)=="table" and
-(attribute_info.endpoint or attribute_info.src_endpoint)or nil)
-local zcl_clusters=type(attribute_info)=="table" and attribute_info.zcl_clusters or nil
-for _,spec in pairs(metering_specs)do
-if spec ~=nil and cluster_id==spec.cluster_id then
-if attribute_id==spec.multiplier_attribute_id then
-local applied=set_scaler(device,spec,"multiplier",raw_value,endpoint)
-if applied then
-note_scaler_pair_report(device,spec,"multiplier",endpoint,zcl_clusters)
+function s.handle_internal_attribute(a,as,ad,r,H)
+J()local c=q(type(H)=="table"and
+(H.endpoint or H.src_endpoint)or nil)local b=type(H)=="table"and H.zcl_clusters or nil
+for _,g in pairs(j)do
+if g~=nil and as==g.cluster_id then
+if ad==g.multiplier_attribute_id then
+local aD=ba(a,g,"multiplier",r,c)if aD then
+aa(a,g,"multiplier",c,b)
 end
-return applied
+return aD
 end
-if attribute_id==spec.divisor_attribute_id then
-local applied=set_scaler(device,spec,"divisor",raw_value,endpoint)
-if applied then
-note_scaler_pair_report(device,spec,"divisor",endpoint,zcl_clusters)
+if ad==g.divisor_attribute_id then
+local aD=ba(a,g,"divisor",r,c)if aD then
+aa(a,g,"divisor",c,b)
 end
-return applied
+return aD
 end
 end
 end
 return false
 end
-function zcl.scale_mapping_value(device,mapping,raw_value,meta,mapping_context)
-if raw_value==nil or meta==nil then
-return raw_value
+function s.scale_mapping_value(a,h,r,d,k)
+if r==nil or d==nil then
+return r
 end
-local spec=meta.metering_kind and metering_specs[meta.metering_kind]or nil
-if spec ~=nil and type(raw_value)=="number" then
-local endpoint=mapping_context and mapping_context.endpoint or nil
-local reported_multiplier=get_scaler(device,spec,"multiplier",endpoint)
-local reported_divisor=get_scaler(device,spec,"divisor",endpoint)
-local multiplier=reported_multiplier or 1
-local divisor=reported_divisor or 1
-if divisor==0 then
-divisor=1
+local g=d.metering_kind and j[N[d.metering_kind]or d.metering_kind]or nil
+if g~=nil and type(r)=="number"and not d.ignore_reported_scaler then
+local c=k and k.endpoint or nil
+local C=at(a,g,"multiplier",c)local Q=at(a,g,"divisor",c)if N[d.metering_kind]then
+local br=C and C~=0 and
+Q and Q~=0 and C/Q
+return r*(br and br*(d.metering_kind=="demand"and 1000 or 1)or 1)
 end
-if multiplier ~=divisor then
-return raw_value * multiplier / divisor
+local z=C or 1
+local I=Q or 1
+if I==0 then
+I=1
+end
+if z~=I then
+return r*z/I
 end
 end
-if meta.scale==nil or meta.scale==1 then
-return raw_value
+if d.scale==nil or d.scale==1 then
+return r
 end
-if type(raw_value)=="number" and type(meta.scale)=="number" and meta.scale ~=0 then
-return raw_value / meta.scale
+if type(r)=="number"and type(d.scale)=="number"and d.scale~=0 then
+return r/d.scale
 end
-return raw_value
+return r
 end
-function zcl.read_metering_scalers(device,zcl_clusters)
-ensure_metering_specs()
-if type(zcl_clusters)~="table" then
+function s.read_metering_scalers(a,b)
+J()if type(b)~="table"then
 return false
 end
-local sent=false
-local seen={}
-local reset_pairs={}
-for _,mapping in ipairs(zcl_clusters)do
-if type(mapping)=="table" then
-local meta=zcl.mapping_meta(mapping)
-local spec=meta and meta.metering_kind and metering_specs[meta.metering_kind]or nil
-if spec ~=nil then
-local mapping_context=zcl.build_mapping_context(device,mapping,nil)
-local endpoint=normalize_endpoint(mapping_context.endpoint)
-local pair_key=string.format("%s:%d",spec.kind,endpoint)
-if not reset_pairs[pair_key]then
-reset_pairs[pair_key]=true
-reset_scaler_pair_report(device,spec,endpoint)
+local aK=false
+local ak={}local aT={}for _,h in ipairs(b)do
+if type(h)=="table"then
+local d=s.mapping_meta(h)local g=d and d.metering_kind and j[N[d.metering_kind]or d.metering_kind]or nil
+if g~=nil and not d.ignore_reported_scaler then
+local k=s.build_mapping_context(a,h,nil)local c=q(k.endpoint)local bj=string.format("%s:%d",g.kind,c)if not aT[bj]then
+aT[bj]=true
+ax(a,g,c)
 end
-local multiplier_key=string.format("%04X:%04X:%d",spec.cluster_id,spec.multiplier_attribute_id,endpoint)
-if not seen[multiplier_key]then
-seen[multiplier_key]=true
-sent=read_scaler(device,spec,spec.multiplier_attribute_id,endpoint)or sent
+local aG=string.format("%04X:%04X:%d",g.cluster_id,g.multiplier_attribute_id,c)if not ak[aG]then
+ak[aG]=true
+aK=aS(a,g,g.multiplier_attribute_id,c)or aK
 end
-local divisor_key=string.format("%04X:%04X:%d",spec.cluster_id,spec.divisor_attribute_id,endpoint)
-if not seen[divisor_key]then
-seen[divisor_key]=true
-sent=read_scaler(device,spec,spec.divisor_attribute_id,endpoint)or sent
+local aQ=string.format("%04X:%04X:%d",g.cluster_id,g.divisor_attribute_id,c)if not ak[aQ]then
+ak[aQ]=true
+aK=aS(a,g,g.divisor_attribute_id,c)or aK
 end
 end
 end
 end
-return sent
+return aK
 end
-function zcl.emit_power_polling_state(device,zcl_clusters)
-if select_primary_power_mapping(device,zcl_clusters)==nil then
+function s.emit_power_polling_state(a,b)
+if M(a,b)==nil then
 return false
 end
-local emitted=false
-emitted=emit_power_poll_interval_state(device,zcl_clusters)or emitted
-emitted=emit_last_power_response_state(device)or emitted
-return emitted
+local aE=false
+aE=ag(a,b)or aE
+aE=E(a)or aE
+return aE
 end
-function zcl.set_power_poll_interval(device,zcl_clusters,value)
-if default_power_poll_interval(device,zcl_clusters)==nil then
+function s.set_power_poll_interval(a,b,e)
+if P(a,b)==nil then
 return false
 end
-local interval=clamp_power_poll_interval(value)
-if interval==nil then
+local aw=y(e)if aw==nil then
 return false
 end
-device:set_field(POWER_POLL_INTERVAL_FIELD,interval,{persist=true})
-zcl.start_runtime(device,zcl_clusters)
-zcl.emit_power_polling_state(device,zcl_clusters)
-return true
+a:set_field(U,aw,{persist=true})s.start_runtime(a,b)s.emit_power_polling_state(a,b)return true
 end
-function zcl.handle_metering_value(device,_,value,meta)
-if meta==nil or meta.metering_kind ~="power" or type(value)~="number" then
+function s.handle_metering_value(a,_,e,d)
+if d==nil or d.metering_kind~="power"or type(e)~="number"then
 return false
 end
-local epoch=os.time()
-if type(epoch)~="number" then
+local aM=os.time()if type(aM)~="number"then
 return false
 end
-device:set_field(LAST_POWER_RESPONSE_AT_FIELD,epoch,{persist=false})
-emit_last_power_response_state(device)
-return true
+a:set_field(G,aM,{persist=false})E(a)return true
 end
-function zcl.begin_power_poll_burst(device,zcl_clusters)
-if not switch_aware_polling_enabled(device)then
+function s.begin_power_poll_burst(a,b)
+if not v(a)then
 return false
 end
-device:set_field(SWITCH_STATE_FIELD,"on",{persist=false})
-if type(zcl_clusters)=="table" then
-zcl.start_runtime(device,zcl_clusters)
-schedule_state_confirm_polls(device,zcl_clusters,"on",ON_STATE_CONFIRM_POLL_DELAYS,"zcl on-state confirm poll")
+a:set_field(W,"on",{persist=false})if type(b)=="table"then
+s.start_runtime(a,b)L(a,b,"on",aj,"zcl on-state confirm poll")
 end
 return true
 end
-function zcl.handle_switch_state(device,zcl_clusters,value)
-value=normalize_switch_state(value)
-if not switch_aware_polling_enabled(device)or value==nil then
+function s.handle_switch_state(a,b,e)
+e=F(e)if not v(a)or e==nil then
 return false
 end
-local previous=switch_state_value(device)
-device:set_field(SWITCH_STATE_FIELD,value,{persist=false})
-if value=="on" and previous ~="on" then
-return zcl.begin_power_poll_burst(device,zcl_clusters)
+local bk=Y(a)a:set_field(W,e,{persist=false})if e=="on"and bk~="on"then
+return s.begin_power_poll_burst(a,b)
 end
-if value=="off" and previous ~="off" then
-if type(zcl_clusters)=="table" then
-zcl.start_runtime(device,zcl_clusters)
-schedule_state_confirm_polls(device,zcl_clusters,"off",OFF_STATE_CONFIRM_POLL_DELAYS,"zcl off-state confirm poll")
+if e=="off"and bk~="off"then
+if type(b)=="table"then
+s.start_runtime(a,b)L(a,b,"off",ah,"zcl off-state confirm poll")
 end
 return true
 end
 return false
 end
-function zcl.start_runtime(device,zcl_clusters)
-cancel_poll_timers(device)
-if type(zcl_clusters)~="table" or device.thread==nil or type(device.thread.call_on_schedule)~="function" then
+function s.start_runtime(a,b)
+al(a)
+if type(b)~="table"or a.thread==nil or type(a.thread.call_on_schedule)~="function"then
 return false
 end
-local timers={}
-local seen={}
-for _,mapping in ipairs(zcl_clusters)do
-if type(mapping)=="table" then
-local meta=zcl.mapping_meta(mapping)
-local poll_interval=effective_poll_interval(device,zcl_clusters,meta)
-if meta ~=nil and type(poll_interval)=="number" and poll_interval > 0 and not meta.write_only then
-local mapping_context=zcl.build_mapping_context(device,mapping,nil)
-local key=string.format(
-"%04X:%04X:%s:%s",
-meta.cluster_id or 0,
-meta.attribute_id or 0,
-tostring(mapping_context.endpoint),
-tostring(meta.mfg_code)
-)
-if not seen[key]then
-seen[key]=true
-local timer=device.thread:call_on_schedule(poll_interval,function()
-zcl.read_mapping(device,mapping,zcl.build_mapping_context(device,mapping,nil))
-end,string.format("zcl metering poll %s",tostring(meta.name or key)))
-if timer ~=nil then
-timers[#timers + 1]=timer
+local O={}local ak={}for _,h in ipairs(b)do
+if type(h)=="table"then
+local d=s.mapping_meta(h)local l=az(a,b,d)if d~=nil and type(l)=="number"and l>0 and not d.write_only then
+local k=s.build_mapping_context(a,h,nil)local aY=string.format(
+"%04X:%04X:%s:%s",d.cluster_id or 0,d.attribute_id or 0,tostring(k.endpoint),tostring(d.mfg_code))if not ak[aY]then
+ak[aY]=true
+local aB=a.thread:call_on_schedule(l,function()
+s.read_mapping(a,h,s.build_mapping_context(a,h,nil))
+end,string.format("zcl metering poll %s",tostring(d.name or aY)))
+if aB~=nil then
+O[#O+1]=aB
 end
 end
 end
 end
 end
-poll_timers[device]=timers
-return #timers > 0
+T[a]=O
+return #O>0
 end
-function zcl.stop_runtime(device)
-cancel_poll_timers(device)
+function s.stop_runtime(a)
+al(a)
 end
-ensure_metering_specs()
+J()
 end
-return load_metering
+return bg

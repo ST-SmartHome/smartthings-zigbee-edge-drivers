@@ -1,77 +1,48 @@
-local zcl=require "protocol.zcl"
-local emit=require "capabilities.events.all"
-local device_helpers=require "contracts.helpers.family"
-local data_types=require "st.zigbee.data_types"
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local VIBRATION_TIMEOUT_SECONDS=90
-local TIMER_FIELD="__wave19_ts0210_vibration_timer"
-local acceleration_emitter=emit.acceleration()
-local function passive_rx(mapping)
-mapping.minimum_interval=nil
-mapping.maximum_interval=nil
-mapping.reportable_change=nil
-mapping.read_on_configure=false
-return mapping
+local s=require"protocol.zcl"
+local v=require"capabilities.events.all"
+local j=require"contracts.helpers.family"
+local o=require"st.zigbee.data_types"
+local m,f=j.definition_registry()local a=90
+local b="__wave19_ts0210_vibration_timer"
+local c=v.acceleration()
+local function g(k)
+k.minimum_interval=nil
+k.maximum_interval=nil
+k.reportable_change=nil
+k.read_on_configure=false
+return k
 end
-local function reject_zcl_unknown(value,_,context)
-local raw_value=context and context.raw_value or nil
-if type(raw_value)=="number" and raw_value >=0xFF then return nil end
-return value
+local function e(i,_,q)
+local p=q and q.raw_value or nil
+if type(p)=="number"and p>=255 then return nil end
+return i
 end
-local function sensitivity_to_device(value)
-if type(value)~="number" or value % 1 ~=0 or value < 0 or value > 50 then
+local function l(i)
+if type(i)~="number"or i%1~=0 or i<0 or i>50 then
 return nil
 end
-return value
+return i
 end
-local function schedule_vibration_clear(device,value)
-local previous=device:get_field(TIMER_FIELD)
-if previous ~=nil and type(previous.cancel)=="function" then
-previous:cancel()
+local function h(d,i)
+local n=d:get_field(b)
+if n~=nil and type(n.cancel)=="function"then
+n:cancel()
 end
-device:set_field(TIMER_FIELD,nil,{persist=false})
-if VIBRATION_TIMEOUT_SECONDS==0 then return end
-local timer
-timer=device.thread:call_with_delay(VIBRATION_TIMEOUT_SECONDS,function()
-if device:get_field(TIMER_FIELD)~=timer then return end
-device:set_field(TIMER_FIELD,nil,{persist=false})
-local event=acceleration_emitter(device,false)
-if event ~=nil then device:emit_event(event)end
+d:set_field(b,nil,{persist=false})
+if a==0 then return end
+local r
+r=d.thread:call_with_delay(a,function()
+if d:get_field(b)~=r then return end
+d:set_field(b,nil,{persist=false})local t=c(d,false)
+if t~=nil then d:emit_event(t)end
 end,"wave19 TS0210 vibration clear")
-device:set_field(TIMER_FIELD,timer,{persist=false})
+d:set_field(b,r,{persist=false})
 end
-local ts0210={
-profile="safety-wave19-tuya-ts0210-quoted",
-package_group="wave19-vibration",
-transport_classification="STANDARD_ZCL_WITH_LITERAL_IDENTITY",
-z2m_converter_source="fz.battery + fz.ias_vibration_alarm_1_with_timeout + tzLocal.TS0210_sensitivity",
-wire_cluster="Power Configuration 0x0001 + IAS Zone 0x0500",
-zcl_clusters={
-passive_rx(zcl.motion({
-emit=acceleration_emitter,
-handler=schedule_vibration_clear,
-})),
-passive_rx(zcl.tamper()),
-passive_rx(zcl.battery({from_device=reject_zcl_unknown})),
-passive_rx(zcl.battery_voltage({from_device=reject_zcl_unknown})),
-zcl.cluster_attribute(0x0500,0x0013,{
-name="tuya_ts0210_sensitivity",
-data_type=data_types.Uint8,
-write_type=data_types.Uint8,
-write_only=true,
-to_device=sensitivity_to_device,
-numeric_range={
-minimum=0,
-maximum=50,
-step=1,
-},
-}),
-},
-}
-register_device_definition(ts0210,{
-device_helpers.create_fingerprint("'_TZ32101000000_5oy7cysk'","TS0210"),
-})
-return{
-id="zcl.sensors.wave19_vibration",
-registrations=device_definitions,
-}
+local u={
+profile="safety-wave19-tuya-ts0210-quoted",package_group="wave19-vibration",zcl_clusters={
+g(s.motion{
+emit=c,handler=h}),g(s.tamper()),g(s.battery{from_device=e}),g(s.battery_voltage{from_device=e}),s.cluster_attribute(1280,19,{
+name="tuya_ts0210_sensitivity",data_type=o.Uint8,write_type=o.Uint8,write_only=true,to_device=l,numeric_range={
+minimum=0,maximum=50,step=1}})}}f(u,{
+j.create_fingerprint("'_TZ32101000000_5oy7cysk'","TS0210")})return{
+id="zcl.sensors.wave19_vibration",registrations=m}

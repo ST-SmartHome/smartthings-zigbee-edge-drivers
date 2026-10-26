@@ -12,45 +12,40 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: LeakSensor
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: waterSensor
-        version: 1
-        group: main
+    - component: main
+      capability: waterSensor
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: waterSensor
-      version: 1
-    - component: main
-      capability: tamperAlert
-      version: 1
-    - component: main
-      capability: batteryLevel
-      version: 1
-    - component: main
-      capability: battery
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: waterSensor
+  - component: main
+    capability: tamperAlert
+  - component: main
+    capability: batteryLevel
+  - component: main
+    capability: battery
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: waterSensor
-        version: 1
-      - component: main
-        capability: tamperAlert
-        version: 1
-      - component: main
-        capability: batteryLevel
-        version: 1
-      - component: main
-        capability: battery
-        version: 1
+    - component: main
+      capability: waterSensor
+    - component: main
+      capability: tamperAlert
+    - component: main
+      capability: batteryLevel
+    - component: main
+      capability: battery
+    - component: main
+      capability: signalStrength
     actions: []

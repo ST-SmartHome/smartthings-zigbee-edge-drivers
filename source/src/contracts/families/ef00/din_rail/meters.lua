@@ -178,6 +178,7 @@ local power_meter_model_nous_d4z = {
 }
 
 register_device_definition(power_meter_model_nous_d4z, device_helpers.create_fingerprints("TS0601", {
+  "_TZE200_loejka0i",
   "_TZE204_loejka0i",
   "_TZE284_loejka0i",
 }))
@@ -694,26 +695,53 @@ register_device_definition(power_meter_model_spm01v2, device_helpers.create_fing
 -- ══════════════════════════════════════════════════════════════
 -- Same scalar voltage/current/power block as SPM01V2 but the totals moved:
 -- reverse energy is DP23, AC frequency is DP32 and power factor is DP50.
+local function spm01v25_query(device)
+  if device:get_manufacturer() == "_TZE200_iwn0gpzz" then
+    return tuya.send_datapoint(device, 35, 0x04, 1)
+  end
+  return tuya.send_state_request(device)
+end
+
+local function spm01v25_polling(device)
+  return tuya.start_query_timer(device, device:get_field("spm01v25_interval") or 10, nil, spm01v25_query)
+end
+
 local power_meter_model_spm01v25 = {
   profile = "meters-energy-1phase-spm01v25",
   package_group = "meters",
+  runtime_start = spm01v25_polling,
+  parent_refresh = spm01v25_query,
+  capability_commands = {
+    {capability_id="concertmirror08464.spm01v25ReportInterval", command_name="setReportInterval",
+      argument_name="interval", mapping_name="spm01v25_report_interval"},
+  },
+  protocol_writers = {
+    spm01v25_report_interval = function(device, value)
+      if type(value) ~= "number" or value % 1 ~= 0 or value < 5 or value > 3600 then return false end
+      local payload = string.char(1,1,0,60,3,1,0,253,4,0,0,180,7,1,0,0,
+        8,1,math.floor(value / 256),value % 256,9,0,0,0)
+      if not tuya.send_datapoint(device, 18, 0x00, payload) then return false end
+      device:set_field("spm01v25_interval", value, {persist=true})
+      return spm01v25_polling(device)
+    end,
+  },
   tuya.dp_energy(1, { emit = emit.energy(), scale = 100 }),
-  tuya.dp_raw(18, { name = "data_report_duration" }),                       -- 프로파일 미포함
+  tuya.dp_raw(18, { name = "data_report_duration", read_only = true }),
   tuya.dp_energy(23, {
     name = "produced_energy",
     scale = 100,
     read_only = true,
-    emit = emit.spm01v25ProducedEnergy(),
+    emit = emit.spm01v25ReverseEnergy(),
   }),
   tuya.dp_ac_frequency(32, {
     name = "ac_frequency",
     read_only = true,
-    emit = emit.spm01v25AcFrequency(),
+    emit = emit.spm01v25LineFrequency(),
   }),
   tuya.dp_power_factor(50, {
     name = "power_factor",
     read_only = true,
-    emit = emit.spm01v25PowerFactor(),
+    emit = emit.spm01v25Factor(),
   }),
   tuya.dp_voltage(102, { emit = emit.voltage() }),
   tuya.dp_current(103, { emit = emit.current() }),
@@ -1230,8 +1258,8 @@ register_device_definition(power_meter_model_sdm02v1, device_helpers.create_fing
 -- ══════════════════════════════════════════════════════════════
 -- The x8diwkqb exacts are a different generation from SDM02V1: they carry the
 -- per-line voltage, current and power in DP6/DP7 phase-variant-2 frames instead
--- of DP103..DP114, put line energy on DP53/DP57 and produced energy on
--- DP54/DP58, and add the DP101 device locating command.  Sharing the SDM02V1
+-- of DP103..DP114, put line energy on DP53/DP54 and produced energy on
+-- DP57/DP58, and add the DP101 device locating command.  Sharing the SDM02V1
 -- definition meant reading datapoints this model never reports.
 local power_meter_model_sdm02v1gt = {
   profile = "meters-energy-2phase-sdm02v1gt",
@@ -1267,8 +1295,8 @@ local power_meter_model_sdm02v1gt = {
     emit = emit.sdm02v1gtPowerFactor(),
   }),
   tuya.dp_energy(53, { name = "energy_l1", scale = 100, component = "l1", emit = emit.energy() }),
-  tuya.dp_energy(54, { name = "energy_produced_l1", scale = 100 }),         -- 프로파일 미포함
-  tuya.dp_energy(57, { name = "energy_l2", scale = 100, component = "l2", emit = emit.energy() }),
+  tuya.dp_energy(54, { name = "energy_l2", scale = 100, component = "l2", emit = emit.energy() }),
+  tuya.dp_energy(57, { name = "energy_produced_l1", scale = 100 }),         -- 프로파일 미포함
   tuya.dp_energy(58, { name = "energy_produced_l2", scale = 100 }),         -- 프로파일 미포함
   tuya.dp_on_off(101, {
     name = "device_locating",

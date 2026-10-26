@@ -101,6 +101,12 @@ register_device_definition(linptech_es_one, {
   device_helpers.create_fingerprint("_TZ3218_ewrxirng", "TS0225"),
 })
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(registrations, {
+  {1, "rpt-txp"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "ef00.presence.wave11.advanced",
   registrations = registrations,

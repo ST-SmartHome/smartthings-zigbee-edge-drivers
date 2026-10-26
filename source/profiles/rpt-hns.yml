@@ -1,0 +1,105 @@
+name: rpt-hns
+components:
+- id: main
+  capabilities:
+  - id: switch
+    version: 1
+  - id: temperatureMeasurement
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclDeviceTmpReportMin
+    version: 1
+  - id: concertmirror08464.zclDeviceTmpReportMax
+    version: 1
+  - id: concertmirror08464.zclDeviceTmpReportChange29
+    version: 1
+  categories:
+  - name: Switch
+- id: switch2
+  capabilities:
+  - id: switch
+    version: 1
+  categories:
+  - name: Switch
+- id: switch3
+  capabilities:
+  - id: switch
+    version: 1
+  categories:
+  - name: Switch
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: switch
+      version: 1
+      group: main
+      composite: true
+    actions:
+    - component: main
+      capability: switch
+      version: 1
+      group: main
+      values:
+      - command: 'on'
+      - command: 'off'
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: switch
+    version: 1
+  - component: main
+    capability: temperatureMeasurement
+    version: 1
+  - component: main
+    capability: refresh
+    version: 1
+  - component: switch2
+    capability: switch
+    version: 1
+  - component: switch3
+    capability: switch
+    version: 1
+  - component: main
+    capability: concertmirror08464.zclDeviceTmpReportMin
+  - component: main
+    capability: concertmirror08464.zclDeviceTmpReportMax
+  - component: main
+    capability: concertmirror08464.zclDeviceTmpReportChange29
+  automation:
+    conditions:
+    - component: main
+      capability: switch
+      version: 1
+    - component: main
+      capability: temperatureMeasurement
+      version: 1
+    - component: switch2
+      capability: switch
+      version: 1
+    - component: switch3
+      capability: switch
+      version: 1
+    - component: main
+      capability: concertmirror08464.zclDeviceTmpReportMin
+    - component: main
+      capability: concertmirror08464.zclDeviceTmpReportMax
+    - component: main
+      capability: concertmirror08464.zclDeviceTmpReportChange29
+    actions:
+    - component: main
+      capability: switch
+      version: 1
+    - component: switch2
+      capability: switch
+      version: 1
+    - component: switch3
+      capability: switch
+      version: 1
+    - component: main
+      capability: concertmirror08464.zclDeviceTmpReportMin
+    - component: main
+      capability: concertmirror08464.zclDeviceTmpReportMax
+    - component: main
+      capability: concertmirror08464.zclDeviceTmpReportChange29

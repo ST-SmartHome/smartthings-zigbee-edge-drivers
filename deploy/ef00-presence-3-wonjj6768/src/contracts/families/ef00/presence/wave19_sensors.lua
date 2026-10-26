@@ -1,318 +1,184 @@
-local tuya=require "protocol.tuya"
-local emit=require "capabilities.events.all"
-local device_helpers=require "contracts.helpers.family"
-local converter=tuya.converter
-local registrations,register_device_definition=device_helpers.definition_registry()
-local function is_first_frame_datapoint(dp_info,context)
-local frame=type(context)=="table" and context.frame or nil
-local datapoints=type(frame)=="table" and frame.datapoints or nil
-return type(datapoints)~="table" or datapoints[1]==dp_info
+local g=require"protocol.tuya"
+local h=require"capabilities.events.all"
+local e=require"contracts.helpers.family"
+local u=g.converter
+local S,c=e.definition_registry()
+local function m(j,q)
+local aa=type(q)=="table"and q.frame or nil
+local P=type(aa)=="table"and aa.datapoints or nil
+return type(P)~="table"or P[1]==j
 end
-local function first_from(transform)
-return converter.from_only(function(value,device,dp_info,context)
-if not is_first_frame_datapoint(dp_info,context)then return nil end
-return transform(value,device,dp_info,context)
+local function i(Y)
+return u.from_only(function(b,N,j,q)
+if not m(j,q)then return nil end
+return Y(b,N,j,q)
 end)
 end
-local function first_pair(from_transform,to_transform)
-return converter.from_to(
-function(value,device,dp_info,context)
-if not is_first_frame_datapoint(dp_info,context)then return nil end
-return from_transform(value,device,dp_info,context)
+local function l(R,V)
+return u.from_to(
+function(b,N,j,q)
+if not m(j,q)then return nil end
+return R(b,N,j,q)
 end,
-to_transform
-)
+V)
 end
-local function number_value(value)
-if type(value)=="number" then return value end
+local function d(b)
+if type(b)=="number"then return b end
 return nil
 end
-local function raw_one_byte_value(value)
-if type(value)~="string" or #value ~=1 then return nil end
-return string.byte(value,1)
+local function x(b)
+if type(b)~="string"or #b~=1 then return nil end
+return string.byte(b,1)
 end
-local function numeric_or_raw_one_byte_value(value)
-local numeric=number_value(value)
-if numeric ~=nil then return numeric end
-return raw_one_byte_value(value)
+local function f(b)
+local a=d(b)
+if a~=nil then return a end
+return x(b)
 end
-local function signed_raw_one_byte_value(value)
-local numeric=raw_one_byte_value(value)
-if numeric==nil then return nil end
-if numeric >=0x80 then return numeric - 0x100 end
-return numeric
+local function B(b)
+local a=x(b)
+if a==nil then return nil end
+if a>=128 then return a-256 end
+return a
 end
-local function binary_value(value)
-if value==true then return true end
-if value==false then return false end
-local numeric=number_value(value)
-if numeric ~=nil then return numeric ~=0 end
+local function C(b)
+if b==true then return true end
+if b==false then return false end
+local a=d(b)
+if a~=nil then return a~=0 end
 return nil
 end
-local function signed_number_value(value,_,dp_info)
-if type(dp_info)=="table" and type(dp_info.signed_value)=="number" then
-return dp_info.signed_value
+local function t(b,_,j)
+if type(j)=="table"and type(j.signed_value)=="number"then
+return j.signed_value
 end
-local numeric=number_value(value)
-if numeric ~=nil and numeric > 0x7FFFFFFF then
-return numeric - 0x100000000
+local a=d(b)if a~=nil and a>0x7FFFFFFF then
+return a-4294967296
 end
-return numeric
+return a
 end
-local function signed_numeric_or_raw_one_byte_value(value,device,dp_info)
-if type(value)=="string" then
-return signed_raw_one_byte_value(value)
+local function o(b,N,j)
+if type(b)=="string"then
+return B(b)
 end
-return signed_number_value(value,device,dp_info)
+return t(b,N,j)
 end
-local function raw_byte(value)
-local numeric=tonumber(value)
-if numeric==nil then return nil end
-return string.char(math.floor(numeric)% 0x100)
+local function Z(b)
+local a=tonumber(b)
+if a==nil then return nil end
+return string.char(math.floor(a)%256)
 end
-local javis_motion_converter=first_from(function(value)
-local numeric=number_value(value)
-if numeric==nil then return nil end
-return numeric > 0 and numeric < 5
+local F=i(function(b)
+local a=d(b)
+if a==nil then return nil end
+return a>0 and a<5
 end)
-local javis_number_converter=first_from(number_value)
-local javis_led_converter=first_pair(
-function(value)
-local numeric=numeric_or_raw_one_byte_value(value)
-if numeric==1 then return "enabled" end
-if numeric==0 then return "disabled" end
+local p=i(d)local L=l(
+function(b)
+local a=f(b)
+if a==1 then return"enabled"end
+if a==0 then return"disabled"end
 return nil
 end,
-function(value)
-if value=="enabled" then return string.char(1)end
-if value=="disabled" then return string.char(0)end
+function(b)
+if b=="enabled"then return string.char(1)end
+if b=="disabled"then return string.char(0)end
 return nil
 end
-)
-local javis_keep_time_converter=first_pair(
-function(value)
-local numeric=numeric_or_raw_one_byte_value(value)
-if numeric==nil or numeric < 0 or numeric > 7 then return nil end
-return tostring(math.floor(numeric))
+)local y=l(
+function(b)
+local a=f(b)
+if a==nil or a<0 or a>7 then return nil end
+return tostring(math.floor(a))
 end,
-function(value)
-local numeric=tonumber(value)
-if numeric==nil or numeric < 0 or numeric > 7 then return nil end
-return string.char(math.floor(numeric))
+function(b)
+local a=tonumber(b)
+if a==nil or a<0 or a>7 then return nil end
+return string.char(math.floor(a))
 end
-)
-local javis_sensitivity_lookup={
-[25]="25",[50]="50",[75]="75",[100]="100",
-}
-local javis_sensitivity_converter=first_pair(
-function(value)
-return javis_sensitivity_lookup[numeric_or_raw_one_byte_value(value)]
+)local n={
+[25]="25",[50]="50",[75]="75",[100]="100"}local w=l(
+function(b)
+return n[f(b)]
 end,
-function(value)
-local numeric=tonumber(value)
-if javis_sensitivity_lookup[numeric]==nil then return nil end
-return string.char(numeric)
+function(b)
+local a=tonumber(b)
+if n[a]==nil then return nil end
+return string.char(a)
 end
-)
-local javis_calibration_converter=first_pair(signed_numeric_or_raw_one_byte_value,raw_byte)
-local function javis_definition(keep_time_dp,led_dp,calibration_dp)
+)local v=l(o,Z)
+local function D(T,ac,Q)
 return{
-profile="safety-wave19-javis-microwave",
-named_datapoints=true,
-magic_packet=false,
-query_on_configure=false,
-time_start="off",
-datapoints={
-tuya.dp_enum(1,{
-name="motion",endpoint=1,transaction=1,read_only=true,
-converter=javis_motion_converter,emit=emit.motion(),
-}),
-tuya.dp_numeric(101,{
-name="illuminance_primary",endpoint=1,transaction=1,read_only=true,
-converter=javis_number_converter,emit=emit.illuminance(),
-}),
-tuya.dp_numeric(104,{
-name="illuminance_secondary",endpoint=1,transaction=1,read_only=true,
-converter=javis_number_converter,emit=emit.illuminance(),
-}),
-tuya.dp_raw(2,{
-name="javis_mc_sensitivity",endpoint=1,transaction=1,
-converter=javis_sensitivity_converter,emit=emit.javisMcSensitivity(),
-}),
-tuya.dp_raw(keep_time_dp,{
-name="javis_mc_keep_time",endpoint=1,transaction=1,
-converter=javis_keep_time_converter,emit=emit.javisMcKeepTime(),
-}),
-tuya.dp_raw(led_dp,{
-name="javis_mc_led_enable",endpoint=1,transaction=1,
-converter=javis_led_converter,emit=emit.javisMcLedEnable(),
-}),
-tuya.dp_raw(calibration_dp,{
-name="javis_mc_illuminance_calibration",endpoint=1,transaction=1,
-converter=javis_calibration_converter,emit=emit.javisMcIlluminanceCalibration(),
-}),
-},
-}
+profile="safety-wave19-javis-microwave",named_datapoints=true,magic_packet=false,query_on_configure=false,time_start="off",datapoints={
+g.dp_enum(1,{
+name="motion",endpoint=1,transaction=1,read_only=true,converter=F,emit=h.motion()}),g.dp_numeric(101,{
+name="illuminance_primary",endpoint=1,transaction=1,read_only=true,converter=p,emit=h.illuminance()}),g.dp_numeric(104,{
+name="illuminance_secondary",endpoint=1,transaction=1,read_only=true,converter=p,emit=h.illuminance()}),g.dp_raw(2,{
+name="javis_mc_sensitivity",endpoint=1,transaction=1,converter=w,emit=h.javisMcSensitivity()}),g.dp_raw(T,{
+name="javis_mc_keep_time",endpoint=1,transaction=1,converter=y,emit=h.javisMcKeepTime()}),g.dp_raw(ac,{
+name="javis_mc_led_enable",endpoint=1,transaction=1,converter=L,emit=h.javisMcLedEnable()}),g.dp_raw(Q,{
+name="javis_mc_illuminance_calibration",endpoint=1,transaction=1,converter=v,emit=h.javisMcIlluminanceCalibration()})}}
 end
-register_device_definition(javis_definition(102,103,105),{
-device_helpers.create_fingerprint("_TZE200_i0b1dbqu","TS0601"),
-device_helpers.create_fingerprint("_TZE200_lgstepha","TS0601"),
-})
-register_device_definition(javis_definition(106,107,102),{
-device_helpers.create_fingerprint("_TZE200_kagkgk0i","TS0601"),
-})
-local neo_power_type_lookup={
-[0]="battery_full",
-[1]="battery_high",
-[2]="battery_medium",
-[3]="battery_low",
-[4]="usb",
-}
-local neo_alarm_lookup={
-[0]="over_temperature",
-[1]="over_humidity",
-[2]="below_min_temperature",
-[3]="below_min_humdity",
-[4]="off",
-}
-local neo_motion_converter=first_from(function(value)
-local enabled=binary_value(value)
-return enabled
+c(D(102,103,105),{
+e.create_fingerprint("_TZE200_i0b1dbqu","TS0601"),e.create_fingerprint("_TZE200_lgstepha","TS0601")})c(D(106,107,102),{
+e.create_fingerprint("_TZE200_kagkgk0i","TS0601")})local G={
+[0]="battery_full",[1]="battery_high",[2]="battery_medium",[3]="battery_low",[4]="usb"}local O={
+[0]="over_temperature",[1]="over_humidity",[2]="below_min_temperature",[3]="below_min_humdity",[4]="off"}
+local J=i(function(b)
+local ab=C(b)return ab
 end)
-local neo_power_type_converter=first_from(function(value)
-return neo_power_type_lookup[number_value(value)]
+local E=i(function(b)
+return G[d(b)]
 end)
-local neo_battery_low_converter=first_from(function(value)
-local numeric=number_value(value)
-if numeric==nil then return nil end
-return numeric==3 and "low" or "normal"
+local z=i(function(b)
+local a=d(b)
+if a==nil then return nil end
+return a==3 and"low"or"normal"
 end)
-local neo_tamper_converter=first_from(binary_value)
-local neo_temperature_converter=first_from(function(value)
-local numeric=number_value(value)
-if numeric==nil then return nil end
-return numeric / 10
+local K=i(C)
+local A=i(function(b)
+local a=d(b)
+if a==nil then return nil end
+return a/10
 end)
-local neo_numeric_converter=first_pair(number_value,number_value)
-local neo_signed_numeric_converter=first_pair(signed_number_value,number_value)
-local neo_alarm_converter=first_from(function(value)
-return neo_alarm_lookup[number_value(value)]
+local r=l(d,d)local k=l(t,d)
+local M=i(function(b)
+return O[d(b)]
 end)
-local neo_temperature_scale_converter=first_pair(
-function(value)
-local celsius=binary_value(value)
-if celsius==nil then return nil end
-return celsius and "celsius" or "fahrenheit"
+local s=l(
+function(b)
+local X=C(b)
+if X==nil then return nil end
+return X and"celsius"or"fahrenheit"
 end,
-function(value)
-if value=="celsius" then return true end
-if value=="fahrenheit" then return false end
+function(b)
+if b=="celsius"then return true end
+if b=="fahrenheit"then return false end
 return nil
 end
-)
-local neo_nas_pd07={
-profile="safety-wave19-neo-nas-pd07",
-named_datapoints=true,
-magic_packet=true,
-query_on_configure=false,
-mcu_version_request_on_configure=true,
-time_start="off",
-datapoints={
-tuya.dp_binary(101,{
-name="motion",endpoint=1,transaction=1,read_only=true,
-converter=neo_motion_converter,emit=emit.motion(),
-}),
-tuya.dp_enum(102,{
-name="neo_nas_pd_seven_power_type",endpoint=1,transaction=1,read_only=true,
-converter=neo_power_type_converter,emit=emit.neoNasPdSevenPowerType(),
-}),
-tuya.dp_enum(102,{
-name="neo_nas_pd_seven_battery_low",endpoint=1,transaction=1,read_only=true,
-converter=neo_battery_low_converter,emit=emit.neoNasPdSevenBatteryLow(),
-}),
-tuya.dp_binary(103,{
-name="tamper",endpoint=1,transaction=1,read_only=true,
-converter=neo_tamper_converter,emit=emit.tamper(),
-}),
-tuya.dp_numeric(104,{
-name="temperature",endpoint=1,transaction=1,read_only=true,
-converter=neo_temperature_converter,emit=emit.temperature(),
-}),
-tuya.dp_numeric(105,{
-name="humidity",endpoint=1,transaction=1,read_only=true,
-converter=first_from(number_value),emit=emit.humidity(),
-}),
-tuya.dp_numeric(107,{
-name="neo_nas_pd_seven_minimum_temperature",endpoint=1,transaction=1,
-signed=true,converter=neo_signed_numeric_converter,emit=emit.neoNasPdSevenTemperatureMin(),
-}),
-tuya.dp_numeric(108,{
-name="neo_nas_pd_seven_maximum_temperature",endpoint=1,transaction=1,
-signed=true,converter=neo_signed_numeric_converter,emit=emit.neoNasPdSevenTemperatureMax(),
-}),
-tuya.dp_binary(106,{
-name="neo_nas_pd_seven_temperature_scale",endpoint=1,transaction=1,
-converter=neo_temperature_scale_converter,emit=emit.neoNasPdSevenTemperatureScale(),
-}),
-tuya.dp_numeric(109,{
-name="neo_nas_pd_seven_minimum_humidity",endpoint=1,transaction=1,
-converter=neo_numeric_converter,emit=emit.neoNasPdSevenHumidityMin(),
-}),
-tuya.dp_numeric(110,{
-name="neo_nas_pd_seven_maximum_humidity",endpoint=1,transaction=1,
-converter=neo_numeric_converter,emit=emit.neoNasPdSevenHumidityMax(),
-}),
-tuya.dp_enum(113,{
-name="neo_nas_pd_seven_alarm",endpoint=1,transaction=1,read_only=true,
-converter=neo_alarm_converter,emit=emit.neoNasPdSevenAlarm(),
-}),
-},
-}
-register_device_definition(neo_nas_pd07,{
-device_helpers.create_fingerprint("_TZE200_7hfcudw5","TS0601"),
-})
-local mowe_mw833p={
-profile="safety-presence-mw833p-core",
-query_on_configure=false,
-time_start="off",
-datapoints={
-tuya.dp_enum(1,{name="presence",read_only=true,
-converter=converter.true_false1(),emit=emit.presence()}),
-tuya.dp_illuminance(103,{read_only=true,emit=emit.illuminance()}),
-},
-}
-register_device_definition(mowe_mw833p,{
-device_helpers.create_fingerprint("_TZE200_ops9sidw","TS0601"),
-})
-local lincukoo_r12z20_core={
-profile="safety-presence-r12z20-core",
-query_on_configure=false,
-time_start="off",
-datapoints={
-tuya.dp_enum(1,{name="presence",read_only=true,
-converter=converter.true_false0(),emit=emit.presence()}),
-tuya.dp_illuminance(101,{read_only=true,emit=emit.illuminance()}),
-},
-}
-register_device_definition(lincukoo_r12z20_core,device_helpers.create_fingerprints("TS0601",{
-"_TZE284_h7oalfxa","_TZE2841000000_h7oalfxa",
-}))
-local lincukoo_b08lrt_core={
-profile="safety-presence-b08lrt-core",
-query_on_configure=false,
-time_start="off",
-datapoints={
-tuya.dp_enum(1,{name="presence",read_only=true,
-converter=converter.true_false0(),emit=emit.presence()}),
-tuya.dp_illuminance(101,{read_only=true,emit=emit.illuminance()}),
-tuya.dp_temperature(22,{read_only=true,emit=emit.temperature()}),
-tuya.dp_humidity(23,{scale=1,read_only=true,emit=emit.humidity()}),
-},
-}
-register_device_definition(lincukoo_b08lrt_core,device_helpers.create_fingerprints("TS0601",{
-"_TZE284_cipobaav","_TZE2841000000_cipobaav",
-}))
-return{
-id="ef00.presence.wave19.sensors",
-registrations=registrations,
-}
+)local U={
+profile="safety-wave19-neo-nas-pd07",named_datapoints=true,magic_packet=true,query_on_configure=false,mcu_version_request_on_configure=true,time_start="off",datapoints={
+g.dp_binary(101,{
+name="motion",endpoint=1,transaction=1,read_only=true,converter=J,emit=h.motion()}),g.dp_enum(102,{
+name="neo_nas_pd_seven_power_type",endpoint=1,transaction=1,read_only=true,converter=E,emit=h.neoNasPdSevenPowerType()}),g.dp_enum(102,{
+name="neo_nas_pd_seven_battery_low",endpoint=1,transaction=1,read_only=true,converter=z,emit=h.neoNasPdSevenBatteryLow()}),g.dp_binary(103,{
+name="tamper",endpoint=1,transaction=1,read_only=true,converter=K,emit=h.tamper()}),g.dp_numeric(104,{
+name="temperature",endpoint=1,transaction=1,read_only=true,converter=A,emit=h.temperature()}),g.dp_numeric(105,{
+name="humidity",endpoint=1,transaction=1,read_only=true,converter=i(d),emit=h.humidity()}),g.dp_numeric(107,{
+name="neo_nas_pd_seven_minimum_temperature",endpoint=1,transaction=1,signed=true,converter=k,emit=h.neoNasPdSevenTemperatureMin()}),g.dp_numeric(108,{
+name="neo_nas_pd_seven_maximum_temperature",endpoint=1,transaction=1,signed=true,converter=k,emit=h.neoNasPdSevenTemperatureMax()}),g.dp_binary(106,{
+name="neo_nas_pd_seven_temperature_scale",endpoint=1,transaction=1,converter=s,emit=h.neoNasPdSevenTemperatureScale()}),g.dp_numeric(109,{
+name="neo_nas_pd_seven_minimum_humidity",endpoint=1,transaction=1,converter=r,emit=h.neoNasPdSevenHumidityMin()}),g.dp_numeric(110,{
+name="neo_nas_pd_seven_maximum_humidity",endpoint=1,transaction=1,converter=r,emit=h.neoNasPdSevenHumidityMax()}),g.dp_enum(113,{
+name="neo_nas_pd_seven_alarm",endpoint=1,transaction=1,read_only=true,converter=M,emit=h.neoNasPdSevenAlarm()})}}c(U,{
+e.create_fingerprint("_TZE200_7hfcudw5","TS0601")})local W={
+profile="safety-presence-mw833p-core",query_on_configure=false,time_start="off",datapoints={
+g.dp_enum(1,{name="presence",read_only=true,converter=u.true_false1(),emit=h.presence()}),g.dp_illuminance(103,{read_only=true,emit=h.illuminance()})}}c(W,{
+e.create_fingerprint("_TZE200_ops9sidw","TS0601")})local I={
+profile="safety-presence-r12z20-core",query_on_configure=false,time_start="off",datapoints={
+g.dp_enum(1,{name="presence",read_only=true,converter=u.true_false0(),emit=h.presence()}),g.dp_illuminance(101,{read_only=true,emit=h.illuminance()})}}c(I,e.create_fingerprints("TS0601",{
+"_TZE284_h7oalfxa","_TZE2841000000_h7oalfxa"}))local H={
+profile="safety-presence-b08lrt-core",query_on_configure=false,time_start="off",datapoints={
+g.dp_enum(1,{name="presence",read_only=true,converter=u.true_false0(),emit=h.presence()}),g.dp_illuminance(101,{read_only=true,emit=h.illuminance()}),g.dp_temperature(22,{read_only=true,emit=h.temperature()}),g.dp_humidity(23,{scale=1,read_only=true,emit=h.humidity()})}}c(H,e.create_fingerprints("TS0601",{
+"_TZE284_cipobaav","_TZE2841000000_cipobaav"}))return{
+id="ef00.presence.wave19.sensors",registrations=S}

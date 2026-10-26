@@ -46,6 +46,22 @@ components:
         version: 1
       - id: concertmirror08464.trv602zHolidayTemperature
         version: 1
+      - id: concertmirror08464.trv602zTimeZone
+        version: 1
+      - id: concertmirror08464.trv602zMonSchedule
+        version: 1
+      - id: concertmirror08464.trv602zTueSchedule
+        version: 1
+      - id: concertmirror08464.trv602zWedSchedule
+        version: 1
+      - id: concertmirror08464.trv602zThuSchedule
+        version: 1
+      - id: concertmirror08464.trv602zFriSchedule
+        version: 1
+      - id: concertmirror08464.trv602zSatSchedule
+        version: 1
+      - id: concertmirror08464.trv602zSunSchedule
+        version: 1
       - id: refresh
         version: 1
     categories:
@@ -127,6 +143,30 @@ deviceConfig:
       capability: concertmirror08464.trv602zHolidayTemperature
       version: 1
     - component: main
+      capability: concertmirror08464.trv602zTimeZone
+      version: 1
+    - component: main
+      capability: concertmirror08464.trv602zMonSchedule
+      version: 1
+    - component: main
+      capability: concertmirror08464.trv602zTueSchedule
+      version: 1
+    - component: main
+      capability: concertmirror08464.trv602zWedSchedule
+      version: 1
+    - component: main
+      capability: concertmirror08464.trv602zThuSchedule
+      version: 1
+    - component: main
+      capability: concertmirror08464.trv602zFriSchedule
+      version: 1
+    - component: main
+      capability: concertmirror08464.trv602zSatSchedule
+      version: 1
+    - component: main
+      capability: concertmirror08464.trv602zSunSchedule
+      version: 1
+    - component: main
       capability: refresh
       version: 1
   automation:
@@ -197,6 +237,30 @@ deviceConfig:
       - component: main
         capability: concertmirror08464.trv602zHolidayTemperature
         version: 1
+      - component: main
+        capability: concertmirror08464.trv602zTimeZone
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zMonSchedule
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zTueSchedule
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zWedSchedule
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zThuSchedule
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zFriSchedule
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zSatSchedule
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zSunSchedule
+        version: 1
     actions:
       - component: main
         capability: thermostatMode
@@ -248,4 +312,28 @@ deviceConfig:
         version: 1
       - component: main
         capability: concertmirror08464.trv602zHolidayTemperature
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zTimeZone
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zMonSchedule
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zTueSchedule
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zWedSchedule
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zThuSchedule
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zFriSchedule
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zSatSchedule
+        version: 1
+      - component: main
+        capability: concertmirror08464.trv602zSunSchedule
         version: 1

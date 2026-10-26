@@ -17,12 +17,22 @@ local function load_cluster_command_handler(zcl)
   local default_response = require "st.zigbee.zcl.global_commands.default_response"
   local zigbee_constants = require "st.zigbee.constants"
   local log = require "log"
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE ias_ace_alias
   local IASACE = generated_clusters.IASACE
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
   local remote_action_metadata = custom_capabilities.by_emit_name.remote_action
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE security_metadata
   local security_remote_action_metadata = custom_capabilities.by_emit_name.security_remote_action
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
   zcl.schedule_battery_refresh_after_button = battery_refresh.schedule_after_button
   local LAST_REMOTE_ACTION_FIELD = "__zcl_last_remote_action"
   local CLUSTER_SCENES = 0x0005
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE arm_modes
   local ARM_MODE_ACTIONS = {
     [0] = "disarm",
     [1] = "arm_day_zones",
@@ -30,6 +40,8 @@ local function load_cluster_command_handler(zcl)
     [3] = "arm_all_zones",
     [4] = "exit_delay",
   }
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
   local explicit_handlers = {}
   local mapped_commands = {}
@@ -84,16 +96,18 @@ local function load_cluster_command_handler(zcl)
     return zb_rx and zb_rx.body and zb_rx.body.zcl_header and zb_rx.body.zcl_header.cmd and zb_rx.body.zcl_header.cmd.value or nil
   end
 
-  local function extract_body_bytes(zb_rx)
-    return zb_rx and zb_rx.body and zb_rx.body.zcl_body and zb_rx.body.zcl_body.body_bytes or nil
-  end
-
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE component_capability
   local function supports_component_capability(device, capability_id, component_id)
     return type(device) == "table" and
       type(device.supports_capability_by_id) == "function" and
       device:supports_capability_by_id(capability_id, component_id or "main")
   end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE endpoint_component
   local function resolve_endpoint_component(device, src_endpoint, fallback_component)
     local component_id = fallback_component or "main"
     if src_endpoint ~= nil and type(device) == "table" and type(device.get_component_id_for_endpoint) == "function" then
@@ -104,7 +118,11 @@ local function load_cluster_command_handler(zcl)
     end
     return component_id
   end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE scene_component
   local function resolve_scene_component(device, preset, scene_index, src_endpoint)
     local scene_component_map = type(preset) == "table" and preset.scene_component_map or nil
     local component_id = type(scene_component_map) == "table" and (scene_component_map[scene_index] or scene_component_map[src_endpoint]) or nil
@@ -113,10 +131,14 @@ local function load_cluster_command_handler(zcl)
     end
     return component_id
   end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE button_emitter
   local function emit_button_event(device, component_id, action_name)
     local capability_builder = capabilities.button and capabilities.button.button and capabilities.button.button[action_name] or nil
-    if type(capability_builder) ~= "function" then
+    if capability_builder == nil then
       return false
     end
 
@@ -132,6 +154,8 @@ local function load_cluster_command_handler(zcl)
     battery_refresh.schedule_after_button(device)
     return true
   end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
   local function should_emit_remote_action(device, component_id, action, seqno)
     if type(action) ~= "string" or action == "" then
@@ -155,15 +179,21 @@ local function load_cluster_command_handler(zcl)
 
   local function emit_remote_action(device, preset, component_id, action, seqno)
     if not should_emit_remote_action(device, component_id, action, seqno) then
-      return false
+      return false, false
     end
     local metadata = remote_action_metadata
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE remote_metadata_override
     if type(preset) == "table" and type(preset.remote_action_emit_name) == "string" then
       metadata = custom_capabilities.by_emit_name[preset.remote_action_emit_name] or metadata
     end
-    return custom_capability_binding.emit_state(device, component_id, metadata, action)
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
+    return custom_capability_binding.emit_state(device, component_id, metadata, action, { state_change = true }), true
   end
 
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE security_emitter
   local function emit_security_remote_action(device, preset, action, seqno)
     if not should_emit_remote_action(device, "main", action, seqno) then
       return false
@@ -174,6 +204,8 @@ local function load_cluster_command_handler(zcl)
     end
     return custom_capability_binding.emit_state(device, "main", metadata, action)
   end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
   local function extract_member_value(value)
     if type(value) == "table" and value.value ~= nil then
@@ -199,6 +231,9 @@ local function load_cluster_command_handler(zcl)
     return nil
   end
 
+
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE action_metadata
   local function emit_standard_action_metadata(device, preset, component_id, zb_rx, cluster_id, command_id)
     local emit_names = type(preset) == "table" and preset.standard_action_metadata_emit_names or nil
     if type(emit_names) ~= "table" then
@@ -210,7 +245,7 @@ local function load_cluster_command_handler(zcl)
       local emit_name = emit_names[property]
       local metadata = type(emit_name) == "string" and custom_capabilities.by_emit_name[emit_name] or nil
       if metadata ~= nil and type(value) == "number" then
-        emitted = custom_capability_binding.emit_state(device, component_id, metadata, value) or emitted
+        emitted = custom_capability_binding.emit_state(device, component_id, metadata, value, { state_change = true }) or emitted
       end
     end
 
@@ -237,7 +272,8 @@ local function load_cluster_command_handler(zcl)
     elseif command_id == 0x01 or command_id == 0x05 then
       emit_value("action_rate", extract_body_member(zb_rx, "rate"))
     elseif command_id == 0x02 or command_id == 0x06 then
-      emit_value("action_step_size", extract_body_member(zb_rx, "step_size", "stepsize"))
+      local step = extract_body_member(zb_rx, "step_size", "stepsize")
+      emit_value("action_step_size", step)
       local transition_time = extract_body_member(zb_rx, "transition_time", "transtime")
       if type(transition_time) == "number" then
         emit_value("action_transition_time", transition_time / 10)
@@ -246,6 +282,8 @@ local function load_cluster_command_handler(zcl)
 
     return emitted
   end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
   local function handle_advanced_remote_action(device, preset, zb_rx, action, component_id)
     if type(preset) ~= "table" or preset.advanced_remote ~= true or type(action) ~= "string" then
@@ -253,21 +291,30 @@ local function load_cluster_command_handler(zcl)
     end
 
     local target_component = component_id or "main"
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE advanced_action_hooks
     local button_event = type(preset.standard_action_button_events) == "table" and
       preset.standard_action_button_events[action] or nil
-    if type(button_event) == "string" then
+    local action_emitted, action_accepted = emit_remote_action(device, preset, target_component, action, extract_seqno(zb_rx))
+    if action_accepted and type(button_event) == "string" then
       emit_button_event(device, target_component, button_event)
     end
-
-    local action_emitted = emit_remote_action(device, preset, target_component, action, extract_seqno(zb_rx))
     if action_emitted then
+      if type(preset.remote_action_handler) == "function" then
+        preset.remote_action_handler(device, target_component, action, zb_rx)
+      end
       local cluster_id = zb_rx and zb_rx.address_header and zb_rx.address_header.cluster and zb_rx.address_header.cluster.value or nil
       emit_standard_action_metadata(device, preset, target_component, zb_rx, cluster_id, extract_command_id(zb_rx))
     end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+    --| emit_remote_action(device, preset, target_component, action, extract_seqno(zb_rx))
+  -- BUILD_FEATURE zcl_dynamic_commands END
     send_default_response(device, zb_rx, extract_command_id(zb_rx) or 0)
     return true
   end
 
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE security_action
   local function handle_security_remote_action(device, preset, zb_rx, action)
     if type(preset) ~= "table" or preset.security_remote ~= true or type(action) ~= "string" then
       return false
@@ -293,7 +340,11 @@ local function load_cluster_command_handler(zcl)
 
     return handle_security_remote_action(device, preset, zb_rx, action)
   end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE ias_action
   local function handle_ias_zone_action(device, preset, zb_rx)
     if type(preset) ~= "table" or preset.advanced_remote ~= true or type(preset.ias_zone_action_map) ~= "table" then
       return false
@@ -307,7 +358,11 @@ local function load_cluster_command_handler(zcl)
 
     return handle_advanced_remote_action(device, preset, zb_rx, action, "main")
   end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE ias_emergency
   local function handle_ias_ace_emergency(device, preset, zb_rx)
     if type(preset) ~= "table" or preset.security_remote ~= true then
       return false
@@ -315,7 +370,11 @@ local function load_cluster_command_handler(zcl)
 
     return handle_security_remote_action(device, preset, zb_rx, "emergency")
   end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE advanced_component
   local function resolve_advanced_remote_component(device, preset, zb_rx)
     local src_endpoint = extract_source_endpoint(zb_rx)
     local destination_address = extract_destination_address(zb_rx)
@@ -331,6 +390,8 @@ local function load_cluster_command_handler(zcl)
 
     return resolve_endpoint_component(device, src_endpoint, "main")
   end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
   local function handle_advanced_remote_standard_command(device, preset, zb_rx)
     if type(preset) ~= "table" or preset.advanced_remote ~= true then
@@ -344,6 +405,8 @@ local function load_cluster_command_handler(zcl)
     end
 
     local action = nil
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE standard_resolver
     local resolved_component = nil
     local resolver_handled = false
     if type(preset.standard_command_action_resolver) == "function" then
@@ -351,20 +414,33 @@ local function load_cluster_command_handler(zcl)
         zb_rx,
         cluster_id,
         command_id,
-        extract_source_endpoint(zb_rx)
+        extract_source_endpoint(zb_rx),
+        device
       )
       if resolver_handled == true and type(action) ~= "string" then
         return false
       end
     end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE standard_on_off
     if resolver_handled ~= true and cluster_id == zcl.CLUSTER_ON_OFF then
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+    --| if cluster_id == zcl.CLUSTER_ON_OFF then
+  -- BUILD_FEATURE zcl_dynamic_commands END
       action = ({
         [0x00] = "off",
         [0x01] = "on",
         [0x02] = "toggle",
       })[command_id]
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE standard_level
     elseif resolver_handled ~= true and cluster_id == zcl.CLUSTER_LEVEL_CONTROL then
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+    --| elseif cluster_id == zcl.CLUSTER_LEVEL_CONTROL then
+  -- BUILD_FEATURE zcl_dynamic_commands END
       if command_id == 0x00 or command_id == 0x04 then
         action = "brightness_move_to_level"
       elseif command_id == 0x01 or command_id == 0x05 then
@@ -384,17 +460,24 @@ local function load_cluster_command_handler(zcl)
       elseif command_id == 0x03 or command_id == 0x07 then
         action = "brightness_stop"
       end
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE standard_color
     elseif resolver_handled ~= true and cluster_id == zcl.CLUSTER_COLOR_CONTROL then
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+    --| elseif cluster_id == zcl.CLUSTER_COLOR_CONTROL then
+  -- BUILD_FEATURE zcl_dynamic_commands END
       if command_id == 0x06 then
         action = "move_to_hue_and_saturation"
       elseif command_id == 0x07 then
         action = "color_move"
       elseif command_id == 0x01 then
         local move_mode = extract_body_member(zb_rx, "move_mode", "movemode", "mode")
-        if move_mode == 0 or move_mode == "up" then
+        if move_mode == 0 or move_mode == "stop" then
+          action = "hue_stop"
+        elseif move_mode == 1 or move_mode == "up" then
           action = "hue_move"
-        elseif move_mode == 1 or move_mode == "down" then
-          action = "hue_move"
+        elseif move_mode == 3 or move_mode == "down" then
+          action = "hue_down"
         end
       elseif command_id == 0x47 then
         action = "hue_stop"
@@ -402,20 +485,27 @@ local function load_cluster_command_handler(zcl)
         action = "color_temperature_move"
       elseif command_id == 0x4B then
         local move_mode = extract_body_member(zb_rx, "move_mode", "movemode", "mode")
-        if move_mode == 1 or move_mode == "down" then
+        if move_mode == 0 or move_mode == "stop" then
+          action = "color_temperature_stop"
+        elseif move_mode == 3 or move_mode == "down" then
           action = "color_temperature_move_down"
-        else
+        elseif move_mode == 1 or move_mode == "up" then
           action = "color_temperature_move_up"
         end
       elseif command_id == 0x4C then
         local step_mode = extract_body_member(zb_rx, "step_mode", "stepmode", "mode")
-        if step_mode == 1 or step_mode == "down" then
+        if step_mode == 3 or step_mode == "down" then
           action = "color_temperature_step_down"
-        else
+        elseif step_mode == 1 or step_mode == "up" then
           action = "color_temperature_step_up"
         end
       end
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE standard_scenes
     elseif resolver_handled ~= true and cluster_id == CLUSTER_SCENES then
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+    --| elseif cluster_id == CLUSTER_SCENES then
+  -- BUILD_FEATURE zcl_dynamic_commands END
       local scene_id = extract_body_member(zb_rx, "sceneid", "scene_id")
       if command_id == 0x00 then
         action = scene_id ~= nil and ("add_" .. tostring(scene_id)) or "add"
@@ -434,12 +524,17 @@ local function load_cluster_command_handler(zcl)
       return false
     end
 
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE standard_component
     local component_id = type(resolved_component) == "string" and resolved_component or
       resolve_advanced_remote_component(device, preset, zb_rx)
     local src_endpoint = extract_source_endpoint(zb_rx)
     if preset.standard_action_endpoint_suffix == true and src_endpoint ~= nil then
       action = action .. "_" .. tostring(src_endpoint)
     end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+    --| local component_id = "main"
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
     return handle_advanced_remote_action(device, preset, zb_rx, action, component_id)
   end
@@ -468,17 +563,21 @@ local function load_cluster_command_handler(zcl)
     if frame_ctrl ~= nil and type(frame_ctrl.is_disable_default_response_set) == "function" and frame_ctrl:is_disable_default_response_set() then
       return false
     end
+    local destination = extract_destination_address(zb_rx)
+    if destination ~= nil and destination >= 0xFFF8 then
+      return false
+    end
 
     local cluster_id = zb_rx.address_header and zb_rx.address_header.cluster and zb_rx.address_header.cluster.value or nil
     local src_addr = zb_rx.address_header and zb_rx.address_header.src_addr and zb_rx.address_header.src_addr.value or nil
     local src_endpoint = zb_rx.address_header and zb_rx.address_header.src_endpoint and zb_rx.address_header.src_endpoint.value or nil
-    local dst_endpoint = zb_rx.address_header and zb_rx.address_header.dst_endpoint and zb_rx.address_header.dst_endpoint.value or zigbee_constants.HUB.ENDPOINT
+    local dst_endpoint = zb_rx.address_header and zb_rx.address_header.dest_endpoint and zb_rx.address_header.dest_endpoint.value or zigbee_constants.HUB.ENDPOINT
     if cluster_id == nil or src_addr == nil or src_endpoint == nil then
       return false
     end
 
-    local response_frame_ctrl = FrameCtrl(0x00)
-    if frame_ctrl ~= nil and type(frame_ctrl.get_direction) == "function" and frame_ctrl:get_direction() == 1 then
+    local response_frame_ctrl = FrameCtrl(0x10)
+    if frame_ctrl ~= nil and type(frame_ctrl.get_direction) == "function" and frame_ctrl:get_direction() == 0 then
       response_frame_ctrl:set_direction()
     end
     if frame_ctrl ~= nil and type(frame_ctrl.is_mfg_specific_set) == "function" and frame_ctrl:is_mfg_specific_set() then
@@ -514,6 +613,8 @@ local function load_cluster_command_handler(zcl)
     return true
   end
 
+  zcl.send_default_response = send_default_response
+
   local function normalize_extracted_value(extracted)
     if type(extracted) == "table" and (
       extracted.raw_value ~= nil or
@@ -534,15 +635,35 @@ local function load_cluster_command_handler(zcl)
     local src_endpoint = extract_source_endpoint(zb_rx)
     local mfg_code = extract_mfg_code(zb_rx)
     local pending = {}
+    local applied = false
+
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE command_only
+    for _, mapping in ipairs(zcl_clusters) do
+      if mapping.cluster_id == cluster_id and mapping.attribute_id == nil then
+        for _, candidate in ipairs(zcl.collect_matching_entries(mapping, device, {
+          zb_rx = zb_rx, endpoint = src_endpoint, src_endpoint = src_endpoint,
+          command_id = command_id, mfg_code = mfg_code,
+        })) do
+          local meta = zcl.mapping_meta(candidate)
+          if meta.command_id == command_id and meta.command_extractor ~= nil then
+            meta.command_extractor(zb_rx, device, candidate)
+            applied = true
+          end
+        end
+      end
+    end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
     local index = zcl.build_mapping_index(zcl_clusters)
     if index == nil then
-      return false
+      return applied
     end
 
     local cluster_index = index.by_cluster_attribute[cluster_id]
     if cluster_index == nil then
-      return false
+      return applied
     end
 
     local visited = {}
@@ -570,7 +691,6 @@ local function load_cluster_command_handler(zcl)
       end
     end
 
-    local applied = false
     for attribute_id, extracted in pairs(pending) do
       if zcl.apply_attribute(device, zcl_clusters, cluster_id, attribute_id, extracted.raw_value, {
         zb_rx = zb_rx,
@@ -666,7 +786,9 @@ local function load_cluster_command_handler(zcl)
   end
 
   function zcl.build_zigbee_global_handlers(get_preset)
-    return {
+    return require("zcl_common.reporting").global_handlers(zcl, {
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE basic_write
       [0x0000] = {
         [0x02] = function(_, device, zb_rx)
           local preset = get_preset(device)
@@ -695,21 +817,9 @@ local function load_cluster_command_handler(zcl)
           end
         end,
       },
-      [zcl.CLUSTER_ON_OFF] = {
-        [default_response.DEFAULT_RESPONSE_ID] = function(_, device, zb_rx)
-          local preset = get_preset(device)
-          if preset == nil or preset.zcl_clusters == nil or not zcl.has_cluster(preset.zcl_clusters, zcl.CLUSTER_ON_OFF) then
-            return
-          end
-
-          local zcl_body = zb_rx and zb_rx.body and zb_rx.body.zcl_body or nil
-          local status = zcl_body and zcl_body.status and zcl_body.status.value or nil
-          if status ~= Status.SUCCESS then
-            return
-          end
-        end,
-      },
-    }
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
+    })
   end
 
   zcl.register_cluster_command_handler(zcl.CLUSTER_IAS_ZONE, 0x01, function(device, preset, zb_rx)
@@ -748,6 +858,8 @@ local function load_cluster_command_handler(zcl)
       end
     end
 
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE scene_action
     if type(preset) == "table" and preset.scene_switch == true then
       local scene_key = type(preset.scene_action_map) == "table" and (preset.scene_action_map[src_endpoint] or preset.scene_action_map[raw_value]) or src_endpoint or raw_value
       if scene_key ~= nil then
@@ -765,8 +877,12 @@ local function load_cluster_command_handler(zcl)
       send_default_response(device, zb_rx, command_id)
       return true
     end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
     if type(preset) == "table" and preset.advanced_remote == true then
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE tuya_named
       local mapped_action = type(preset.tuya_action_map) == "table" and preset.tuya_action_map[raw_value] or nil
       if type(mapped_action) ~= "string" and type(preset.tuya_action_name) == "string" then
         mapped_action = preset.tuya_action_name
@@ -782,6 +898,8 @@ local function load_cluster_command_handler(zcl)
         send_default_response(device, zb_rx, command_id)
         return true
       end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
       local base_action_map = command_id == 0xFC and {
         [0] = "rotate_right",
@@ -793,10 +911,22 @@ local function load_cluster_command_handler(zcl)
       }
       local base_action = base_action_map[raw_value]
       if base_action ~= nil then
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE tuya_component
         local component_id = resolve_endpoint_component(device, src_endpoint, "main")
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+        --| local component_id = "main"
+  -- BUILD_FEATURE zcl_dynamic_commands END
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE tuya_knob
         if preset.knob_remote == true then
-          emit_remote_action(device, preset, "main", base_action, seqno)
-          if base_action == "single" or base_action == "double" or base_action == "hold" then
+          local action_emitted, action_accepted = emit_remote_action(device, preset, "main", base_action, seqno)
+          if action_emitted then
+            if type(preset.remote_action_handler) == "function" then
+              preset.remote_action_handler(device, "main", base_action, zb_rx)
+            end
+          end
+          if action_accepted and (base_action == "single" or base_action == "double" or base_action == "hold") then
             local button_event = ({
               single = "pushed",
               double = "double",
@@ -807,11 +937,28 @@ local function load_cluster_command_handler(zcl)
             end
           end
         else
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE tuya_button_index
           local button_index = type(preset.button_count) == "number" and src_endpoint or src_endpoint
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+          --| local button_index = src_endpoint
+  -- BUILD_FEATURE zcl_dynamic_commands END
           local action = base_action
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE tuya_prefix_begin
           if preset.unprefixed_remote_actions ~= true then
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
             action = button_index ~= nil and (tostring(button_index) .. "_" .. base_action) or base_action
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE tuya_prefix_end
           end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE tuya_button
           local button_event = ({
             single = "pushed",
             double = "double",
@@ -820,8 +967,14 @@ local function load_cluster_command_handler(zcl)
           if button_event ~= nil then
             emit_button_event(device, component_id, button_event)
           end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
           emit_remote_action(device, preset, component_id, action, seqno)
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE tuya_knob_end
         end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
       end
 
       send_default_response(device, zb_rx, command_id)
@@ -856,77 +1009,59 @@ local function load_cluster_command_handler(zcl)
     return true
   end
 
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0xFD, function(device, preset, zb_rx)
-    return handle_tuya_on_off_action(device, preset, zb_rx)
-  end)
+  for _, command_id in ipairs({ 0xFD, 0xFC }) do
+    zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, command_id, handle_tuya_on_off_action)
+  end
 
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0xFC, function(device, preset, zb_rx)
-    return handle_tuya_on_off_action(device, preset, zb_rx)
-  end)
-
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0x00, function(device, preset, zb_rx)
-    return handle_advanced_remote_standard_command(device, preset, zb_rx)
-  end)
-
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0x01, function(device, preset, zb_rx)
-    return handle_advanced_remote_standard_command(device, preset, zb_rx)
-  end)
-
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0x02, function(device, preset, zb_rx)
-    return handle_advanced_remote_standard_command(device, preset, zb_rx)
-  end)
-
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0x03, function(device, preset, zb_rx)
-    return handle_advanced_remote_standard_command(device, preset, zb_rx)
-  end)
-
-  zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, 0x40, function(device, preset, zb_rx)
-    return handle_advanced_remote_standard_command(device, preset, zb_rx)
-  end)
+  for _, command_id in ipairs({ 0x00, 0x01, 0x02, 0x03, 0x40 }) do
+    zcl.register_cluster_command_handler(zcl.CLUSTER_ON_OFF, command_id, handle_advanced_remote_standard_command)
+  end
 
   for _, command_id in ipairs({ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 }) do
-    zcl.register_cluster_command_handler(zcl.CLUSTER_LEVEL_CONTROL, command_id, function(device, preset, zb_rx)
-      return handle_advanced_remote_standard_command(device, preset, zb_rx)
-    end)
+    zcl.register_cluster_command_handler(zcl.CLUSTER_LEVEL_CONTROL, command_id, handle_advanced_remote_standard_command)
   end
 
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE cover_registration
   for _, command_id in ipairs({ 0x00, 0x01, 0x02 }) do
-    zcl.register_cluster_command_handler(zcl.CLUSTER_WINDOW_COVERING, command_id, function(device, preset, zb_rx)
-      return handle_advanced_remote_standard_command(device, preset, zb_rx)
-    end)
+    zcl.register_cluster_command_handler(zcl.CLUSTER_WINDOW_COVERING, command_id, handle_advanced_remote_standard_command)
   end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
   for _, command_id in ipairs({
     0x00, 0x01, 0x02, 0x03, 0x05, 0x06, 0x07, 0x0A,
     0x43, 0x44, 0x47, 0x4B, 0x4C,
   }) do
-    zcl.register_cluster_command_handler(zcl.CLUSTER_COLOR_CONTROL, command_id, function(device, preset, zb_rx)
-      return handle_advanced_remote_standard_command(device, preset, zb_rx)
-    end)
+    zcl.register_cluster_command_handler(zcl.CLUSTER_COLOR_CONTROL, command_id, handle_advanced_remote_standard_command)
   end
 
   for _, command_id in ipairs({ 0x00, 0x02, 0x03, 0x04, 0x05 }) do
-    zcl.register_cluster_command_handler(CLUSTER_SCENES, command_id, function(device, preset, zb_rx)
-      return handle_advanced_remote_standard_command(device, preset, zb_rx)
-    end)
+    zcl.register_cluster_command_handler(CLUSTER_SCENES, command_id, handle_advanced_remote_standard_command)
   end
 
-  zcl.register_cluster_command_handler(IASACE.ID, 0x00, function(device, preset, zb_rx)
-    return handle_ias_ace_arm(device, preset, zb_rx)
-  end)
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE ias_arm_registration
+  zcl.register_cluster_command_handler(IASACE.ID, 0x00, handle_ias_ace_arm)
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
-  zcl.register_cluster_command_handler(IASACE.ID, 0x02, function(device, preset, zb_rx)
-    return handle_ias_ace_emergency(device, preset, zb_rx)
-  end)
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE ias_emergency_registration
+  for _, command_id in ipairs({ 0x02, 0x04 }) do
+    zcl.register_cluster_command_handler(IASACE.ID, command_id, handle_ias_ace_emergency)
+  end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
-  zcl.register_cluster_command_handler(IASACE.ID, 0x04, function(device, preset, zb_rx)
-    return handle_ias_ace_emergency(device, preset, zb_rx)
-  end)
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE ias_action_registration
+  zcl.register_cluster_command_handler(zcl.CLUSTER_IAS_ZONE, 0x00, handle_ias_zone_action)
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
-  zcl.register_cluster_command_handler(zcl.CLUSTER_IAS_ZONE, 0x00, function(device, preset, zb_rx)
-    return handle_ias_zone_action(device, preset, zb_rx)
-  end)
-
+  -- BUILD_FEATURE zcl_dynamic_commands BEGIN
+  -- COMMAND_SURFACE ir_registration
   for _, command_id in ipairs({ 0x00, 0x02, 0x03, 0x04, 0x05 }) do
     zcl.register_cluster_command_handler(0xED00, command_id, function(device, preset, zb_rx)
       if type(preset) ~= "table" or preset.ir_controller ~= true or zcl.handle_ir_transmit_command == nil then
@@ -936,6 +1071,8 @@ local function load_cluster_command_handler(zcl)
       return zcl.handle_ir_transmit_command(device, preset, zb_rx)
     end)
   end
+  -- BUILD_FEATURE zcl_dynamic_commands FALLBACK
+  -- BUILD_FEATURE zcl_dynamic_commands END
 
 end
 

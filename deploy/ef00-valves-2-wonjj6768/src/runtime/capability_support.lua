@@ -1,39 +1,48 @@
-local capability_support={}
-local function profile_components(device)
-if type(device)~="table" then
+local b={}
+function b.is_callable(m)
+if type(m)=="function"then
+return true
+end
+if type(m)~="table"then
+return false
+end
+local l=getmetatable(m)
+return type(l)=="table"and type(l.__call)=="function"
+end
+local function g(d)
+if type(d)~="table"then
 return nil
 end
-local profile=device.profile
-if type(profile)~="table" and type(device.st_store)=="table" then
-profile=device.st_store.profile
+local h=d.profile
+if type(h)~="table"and type(d.st_store)=="table"then
+h=d.st_store.profile
 end
-return type(profile)=="table" and profile.components or nil
+return type(h)=="table"and h.components or nil
 end
-local function component_has_capability(component,capability_id)
-local declared=type(component)=="table" and component.capabilities or nil
-if type(declared)~="table" then
+local function e(f,a)
+local i=type(f)=="table"and f.capabilities or nil
+if type(i)~="table"then
 return false
 end
-if declared[capability_id]~=nil then
+if i[a]~=nil then
 return true
 end
-for _,capability in pairs(declared)do
-if type(capability)=="table" and capability.id==capability_id then
+for _,j in pairs(i)do
+if type(j)=="table"and j.id==a then
 return true
 end
 end
 return false
 end
-function capability_support.supports(device,capability_id,component_id)
-if type(device)~="table" or type(capability_id)~="string" or capability_id=="" then
+function b.supports(d,a,c)
+if type(d)~="table"or type(a)~="string"or a==""then
 return false
 end
-component_id=component_id or "main"
-if type(device.supports_capability_by_id)=="function" then
-return device:supports_capability_by_id(capability_id,component_id)
+c=c or"main"
+if type(d.supports_capability_by_id)=="function"then
+return d:supports_capability_by_id(a,c)
 end
-local components=profile_components(device)
-local component=type(components)=="table" and components[component_id]or nil
-return component_has_capability(component,capability_id)
+local k=g(d)local f=type(k)=="table"and k[c]or nil
+return e(f,a)
 end
-return capability_support
+return b

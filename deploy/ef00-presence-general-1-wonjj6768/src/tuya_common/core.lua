@@ -1,201 +1,169 @@
-local data_types=require "st.zigbee.data_types"
-local constants=require "st.zigbee.constants"
-local zcl_messages=require "st.zigbee.zcl"
-local messages=require "st.zigbee.messages"
-local generic_body=require "st.zigbee.generic_body"
-local read_attribute=require "st.zigbee.zcl.global_commands.read_attribute"
-local cluster_base=require "st.zigbee.cluster_base"
-local utils=require "st.utils"
-local foundation=require "tuya_common.foundation"
-local log=foundation.log
-local shared={}
-for key,value in pairs(foundation)do
-shared[key]=value
+local E=require"st.zigbee.data_types"
+local s=require"st.zigbee.constants"
+local p=require"st.zigbee.zcl"
+local D=require"st.zigbee.messages"
+local K=require"st.zigbee.generic_body"
+local k=require"st.zigbee.zcl.global_commands.read_attribute"
+local J=require"st.zigbee.cluster_base"
+local ab=require"st.utils"
+local F=require"tuya_common.foundation"
+local ad=F.log
+local a={}for ac,f in pairs(F)do
+a[ac]=f
 end
-shared.data_types=data_types
-shared.constants=constants
-shared.zcl_messages=zcl_messages
-shared.messages=messages
-shared.generic_body=generic_body
-shared.read_attribute=read_attribute
-shared.cluster_base=cluster_base
-shared.utils=utils
-shared.REPORT_COMMANDS={
-[shared.GET_DATA]=true,
-[shared.SET_DATA_RESPONSE]=true,
-[shared.REPORT_STATUS]=true,
-[shared.ACTIVE_STATUS_REPORT]=true,
-}
-local BASIC_CLUSTER=shared.BASIC_CLUSTER
-local PACKET_ID_FIELD=shared.PACKET_ID_FIELD
-local PERSIST_FALSE=shared.PERSIST_FALSE
-local BASIC_ENDPOINT_FIELD=shared.BASIC_ENDPOINT_FIELD
-local string_byte=shared.string_byte
-local string_char=shared.string_char
-local string_pack=shared.string_pack
-local string_len=shared.string_len
-local math_floor=shared.math_floor
-local type_check=shared.type_check
-local table_concat=shared.table_concat
-local function next_packet_id(device)
-local previous_packet_id=device:get_field(PACKET_ID_FIELD)
-if type_check(previous_packet_id)~="number" or previous_packet_id % 1 ~=0 then
-previous_packet_id=0
+a.data_types=E
+a.constants=s
+a.zcl_messages=p
+a.messages=D
+a.generic_body=K
+a.read_attribute=k
+a.cluster_base=J
+a.utils=ab
+a.REPORT_COMMANDS={
+[a.GET_DATA]=true,[a.SET_DATA_RESPONSE]=true,[a.REPORT_STATUS]=true,[a.ACTIVE_STATUS_REPORT]=true}local m=a.BASIC_CLUSTER
+local r=a.PACKET_ID_FIELD
+local n=a.PERSIST_FALSE
+local w=a.BASIC_ENDPOINT_FIELD
+local P=a.string_byte
+local A=a.string_char
+local B=a.string_pack
+local R=a.string_len
+local x=a.math_floor
+local d=a.type_check
+local M=a.table_concat
+local function H(j)
+local e=j:get_field(r)if d(e)~="number"or e%1~=0 then
+e=0
 end
-local packet_id=previous_packet_id + 1
-if packet_id >=0x10000 then
-packet_id=1
+local u=e+1
+if u>=65536 then
+u=1
 end
-device:set_field(PACKET_ID_FIELD,packet_id,PERSIST_FALSE)
-return packet_id
+j:set_field(r,u,n)return u
 end
-local function resolve_cluster_endpoint(device,cluster_id,field_name)
-local cached=field_name and device:get_field(field_name)or nil
-if cached then
-return cached
+local function h(j,Q,o)
+local T=o and j:get_field(o)or nil
+if T then
+return T
 end
-local endpoint=device:get_endpoint(cluster_id)
-if endpoint and field_name then
-device:set_field(field_name,endpoint,PERSIST_FALSE)
+local g=j:get_endpoint(Q)if g and o then
+j:set_field(o,g,n)
 end
-return endpoint
+return g
 end
-local function extract_payload(message)
-if type_check(message)=="string" then
-return message
+local function t(c)
+if d(c)=="string"then
+return c
 end
-if type_check(message)~="table" then
+if d(c)~="table"then
 return nil
 end
-return message.body and message.body.zcl_body and message.body.zcl_body.body_bytes or nil
+return c.body and c.body.zcl_body and c.body.zcl_body.body_bytes or nil
 end
-local function extract_command_id(message)
-if type_check(message)~="table" then
+local function z(c)
+if d(c)~="table"then
 return nil
 end
-return message.body and
-message.body.zcl_header and
-message.body.zcl_header.cmd and
-message.body.zcl_header.cmd.value or nil
+return c.body and
+c.body.zcl_header and
+c.body.zcl_header.cmd and
+c.body.zcl_header.cmd.value or nil
 end
-local function extract_source_endpoint(message)
-if type_check(message)~="table" then
+local function q(c)
+if d(c)~="table"then
 return nil
 end
-local endpoint=message.address_header and
-message.address_header.src_endpoint and
-message.address_header.src_endpoint.value or nil
-if type_check(endpoint)=="number" then
-return endpoint
+local g=c.address_header and
+c.address_header.src_endpoint and
+c.address_header.src_endpoint.value or nil
+if d(g)=="number"then
+return g
 end
 return nil
 end
-local function build_basic_read_attributes_message(device,attr_ids)
-local endpoint=resolve_cluster_endpoint(device,BASIC_CLUSTER,BASIC_ENDPOINT_FIELD)
-if not endpoint then
-log.warn(string.format("Cluster 0x%04X endpoint not found",BASIC_CLUSTER))
+local function i(j,V)
+local g=h(j,m,w)if not g then
+ad.warn(string.format("Cluster 0x%04X endpoint not found",m))return nil
+end
+local S=p.ZclHeader{
+cmd=E.ZCLCommandId(k.ReadAttribute.ID)}local G=D.AddressHeader(
+s.HUB.ADDR,s.HUB.ENDPOINT,j:get_short_address(),g,s.HA_PROFILE_ID,m)local L=p.ZclMessageBody{
+zcl_header=S,zcl_body=k.ReadAttribute(V)}return D.ZigbeeMessageTx{
+address_header=G,body=L}
+end
+local function C(Z)
+local X={}for aa,W in ipairs(Z or{})do
+if d(W)~="number"then
 return nil
 end
-local zcl_header=zcl_messages.ZclHeader({
-cmd=data_types.ZCLCommandId(read_attribute.ReadAttribute.ID)
-})
-local address_header=messages.AddressHeader(
-constants.HUB.ADDR,
-constants.HUB.ENDPOINT,
-device:get_short_address(),
-endpoint,
-constants.HA_PROFILE_ID,
-BASIC_CLUSTER
-)
-local message_body=zcl_messages.ZclMessageBody({
-zcl_header=zcl_header,
-zcl_body=read_attribute.ReadAttribute(attr_ids)
-})
-return messages.ZigbeeMessageTx({
-address_header=address_header,
-body=message_body
-})
-end
-local function bytes_from_table(bytes)
-local parts={}
-for index,byte in ipairs(bytes or{})do
-if type_check(byte)~="number" then
+local b=x(W)if b~=W or b<0 or b>255 then
 return nil
 end
-local normalized=math_floor(byte)
-if normalized ~=byte or normalized < 0 or normalized > 0xFF then
-return nil
+X[aa]=A(b)
 end
-parts[index]=string_char(normalized)
+return M(X)
 end
-return table_concat(parts)
+local function U(f)
+if d(f)=="string"then
+return f
 end
-local function raw_bytes(value)
-if type_check(value)=="string" then
-return value
-end
-if type_check(value)=="table" then
-return bytes_from_table(value)
+if d(f)=="table"then
+return C(f)
 end
 return nil
 end
-local function pack_bitmap(value)
-if type_check(value)~="number" then
+local function N(f)
+if d(f)~="number"then
 return nil
 end
-local normalized=math_floor(value)
-if normalized ~=value or normalized < 0 then
+local b=x(f)if b~=f or b<0 then
 return nil
 end
-value=normalized
-if value <=0xFF then
-return string_char(value)
-elseif value <=0xFFFF then
-return string_pack(">I2",value)
-elseif value <=0xFFFFFFFF then
-return string_pack(">I4",value)
+f=b
+if f<=255 then
+return A(f)elseif f<=65535 then
+return B(">I2",f)elseif f<=0xFFFFFFFF then
+return B(">I4",f)
 end
 return nil
 end
-local function persist_opt(persist)
-if persist then
+local function O(Y)
+if Y then
 return{persist=true}
 end
-return PERSIST_FALSE
+return n
 end
-local function normalize_transaction(transaction)
-if transaction==nil then
+local function v(l)
+if l==nil then
 return nil
 end
-if type_check(transaction)~="number" then
+if d(l)~="number"then
 return nil
 end
-local normalized=math_floor(transaction)
-if normalized ~=transaction then
+local b=x(l)if b~=l then
 return nil
 end
-normalized=normalized % 0x10000
-if normalized < 0 then
-normalized=normalized + 0x10000
+b=b%65536
+if b<0 then
+b=b+65536
 end
-return normalized
+return b
 end
-local function extract_transaction(message)
-local payload=extract_payload(message)
-if payload and string_len(payload)>=2 then
-return string_byte(payload,2)
+local function y(c)
+local I=t(c)if I and R(I)>=2 then
+return P(I,2)
 end
 return nil
 end
-shared.next_packet_id=next_packet_id
-shared.resolve_cluster_endpoint=resolve_cluster_endpoint
-shared.extract_payload=extract_payload
-shared.extract_command_id=extract_command_id
-shared.extract_source_endpoint=extract_source_endpoint
-shared.build_basic_read_attributes_message=build_basic_read_attributes_message
-shared.raw_bytes=raw_bytes
-shared.pack_bitmap=pack_bitmap
-shared.persist_opt=persist_opt
-shared.normalize_transaction=normalize_transaction
-shared.extract_transaction=extract_transaction
-return shared
+a.next_packet_id=H
+a.resolve_cluster_endpoint=h
+a.extract_payload=t
+a.extract_command_id=z
+a.extract_source_endpoint=q
+a.build_basic_read_attributes_message=i
+a.raw_bytes=U
+a.pack_bitmap=N
+a.persist_opt=O
+a.normalize_transaction=v
+a.extract_transaction=y
+return a

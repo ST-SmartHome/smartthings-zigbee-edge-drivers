@@ -11,33 +11,58 @@ components:
       - {id: concertmirror08464.r7049Alarm, version: 1}
       - {id: firmwareUpdate, version: 1}
       - {id: refresh, version: 1}
+      - {id: signalStrength, version: 1}
     categories:
       - name: SmokeDetector
 deviceConfig:
   dashboard:
     states:
-      - {component: main, capability: smokeDetector, version: 1, group: main}
+    - component: main
+      capability: smokeDetector
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - {component: main, capability: smokeDetector, version: 1}
-    - {component: main, capability: concertmirror08464.r7049TestAlarm, version: 1}
-    - {component: main, capability: concertmirror08464.r7049TestAlarmResult, version: 1}
-    - {component: main, capability: concertmirror08464.r7049FaultAlarm, version: 1}
-    - {component: main, capability: concertmirror08464.r7049BatteryLevel, version: 1}
-    - {component: main, capability: concertmirror08464.r7049SilenceSiren, version: 1}
-    - {component: main, capability: concertmirror08464.r7049Alarm, version: 1}
-    - {component: main, capability: refresh, version: 1}
+  - component: main
+    capability: smokeDetector
+  - component: main
+    capability: concertmirror08464.r7049TestAlarm
+  - component: main
+    capability: concertmirror08464.r7049TestAlarmResult
+  - component: main
+    capability: concertmirror08464.r7049FaultAlarm
+  - component: main
+    capability: concertmirror08464.r7049BatteryLevel
+  - component: main
+    capability: concertmirror08464.r7049SilenceSiren
+  - component: main
+    capability: concertmirror08464.r7049Alarm
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - {component: main, capability: smokeDetector, version: 1}
-      - {component: main, capability: concertmirror08464.r7049TestAlarm, version: 1}
-      - {component: main, capability: concertmirror08464.r7049TestAlarmResult, version: 1}
-      - {component: main, capability: concertmirror08464.r7049FaultAlarm, version: 1}
-      - {component: main, capability: concertmirror08464.r7049BatteryLevel, version: 1}
-      - {component: main, capability: concertmirror08464.r7049SilenceSiren, version: 1}
-      - {component: main, capability: concertmirror08464.r7049Alarm, version: 1}
+    - component: main
+      capability: smokeDetector
+    - component: main
+      capability: concertmirror08464.r7049TestAlarm
+    - component: main
+      capability: concertmirror08464.r7049TestAlarmResult
+    - component: main
+      capability: concertmirror08464.r7049FaultAlarm
+    - component: main
+      capability: concertmirror08464.r7049BatteryLevel
+    - component: main
+      capability: concertmirror08464.r7049SilenceSiren
+    - component: main
+      capability: concertmirror08464.r7049Alarm
+    - component: main
+      capability: signalStrength
     actions:
-      - {component: main, capability: concertmirror08464.r7049TestAlarm, version: 1}
-      - {component: main, capability: concertmirror08464.r7049SilenceSiren, version: 1}
-      - {component: main, capability: concertmirror08464.r7049Alarm, version: 1}
+    - component: main
+      capability: concertmirror08464.r7049TestAlarm
+    - component: main
+      capability: concertmirror08464.r7049SilenceSiren
+    - component: main
+      capability: concertmirror08464.r7049Alarm

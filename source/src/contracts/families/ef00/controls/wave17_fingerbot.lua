@@ -39,9 +39,6 @@ end
 local czf_zero_two = {
   profile = "controls-wave17-lincukoo-czf02",
   package_group = "finger-robot",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = true,
   time_start = "off",
@@ -106,6 +103,9 @@ register_device_definition(czf_zero_two, device_helpers.create_fingerprints("TS0
   "_TZE284_gw05grph",
   "_TZE284_chcnj5st",
   "_TZE284_pislt0wa",
+  "_TZE2841000000_gw05grph",
+  "_TZE2841000000_chcnj5st",
+  "_TZE2841000000_pislt0wa",
 }))
 
 return {

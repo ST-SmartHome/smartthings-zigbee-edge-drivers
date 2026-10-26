@@ -1,0 +1,22 @@
+name: rpt-tes
+components:
+- id: main
+  capabilities:
+  - id: concertmirror08464.learnIrCode
+    version: 1
+  - id: concertmirror08464.learnedIrCode
+    version: 1
+  - id: concertmirror08464.irCodeToSend
+    version: 1
+  - id: battery
+    version: 1
+  - id: refresh
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMin
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMax
+    version: 1
+  - id: concertmirror08464.zclBatteryReportChange20
+    version: 1
+  categories:
+  - name: RemoteController

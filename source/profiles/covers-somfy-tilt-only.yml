@@ -1,0 +1,11 @@
+name: covers-somfy-tilt-only
+components:
+  - id: main
+    capabilities:
+      - {id: windowShade, version: 1}
+      - {id: windowShadeTiltLevel, version: 1}
+      - {id: battery, version: 1}
+      - {id: refresh, version: 1}
+      - {id: signalStrength, version: 1}
+    categories:
+      - {name: Blind}

@@ -1,55 +1,22 @@
-local zcl=require "protocol.zcl"
-local device_helpers=require "contracts.helpers.family"
-local emit=require "capabilities.events.all"
-local device_management=require "st.zigbee.device_management"
-local data_types=require "st.zigbee.data_types"
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local ewelink_7037_co_sensor={
-profile="safety-co-detector-battery-voltage-ewelink-7037",
-zcl_clusters={
-zcl.carbon_monoxide({read_on_configure=true}),
-zcl.cluster_attribute(0x040C,0x0000,{
-name="ewelink_7037_carbon_monoxide_level",
-endpoint=1,
-emit=emit.carbon_monoxide_level(),
-data_type=data_types.SinglePrecisionFloat,
-read_on_configure=true,
-}),
-zcl.battery({
-endpoint=1,
-minimum_interval=3600,
-maximum_interval=7200,
-reportable_change=2,
-read_on_configure=true,
-}),
-zcl.battery_voltage({
-endpoint=1,
-minimum_interval=3600,
-maximum_interval=7200,
-reportable_change=100,
-read_on_configure=true,
-}),
-},
-configure=function(driver,device)
-for _,cluster_id in ipairs({
-zcl.CLUSTER_POWER_CONFIGURATION,
-0x0020,-- genPollCtrl
-0x040C,-- msCarbonMonoxide
-0x0500,-- ssIasZone
-})do
-device:send(device_management.build_bind_request(
-device,
-cluster_id,
-driver.environment_info.hub_zigbee_eui,
-1
-))
+local e=require"protocol.zcl"
+local c=require"contracts.helpers.family"
+local k=require"capabilities.events.all"
+local d=require"st.zigbee.device_management"
+local g=require"st.zigbee.data_types"
+local a,i=c.definition_registry()local b={
+profile="safety-co-detector-battery-voltage-ewelink-7037",zcl_clusters={
+e.carbon_monoxide{read_on_configure=true},e.cluster_attribute(1036,0,{
+name="ewelink_7037_carbon_monoxide_level",endpoint=1,emit=k.carbon_monoxide_level(),data_type=g.SinglePrecisionFloat,read_on_configure=true}),e.battery{
+endpoint=1,minimum_interval=3600,maximum_interval=7200},e.battery_voltage{
+endpoint=1,minimum_interval=3600,maximum_interval=7200,reportable_change=100}},
+configure=function(j,h)
+for _,f in ipairs{
+e.CLUSTER_POWER_CONFIGURATION,32,1036,1280}do
+h:send(d.build_bind_request(
+h,f,j.environment_info.hub_zigbee_eui,1))
 end
-end,
-}
-register_device_definition(ewelink_7037_co_sensor,{
-device_helpers.create_fingerprint("eWeLink","CK-TLSR8656-Z123SE24DY-01(7037)"),
-})
-return{
-id="zcl.sensors.z2m_absorption_ewelink_7037",
-registrations=device_definitions,
-}
+end
+}i(b,{
+c.create_fingerprint("eWeLink","CK-TLSR8656-Z123SE24DY-01(7037)")})e.attach_reporting_capabilities(a,{
+{1,"rpt-cnp"}})return{
+id="zcl.sensors.z2m_absorption_ewelink_7037",registrations=a}

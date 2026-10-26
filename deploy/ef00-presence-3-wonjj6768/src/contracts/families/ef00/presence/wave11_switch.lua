@@ -1,121 +1,41 @@
-local tuya=require "protocol.tuya"
-local emit=require "capabilities.events.all"
-local device_helpers=require "contracts.helpers.family"
-local common=require "contracts.helpers.ef00_presence"
-local converter=tuya.converter
-local registrations,register_device_definition=common.isolated_definition_registry(device_helpers.definition_registry)
-local function enum_converter(values)
-return converter.lookup_from_to(values)
+local f=require"protocol.tuya"
+local c=require"capabilities.events.all"
+local h=require"contracts.helpers.family"
+local m=require"contracts.helpers.ef00_presence"
+local i=f.converter
+local j,d=m.isolated_definition_registry(h.definition_registry)
+local function e(n)
+return i.lookup_from_to(n)
 end
-local function build_switch_family(options)
-local datapoints={
-tuya.dp_on_off(1,{name="switch",component="main",emit=emit.switch()}),
-tuya.dp_on_off(2,{name="switch",component="switch2",emit=emit.switch()}),
-}
-if options.gang_count==3 then
-datapoints[#datapoints + 1]=tuya.dp_on_off(3,{
-name="switch",component="switch3",emit=emit.switch(),
-})
+local function g(b)
+local a={
+f.dp_on_off(1,{name="switch",component="main",emit=c.switch()}),f.dp_on_off(2,{name="switch",component="switch2",emit=c.switch()})}if b.gang_count==3 then
+a[#a+1]=f.dp_on_off(3,{
+name="switch",component="switch3",emit=c.switch()})
 end
-datapoints[#datapoints + 1]=tuya.dp_numeric(7,{
-name=options.prefix .. "_countdown_1",emit=options.emitters.countdown_one,
-})
-datapoints[#datapoints + 1]=tuya.dp_numeric(8,{
-name=options.prefix .. "_countdown_2",emit=options.emitters.countdown_two,
-})
-if options.gang_count==3 then
-datapoints[#datapoints + 1]=tuya.dp_numeric(9,{
-name=options.prefix .. "_countdown_3",emit=options.emitters.countdown_three,
-})
+a[#a+1]=f.dp_numeric(7,{
+name=b.prefix.."_countdown_1",emit=b.emitters.countdown_one})a[#a+1]=f.dp_numeric(8,{
+name=b.prefix.."_countdown_2",emit=b.emitters.countdown_two})if b.gang_count==3 then
+a[#a+1]=f.dp_numeric(9,{
+name=b.prefix.."_countdown_3",emit=b.emitters.countdown_three})
 end
-datapoints[#datapoints + 1]=tuya.dp_enum(14,{
-name=options.prefix .. "_relay_status",
-converter=enum_converter({off=0,on=1,memory=2}),
-emit=options.emitters.relay_status,
-})
-datapoints[#datapoints + 1]=tuya.dp_enum(15,{
-name=options.prefix .. "_light_mode",
-converter=enum_converter({relay=0,none=1,pos=2}),
-emit=options.emitters.light_mode,
-})
-datapoints[#datapoints + 1]=tuya.dp_presence(101,{
-datatype=tuya.DP_TYPE_ENUM,
-converter=converter.true_false1(),
-emit=emit.presence(),
-read_only=true,
-})
-datapoints[#datapoints + 1]=tuya.dp_numeric(102,{
-name=options.prefix .. "_delays_time",emit=options.emitters.delays_time,
-})
-datapoints[#datapoints + 1]=tuya.dp_enum(103,{
-name=options.prefix .. "_turn_on_light_for_person",
-converter=enum_converter(options.turn_on),
-emit=options.emitters.turn_on,
-})
-datapoints[#datapoints + 1]=tuya.dp_numeric(104,{
-name=options.prefix .. "_sensitivity",emit=options.emitters.sensitivity,
-})
-datapoints[#datapoints + 1]=tuya.dp_enum(105,{
-name=options.prefix .. "_turn_off_light_for_person",
-converter=enum_converter(options.turn_off),
-emit=options.emitters.turn_off,
-})
-return{
-profile=options.profile,
-package_group="z2m-ef00-presence",
-named_datapoints=true,
-datapoints=datapoints,
-query_on_configure=false,
-}
+a[#a+1]=f.dp_enum(14,{
+name=b.prefix.."_relay_status",converter=e{off=0,on=1,memory=2},emit=b.emitters.relay_status})a[#a+1]=f.dp_enum(15,{
+name=b.prefix.."_light_mode",converter=e{relay=0,none=1,pos=2},emit=b.emitters.light_mode})a[#a+1]=f.dp_presence(101,{
+datatype=f.DP_TYPE_ENUM,converter=i.true_false1(),emit=c.presence(),read_only=true})a[#a+1]=f.dp_numeric(102,{
+name=b.prefix.."_delays_time",emit=b.emitters.delays_time})a[#a+1]=f.dp_enum(103,{
+name=b.prefix.."_turn_on_light_for_person",converter=e(b.turn_on),emit=b.emitters.turn_on})a[#a+1]=f.dp_numeric(104,{
+name=b.prefix.."_sensitivity",emit=b.emitters.sensitivity})a[#a+1]=f.dp_enum(105,{
+name=b.prefix.."_turn_off_light_for_person",converter=e(b.turn_off),emit=b.emitters.turn_off})return{
+profile=b.profile,package_group="z2m-ef00-presence",named_datapoints=true,datapoints=a,query_on_configure=false}
 end
-local two_gang=build_switch_family({
-profile="switches-presence-wave11-tuya-2gang",
-prefix="tuya_ps_2",
-gang_count=2,
-turn_on={none=0,all=1,on_ch1=2,on_ch2=3},
-turn_off={none=0,all=1,off_ch1=2,off_ch2=3},
-emitters={
-countdown_one=emit.tuyaPsTwoCountdownOne(),
-countdown_two=emit.tuyaPsTwoCountdownTwo(),
-relay_status=emit.tuyaPsTwoRelayStatus(),
-light_mode=emit.tuyaPsTwoLightMode(),
-delays_time=emit.tuyaPsTwoDelaysTime(),
-sensitivity=emit.tuyaPsTwoSensitivity(),
-turn_on=emit.tuyaPsTwoTurnOnPerson(),
-turn_off=emit.tuyaPsTwoTurnOffPerson(),
-},
-})
-register_device_definition(two_gang,{
-device_helpers.create_fingerprint("_TZE28C1000000_jaunkx9g","TS0601"),
-})
-local three_gang=build_switch_family({
-profile="switches-presence-wave11-tuya-3gang",
-prefix="tuya_ps_3",
-gang_count=3,
-turn_on={
-none=0,all=1,on_ch1=2,on_ch2=3,on_ch3=4,
-on_1_2ch=5,on_2_3ch=6,on_1_3ch=7,
-},
-turn_off={
-none=0,all=1,off_ch1=2,off_ch2=3,off_ch3=4,
-off_1_2ch=5,off_2_3ch=6,off_1_3ch=7,
-},
-emitters={
-countdown_one=emit.tuyaPsThreeCountdownOne(),
-countdown_two=emit.tuyaPsThreeCountdownTwo(),
-countdown_three=emit.tuyaPsThreeCountdownThree(),
-relay_status=emit.tuyaPsThreeRelayStatus(),
-light_mode=emit.tuyaPsThreeLightMode(),
-delays_time=emit.tuyaPsThreeDelaysTime(),
-sensitivity=emit.tuyaPsThreeSensitivity(),
-turn_on=emit.tuyaPsThreeTurnOnPerson(),
-turn_off=emit.tuyaPsThreeTurnOffPerson(),
-},
-})
-register_device_definition(three_gang,{
-device_helpers.create_fingerprint("_TZE28C1000000_usmqzgdm","TS0601"),
-})
-return{
-id="ef00.presence.wave11.switch",
-registrations=registrations,
-}
+local l=g{
+profile="switches-presence-wave11-tuya-2gang",prefix="tuya_ps_2",gang_count=2,turn_on={none=0,all=1,on_ch1=2,on_ch2=3},turn_off={none=0,all=1,off_ch1=2,off_ch2=3},emitters={
+countdown_one=c.tuyaPsTwoCountdownOne(),countdown_two=c.tuyaPsTwoCountdownTwo(),relay_status=c.tuyaPsTwoRelayStatus(),light_mode=c.tuyaPsTwoLightMode(),delays_time=c.tuyaPsTwoDelaysTime(),sensitivity=c.tuyaPsTwoSensitivity(),turn_on=c.tuyaPsTwoTurnOnPerson(),turn_off=c.tuyaPsTwoTurnOffPerson()}}d(l,{
+h.create_fingerprint("_TZE28C1000000_jaunkx9g","TS0601")})local k=g{
+profile="switches-presence-wave11-tuya-3gang",prefix="tuya_ps_3",gang_count=3,turn_on={
+none=0,all=1,on_ch1=2,on_ch2=3,on_ch3=4,on_1_2ch=5,on_2_3ch=6,on_1_3ch=7},turn_off={
+none=0,all=1,off_ch1=2,off_ch2=3,off_ch3=4,off_1_2ch=5,off_2_3ch=6,off_1_3ch=7},emitters={
+countdown_one=c.tuyaPsThreeCountdownOne(),countdown_two=c.tuyaPsThreeCountdownTwo(),countdown_three=c.tuyaPsThreeCountdownThree(),relay_status=c.tuyaPsThreeRelayStatus(),light_mode=c.tuyaPsThreeLightMode(),delays_time=c.tuyaPsThreeDelaysTime(),sensitivity=c.tuyaPsThreeSensitivity(),turn_on=c.tuyaPsThreeTurnOnPerson(),turn_off=c.tuyaPsThreeTurnOffPerson()}}d(k,{
+h.create_fingerprint("_TZE28C1000000_usmqzgdm","TS0601")})return{
+id="ef00.presence.wave11.switch",registrations=j}

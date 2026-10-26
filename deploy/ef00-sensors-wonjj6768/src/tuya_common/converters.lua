@@ -1,470 +1,353 @@
-local function load_converter(tuya,shared)
-local utils=shared.utils
-local log=shared.log
-local math_floor=shared.math_floor
-local type_check=shared.type_check
-local tonumber_check=shared.tonumber_check
-local raw_bytes=shared.raw_bytes
-local string_byte=shared.string_byte
-local string_char=shared.string_char
-local string_len=shared.string_len
-local table_concat=shared.table_concat
-local EMPTY_TABLE={}
-local function passthrough(value)
-return value
+local function ah(aK,w)
+local aN=w.utils
+local z=w.log
+local r=w.math_floor
+local e=w.type_check
+local d=w.tonumber_check
+local am=w.raw_bytes
+local L=w.string_byte
+local au=w.string_char
+local B=w.string_len
+local J=w.table_concat
+local E={}
+local function aL(c)
+return c
 end
-local function resolve_converter_arg(arg,device,context)
-if type_check(arg)=="function" then
-return arg(device,context)
+local function j(ay,f,b)
+if e(ay)=="function"then
+return ay(f,b)
 end
-return arg
+return ay
 end
-local function resolve_lookup_default(default_value,device,context)
-if type_check(default_value)=="function" then
-return default_value(device,context)
-end
-return default_value
-end
-local function resolve_numeric_arg(arg,device,context)
-local resolved=resolve_converter_arg(arg,device,context)
-if resolved==nil then
+local function i(ay,f,b)
+local y=j(ay,f,b)if y==nil then
 return nil
 end
-return tonumber_check(resolved)
+return d(y)
 end
-local function build_reverse_lookup(map)
-local reverse={}
-for key,map_value in pairs(map)do
-reverse[map_value]=key
+local function A(C)
+local U={}for aJ,aB in pairs(C)do
+U[aB]=aJ
 end
-return reverse
+return U
 end
-local function resolve_lookup_map(map,device,context)
-local resolved=resolve_converter_arg(map,device,context)
-if resolved==nil then
-return EMPTY_TABLE
+local function s(C,f,b)
+local y=j(C,f,b)if y==nil then
+return E
 end
-if type_check(resolved)~="table" then
-log.warn(string.format("Tuya lookup expects table map, got %s",type_check(resolved)))
-return EMPTY_TABLE
+if e(y)~="table"then
+z.warn(string.format("Tuya lookup expects table map, got %s",e(y)))return E
 end
-return resolved
+return y
 end
-local function parse_uint_be(buffer,start_index,byte_count)
-if type_check(buffer)~="string" then
+local function P(l,h,k)
+if e(l)~="string"then
 return nil
 end
-local start=start_index or 1
-local count=byte_count or(string_len(buffer)- start + 1)
-if start < 1 or count < 1 or(start + count - 1)> string_len(buffer)then
+local ad=h or 1
+local av=k or(B(l)-ad+1)if ad<1 or av<1 or(ad+av-1)>B(l)then
 return nil
 end
-local value=0
-for index=start,start + count - 1 do
-value=(value * 256)+ string_byte(buffer,index)
+local c=0
+for aa=ad,ad+av-1 do
+c=(c*256)+L(l,aa)
 end
-return value
+return c
 end
-local function resolve_raw_slice(buffer,options,device,context)
-local length=string_len(buffer)
-local resolved_options=type_check(options)=="table" and options or EMPTY_TABLE
-local byte_count=resolve_numeric_arg(resolved_options.bytes or resolved_options.length,device,context)
-if byte_count==nil then
-byte_count=length
+local function W(l,M,f,b)
+local G=B(l)local q=e(M)=="table"and M or E
+local k=i(q.bytes or q.length,f,b)if k==nil then
+k=G
 end
-byte_count=math_floor(byte_count)
-if byte_count < 1 or byte_count > length then
-log.warn("Tuya raw_uint_be requires valid byte count")
-return nil,nil
+k=r(k)if k<1 or k>G then
+z.warn"Tuya raw_uint_be requires valid byte count"return nil,nil
 end
-local start_index=resolve_numeric_arg(resolved_options.start,device,context)
-if start_index==nil then
-local offset=resolve_numeric_arg(resolved_options.offset,device,context)
-if offset ~=nil then
-start_index=math_floor(offset)+ 1
+local h=i(q.start,f,b)if h==nil then
+local aC=i(q.offset,f,b)if aC~=nil then
+h=r(aC)+1
 end
 end
-if start_index==nil then
-local from_tail=resolve_converter_arg(resolved_options.from_tail,device,context)
-if from_tail==true then
-start_index=length - byte_count + 1
+if h==nil then
+local aA=j(q.from_tail,f,b)if aA==true then
+h=G-k+1
 else
-start_index=1
+h=1
 end
 end
-start_index=math_floor(start_index)
-if start_index < 1 or(start_index + byte_count - 1)> length then
-log.warn("Tuya raw_uint_be slice is out of range")
-return nil,nil
+h=r(h)if h<1 or(h+k-1)>G then
+z.warn"Tuya raw_uint_be slice is out of range"return nil,nil
 end
-return start_index,byte_count
+return h,k
 end
-local function raw_buffer_to_hex(buffer)
-local parts={}
-for index=1,string_len(buffer)do
-parts[#parts + 1]=string.format("%02X",string_byte(buffer,index))
+local function V(l)
+local ax={}for aa=1,B(l)do
+ax[#ax+1]=string.format("%02X",L(l,aa))
 end
-return table_concat(parts)
+return J(ax)
 end
-local function numeric_lookup_keys(map)
-local keys={}
-for key,_ in pairs(map or EMPTY_TABLE)do
-local numeric_key=tonumber_check(key)
-if numeric_key ~=nil then
-keys[#keys + 1]=math_floor(numeric_key)
+local function D(C)
+local aw={}for aJ,_ in pairs(C or E)do
+local X=d(aJ)if X~=nil then
+aw[#aw+1]=r(X)
 end
 end
-table.sort(keys)
-return keys
+table.sort(aw)return aw
 end
-local converter=tuya.converter
-function converter.pipe(...)
-local steps={...}
-if #steps==1 and type_check(steps[1])=="table" then
-steps=steps[1]
+local a=aK.converter
+function a.pipe(...)
+local ae={...}if #ae==1 and e(ae[1])=="table"then
+ae=ae[1]
 end
-return function(value,device,context)
-local current=value
-for _,step in ipairs(steps)do
-current=step(current,device,context)
+return function(c,f,b)
+local af=c
+for _,aM in ipairs(ae)do
+af=aM(af,f,b)
 end
-return current
+return af
 end
 end
-function converter.from_to(from_device,to_device)
-local pair={}
-if type_check(from_device)=="function" then
-pair.from=from_device
+function a.from_to(F,an)
+local aF={}
+if e(F)=="function"then
+aF.from=F
 end
-if type_check(to_device)=="function" then
-pair.to=to_device
+if e(an)=="function"then
+aF.to=an
 end
-return pair
+return aF
 end
-function converter.from_only(from_device)
-return converter.from_to(from_device,nil)
+function a.from_only(F)
+return a.from_to(F,nil)
 end
-function converter.lookup_from_to(map,default_value)
-local static_map=type_check(map)=="table" and map or nil
-local static_reverse=static_map and build_reverse_lookup(static_map)or nil
-return converter.from_to(
-function(value,device,context)
-local resolved_map=static_map or resolve_lookup_map(map,device,context)
-local reverse=static_reverse or build_reverse_lookup(resolved_map)
-local mapped=reverse[value]
-if mapped ~=nil then
-return mapped
+function a.lookup_from_to(C,x)
+local o=e(C)=="table"and C or nil
+local aj=o and A(o)or nil
+return a.from_to(
+function(c,f,b)
+local p=o or s(C,f,b)local U=aj or A(p)local R=U[c]if R~=nil then
+return R
 end
-local fallback=resolve_lookup_default(default_value,device,context)
-if fallback ~=nil then
-return fallback
+local I=j(x,f,b)if I~=nil then
+return I
 end
-log.warn(string.format("Tuya lookup_from_to missing value: %s",tostring(value)))
-return nil
+z.warn(string.format("Tuya lookup_from_to missing value: %s",tostring(c)))return nil
 end,
-converter.lookup_value(map,default_value)
-)
+a.lookup_value(C,x))
 end
-function converter.lookup_value(map,default_value)
-local static_map=type_check(map)=="table" and map or nil
-return function(value,device,context)
-local resolved_map=static_map or resolve_lookup_map(map,device,context)
-local mapped=resolved_map[value]
-if mapped ~=nil then
-return mapped
+function a.lookup_value(C,x)
+local o=e(C)=="table"and C or nil
+return function(c,f,b)
+local p=o or s(C,f,b)local R=p[c]if R~=nil then
+return R
 end
-local fallback=resolve_lookup_default(default_value,device,context)
-if fallback ~=nil then
-return fallback
+local I=j(x,f,b)if I~=nil then
+return I
 end
-log.warn(string.format("Tuya lookup missing key: %s",tostring(value)))
+z.warn(string.format("Tuya lookup missing key: %s",tostring(c)))return nil
+end
+end
+function a.raw_uint_be(n,M)
+local ai=e(M)=="table"and M or nil
+return a.from_only(function(c,f,b)
+local l=am(c)if l==nil then
+z.warn(string.format("Tuya raw_uint_be expects bytes, got %s",e(c)))return nil
+end
+local h,k=W(l,ai,f,b)if h==nil then
 return nil
 end
+local aD=P(l,h,k)if aD==nil then
+z.warn"Tuya raw_uint_be failed to parse payload"return nil
 end
-function converter.raw_uint_be(divisor,options)
-local static_options=type_check(options)=="table" and options or nil
-return converter.from_only(function(value,device,context)
-local buffer=raw_bytes(value)
-if buffer==nil then
-log.warn(string.format("Tuya raw_uint_be expects bytes, got %s",type_check(value)))
-return nil
+local ak=i(n,f,b)if ak==nil then
+ak=1
 end
-local start_index,byte_count=resolve_raw_slice(buffer,static_options,device,context)
-if start_index==nil then
-return nil
+if ak==0 then
+z.warn"Tuya raw_uint_be divisor cannot be zero"return nil
 end
-local parsed=parse_uint_be(buffer,start_index,byte_count)
-if parsed==nil then
-log.warn("Tuya raw_uint_be failed to parse payload")
-return nil
-end
-local div=resolve_numeric_arg(divisor,device,context)
-if div==nil then
-div=1
-end
-if div==0 then
-log.warn("Tuya raw_uint_be divisor cannot be zero")
-return nil
-end
-return parsed / div
+return aD/ak
 end)
 end
-function converter.raw_identifier()
-return converter.from_only(function(value)
-local buffer=raw_bytes(value)
-if buffer==nil then
-return value
+function a.raw_identifier()
+return a.from_only(function(c)
+local l=am(c)if l==nil then
+return c
 end
-local length=string_len(buffer)
-local chars={}
-local printable=true
-for index=1,length do
-local byte_value=string_byte(buffer,index)
-if byte_value ~=0 then
-if byte_value < 32 or byte_value > 126 then
-printable=false
+local G=B(l)local aq={}local al=true
+for aa=1,G do
+local H=L(l,aa)if H~=0 then
+if H<32 or H>126 then
+al=false
 end
-chars[#chars + 1]=string_char(byte_value)
+aq[#aq+1]=au(H)
 end
 end
-if printable and #chars > 0 then
-return table_concat(chars)
+if al and #aq>0 then
+return J(aq)
 end
-if length <=4 then
-return parse_uint_be(buffer,1,length)
+if G<=4 then
+return P(l,1,G)
 end
-return raw_buffer_to_hex(buffer)
+return V(l)
 end)
 end
-function converter.bitmap_flags(map,empty_value,separator)
-local static_map=type_check(map)=="table" and map or nil
-local static_keys=static_map and numeric_lookup_keys(static_map)or nil
-return converter.from_only(function(value,device,context)
-local numeric_value=tonumber_check(value)
-if numeric_value==nil then
-log.warn(string.format("Tuya bitmap_flags expects number, got %s",type_check(value)))
-return nil
+function a.bitmap_flags(C,as,aE)
+local o=e(C)=="table"and C or nil
+local at=o and D(o)or nil
+return a.from_only(function(c,f,b)
+local O=d(c)if O==nil then
+z.warn(string.format("Tuya bitmap_flags expects number, got %s",e(c)))return nil
 end
-local resolved_map=static_map or resolve_lookup_map(map,device,context)
-local resolved_keys=static_keys or numeric_lookup_keys(resolved_map)
-local labels={}
-local integer_value=math_floor(numeric_value)
-for _,bit in ipairs(resolved_keys)do
-if math_floor(integer_value / bit)% 2==1 then
-local label=resolved_map[bit]or resolved_map[tostring(bit)]
-if label ~=nil then
-labels[#labels + 1]=label
+local p=o or s(C,f,b)local ap=at or D(p)local ab={}local ao=r(O)for _,aI in ipairs(ap)do
+if r(ao/aI)%2==1 then
+local aG=p[aI]or p[tostring(aI)]if aG~=nil then
+ab[#ab+1]=aG
 end
 end
 end
-if #labels==0 then
-return resolve_lookup_default(empty_value,device,context)
+if #ab==0 then
+return j(as,f,b)
 end
-local resolved_separator=resolve_converter_arg(separator,device,context)
-if type_check(resolved_separator)~="string" then
-resolved_separator=","
+local t=j(aE,f,b)if e(t)~="string"then
+t=","
 end
-return table_concat(labels,resolved_separator)
+return J(ab,t)
 end)
 end
-function converter.alarm_state_lower_upper_cancel()
-return converter.lookup_from_to({
-lower_alarm=0,
-upper_alarm=1,
-cancel=2,
-})
+function a.alarm_state_lower_upper_cancel()
+return a.lookup_from_to{
+lower_alarm=0,upper_alarm=1,cancel=2}
 end
-function converter.temperature_unit()
-return converter.lookup_from_to({
-celsius=0,
-fahrenheit=1,
-})
+function a.temperature_unit()
+return a.lookup_from_to{
+celsius=0,fahrenheit=1}
 end
-function converter.report_period_hours()
-return converter.lookup_from_to({
-["1h"]=0,
-["2h"]=1,
-["3h"]=2,
-["4h"]=3,
-["6h"]=4,
-["8h"]=5,
-["12h"]=6,
-["24h"]=7,
-["48h"]=8,
-["72h"]=9,
-})
+function a.report_period_hours()
+return a.lookup_from_to{
+["1h"]=0,["2h"]=1,["3h"]=2,["4h"]=3,["6h"]=4,["8h"]=5,["12h"]=6,["24h"]=7,["48h"]=8,["72h"]=9}
 end
-function converter.water_meter_faults()
-return converter.bitmap_flags({
-[1]="battery_alarm",
-[2]="magnetism_alarm",
-[4]="cover_alarm",
-[8]="credit_alarm",
-[16]="switch_gaps_alarm",
-[32]="meter_body_alarm",
-[64]="abnormal_water_alarm",
-[128]="arrearage_alarm",
-[256]="overflow_alarm",
-[512]="revflow_alarm",
-[1024]="over_pre_alarm",
-[2048]="empty_pipe_alarm",
-[4096]="transducer_alarm",
-},"no_alarm",",")
+function a.water_meter_faults()
+return a.bitmap_flags({
+[1]="battery_alarm",[2]="magnetism_alarm",[4]="cover_alarm",[8]="credit_alarm",[16]="switch_gaps_alarm",[32]="meter_body_alarm",[64]="abnormal_water_alarm",[128]="arrearage_alarm",[256]="overflow_alarm",[512]="revflow_alarm",[1024]="over_pre_alarm",[2048]="empty_pipe_alarm",[4096]="transducer_alarm"},"no_alarm",",")
 end
-function converter.water_warning()
-return converter.lookup_from_to({
-none=0,
-alarm=1,
-})
+function a.water_warning()
+return a.lookup_from_to{
+none=0,alarm=1}
 end
-function converter.soil_fertility_warning()
-return converter.lookup_from_to({
-none=0,
-alarm=1,
-})
+function a.soil_fertility_warning()
+return a.lookup_from_to{
+none=0,alarm=1}
 end
-function converter.power()
-return converter.from_only(function(value)
-local number_value=tonumber_check(value)
-if number_value==nil then
-log.warn(string.format("Tuya power expects number, got %s",type_check(value)))
-return nil
+function a.power()
+return a.from_only(function(c)
+local g=d(c)if g==nil then
+z.warn(string.format("Tuya power expects number, got %s",e(c)))return nil
 end
-if number_value > 0x0FFFFFFF then
-return(0x1999999C - number_value)* -1
+if g>268435455 then
+return(429496732-g)*-1
 end
-return number_value
+return g
 end)
 end
-function converter.scale(in_min,in_max,out_min,out_max)
-return function(value)
-local number_value=tonumber_check(value)
-local input_min=tonumber_check(in_min)
-local input_max=tonumber_check(in_max)
-local output_min=tonumber_check(out_min)
-local output_max=tonumber_check(out_max)
-if number_value==nil then
-log.warn(string.format("Tuya scale expects number, got %s",type_check(value)))
-return nil
+function a.scale(Z,Y,T,S)
+return function(c)
+local g=d(c)local K=d(Z)local Q=d(Y)local N=d(T)local ac=d(S)if g==nil then
+z.warn(string.format("Tuya scale expects number, got %s",e(c)))return nil
 end
-if input_min==nil or input_max==nil or output_min==nil or output_max==nil then
-log.warn("Tuya scale expects numeric ranges")
-return nil
+if K==nil or Q==nil or N==nil or ac==nil then
+z.warn"Tuya scale expects numeric ranges"return nil
 end
-if input_max==input_min then
-log.warn("Tuya scale input range cannot be zero")
-return nil
+if Q==K then
+z.warn"Tuya scale input range cannot be zero"return nil
 end
-return((number_value - input_min)*(output_max - output_min)/(input_max - input_min))+ output_min
+return((g-K)*(ac-N)/(Q-K))+N
 end
 end
-function converter.scale_pair(in_min,in_max,out_min,out_max)
-return converter.from_to(
-converter.scale(in_min,in_max,out_min,out_max),
-converter.scale(out_min,out_max,in_min,in_max)
-)
+function a.scale_pair(Z,Y,T,S)
+return a.from_to(
+a.scale(Z,Y,T,S),a.scale(T,S,Z,Y))
 end
-function converter.divide_by(divisor)
-return function(value,device,context)
-local number_value=tonumber_check(value)
-local div=resolve_numeric_arg(divisor,device,context)
-if number_value==nil or div==nil then
-log.warn("Tuya divide_by expects numeric input and divisor")
-return nil
+function a.divide_by(n)
+return function(c,f,b)
+local g=d(c)local ak=i(n,f,b)if g==nil or ak==nil then
+z.warn"Tuya divide_by expects numeric input and divisor"return nil
 end
-if div==0 then
-log.warn("Tuya divide_by divisor cannot be zero")
-return nil
+if ak==0 then
+z.warn"Tuya divide_by divisor cannot be zero"return nil
 end
-return number_value / div
+return g/ak
 end
 end
-function converter.divide_by_pair(divisor)
-return converter.from_to(
-converter.divide_by(divisor),
-converter.multiply_by(divisor)
-)
+function a.divide_by_pair(n)
+return a.from_to(
+a.divide_by(n),a.multiply_by(n))
 end
-function converter.signed_number_pair(scale)
-return converter.from_to(
-function(value,device,dp_info,context)
-local signed_value=nil
-if type_check(dp_info)=="table" and tonumber_check(dp_info.signed_value)~=nil then
-signed_value=tonumber_check(dp_info.signed_value)
-else
-signed_value=tonumber_check(value)
-if signed_value ~=nil and signed_value > 0x7FFFFFFF then
-signed_value=signed_value - 0x100000000
+function a.signed_number_pair(ar)
+return a.from_to(
+function(c,f,ag,b)
+local m
+if e(ag)=="table"and d(ag.signed_value)~=nil then
+m=d(ag.signed_value)else
+m=d(c)if m~=nil and m>0x7FFFFFFF then
+m=m-4294967296
 end
 end
-if signed_value==nil then
-log.warn(string.format("Tuya signed_number_pair expects number, got %s",type_check(value)))
-return nil
+if m==nil then
+z.warn(string.format("Tuya signed_number_pair expects number, got %s",e(c)))return nil
 end
-local divisor=resolve_numeric_arg(scale,device,context)
-if divisor==nil then
-divisor=1
+local n=i(ar,f,b)if n==nil then
+n=1
 end
-if divisor==0 then
-log.warn("Tuya signed_number_pair scale cannot be zero")
-return nil
+if n==0 then
+z.warn"Tuya signed_number_pair scale cannot be zero"return nil
 end
-return signed_value / divisor
+return m/n
 end,
-function(value,device,context)
-local number_value=tonumber_check(value)
-if number_value==nil then
-log.warn(string.format("Tuya signed_number_pair expects number, got %s",type_check(value)))
-return nil
+function(c,f,b)
+local g=d(c)if g==nil then
+z.warn(string.format("Tuya signed_number_pair expects number, got %s",e(c)))return nil
 end
-local multiplier=resolve_numeric_arg(scale,device,context)
-if multiplier==nil then
-multiplier=1
+local u=i(ar,f,b)if u==nil then
+u=1
 end
-if multiplier==0 then
-log.warn("Tuya signed_number_pair scale cannot be zero")
-return nil
+if u==0 then
+z.warn"Tuya signed_number_pair scale cannot be zero"return nil
 end
-return number_value * multiplier
+return g*u
 end
 )
 end
-function converter.multiply_by(multiplier)
-return function(value,device,context)
-local number_value=tonumber_check(value)
-local factor=resolve_numeric_arg(multiplier,device,context)
-if number_value==nil or factor==nil then
-log.warn("Tuya multiply_by expects numeric input and multiplier")
-return nil
+function a.multiply_by(u)
+return function(c,f,b)
+local g=d(c)local az=i(u,f,b)if g==nil or az==nil then
+z.warn"Tuya multiply_by expects numeric input and multiplier"return nil
 end
-return number_value * factor
+return g*az
 end
 end
-function converter.threshold_parser()
-return function(value)
-return tuya.parse_threshold(value)
+function a.threshold_parser()
+return function(c)
+return aK.parse_threshold(c)
 end
 end
-function converter.tuya_unsigned_temp(scale)
-local divisor=scale or 10
-return converter.from_to(
-function(value)
-if value==nil then return nil end
-local v=value
-if v > 0x2000 then
-v=v - 0xFFFF
+function a.tuya_unsigned_temp(ar)
+local n=ar or 10
+return a.from_to(
+function(c)
+if c==nil then return nil end
+local v=c
+if v>8192 then
+v=v-65535
 end
-return v / divisor
+return v/n
 end,
-function(value)
-if value==nil then return nil end
-local raw=math_floor(value * divisor + 0.5)
-if raw < 0 then
-raw=raw + 0xFFFF
+function(c)
+if c==nil then return nil end
+local aH=r(c*n+0.5)if aH<0 then
+aH=aH+65535
 end
-return raw
+return aH
 end
 )
 end
 end
-return load_converter
+return ah

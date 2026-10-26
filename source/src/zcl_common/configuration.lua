@@ -4,24 +4,52 @@
 local function load_configuration(zcl)
 
   local zigbee_constants = require "st.zigbee.constants"
+  local device_management = require "st.zigbee.device_management"
+  local reporting = require "zcl_common.reporting"
   local BASIC_CLUSTER = 0x0000
   local BASIC_MAGIC_ATTRIBUTES = { 0x0004, 0x0000, 0x0001, 0x0005, 0x0007, 0xFFFE }
 
-  local function is_callable_type(value)
-    if type(value) == "function" then
-      return true
-    end
-
-    if type(value) ~= "table" then
-      return false
-    end
-
-    local metatable = getmetatable(value)
-    return type(metatable) == "table" and type(metatable.__call) == "function"
+  function zcl.attach_reporting_capabilities(registrations, bindings)
+    return reporting.attach(zcl, registrations, bindings)
   end
 
+  function zcl.discard_unsupported_reporting(device)
+    return reporting.discard_unsupported(zcl, device)
+  end
+
+  function zcl.bind_cluster(device, cluster_id, hub_eui, endpoint)
+    device:send(device_management.build_bind_request(
+      device,
+      cluster_id,
+      hub_eui,
+      endpoint
+    ))
+    return true
+  end
+
+  function zcl.configure_reporting(device, config, endpoint, options)
+    options = options or {}
+    local mapping = {
+      cluster_id = config.cluster, attribute_id = config.attribute,
+      data_type = config.data_type, endpoint = endpoint, mfg_code = config.mfg_code,
+      reporting_defaults = {
+        minimum_interval = config.minimum_interval, maximum_interval = config.maximum_interval,
+        reportable_change = config.reportable_change, key = options.key,
+      },
+    }
+    if options.auto_endpoint then mapping.endpoint = nil end
+    local resolved, overridden = reporting.configuration(zcl, device, mapping)
+    if options.defer_on_override and overridden then return false end
+    local request = device_management.attr_config(device, resolved or config):to_endpoint(endpoint)
+    if options.disable_default_response then request.body.zcl_header.frame_ctrl:set_disable_default_response() end
+    device:send(request)
+    return true
+  end
+
+  local is_callable_type = require("runtime.capability_support").is_callable
+
   local function normalize_reportable_change(data_type, reportable_change)
-    if reportable_change == nil then
+    if reportable_change == nil or (type(data_type) == "table" and data_type.is_discrete) then
       return nil
     end
 
@@ -37,6 +65,10 @@ local function load_configuration(zcl)
     end
 
     if is_callable_type(data_type) then
+      if data_type.ID == 0x39 then
+        local Reader = require "st.buf".Reader
+        return data_type.deserialize(Reader(string.pack("<f", reportable_change)))
+      end
       return data_type(reportable_change)
     end
 
@@ -182,10 +214,15 @@ local function load_configuration(zcl)
       device:set_ias_zone_config_method(ias_configure_method)
     end
 
+    local manual_groups = reporting.groups(zcl, device, zcl_clusters)
     local configured = zcl.build_configured_attributes(zcl_clusters)
     if #configured > 0 and type(device.add_configured_attribute) == "function" then
       for _, item in ipairs(configured) do
-        device:add_configured_attribute(item)
+        if manual_groups[string.format("%04x:%04x", item.cluster, item.attribute)] then
+          device:remove_configured_attribute(item.cluster, item.attribute)
+        else
+          device:add_configured_attribute(item)
+        end
       end
     end
 
@@ -198,6 +235,8 @@ local function load_configuration(zcl)
       device:configure()
       configured_any = true
     end
+
+    reporting.send(zcl, device, zcl_clusters, manual_groups, true)
 
     local read_any = zcl.read_configured_attributes(device, zcl_clusters)
     local runtime_any = zcl.start_runtime and zcl.start_runtime(device, zcl_clusters) or false

@@ -22,81 +22,64 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: GenericSensor
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: gasDetector
-        version: 1
-        group: main
+    - component: main
+      capability: gasDetector
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: gasDetector
-      version: 1
-    - component: main
-      capability: concertmirror08464.gasSensor2GasValue
-      version: 1
-    - component: main
-      capability: concertmirror08464.selfTestGas
-      version: 1
-    - component: main
-      capability: concertmirror08464.gasSensor2SelfTestResult
-      version: 1
-    - component: main
-      capability: concertmirror08464.gasSensor2Preheat
-      version: 1
-    - component: main
-      capability: concertmirror08464.gasSensor2Silence
-      version: 1
-    - component: main
-      capability: concertmirror08464.alarmDurationGas180
-      version: 1
-    - component: main
-      capability: concertmirror08464.alarmMelodyGasFive
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: gasDetector
+  - component: main
+    capability: concertmirror08464.gasSensor2GasValue
+  - component: main
+    capability: concertmirror08464.selfTestGas
+  - component: main
+    capability: concertmirror08464.gasSensor2SelfTestResult
+  - component: main
+    capability: concertmirror08464.gasSensor2Preheat
+  - component: main
+    capability: concertmirror08464.gasSensor2Silence
+  - component: main
+    capability: concertmirror08464.alarmDurationGas180
+  - component: main
+    capability: concertmirror08464.alarmMelodyGasFive
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: gasDetector
-        version: 1
-      - component: main
-        capability: concertmirror08464.gasSensor2GasValue
-        version: 1
-      - component: main
-        capability: concertmirror08464.selfTestGas
-        version: 1
-      - component: main
-        capability: concertmirror08464.gasSensor2SelfTestResult
-        version: 1
-      - component: main
-        capability: concertmirror08464.gasSensor2Preheat
-        version: 1
-      - component: main
-        capability: concertmirror08464.gasSensor2Silence
-        version: 1
-      - component: main
-        capability: concertmirror08464.alarmDurationGas180
-        version: 1
-      - component: main
-        capability: concertmirror08464.alarmMelodyGasFive
-        version: 1
+    - component: main
+      capability: gasDetector
+    - component: main
+      capability: concertmirror08464.gasSensor2GasValue
+    - component: main
+      capability: concertmirror08464.selfTestGas
+    - component: main
+      capability: concertmirror08464.gasSensor2SelfTestResult
+    - component: main
+      capability: concertmirror08464.gasSensor2Preheat
+    - component: main
+      capability: concertmirror08464.gasSensor2Silence
+    - component: main
+      capability: concertmirror08464.alarmDurationGas180
+    - component: main
+      capability: concertmirror08464.alarmMelodyGasFive
+    - component: main
+      capability: signalStrength
     actions:
-      - component: main
-        capability: concertmirror08464.selfTestGas
-        version: 1
-      - component: main
-        capability: concertmirror08464.gasSensor2Silence
-        version: 1
-      - component: main
-        capability: concertmirror08464.alarmDurationGas180
-        version: 1
-      - component: main
-        capability: concertmirror08464.alarmMelodyGasFive
-        version: 1
+    - component: main
+      capability: concertmirror08464.selfTestGas
+    - component: main
+      capability: concertmirror08464.gasSensor2Silence
+    - component: main
+      capability: concertmirror08464.alarmDurationGas180
+    - component: main
+      capability: concertmirror08464.alarmMelodyGasFive

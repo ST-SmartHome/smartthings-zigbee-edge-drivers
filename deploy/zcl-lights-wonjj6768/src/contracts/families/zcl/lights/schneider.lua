@@ -1,17 +1,8 @@
-local zcl=require "protocol.zcl"
-local device_helpers=require "contracts.helpers.family"
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local dimmer_light={
-profile="lights-dimmer",
-zcl_clusters={
-zcl.switch(),
-zcl.level(),
-},
-}
-register_device_definition(dimmer_light,{
-device_helpers.create_fingerprint("Legrand","Dimmer switch with neutral"),
-})
-return{
-id="zcl.lights.schneider",
-registrations=device_definitions,
-}
+local e=require"protocol.zcl"
+local c=require"contracts.helpers.family"
+local a,b=c.definition_registry()local d={
+profile="lights-dimmer",zcl_clusters={
+e.switch(),e.level()}}b(d,{
+c.create_fingerprint("Legrand","Dimmer switch with neutral")})e.attach_reporting_capabilities(a,{
+{1,"rpt-tmf"}})return{
+id="zcl.lights.schneider",registrations=a}

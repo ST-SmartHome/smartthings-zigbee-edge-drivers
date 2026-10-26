@@ -214,30 +214,6 @@ register_device_definition(switch_model_mg_gpo04zslp, device_helpers.create_fing
 }))
 
 -- ══════════════════════════════════════════════════════════════
--- 1-1b. switch_1gang_battery: battery-powered single-gang ZCL switch
--- NOTE:
---   - Currently registered to no fingerprint, so it is inert at runtime. The
---     definition is kept because whether this project should claim Fingerbot
---     hardware at all is still an open decision.
---   - Switch/battery are standard ZCL.
---   - Fingerbot pairs (_TZ3210_dse8ogfy, _TZ3210_j4pdtz9v, _TZ3210_cm9mbpr1,
---     _TZ3210_a04acm9s, _TZ3210_7vgttna6, Adaprox/TS0001_fingerbot_1) used to be
---     registered here. A separate long-standing driver, `tuya-fingerbot-v3`,
---     already implements the full Z2M contract for those devices (mode, movement
---     limits, sustain time, reverse, touch). Registering the same pairs here only
---     made the two drivers compete while exposing switch/battery alone, so they
---     are no longer claimed by this project.
--- ══════════════════════════════════════════════════════════════
-local switch_1gang_battery = {
-  profile = "switches-switch-1-battery",
-  package_group = "switch-basic",
-  zcl_clusters = {
-    zcl.switch(),
-    zcl.battery(),
-  },
-}
-
--- ══════════════════════════════════════════════════════════════
 -- 1-1c. switch_1gang_temperature_humidity: 1구 + 온습도
 -- Z2M: TYZGTH1CH-D1RF
 -- NOTE:
@@ -352,22 +328,9 @@ local switch_4gang = {
 register_device_definition(switch_4gang, device_helpers.create_fingerprints("TS0601", {
   "_TZ3000_uim07oem",
   "_TZE200_1n2kyphz",
-  "_TZE200_6wi2mope",
-  "_TZE200_aqnazj70",
-  "_TZE200_di3tfv5b",
   "_TZE200_js3mgbjb",
-  "_TZE200_mexisfik",
   "_TZE200_shkxsgis",
-  "_TZE204_6wi2mope",
-  "_TZE204_58of2pfn",
-  "_TZE204_aagrxlbd",
-  "_TZE204_f5efvtbv",
-  "_TZE204_iik0pquw",
-  "_TZE204_lbhh5o6z",
-  "_TZE204_mexisfik",
   "_TZE204_shkxsgis",
-  "_TZE284_f5efvtbv",
-  "_TZE284_lbhh5o6z",
 }))
 
 register_device_definition(switch_4gang, {
@@ -377,6 +340,23 @@ register_device_definition(switch_4gang, {
   device_helpers.create_fingerprint("Tuya", "MG-ZG04W"),
 })
 
+local switch_four_tuya_base = {
+  profile = "switches-switch-4",
+  package_group = "switch-basic",
+  magic_packet = true,
+  mcu_version_request_on_configure = true,
+  query_on_configure = false,
+  query_on_announce = false,
+  initial_custom_state_query = false,
+  refresh_state_query = false,
+  time_start = "off",
+  component_to_endpoint_map = {main = 1, switch2 = 1, switch3 = 1, switch4 = 1},
+  endpoint_to_component_map = {[1] = "main"},
+  tuya.dp_on_off(1, {name = "switch", component = "main", endpoint = 1}),
+  tuya.dp_on_off(2, {name = "switch", component = "switch2", endpoint = 1}),
+  tuya.dp_on_off(3, {name = "switch", component = "switch3", endpoint = 1}),
+  tuya.dp_on_off(4, {name = "switch", component = "switch4", endpoint = 1}),
+}
 -- ══════════════════════════════════════════════════════════════
 -- 1-5. switch_5gang: 기본 5구
 -- Z2M: TS0601_switch_5_gang
@@ -396,8 +376,8 @@ register_device_definition(switch_5gang, device_helpers.create_fingerprints("TS0
 }))
 
 -- ══════════════════════════════════════════════════════════════
--- 1-6. switch_6gang: 기본 6구
--- Z2M: TS0601_switch_6_gang
+-- 1-6. switch_6gang: 기본 6구. 최신 Z2M의 option 계약이 확인되지 않은
+-- exact만 이 보수적인 DP1~6 family에 남긴다.
 -- ══════════════════════════════════════════════════════════════
 local switch_6gang = {
   profile = "switches-switch-6",
@@ -412,54 +392,100 @@ local switch_6gang = {
 
 register_device_definition(switch_6gang, device_helpers.create_fingerprints("TS0601", {
   "_TZE200_9mahtqtg",
-  "_TZE200_cduqh1l0",
-  "_TZE204_cduqh1l0",
-  "_TZE200_emxxanvi",
-  "_TZE200_mwvfvw8g",
   "_TZE200_r731zlxk",
-  "_TZE200_wnp4d4va",
-  "_TZE204_g4au0afs",
-  "_TZE204_gxbdnfrh",
   "_TZE204_l8xiyymq",
-  "_TZE204_lmgrbuwf",
   "_TZE204_ncti2pro",
   "_TZE204_r731zlxk",
-  "_TZE284_r731zlxk",
-  "_TZE204_w1wwxoja",
-  "_TZE204_wskr3up8",
-  "_TZE284_g1enhdsi",
   "_TZE284_l8xiyymq",
-  "_TZE284_tdhnhhiy",
   "_TZE284_zeldawjv",
 }))
 
-register_device_definition(switch_6gang, {
+-- Current Z2M TS0601_switch_6_gang contract: DP1~6 relays, DP14
+-- off/on/memory power behaviour, DP15 none/relay/pos indicator mode and an
+-- endpoint-1 OnOff bind. The first six mapping objects are deliberately shared
+-- with the conservative family because their wire contract is identical.
+local switch_6gang_tuya_options = {
+  profile = "switches-switch-6-tuya-options",
+  package_group = "switch-basic",
+  switch_6gang[1],
+  switch_6gang[2],
+  switch_6gang[3],
+  switch_6gang[4],
+  switch_6gang[5],
+  switch_6gang[6],
+  tuya.dp_enum(14, {
+    name = "power_on_behavior",
+    emit = emit.ts6gPowerOnBehavior(),
+    converter = converter.lookup_from_to({ off = 0, on = 1, memory = 2 }),
+  }),
+  tuya.dp_indicator_mode_none_relay_pos(15, {
+    name = "indicator_mode",
+    emit = emit.ts6gIndicatorMode(),
+  }),
+  magic_packet = true,
+  query_on_configure = false,
+  configure = function(driver, device)
+    zcl.bind_cluster(
+      device,
+      zcl.CLUSTER_ON_OFF,
+      driver.environment_info.hub_zigbee_eui,
+      1
+    )
+  end,
+}
+
+local switch_6gang_tuya_option_fingerprints = device_helpers.create_fingerprints("TS0601", {
+  "_TZE200_mwvfvw8g",
+  "_TZE200_wnp4d4va",
+  "_TZE200_cduqh1l0",
+  "_TZE204_cduqh1l0",
+  "_TZE200_emxxanvi",
+  "_TZE204_g4au0afs",
+  "_TZE204_w1wwxoja",
+  "_TZE204_lmgrbuwf",
+  "_TZE284_tdhnhhiy",
+  "_TZE204_wskr3up8",
+  "_TZE204_gxbdnfrh",
+  "_TZE284_g1enhdsi",
+  "_TZE284_r731zlxk",
+  "_TZE284_znkkcauq",
+})
+
+for _, fingerprint in ipairs({
   device_helpers.create_fingerprint("Mercator Ikuü", "SSW06G"),
   device_helpers.create_fingerprint("Nova Digital", "NTZB-04-W-B"),
   device_helpers.create_fingerprint("Nova Digital", "SYZB-6W"),
   device_helpers.create_fingerprint("Nova Digital", "FZB-6"),
   device_helpers.create_fingerprint("Nova Digital", "SA-6"),
   device_helpers.create_fingerprint("Ekaza", "EKAT-T3074-6WZ"),
-})
+}) do
+  switch_6gang_tuya_option_fingerprints[#switch_6gang_tuya_option_fingerprints + 1] = fingerprint
+end
+
+register_device_definition(switch_6gang_tuya_options, switch_6gang_tuya_option_fingerprints)
 
 local switch_1gang_power_monitoring = {
   profile = "switches-switch-1-power-energy-voltage-current-apiu",
   package_group = "switch-basic",
   datapoints = {
     tuya.dp_on_off(1, { name = "switch", component = "main" }),
-    -- Z2M TS0601_power_monitoring_switch (tuya.ts:28109) exposes DP7 as a
-    -- 0..120 minute countdown and reads DP22/DP23 raw.
+    -- Current Z2M TS0601_power_monitoring_switch exposes DP7 as a writable
+    -- 0..120 minute countdown. Metering DP20..23 are state-only; DP20/21 are
+    -- divided by 100/1000 while DP22/23 are raw.
     tuya.dp_countdown(7, { name = "countdown", emit = emit.apiuCountdown() }),
-    tuya.dp_energy(20, {}),
-    tuya.dp_current(21, {}),
-    tuya.dp_power(22, { scale = 1 }),
-    tuya.dp_voltage(23, { scale = 1 }),
+    tuya.dp_energy(20, { read_only = true }),
+    tuya.dp_current(21, { read_only = true }),
+    tuya.dp_power(22, { scale = 1, read_only = true }),
+    tuya.dp_voltage(23, { scale = 1, read_only = true }),
   },
-  query_on_configure = true,
+  magic_packet = true,
+  query_on_configure = false,
+  time_start = "off",
 }
 
 register_device_definition(switch_1gang_power_monitoring, device_helpers.create_fingerprints("TS0601", {
   "_TZE204_apiu8k13",
+  "_TZE284_q9qytwfa",
 }))
 
 -- KRC-103: 6 gang kinetic switch actuator (DP19~24)
@@ -576,35 +602,6 @@ register_device_definition(switch_1gang_model_mg_zg01w, device_helpers.create_fi
   "_TZE200_gbagoilo",
   "_TZE284_xnwxmj8z",
 }))
-
--- ══════════════════════════════════════════════════════════════
--- 1-17. switch_7gang: 기본 7구
--- 현재 등록된 제조사 없음
--- ══════════════════════════════════════════════════════════════
-local switch_7gang = {
-  tuya.dp_on_off(1, { name = "switch", component = "main" }),
-  tuya.dp_on_off(2, { name = "switch", component = "switch2" }),
-  tuya.dp_on_off(3, { name = "switch", component = "switch3" }),
-  tuya.dp_on_off(4, { name = "switch", component = "switch4" }),
-  tuya.dp_on_off(5, { name = "switch", component = "switch5" }),
-  tuya.dp_on_off(6, { name = "switch", component = "switch6" }),
-  tuya.dp_on_off(7, { name = "switch", component = "switch7" }),
-}
-
--- ══════════════════════════════════════════════════════════════
--- 1-18. switch_8gang: 기본 8구
--- 현재 등록된 제조사 없음
--- ══════════════════════════════════════════════════════════════
-local switch_8gang = {
-  tuya.dp_on_off(1, { name = "switch", component = "main" }),
-  tuya.dp_on_off(2, { name = "switch", component = "switch2" }),
-  tuya.dp_on_off(3, { name = "switch", component = "switch3" }),
-  tuya.dp_on_off(4, { name = "switch", component = "switch4" }),
-  tuya.dp_on_off(5, { name = "switch", component = "switch5" }),
-  tuya.dp_on_off(6, { name = "switch", component = "switch6" }),
-  tuya.dp_on_off(7, { name = "switch", component = "switch7" }),
-  tuya.dp_on_off(8, { name = "switch", component = "switch8" }),
-}
 
 -- ══════════════════════════════════════════════════════════════
 -- 1-19. switch_10gang: 기본 10구 (7~10채널이 DP 101~104)
@@ -732,6 +729,20 @@ local switch_1gang_dp16 = {
 register_device_definition(switch_1gang_dp16, device_helpers.create_fingerprints("TS0601", {
   "_TZE204_hiith90n",
 }))
+
+register_device_definition(switch_four_tuya_base, device_helpers.create_fingerprints("TS0601", {
+  "_TZE200_aqnazj70", "_TZE200_di3tfv5b", "_TZE200_mexisfik", "_TZE204_mexisfik",
+  "_TZE204_6wi2mope", "_TZE200_6wi2mope", "_TZE204_iik0pquw", "_TZE204_aagrxlbd",
+  "_TZE204_f5efvtbv", "_TZE284_f5efvtbv", "_TZE204_lbhh5o6z", "_TZE284_lbhh5o6z",
+  "_TZE204_58of2pfn",
+}))
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {7, "rpt-tmk"},
+  {8, "rpt-tcts", {zr000600001 = "Switch", zr000600002 = "SwitchTwo", zr000600003 = "SwitchThree", zr000600004 = "SwitchFour"}},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "ef00.switch.basic",

@@ -22,51 +22,44 @@ components:
         version: 1
       - id: refresh
         version: 1
+      - {id: signalStrength, version: 1}
     categories:
       - name: PresenceSensor
 deviceConfig:
   dashboard:
     states:
-      - component: main
-        capability: presenceSensor
-        version: 1
-        group: main
+    - component: main
+      capability: presenceSensor
+      group: main
     actions: []
     basicPlus: []
   detailView:
-    - component: main
-      capability: presenceSensor
-      version: 1
-    - component: main
-      capability: concertmirror08464.presenceSensitivity
-      version: 1
-    - component: main
-      capability: concertmirror08464.fallSensitivity
-      version: 1
-    - component: main
-      capability: concertmirror08464.tumbleAlarmTime
-      version: 1
-    - component: main
-      capability: concertmirror08464.tumbleSwitch
-      version: 1
-    - component: main
-      capability: concertmirror08464.radarScene
-      version: 1
-    - component: main
-      capability: concertmirror08464.driverMessage
-      version: 1
-    - component: main
-      capability: illuminanceMeasurement
-      version: 1
-    - component: main
-      capability: refresh
-      version: 1
+  - component: main
+    capability: presenceSensor
+  - component: main
+    capability: concertmirror08464.presenceSensitivity
+  - component: main
+    capability: concertmirror08464.fallSensitivity
+  - component: main
+    capability: concertmirror08464.tumbleAlarmTime
+  - component: main
+    capability: concertmirror08464.tumbleSwitch
+  - component: main
+    capability: concertmirror08464.radarScene
+  - component: main
+    capability: concertmirror08464.driverMessage
+  - component: main
+    capability: illuminanceMeasurement
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
   automation:
     conditions:
-      - component: main
-        capability: presenceSensor
-        version: 1
-      - component: main
-        capability: illuminanceMeasurement
-        version: 1
+    - component: main
+      capability: presenceSensor
+    - component: main
+      capability: illuminanceMeasurement
+    - component: main
+      capability: signalStrength
     actions: []

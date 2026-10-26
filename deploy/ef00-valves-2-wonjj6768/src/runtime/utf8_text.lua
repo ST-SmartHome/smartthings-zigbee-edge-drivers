@@ -1,38 +1,32 @@
-local utf8_text={}
-local utf8_length=type(utf8)=="table" and utf8.len or nil
-local utf8_offset=type(utf8)=="table" and utf8.offset or nil
-local function normalized_limit(maximum_length)
-if type(maximum_length)~="number"
-or maximum_length < 0
-or maximum_length % 1 ~=0 then
+local b={}local g=type(utf8)=="table"and utf8.len or nil
+local i=type(utf8)=="table"and utf8.offset or nil
+local function d(a)
+if type(a)~="number"
+or a<0
+or a%1~=0 then
 return nil
 end
-return maximum_length
+return a
 end
-function utf8_text.length(value)
-if type(value)~="string" or type(utf8_length)~="function" then
+function b.length(c)
+if type(c)~="string"or type(g)~="function"then
 return nil
 end
-return utf8_length(value)
+return g(c)
 end
-function utf8_text.fits(value,maximum_length)
-local limit=normalized_limit(maximum_length)
-local length=utf8_text.length(value)
-return limit ~=nil and length ~=nil and length <=limit
+function b.fits(c,a)
+local f=d(a)local e=b.length(c)return f~=nil and e~=nil and e<=f
 end
-function utf8_text.truncate(value,maximum_length)
-local limit=normalized_limit(maximum_length)
-local length=utf8_text.length(value)
-if limit==nil or length==nil then
+function b.truncate(c,a)
+local f=d(a)local e=b.length(c)if f==nil or e==nil then
 return nil
 end
-if length <=limit then
-return value
+if e<=f then
+return c
 end
-local boundary=utf8_offset(value,limit + 1)
-if boundary==nil then
+local h=i(c,f+1)if h==nil then
 return nil
 end
-return value:sub(1,boundary - 1)
+return c:sub(1,h-1)
 end
-return utf8_text
+return b

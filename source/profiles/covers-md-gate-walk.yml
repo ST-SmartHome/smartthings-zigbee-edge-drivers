@@ -1,0 +1,48 @@
+name: covers-md-gate-walk
+components:
+- id: main
+  label: Gate
+  capabilities:
+  - id: momentary
+    version: 1
+  - id: concertmirror08464.mdGateState
+    version: 1
+  - id: concertmirror08464.mdGatePulseDuration
+    version: 1
+  - id: refresh
+    version: 1
+  - id: signalStrength
+    version: 1
+  categories:
+  - name: GarageDoor
+- id: closedLimit
+  label: Closed limit
+  capabilities:
+  - id: contactSensor
+    version: 1
+  categories:
+  - name: ContactSensor
+- id: openLimit
+  label: Open limit
+  capabilities:
+  - id: contactSensor
+    version: 1
+  categories:
+  - name: ContactSensor
+- id: walk
+  label: Pedestrian gate
+  capabilities:
+  - id: momentary
+    version: 1
+  categories:
+  - name: GarageDoor
+preferences:
+- name: mdGateSensorMode
+  title: Number of limit sensors
+  required: true
+  preferenceType: enumeration
+  definition:
+    options:
+      one: One (closed limit)
+      two: Two (closed and open limits)
+    default: one

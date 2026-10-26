@@ -1,490 +1,134 @@
-local tuya=require "protocol.tuya"
-local emit=require "capabilities.events.all"
-local device_helpers=require "contracts.helpers.family"
-local ef00_helpers=require "contracts.helpers.ef00"
-local thermostat_common=require "contracts.helpers.ef00_thermostats"
-local converter=tuya.converter
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local power_mode_from_device=thermostat_common.power_mode_from_device
-local enum_mode_from_device=thermostat_common.enum_mode_from_device
-local power_mode_write=thermostat_common.power_mode_write
-local BAC003_POWER_FIELD="bac003_power_state"
-local BAC003_MODE_FIELD="bac003_system_mode_device"
-local bac003_state_from_device=power_mode_from_device(BAC003_POWER_FIELD,BAC003_MODE_FIELD,"cool")
-local bac003_mode_from_device=enum_mode_from_device(
-BAC003_POWER_FIELD,
-BAC003_MODE_FIELD,
-{[0]="cool",[1]="heat",[2]="fanonly"}
-)
-local bac003_system_mode_write=power_mode_write(1,2,{cool=0,heat=1,fanonly=2})
-local bac003_setpoint=tuya.dp_current_heating_setpoint(16,{
-scale=1,
-emit=emit.heating_setpoint("C"),
-})
-local bac003_fan_mode=tuya.dp_fan_mode(28,{
-converter=converter.lookup_from_to({
-low=0,
-medium=1,
-high=2,
-auto=3,
-}),
-emit=emit.fan_mode(),
-})
-local thermostat_bac003={
-profile="thermostats-fcu-thermostat-bac003",
-force_time_updates=true,
-named_mapping={
+local a=require"protocol.tuya"
+local b=require"capabilities.events.all"
+local L=require"contracts.helpers.family"
+local e=require"contracts.helpers.ef00"
+local j=require"contracts.helpers.ef00_thermostats"
+local d=a.converter
+local X,c=L.definition_registry()local f=j.power_mode_from_device
+local g=j.enum_mode_from_device
+local h=j.power_mode_write
+local p="bac003_power_state"
+local v="bac003_system_mode_device"
+local F=f(p,v,"cool")local H=g(
+p,v,{[0]="cool",[1]="heat",[2]="fanonly"})local G=h(1,2,{cool=0,heat=1,fanonly=2})local K=a.dp_current_heating_setpoint(16,{
+scale=1,emit=b.heating_setpoint"C"})local J=a.dp_fan_mode(28,{
+converter=d.lookup_from_to{
+low=0,medium=1,high=2,auto=3},emit=b.fan_mode()})local x={
+profile="thermostats-fcu-thermostat-bac003",force_time_updates=true,named_mapping={
 named_mappings={
-system_mode=bac003_system_mode_write,
-current_heating_setpoint=bac003_setpoint,
-fan_mode=bac003_fan_mode,
-},
-},
-tuya.dp_binary(1,{
-name="state",
-from_device=bac003_state_from_device,
-emit=emit.thermostat_mode(),
-}),
-tuya.dp_system_mode(2,{
-from_device=bac003_mode_from_device,
-emit=emit.thermostat_mode(),
-read_only=true,
-}),
-tuya.dp_binary(4,{
-name="preset",
-emit=emit.bac003Preset(),
-converter=converter.lookup_from_to({auto=false,manual=true}),
-}),
-bac003_setpoint,
-tuya.dp_numeric(19,{name="max_temperature",emit=emit.bac003MaxTemperature()}),
-tuya.dp_local_temperature(24,{
-scale=10,
-emit=emit.temperature("C"),
-}),
-tuya.dp_deadzone_temperature(26,{scale=1,emit=emit.bac003DeadzoneTemperature()}),
-tuya.dp_local_temperature_calibration(27,{scale=1,emit=emit.bac003TempCalibration()}),
-bac003_fan_mode,
-tuya.dp_child_lock(40,{emit=emit.bac003ChildLock()}),
-}
-register_device_definition(thermostat_bac003,ef00_helpers.ts0601_fingerprints({
-"_TZE200_dzuqwsyg",
-"_TZE204_dzuqwsyg",
-}))
-register_device_definition(thermostat_bac003,{
-device_helpers.create_fingerprint("Tuya","BAC-003"),
-})
-local l2_fan_mode=tuya.dp_fan_mode(49,{
-converter=converter.lookup_from_to({
-auto=0,
-high=1,
-medium=2,
-low=3,
-}),
-emit=emit.fan_mode(),
-})
-local thermostat_l2_t_f_mf={
-profile="thermostats-fcu-thermostat-l2-t-f-mf",
-tuya.dp_on_off(1,{name="state"}),-- profile 미포함
-tuya.dp_system_mode(2,{
-converter=converter.lookup_from_to({
-cool=0,
-heat=1,
-fanonly=2,
-}),
-emit=emit.thermostat_mode(),
-}),
-tuya.dp_local_temperature(16,{scale=10,emit=emit.temperature("C")}),
-tuya.dp_min_temperature_limit(18,{scale=10,emit=emit.l2tfMinTemperatureLimit()}),
-tuya.dp_max_temperature_limit(34,{scale=10,emit=emit.l2tfMaxTemperatureLimit()}),
-tuya.dp_child_lock(39,{emit=emit.l2tfChildLock()}),
-l2_fan_mode,
-tuya.dp_current_heating_setpoint(50,{scale=10}),
-tuya.dp_numeric(101,{name="display_brightness",emit=emit.screenBrightnessL2TFMfLevel9()}),
-tuya.dp_local_temperature_calibration(102,{scale=1,emit=emit.l2tfLocalTempCalibration()}),
-tuya.dp_deadzone_temperature(104,{scale=10,emit=emit.l2tfDeadzoneTemperature()}),
-tuya.dp_eco_temperature(107,{
-name="eco_temperature_heating",
-emit=emit.l2tfEcoTemperatureHeating(),
-}),
-tuya.dp_eco_temperature(109,{
-name="eco_temperature_cooling",
-emit=emit.l2tfEcoTemperatureCooling(),
-}),
-}
-register_device_definition(thermostat_l2_t_f_mf,ef00_helpers.ts0601_fingerprints({
-"_TZE284_4vbj3fxh",
-}))
-local ac_fan_mode=converter.lookup_from_to({
-low=0,
-medium=1,
-high=2,
-auto=3,
-})
-local ac_system_mode=converter.lookup_from_to({
-cool=0,
-dryair=1,
-fanonly=2,
-})
-local thermostat_aetz01_ac={
-profile="thermostats-fcu-thermostat-aetz01-ac",
-tuya.dp_on_off(1,{name="state",emit=emit.switch()}),
-tuya.dp_current_heating_setpoint(2,{scale=1}),
-tuya.dp_local_temperature(3,{scale=1}),
-tuya.dp_system_mode(4,{converter=ac_system_mode}),
-tuya.dp_fan_mode(5,{converter=ac_fan_mode,emit=emit.fan_mode()}),
-tuya.dp_binary(25,{name="sleep",emit=emit.snfdSleep()}),
-tuya.dp_binary(30,{name="swing_mode",emit=emit.snfdSwingMode()}),
-tuya.dp_binary(102,{name="turbo",emit=emit.snfdTurbo()}),
-tuya.dp_binary(103,{name="quiet",emit=emit.snfdQuiet()}),
-tuya.dp_power(116,{name="power",scale=1,emit=emit.power()}),
-tuya.dp_energy(117,{name="energy",scale=1,emit=emit.energy()}),
-}
-register_device_definition(thermostat_aetz01_ac,ef00_helpers.ts0601_fingerprints({
-"_TZE200_snfdqllf",
-}))
-local acmelec_system_mode=converter.lookup_from_to({
-cool=0,
-heat=1,
-fanonly=2,
-dryair=3,
-})
-local acmelec_fan_mode=converter.lookup_from_to({
-low=0,
-medium=1,
-high=2,
-auto=3,
-})
-local function acmelec_definition(profile,child_lock_emit,extra)
-local definition={
-profile=profile,
-tuya.dp_on_off(1,{name="switch",emit=emit.switch()}),
-tuya.dp_system_mode(2,{converter=acmelec_system_mode,emit=emit.thermostat_mode()}),
-tuya.dp_current_heating_setpoint(16,{scale=1,emit=emit.heating_setpoint("C")}),
-tuya.dp_fan_mode(28,{converter=acmelec_fan_mode,emit=emit.fan_mode()}),
-tuya.dp_child_lock(40,{emit=child_lock_emit}),
-}
-for _,mapping in ipairs(extra or{})do
-definition[#definition + 1]=mapping
+system_mode=G,current_heating_setpoint=K,fan_mode=J}},a.dp_binary(1,{
+name="state",from_device=F,emit=b.thermostat_mode()}),a.dp_system_mode(2,{
+from_device=H,emit=b.thermostat_mode(),read_only=true}),a.dp_binary(4,{
+name="preset",emit=b.bac003Preset(),converter=d.lookup_from_to{auto=false,manual=true}}),K,a.dp_numeric(19,{name="max_temperature",emit=b.bac003MaxTemperature()}),a.dp_local_temperature(24,{
+scale=10,emit=b.temperature"C"}),a.dp_deadzone_temperature(26,{scale=1,emit=b.bac003DeadzoneTemperature()}),a.dp_numeric(27,{
+name="local_temperature_calibration",converter=d.from_to(
+function(k)return k>4000 and k-4096 or k end,
+function(k)return k<0 and 4096+k or k end
+),emit=b.bac003TempCalibration()}),J,a.dp_child_lock(40,{emit=b.bac003ChildLock()})}c(x,e.ts0601_fingerprints{
+"_TZE200_dzuqwsyg","_TZE204_dzuqwsyg"})c(x,{
+L.create_fingerprint("Tuya","BAC-003")})local ae=a.dp_fan_mode(49,{
+converter=d.lookup_from_to{
+auto=0,high=1,medium=2,low=3},emit=b.fan_mode()})local Q={
+profile="thermostats-fcu-thermostat-l2-t-f-mf",a.dp_on_off(1,{name="state"}),a.dp_system_mode(2,{
+converter=d.lookup_from_to{
+cool=0,heat=1,fanonly=2},emit=b.thermostat_mode()}),a.dp_local_temperature(16,{scale=10,emit=b.temperature"C"}),a.dp_min_temperature_limit(18,{scale=10,emit=b.l2tfMinTemperatureLimit()}),a.dp_max_temperature_limit(34,{scale=10,emit=b.l2tfMaxTemperatureLimit()}),a.dp_child_lock(39,{emit=b.l2tfChildLock()}),ae,a.dp_current_heating_setpoint(50,{scale=10}),a.dp_numeric(101,{name="display_brightness",emit=b.screenBrightnessL2TFMfLevel9()}),a.dp_local_temperature_calibration(102,{scale=1,emit=b.l2tfLocalTempCalibration()}),a.dp_deadzone_temperature(104,{scale=10,emit=b.l2tfDeadzoneTemperature()}),a.dp_eco_temperature(107,{
+name="eco_temperature_heating",emit=b.l2tfEcoTemperatureHeating()}),a.dp_eco_temperature(109,{
+name="eco_temperature_cooling",emit=b.l2tfEcoTemperatureCooling()})}c(Q,e.ts0601_fingerprints{
+"_TZE284_4vbj3fxh"})local ad=d.lookup_from_to{
+low=0,medium=1,high=2,auto=3}local ac=d.lookup_from_to{
+cool=0,dryair=1,fanonly=2}local P={
+profile="thermostats-fcu-thermostat-aetz01-ac",a.dp_on_off(1,{name="state",emit=b.switch()}),a.dp_current_heating_setpoint(2,{scale=1}),a.dp_local_temperature(3,{scale=1}),a.dp_system_mode(4,{converter=ac}),a.dp_fan_mode(5,{converter=ad,emit=b.fan_mode()}),a.dp_binary(25,{name="sleep",emit=b.snfdSleep()}),a.dp_binary(30,{name="swing_mode",emit=b.snfdSwingMode()}),a.dp_binary(102,{name="turbo",emit=b.snfdTurbo()}),a.dp_binary(103,{name="quiet",emit=b.snfdQuiet()}),a.dp_power(116,{name="power",scale=1,emit=b.power()}),a.dp_energy(117,{name="energy",scale=1,emit=b.energy()})}c(P,e.ts0601_fingerprints{
+"_TZE200_snfdqllf"})local U=d.lookup_from_to{
+cool=0,heat=1,fanonly=2,dryair=3}local aa=d.lookup_from_to{
+low=0,medium=1,high=2,auto=3}
+local function i(ag,ab,ah)
+local O={
+profile=ag,a.dp_on_off(1,{name="switch",emit=b.switch()}),a.dp_system_mode(2,{converter=U,emit=b.thermostat_mode()}),a.dp_current_heating_setpoint(16,{scale=1,emit=b.heating_setpoint"C"}),a.dp_fan_mode(28,{converter=aa,emit=b.fan_mode()}),a.dp_child_lock(40,{emit=ab})}for _,af in ipairs(ah or{})do
+O[#O+1]=af
 end
-return definition
+return O
 end
-local thermostat_acmelec_ae940k=acmelec_definition(
-"thermostats-fcu-thermostat-ae940k",
-emit.ae940kChildLock()
-)
-register_device_definition(thermostat_acmelec_ae940k,ef00_helpers.ts0601_fingerprints({
-"_TZE200_wem3gxyx",
-}))
-local thermostat_acmelec_ae669k=acmelec_definition(
-"thermostats-fcu-thermostat-ae669k",
-emit.ae669kChildLock()
-)
-register_device_definition(thermostat_acmelec_ae669k,ef00_helpers.ts0601_fingerprints({
-"_TZE204_mul9abs3",
-}))
-local thermostat_acmelec_ae720k=acmelec_definition(
-"thermostats-fcu-thermostat-ae720k",
-emit.ae720kChildLock(),
-{
-tuya.dp_local_temperature(24,{
-read_only=true,
-emit=emit.temperature("C"),
-converter=converter.from_only(function(value)
-local numeric=tonumber(value)
-if numeric==nil then
+local C=i(
+"thermostats-fcu-thermostat-ae940k",b.ae940kChildLock())c(C,e.ts0601_fingerprints{
+"_TZE200_wem3gxyx"})local A=i(
+"thermostats-fcu-thermostat-ae669k",b.ae669kChildLock())c(A,e.ts0601_fingerprints{
+"_TZE204_mul9abs3"})local B=i(
+"thermostats-fcu-thermostat-ae720k",b.ae720kChildLock(),{
+a.dp_local_temperature(24,{
+read_only=true,emit=b.temperature"C",
+converter=d.from_only(function(k)
+local Z=tonumber(k)if Z==nil then
 return nil
 end
-return numeric > 60 and numeric / 10 or numeric
-end),
-}),
-}
-)
-register_device_definition(thermostat_acmelec_ae720k,ef00_helpers.ts0601_fingerprints({
-"_TZE284_mul9abs3",
-}))
-local XZ_AKT101_POWER_FIELD="xz_akt101_power_state"
-local XZ_AKT101_MODE_FIELD="xz_akt101_system_mode_device"
-local xz_akt101_state_from_device=power_mode_from_device(XZ_AKT101_POWER_FIELD,XZ_AKT101_MODE_FIELD,"cool")
-local xz_akt101_mode_from_device=enum_mode_from_device(
-XZ_AKT101_POWER_FIELD,
-XZ_AKT101_MODE_FIELD,
-{[0]="cool",[1]="heat",[2]="fanonly"}
-)
-local xz_akt101_system_mode_write=power_mode_write(
-1,
-2,
-{cool=0,heat=1,fanonly=2,fan_only=2}
-)
-local xz_akt101_setpoint=tuya.dp_current_heating_setpoint(16,{
-scale=10,
-emit=emit.heating_setpoint("C"),
-})
-local xz_akt101_fan_mode=tuya.dp_fan_mode(28,{
-converter=converter.lookup_from_to({
-low=0,
-medium=1,
-high=2,
-auto=3,
-}),
-emit=emit.fan_mode(),
-})
-local thermostat_xz_akt101={
-profile="thermostats-fcu-thermostat-xz-akt101",
-named_mapping={
+return Z>60 and Z/10 or Z
+end)
+})})c(B,e.ts0601_fingerprints{
+"_TZE284_mul9abs3"})local l="xz_akt101_power_state"
+local n="xz_akt101_system_mode_device"
+local s=f(l,n,"cool")local u=g(
+l,n,{[0]="cool",[1]="heat",[2]="fanonly"})local t=h(
+1,2,{cool=0,heat=1,fanonly=2,fan_only=2})local r=a.dp_current_heating_setpoint(16,{
+scale=10,emit=b.heating_setpoint"C"})local q=a.dp_fan_mode(28,{
+converter=d.lookup_from_to{
+low=0,medium=1,high=2,auto=3},emit=b.fan_mode()})local R={
+profile="thermostats-fcu-thermostat-xz-akt101",named_mapping={
 named_mappings={
-system_mode=xz_akt101_system_mode_write,
-current_heating_setpoint=xz_akt101_setpoint,
-fan_mode=xz_akt101_fan_mode,
-},
-},
-tuya.dp_binary(1,{
-name="air_switch",
-from_device=xz_akt101_state_from_device,
-emit=emit.thermostat_mode(),
-}),
-tuya.dp_system_mode(2,{
-from_device=xz_akt101_mode_from_device,
-emit=emit.thermostat_mode(),
-read_only=true,
-}),
-xz_akt101_setpoint,
-tuya.dp_local_temperature(24,{
-scale=10,
-emit=emit.temperature("C"),
-}),
-xz_akt101_fan_mode,
-tuya.dp_child_lock(40,{emit=emit.xzakt101ChildLock()}),
-tuya.dp_numeric(101,{
-name="boost_time",
-converter=converter.divide_by_pair(10),
-emit=emit.xzakt101BoostTime(),
-}),
-}
-register_device_definition(thermostat_xz_akt101,ef00_helpers.ts0601_fingerprints({
-"_TZE200_1drr8tab",
-}))
-local TYBAC_POWER_FIELD="tybac_power_state"
-local TYBAC_MODE_FIELD="tybac_system_mode_device"
-local tybac_fan_mode=tuya.dp_fan_mode(28,{
-converter=converter.lookup_from_to({
-low=0,
-medium=1,
-high=2,
-auto=3,
-}),
-emit=emit.fan_mode(),
-})
-local tybac_setpoint=tuya.dp_current_heating_setpoint(16,{
-scale=10,
-emit=emit.heating_setpoint("C"),
-})
-local thermostat_tybac006={
-profile="thermostats-fcu-thermostat-tybac006",
-force_time_updates=true,
-named_mapping={
+system_mode=t,current_heating_setpoint=r,fan_mode=q}},a.dp_binary(1,{
+name="air_switch",from_device=s,emit=b.thermostat_mode()}),a.dp_system_mode(2,{
+from_device=u,emit=b.thermostat_mode(),read_only=true}),r,a.dp_local_temperature(24,{
+scale=10,emit=b.temperature"C"}),q,a.dp_child_lock(40,{emit=b.xzakt101ChildLock()}),a.dp_numeric(101,{
+name="boost_time",converter=d.divide_by_pair(10),emit=b.xzakt101BoostTime()})}c(R,e.ts0601_fingerprints{
+"_TZE200_1drr8tab"})local w="tybac_power_state"
+local E="tybac_system_mode_device"
+local M=a.dp_fan_mode(28,{
+converter=d.lookup_from_to{
+low=0,medium=1,high=2,auto=3},emit=b.fan_mode()})local N=a.dp_current_heating_setpoint(16,{
+scale=10,emit=b.heating_setpoint"C"})local V={
+profile="thermostats-fcu-thermostat-tybac006",force_time_updates=true,named_mapping={
 named_mappings={
-system_mode=power_mode_write(1,2,{
-cool=0,
-heat=1,
-fanonly=2,
-fan_only=2,
-}),
-current_heating_setpoint=tybac_setpoint,
-fan_mode=tybac_fan_mode,
-},
-},
-tuya.dp_binary(1,{
-name="state",
-from_device=power_mode_from_device(TYBAC_POWER_FIELD,TYBAC_MODE_FIELD,"cool"),
-emit=emit.thermostat_mode(),
-}),
-tuya.dp_system_mode(2,{
-from_device=enum_mode_from_device(TYBAC_POWER_FIELD,TYBAC_MODE_FIELD,{
-[0]="cool",
-[1]="heat",
-[2]="fanonly",
-}),
-emit=emit.thermostat_mode(),
-read_only=true,
-}),
-tuya.dp_eco_mode(4,{emit=emit.tybacEcoMode()}),
-tybac_setpoint,
-tuya.dp_max_temperature_limit(19,{scale=10,emit=emit.maxTempLimitTybacCToThirty()}),
-tuya.dp_local_temperature(24,{scale=10,emit=emit.temperature("C")}),
-tuya.dp_min_temperature_limit(26,{scale=10,emit=emit.minTempLimitTybacCToThirty()}),
-tuya.dp_local_temperature_calibration(27,{scale=1,emit=emit.tybacTempCalibration()}),
-tybac_fan_mode,
-tuya.dp_binary(36,{
-name="valve",
-read_only=true,
-emit=emit.tybacValve(),
-converter=converter.lookup_from_to({open=false,close=true}),
-}),
-tuya.dp_child_lock(40,{emit=emit.tybacChildLock()}),
-tuya.dp_binary(101,{
-name="manual_mode",
-converter=converter.lookup_from_to({on=true,off=false}),
-emit=emit.manualModeTybac006(),
-}),
-tuya.dp_deadzone_temperature(103,{scale=1,emit=emit.tybacDeadzoneTemperature()}),
-tuya.dp_min_temperature_limit(104,{name="min_temperature_limit",scale=10,emit=emit.minTempLimitTybacCToThirty()}),
-tuya.dp_max_temperature_limit(105,{name="max_temperature_limit",scale=10,emit=emit.maxTempLimitTybacCToThirty()}),
-}
-register_device_definition(thermostat_tybac006,ef00_helpers.ts0601_fingerprints({
-"_TZE204_mpbki2zm",
-"_TZE204_qujphad5",
-}))
-local HHST_POWER_FIELD="hhst_power_state"
-local HHST_MODE_FIELD="hhst_system_mode_device"
-local hhst_fan_mode=tuya.dp_fan_mode(28,{
-converter=converter.lookup_from_to({
-auto=0,
-high=1,
-medium=2,
-low=3,
-off=4,
-}),
-emit=emit.fan_mode(),
-})
-local hhst_setpoint=tuya.dp_current_heating_setpoint(16,{
-scale=10,
-emit=emit.heating_setpoint("C"),
-})
-local thermostat_hhst001={
-profile="thermostats-fcu-thermostat-hhst001",
-named_mapping={
+system_mode=h(1,2,{
+cool=0,heat=1,fanonly=2,fan_only=2}),current_heating_setpoint=N,fan_mode=M}},a.dp_binary(1,{
+name="state",from_device=f(w,E,"cool"),emit=b.thermostat_mode()}),a.dp_system_mode(2,{
+from_device=g(w,E,{
+[0]="cool",[1]="heat",[2]="fanonly"}),emit=b.thermostat_mode(),read_only=true}),a.dp_eco_mode(4,{emit=b.tybacEcoMode()}),N,a.dp_max_temperature_limit(19,{scale=10,emit=b.maxTempLimitTybacCToThirty()}),a.dp_local_temperature(24,{scale=10,emit=b.temperature"C"}),a.dp_min_temperature_limit(26,{scale=10,emit=b.minTempLimitTybacCToThirty()}),a.dp_local_temperature_calibration(27,{scale=1,emit=b.tybacTempCalibration()}),M,a.dp_binary(36,{
+name="valve",read_only=true,emit=b.tybacValve(),converter=d.lookup_from_to{open=false,close=true}}),a.dp_child_lock(40,{emit=b.tybacChildLock()}),a.dp_binary(101,{
+name="manual_mode",converter=d.lookup_from_to{on=true,off=false},emit=b.manualModeTybac006()}),a.dp_deadzone_temperature(103,{scale=1,emit=b.tybacDeadzoneTemperature()}),a.dp_min_temperature_limit(104,{name="min_temperature_limit",scale=10,emit=b.minTempLimitTybacCToThirty()}),a.dp_max_temperature_limit(105,{name="max_temperature_limit",scale=10,emit=b.maxTempLimitTybacCToThirty()})}c(V,e.ts0601_fingerprints{
+"_TZE204_mpbki2zm","_TZE204_qujphad5"})local D="hhst_power_state"
+local I="hhst_system_mode_device"
+local S=a.dp_fan_mode(28,{
+converter=d.lookup_from_to{
+auto=0,high=1,medium=2,low=3,off=4},emit=b.fan_mode()})local T=a.dp_current_heating_setpoint(16,{
+scale=10,emit=b.heating_setpoint"C"})local Y={
+profile="thermostats-fcu-thermostat-hhst001",named_mapping={
 named_mappings={
-system_mode=power_mode_write(1,2,{
-cool=0,
-heat=1,
-fanonly=2,
-fan_only=2,
-}),
-current_heating_setpoint=hhst_setpoint,
-fan_mode=hhst_fan_mode,
-},
-},
-tuya.dp_binary(1,{
-name="state",
-from_device=power_mode_from_device(HHST_POWER_FIELD,HHST_MODE_FIELD,"cool"),
-emit=emit.thermostat_mode(),
-}),
-tuya.dp_system_mode(2,{
-from_device=enum_mode_from_device(HHST_POWER_FIELD,HHST_MODE_FIELD,{
-[0]="cool",
-[1]="heat",
-[2]="fanonly",
-}),
-emit=emit.thermostat_mode(),
-read_only=true,
-}),
-hhst_setpoint,
-tuya.dp_max_temperature_limit(19,{
-name="max_temperature",
-scale=10,
-emit=emit.hhstMaxTemperature(),
-}),
-tuya.dp_temperature(21,{
-name="local_temperature_f",
-scale=1,
-read_only=true,
-emit=emit.hhstLocalTemperatureF(),
-}),
-tuya.dp_local_temperature(24,{scale=10,emit=emit.temperature("C")}),
-tuya.dp_min_temperature_limit(26,{
-name="min_temperature",
-scale=10,
-emit=emit.hhstMinTemperature(),
-}),
-hhst_fan_mode,
-tuya.dp_child_lock(40,{emit=emit.hhstChildLock()}),
-tuya.dp_temperature_unit(46,{
-name="temperature_scale",
-emit=emit.hhstTemperatureScale(),
-}),
-tuya.dp_binary(101,{
-name="manual_mode",
-converter=converter.lookup_from_to({auto=0,manual=1,temporary=2}),
-emit=emit.manualModeHhstAutoManualTemp(),
-}),
-tuya.dp_local_temperature_calibration(102,{scale=10,emit=emit.hhstTempCalibration()}),
-tuya.dp_deadzone_temperature(104,{scale=1,emit=emit.hhstDeadzoneTemperature()}),
-tuya.dp_humidity(113,{emit=emit.humidity()}),
-}
-register_device_definition(thermostat_hhst001,ef00_helpers.ts0601_fingerprints({
-"_TZE204_q12rv9gj",
-}))
-local XIXLAZKG_POWER_FIELD="xixlazkg_power_state"
-local XIXLAZKG_MODE_FIELD="xixlazkg_system_mode_device"
-local xixlazkg_setpoint=tuya.dp_current_heating_setpoint(16,{
-scale=1,
-emit=emit.heating_setpoint("C"),
-})
-local xixlazkg_fan_mode=tuya.dp_fan_mode(28,{
-converter=converter.lookup_from_to({
-low=0,
-medium=1,
-high=2,
-auto=3,
-}),
-emit=emit.fan_mode(),
-})
-local thermostat_xixlazkg={
-profile="thermostats-fcu-thermostat-xixlazkg",
-named_mapping={
+system_mode=h(1,2,{
+cool=0,heat=1,fanonly=2,fan_only=2}),current_heating_setpoint=T,fan_mode=S}},a.dp_binary(1,{
+name="state",from_device=f(D,I,"cool"),emit=b.thermostat_mode()}),a.dp_system_mode(2,{
+from_device=g(D,I,{
+[0]="cool",[1]="heat",[2]="fanonly"}),emit=b.thermostat_mode(),read_only=true}),T,a.dp_max_temperature_limit(19,{
+name="max_temperature",scale=10,emit=b.hhstMaxTemperature()}),a.dp_temperature(21,{
+name="local_temperature_f",scale=1,read_only=true,emit=b.hhstLocalTemperatureF()}),a.dp_local_temperature(24,{scale=10,emit=b.temperature"C"}),a.dp_min_temperature_limit(26,{
+name="min_temperature",scale=10,emit=b.hhstMinTemperature()}),S,a.dp_child_lock(40,{emit=b.hhstChildLock()}),a.dp_temperature_unit(46,{
+name="temperature_scale",emit=b.hhstTemperatureScale()}),a.dp_binary(101,{
+name="manual_mode",converter=d.lookup_from_to{auto=0,manual=1,temporary=2},emit=b.manualModeHhstAutoManualTemp()}),a.dp_local_temperature_calibration(102,{scale=10,emit=b.hhstTempCalibration()}),a.dp_deadzone_temperature(104,{scale=1,emit=b.hhstDeadzoneTemperature()}),a.dp_humidity(113,{emit=b.humidity()})}c(Y,e.ts0601_fingerprints{
+"_TZE204_q12rv9gj"})local m="xixlazkg_power_state"
+local o="xixlazkg_system_mode_device"
+local z=a.dp_current_heating_setpoint(16,{
+scale=1,emit=b.heating_setpoint"C"})local y=a.dp_fan_mode(28,{
+converter=d.lookup_from_to{
+low=0,medium=1,high=2,auto=3},emit=b.fan_mode()})local W={
+profile="thermostats-fcu-thermostat-xixlazkg",named_mapping={
 named_mappings={
-system_mode=power_mode_write(1,2,{
-fanonly=0,
-fan_only=0,
-cool=1,
-dryair=2,
-heat=3,
-auto=4,
-["emergency heat"]=5,
-}),
-current_heating_setpoint=xixlazkg_setpoint,
-fan_mode=xixlazkg_fan_mode,
-},
-},
-tuya.dp_binary(1,{
-name="preset",
-from_device=power_mode_from_device(XIXLAZKG_POWER_FIELD,XIXLAZKG_MODE_FIELD,"cool"),
-emit=emit.thermostat_mode(),
-}),
-tuya.dp_system_mode(2,{
-from_device=enum_mode_from_device(XIXLAZKG_POWER_FIELD,XIXLAZKG_MODE_FIELD,{
-[0]="fanonly",
-[1]="cool",
-[2]="dryair",
-[3]="heat",
-[4]="auto",
-[5]="emergency heat",
-}),
-emit=emit.thermostat_mode(),
-read_only=true,
-}),
-xixlazkg_setpoint,
-tuya.dp_local_temperature(24,{
-scale=10,
-emit=emit.temperature("C"),
-}),
-xixlazkg_fan_mode,
-tuya.dp_binary(35,{
-name="battery_low",
-read_only=true,
-emit=emit.xixlBatteryLow(),
-converter=converter.from_only(function(value)
-return(value==false or value==0)and "low" or "normal"
-end),
-}),
-tuya.dp_child_lock(40,{emit=emit.xixlChildLock()}),
-tuya.dp_local_temperature_calibration(44,{scale=10,emit=emit.xixlTempCalibration()}),
-tuya.dp_numeric(45,{name="error",read_only=true,emit=emit.xixlError()}),
-}
-register_device_definition(thermostat_xixlazkg,ef00_helpers.ts0601_fingerprints({
-"_TZE200_xixlazkg",
-}))
-return{
-id="ef00.thermostats.fcu",
-registrations=device_definitions,
-}
+system_mode=h(1,2,{
+fanonly=0,fan_only=0,cool=1,dryair=2,heat=3,auto=4,["emergency heat"]=5}),current_heating_setpoint=z,fan_mode=y}},a.dp_binary(1,{
+name="preset",from_device=f(m,o,"cool"),emit=b.thermostat_mode()}),a.dp_system_mode(2,{
+from_device=g(m,o,{
+[0]="fanonly",[1]="cool",[2]="dryair",[3]="heat",[4]="auto",[5]="emergency heat"}),emit=b.thermostat_mode(),read_only=true}),z,a.dp_local_temperature(24,{
+scale=10,emit=b.temperature"C"}),y,a.dp_binary(35,{
+name="battery_low",read_only=true,emit=b.xixlBatteryLow(),
+converter=d.from_only(function(k)
+return(k==false or k==0)and"low"or"normal"
+end)
+}),a.dp_child_lock(40,{emit=b.xixlChildLock()}),a.dp_local_temperature_calibration(44,{scale=10,emit=b.xixlTempCalibration()}),a.dp_numeric(45,{name="error",read_only=true,emit=b.xixlError()})}c(W,e.ts0601_fingerprints{
+"_TZE200_xixlazkg"})return{
+id="ef00.thermostats.fcu",registrations=X}

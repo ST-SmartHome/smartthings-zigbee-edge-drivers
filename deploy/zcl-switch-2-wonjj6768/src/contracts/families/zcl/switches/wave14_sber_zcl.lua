@@ -1,958 +1,527 @@
-local zcl=require "protocol.zcl"
-local emit=require "capabilities.events.all"
-local device_helpers=require "contracts.helpers.family"
-local capabilities=require "st.capabilities"
-local device_management=require "st.zigbee.device_management"
-local cluster_base=require "st.zigbee.cluster_base"
-local data_types=require "st.zigbee.data_types"
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local CAPABILITY_NAMESPACE="concertmirror08464."
-local SBER_MFG_CODE=0x152F
-local CLUSTER_BASIC=0x0000
-local CLUSTER_DEVICE_TEMPERATURE=0x0002
-local CLUSTER_IDENTIFY=0x0003
-local CLUSTER_ON_OFF=0x0006
-local CLUSTER_MULTISTATE_INPUT=0x0012
-local CLUSTER_WINDOW_COVERING=0x0102
-local CLUSTER_DIAGNOSTICS=0x0B05
-local CLUSTER_SBER=0xFCCF
-local ATTR_SERIAL_NUMBER=0x000D
-local ATTR_DEVICE_ENABLED=0x0012
-local ATTR_ON_OFF=0x0000
-local ATTR_STARTUP_ON_OFF=0x4003
-local ATTR_RELAY_DECOUPLE=0x10DC
-local ATTR_PRESENT_VALUE=0x0055
-local ATTR_CURRENT_POSITION=0x0008
-local ATTR_WINDOW_COVERING_MODE=0x0017
-local ATTR_ALLOW_DOUBLE_CLICK=0x1002
-local ATTR_CHILD_LOCK=0x1003
-local ATTR_LED_ON_ENABLE=0x2001
-local ATTR_LED_ON_HUE=0x2002
-local ATTR_LED_ON_SATURATION=0x2003
-local ATTR_LED_ON_BRIGHTNESS=0x2004
-local ATTR_LED_OFF_ENABLE=0x2005
-local ATTR_LED_OFF_HUE=0x2006
-local ATTR_LED_OFF_SATURATION=0x2007
-local ATTR_LED_OFF_BRIGHTNESS=0x2008
-local ATTR_LED_INDICATION_TYPE=0x2009
-local ATTR_EMERGENCY_STATE=0x3001
-local ATTR_EMERGENCY_RECOVERY=0x3002
-local ATTR_UPPER_VOLTAGE_THRESHOLD=0x3011
-local ATTR_LOWER_VOLTAGE_THRESHOLD=0x3012
-local ATTR_UPPER_CURRENT_THRESHOLD=0x3013
-local ATTR_UPPER_TEMPERATURE_THRESHOLD=0x3014
-local ATTR_RMS_VOLTAGE_MV=0x4001
-local ATTR_RMS_CURRENT_MA=0x4002
-local ATTR_ACTIVE_POWER_MW=0x4003
-local ATTR_POWER_PROFILE=0x4100
-local ATTR_NEUTRAL_PRESENCE=0x4101
-local ATTR_DIAGNOSTIC_RESETS=0x0000
-local ATTR_DIAGNOSTIC_UPTIME=0x1001
-local ATTR_DIAGNOSTIC_BUTTON_ONE=0x1002
-local ATTR_DIAGNOSTIC_BUTTON_TWO=0x1003
-local ATTR_DIAGNOSTIC_BUTTON_THREE=0x1004
-local ATTR_DIAGNOSTIC_RELAY_ONE=0x1005
-local ATTR_DIAGNOSTIC_RELAY_TWO=0x1006
-local ATTR_CALIBRATION_TIME=0x1001
-local ATTR_BUTTONS_MODE=0x1002
-local ATTR_MOTOR_TIMEOUT=0x1003
-local function custom(capability_id)
-return assert(emit[capability_id],"missing Wave14 Sber emitter: " .. capability_id)()
+local aN=require"protocol.zcl"
+local bV=require"capabilities.events.all"
+local N=require"contracts.helpers.family"
+local ch=require"st.capabilities"
+local bR=require"st.zigbee.device_management"
+local bH=require"st.zigbee.cluster_base"
+local e=require"st.zigbee.data_types"
+local bM,o=N.definition_registry()local K="concertmirror08464."
+local g=5423
+local H=0
+local I=2
+local bj=3
+local p=6
+local R=18
+local h=258
+local B=2821
+local k=64719
+local G=13
+local aO=18
+local bq=0
+local U=16387
+local aq=4316
+local bG=85
+local ae=8
+local at=23
+local W=4098
+local Y=4099
+local Z=8193
+local as=8194
+local E=8195
+local D=8196
+local A=8197
+local P=8198
+local v=8199
+local u=8200
+local O=8201
+local bw=12289
+local aC=12290
+local ai=12305
+local af=12306
+local ah=12307
+local Q=12308
+local aQ=16385
+local aP=16386
+local aG=16387
+local au=16640
+local ag=16641
+local bo=0
+local bp=4097
+local aZ=4098
+local ba=4099
+local aR=4100
+local bf=4101
+local bg=4102
+local aF=4097
+local bb=4098
+local aU=4099
+local function cE(capability_id)
+return assert(bV[capability_id],"missing Wave14 Sber emitter: "..capability_id)()
 end
-local function append(target,mapping)
-if mapping.read_only==nil then mapping.read_only=false end
-target[#target + 1]=mapping
-return mapping
+local function m(r,n)
+if n.read_only==nil then n.read_only=false end
+r[#r+1]=n
+return n
 end
-local function copy_options(options)
-local copied={}
-for key,value in pairs(options or{})do copied[key]=value end
-return copied
+local function bl(bu)
+local bJ={}
+for cA,f in pairs(bu or{})do bJ[cA]=f end
+return bJ
 end
-local function copy_command_context(context)
-local copied={}
-for key,value in pairs(context or{})do
-if key ~="mapping" then copied[key]=value end
+local function by(w)
+local bJ={}for cA,f in pairs(w or{})do
+if cA~="mapping"then bJ[cA]=f end
 end
-return copied
+return bJ
 end
-local function guard_dynamic_mappings(target,first_index,last_index,branch,allowed)
-for index=first_index,last_index do
-local mapping=target[index]
-mapping.sber_dynamic_branch=branch
-local original_emit=mapping.emit
-if type(original_emit)=="function" then
-mapping.emit=function(device,value,context,current_mapping)
-if not allowed(device)then return nil end
-return original_emit(device,value,context,current_mapping)
+local function F(r,cj,cm,cD,cb)
+for bh=cj,cm do
+local n=r[bh]n.sber_dynamic_branch=cD
+local bB=n.emit
+if type(bB)=="function"then
+n.emit=function(a,f,w,aK)
+if not cb(a)then return nil end
+return bB(a,f,w,aK)
 end
 end
-local original_handler=mapping.handler
-if type(original_handler)=="function" then
-mapping.handler=function(device,value,context,current_mapping)
-if not allowed(device)then return nil end
-return original_handler(device,value,context,current_mapping)
+local bm=n.handler
+if type(bm)=="function"then
+n.handler=function(a,f,w,aK)
+if not cb(a)then return nil end
+return bm(a,f,w,aK)
 end
 end
-if mapping.read_only ~=true then
-local delegate=copy_options(mapping)
-local delegate_list={delegate}
-mapping.sender=function(device,_,value,context)
-if not allowed(device)then
-return delegate.name=="switch"
+if n.read_only~=true then
+local bU=bl(n)local ce={bU}
+n.sender=function(a,_,f,w)
+if not cb(a)then
+return bU.name=="switch"
 end
-return zcl.send_named_command(
-device,
-delegate_list,
-delegate.name,
-value,
-copy_command_context(context)
-)
+return aN.send_named_command(
+a,ce,bU.name,f,by(w))
 end
 end
 end
 end
-local function custom_mapping(cluster_id,attribute_id,name,capability_id,data_type,options)
-local config=copy_options(options)
-config.name=name
-config.emit=custom(capability_id)
-config.data_type=data_type
-config.write_type=config.write_type or data_type
-return zcl.cluster_attribute(cluster_id,attribute_id,config)
+local function t(al,S,cc,capability_id,bn,bu)
+local aJ=bl(bu)aJ.name=cc
+aJ.emit=cE(capability_id)aJ.data_type=bn
+aJ.write_type=aJ.write_type or bn
+return aN.cluster_attribute(al,S,aJ)
 end
-local function sber_mapping(attribute_id,name,capability_id,data_type,options)
-local config=copy_options(options)
-config.mfg_code=SBER_MFG_CODE
-return custom_mapping(CLUSTER_SBER,attribute_id,name,capability_id,data_type,config)
+local function y(S,cc,capability_id,bn,bu)
+local aJ=bl(bu)aJ.mfg_code=g
+return t(k,S,cc,capability_id,bn,aJ)
 end
-local function bool_to_on_off(value)
-return(value==true or value==1)and "ON" or "OFF"
+local function ax(f)
+return(f==true or f==1)and"ON"or"OFF"
 end
-local function on_off_to_bool(value)
-return value==true or value=="ON" or value=="on"
+local function aA(f)
+return f==true or f=="ON"or f=="on"
 end
-local function uint16_le(value)
-value=math.max(0,math.min(0xFFFF,math.floor(tonumber(value)or 0)))
-return string.char(value % 0x100,math.floor(value / 0x100)% 0x100)
+local function cp(f)
+f=math.max(0,math.min(65535,math.floor(tonumber(f)or 0)))return string.char(f%256,math.floor(f/256)%256)
 end
-local function window_attribute_sender(device,mapping,value,context)
-local encoded=value
-if type(mapping.to_device)=="function" then
-encoded=mapping.to_device(value,device,context,mapping)
+local function z(a,n,f,w)
+local aS=f
+if type(n.to_device)=="function"then
+aS=n.to_device(f,a,w,n)
 end
-if type(encoded)=="number" then encoded=math.floor(encoded + 0.5)end
-if encoded==nil then return false end
-local request
-if mapping.mfg_code ~=nil then
-request=cluster_base.write_manufacturer_specific_attribute(
-device,
-mapping.cluster_id,
-mapping.attribute_id,
-mapping.mfg_code,
-mapping.write_type,
-encoded
-)
-else
-request=cluster_base.write_attribute(
-device,
-data_types.ClusterId(mapping.cluster_id),
-data_types.AttributeId(mapping.attribute_id),
-mapping.write_type(encoded)
-)
+if type(aS)=="number"then aS=math.floor(aS+0.5)end
+if aS==nil then return false end
+local bi
+if n.mfg_code~=nil then
+bi=bH.write_manufacturer_specific_attribute(
+a,n.cluster_id,n.attribute_id,n.mfg_code,n.write_type,aS)else
+bi=bH.write_attribute(
+a,e.ClusterId(n.cluster_id),e.AttributeId(n.attribute_id),n.write_type(aS))
 end
-if context.endpoint ~=nil and type(request.to_endpoint)=="function" then
-request=request:to_endpoint(context.endpoint)
+if w.endpoint~=nil and type(bi.to_endpoint)=="function"then
+bi=bi:to_endpoint(w.endpoint)
 end
-device:send(request)
-return true
+a:send(bi)return true
 end
-local function identify_sender(default_seconds)
-return function(device,_,_,context)
-return zcl.send_raw_cluster_command(
-device,
-CLUSTER_IDENTIFY,
-0x00,
-uint16_le(default_seconds),
-context.endpoint,
-nil,
-nil,
-false
-)
+local function bZ(aL)
+return function(a,_,_,w)
+return aN.send_raw_cluster_command(
+a,bj,0,cp(aL),w.endpoint,nil,nil,false)
 end
 end
-local function cover_state_sender(device,_,value,context)
-local command_id=({open=0x00,close=0x01,stop=0x02})[value]
-if command_id==nil then return false end
-return zcl.send_raw_cluster_command(
-device,
-CLUSTER_WINDOW_COVERING,
-command_id,
-"",
-context.endpoint,
-nil,
-nil,
-false
-)
+local function bL(a,_,f,w)
+local bY=({open=0,close=1,stop=2})[f]
+if bY==nil then return false end
+return aN.send_raw_cluster_command(
+a,h,bY,"",w.endpoint,nil,nil,false)
 end
-local function cover_position_sender(device,_,value,context)
-local position=math.max(0,math.min(100,math.floor(tonumber(value)+ 0.5)))
-local zigbee_position=100 - position
-return zcl.send_raw_cluster_command(
-device,
-CLUSTER_WINDOW_COVERING,
-0x05,
-string.char(zigbee_position),
-context.endpoint,
-nil,
-nil,
-false
-)
+local function bt(a,_,f,w)
+local ct=math.max(0,math.min(100,math.floor(tonumber(f)+0.5)))local ca=100-ct
+return aN.send_raw_cluster_command(
+a,h,5,string.char(ca),w.endpoint,nil,nil,false)
 end
-local function button_event_emitter()
-return function(_,value)
-local action=({[0]="held",[1]="pushed",[2]="double"})[value]
-if action==nil then return nil end
-local event=capabilities.button.button(action)
-event.state_change=true
-return event
+local function bx()
+return function(_,f)
+local bk=({[0]="held",[1]="pushed",[2]="double"})[f]
+if bk==nil then return nil end
+local cz=ch.button.button(bk)cz.state_change=true
+return cz
 end
 end
-local function bind(device,hub_eui,endpoint,clusters)
-for _,cluster_id in ipairs(clusters)do
-device:send(device_management.build_bind_request(
-device,
-cluster_id,
-hub_eui,
-endpoint
-))
+local function br(a,q,l,cr)
+for _,al in ipairs(cr)do
+a:send(bR.build_bind_request(
+a,al,q,l))
 end
 end
-local function read(device,endpoint,cluster_id,attribute_id,mfg_code)
-zcl.read_attribute(device,cluster_id,attribute_id,endpoint,mfg_code)
+local function aT(a,l,al,S,bX)
+aN.read_attribute(a,al,S,l,bX)
 end
-local function read_many(device,endpoint,cluster_id,attributes,mfg_code)
-for _,attribute_id in ipairs(attributes)do
-read(device,endpoint,cluster_id,attribute_id,mfg_code)
+local function x(a,l,al,cl,bX)
+for _,S in ipairs(cl)do
+aT(a,l,al,S,bX)
 end
 end
-local LED_FIELDS={
-{ATTR_LED_ON_ENABLE,"LedOnEnabled","led_on_enabled",data_types.Boolean,bool_to_on_off,on_off_to_bool,0,1,nil},
-{ATTR_LED_ON_HUE,"LedOnHue","led_on_hue",data_types.Uint16,nil,nil,0,359,"°"},
-{ATTR_LED_ON_SATURATION,"LedOnSaturation","led_on_saturation",data_types.Uint8,nil,nil,0,254,nil},
-{ATTR_LED_ON_BRIGHTNESS,"LedOnBrightness","led_on_brightness",data_types.Uint8,nil,nil,1,254,nil},
-{ATTR_LED_OFF_ENABLE,"LedOffEnabled","led_off_enabled",data_types.Boolean,bool_to_on_off,on_off_to_bool,0,1,nil},
-{ATTR_LED_OFF_HUE,"LedOffHue","led_off_hue",data_types.Uint16,nil,nil,0,359,"°"},
-{ATTR_LED_OFF_SATURATION,"LedOffSaturation","led_off_saturation",data_types.Uint8,nil,nil,0,254,nil},
-{ATTR_LED_OFF_BRIGHTNESS,"LedOffBrightness","led_off_brightness",data_types.Uint8,nil,nil,1,254,nil},
-}
-local function add_led_mappings(target,mapping_prefix,capability_prefix,endpoint,component,off_only)
-for index,field in ipairs(LED_FIELDS)do
-if not off_only or index >=5 then
-append(target,sber_mapping(
-field[1],
-mapping_prefix .. "_" .. field[3],
-capability_prefix .. field[2],
-field[4],
-{
-endpoint=endpoint,
-component=component,
-from_device=field[5],
-to_device=field[6],
-numeric_range=field[7]and{
-minimum=field[7],maximum=field[8],step=1,unit=field[9],
-}or nil,
-}
-))
+local ck={
+{Z,"LedOnEnabled","led_on_enabled",e.Boolean,ax,aA,0,1,nil},{as,"LedOnHue","led_on_hue",e.Uint16,nil,nil,0,359,"°"},{E,"LedOnSaturation","led_on_saturation",e.Uint8,nil,nil,0,254,nil},{D,"LedOnBrightness","led_on_brightness",e.Uint8,nil,nil,1,254,nil},{A,"LedOffEnabled","led_off_enabled",e.Boolean,ax,aA,0,1,nil},{P,"LedOffHue","led_off_hue",e.Uint16,nil,nil,0,359,"°"},{v,"LedOffSaturation","led_off_saturation",e.Uint8,nil,nil,0,254,nil},{u,"LedOffBrightness","led_off_brightness",e.Uint8,nil,nil,1,254,nil}}
+local function ak(r,c,capability_prefix,l,j,cs)
+for bh,field in ipairs(ck)do
+if not cs or bh>=5 then
+m(r,y(
+field[1],c.."_"..field[3],capability_prefix..field[2],field[4],{
+endpoint=l,component=j,from_device=field[5],to_device=field[6],numeric_range=field[7]and{
+minimum=field[7],maximum=field[8],step=1,unit=field[9]}or nil}))
 end
 end
 end
-local function add_allow_double_click(target,mapping_prefix,capability_prefix,endpoint,component)
-append(target,sber_mapping(
-ATTR_ALLOW_DOUBLE_CLICK,
-mapping_prefix .. "_allow_double_click",
-capability_prefix .. "AllowDoubleClick",
-data_types.Boolean,
-{
-endpoint=endpoint,
-component=component,
-from_device=bool_to_on_off,
-to_device=on_off_to_bool,
-}
-))
+local function aD(r,c,capability_prefix,l,j)
+m(r,y(
+W,c.."_allow_double_click",capability_prefix.."AllowDoubleClick",e.Boolean,{
+endpoint=l,component=j,from_device=ax,to_device=aA}))
 end
-local function add_power_on_behavior(target,mapping_prefix,capability_prefix,endpoint,component)
-append(target,custom_mapping(
-CLUSTER_ON_OFF,
-ATTR_STARTUP_ON_OFF,
-mapping_prefix .. "_power_on_behavior",
-capability_prefix .. "PowerOnBehavior",
-data_types.Enum8,
-{
-endpoint=endpoint,
-component=component,
-from_device=function(value)
-return({[0]="off",[1]="on",[2]="toggle",[255]="previous"})[value]
+local function aj(r,c,capability_prefix,l,j)
+m(r,t(
+p,U,c.."_power_on_behavior",capability_prefix.."PowerOnBehavior",e.Enum8,{
+endpoint=l,component=j,
+from_device=function(f)
+return({[0]="off",[1]="on",[2]="toggle",[255]="previous"})[f]
 end,
-to_device=function(value)
-return({off=0,on=1,toggle=2,previous=255})[value]
-end,
-}
-))
+to_device=function(f)
+return({off=0,on=1,toggle=2,previous=255})[f]
 end
-local function add_relay_mode(target,mapping_prefix,capability_prefix,endpoint,component)
-append(target,custom_mapping(
-CLUSTER_ON_OFF,
-ATTR_RELAY_DECOUPLE,
-mapping_prefix .. "_relay_mode",
-capability_prefix .. "RelayMode",
-data_types.Boolean,
-{
-endpoint=endpoint,
-component=component,
-mfg_code=SBER_MFG_CODE,
-from_device=function(value)return(value==true or value==1)and "decoupled" or "control_relay" end,
-to_device=function(value)return value=="decoupled" end,
-}
-))
-end
-local function add_identify(target,commands,mapping_prefix,capability_prefix,endpoint,component,default_seconds)
-local mapping_name=mapping_prefix .. "_identify"
-append(target,zcl.cluster_attribute(CLUSTER_IDENTIFY,nil,{
-name=mapping_name,
-endpoint=endpoint,
-component=component,
-write_only=true,
-sender=identify_sender(default_seconds),
-}))
-commands[#commands + 1]={
-capability_id=CAPABILITY_NAMESPACE .. capability_prefix .. "Identify",
-command_name="identify",
-value=true,
-mapping_name=mapping_name,
-}
-end
-local function add_button_action(target,endpoint,component)
-append(target,zcl.cluster_attribute(CLUSTER_MULTISTATE_INPUT,ATTR_PRESENT_VALUE,{
-name="button_action",
-endpoint=endpoint,
-component=component,
-read_only=true,
-data_type=data_types.SinglePrecisionFloat,
-emit=button_event_emitter(),
 }))
 end
-local DIAGNOSTIC_FIELDS={
-{ATTR_DIAGNOSTIC_RESETS,"ResetsCount","resets_count",data_types.Uint16,false},
-{ATTR_DIAGNOSTIC_UPTIME,"Uptime","uptime",data_types.Uint32,true},
-{ATTR_DIAGNOSTIC_BUTTON_ONE,"ButtonClicksOne","button_clicks_one",data_types.Uint32,true},
-{ATTR_DIAGNOSTIC_BUTTON_TWO,"ButtonClicksTwo","button_clicks_two",data_types.Uint32,true},
-{ATTR_DIAGNOSTIC_BUTTON_THREE,"ButtonClicksThree","button_clicks_three",data_types.Uint32,true},
-{ATTR_DIAGNOSTIC_RELAY_ONE,"RelaySwitchesOne","relay_switches_one",data_types.Uint32,true},
-{ATTR_DIAGNOSTIC_RELAY_TWO,"RelaySwitchesTwo","relay_switches_two",data_types.Uint32,true},
-}
-local function add_shared_mappings(target,mapping_prefix,capability_prefix,endpoint,component,buttons,relays,extras)
-append(target,sber_mapping(
-ATTR_CHILD_LOCK,
-mapping_prefix .. "_child_lock",
-capability_prefix .. "ChildLock",
-data_types.Boolean,
-{
-endpoint=endpoint,
-component=component,
-from_device=bool_to_on_off,
-to_device=on_off_to_bool,
-}
-))
-append(target,custom_mapping(
-CLUSTER_BASIC,
-ATTR_SERIAL_NUMBER,
-mapping_prefix .. "_serial_number",
-capability_prefix .. "SerialNumber",
-data_types.CharString,
-{
-endpoint=endpoint,
-component=component,
-read_only=true,
-from_device=function(value)return tostring(value)end,
-}
-))
-for index,field in ipairs(DIAGNOSTIC_FIELDS)do
-local include=index <=2 or(index >=3 and index <=2 + buttons)or
-(index >=6 and index <=5 + relays)
-if include then
-append(target,custom_mapping(
-CLUSTER_DIAGNOSTICS,
-field[1],
-mapping_prefix .. "_" .. field[3],
-capability_prefix .. field[2],
-field[4],
-{
-endpoint=endpoint,
-component=component,
-read_only=true,
-mfg_code=field[5]and SBER_MFG_CODE or nil,
-}
-))
+local function bs(r,c,capability_prefix,l,j)
+m(r,t(
+p,aq,c.."_relay_mode",capability_prefix.."RelayMode",e.Boolean,{
+endpoint=l,component=j,mfg_code=g,
+from_device=function(f)return(f==true or f==1)and"decoupled"or"control_relay"end,
+to_device=function(f)return f=="decoupled"end
+}))
+end
+local function aH(r,J,c,capability_prefix,l,j,aL)
+local bN=c.."_identify"
+m(r,aN.cluster_attribute(bj,nil,{
+name=bN,endpoint=l,component=j,write_only=true,sender=bZ(aL)}))J[#J+1]={
+capability_id=K ..capability_prefix.."Identify",command_name="identify",value=true,mapping_name=bN}
+end
+local function bc(r,l,j)
+m(r,aN.cluster_attribute(R,bG,{
+name="button_action",endpoint=l,component=j,read_only=true,data_type=e.SinglePrecisionFloat,emit=bx()}))
+end
+local bQ={
+{bo,"ResetsCount","resets_count",e.Uint16,false},{bp,"Uptime","uptime",e.Uint32,true},{aZ,"ButtonClicksOne","button_clicks_one",e.Uint32,true},{ba,"ButtonClicksTwo","button_clicks_two",e.Uint32,true},{aR,"ButtonClicksThree","button_clicks_three",e.Uint32,true},{bf,"RelaySwitchesOne","relay_switches_one",e.Uint32,true},{bg,"RelaySwitchesTwo","relay_switches_two",e.Uint32,true}}
+local function V(r,c,capability_prefix,l,j,cB,cF,C)
+m(r,y(
+Y,c.."_child_lock",capability_prefix.."ChildLock",e.Boolean,{
+endpoint=l,component=j,from_device=ax,to_device=aA}))m(r,t(
+H,G,c.."_serial_number",capability_prefix.."SerialNumber",e.CharString,{
+endpoint=l,component=j,read_only=true,
+from_device=function(f)return tostring(f)end
+}))for bh,field in ipairs(bQ)do
+local cC=bh<=2 or(bh>=3 and bh<=2+cB)or
+(bh>=6 and bh<=5+cF)if cC then
+m(r,t(
+B,field[1],c.."_"..field[3],capability_prefix..field[2],field[4],{
+endpoint=l,component=j,read_only=true,mfg_code=field[5]and g or nil}))
 end
 end
-if extras then
-append(target,sber_mapping(
-ATTR_NEUTRAL_PRESENCE,
-mapping_prefix .. "_neutral_presence",
-capability_prefix .. "NeutralPresence",
-data_types.Enum8,
-{
-endpoint=endpoint,
-component=component,
-read_only=true,
-from_device=function(value)return value==1 and "YES" or "NO" end,
-}
-))
-append(target,sber_mapping(
-ATTR_POWER_PROFILE,
-mapping_prefix .. "_power_profile",
-capability_prefix .. "PowerProfile",
-data_types.Enum8,
-{
-endpoint=endpoint,
-component=component,
-from_device=function(value)
+if C then
+m(r,y(
+ag,c.."_neutral_presence",capability_prefix.."NeutralPresence",e.Enum8,{
+endpoint=l,component=j,read_only=true,
+from_device=function(f)return f==1 and"YES"or"NO"end
+}))m(r,y(
+au,c.."_power_profile",capability_prefix.."PowerProfile",e.Enum8,{
+endpoint=l,component=j,
+from_device=function(f)
 return({
-[0]="quick",[1]="af_250",[2]="af_500",[3]="af_750",
-[4]="af_1000",[5]="af_1250",[6]="af_1750",[7]="af_2000",
-[254]="af_fallback",
-})[value]
+[0]="quick",[1]="af_250",[2]="af_500",[3]="af_750",[4]="af_1000",[5]="af_1250",[6]="af_1750",[7]="af_2000",[254]="af_fallback"})[f]
 end,
-to_device=function(value)
+to_device=function(f)
 return({
-quick=0,af_250=1,af_500=2,af_750=3,
-af_1000=4,af_1250=5,af_1750=6,af_2000=7,
-af_fallback=254,
-})[value]
-end,
-}
-))
-append(target,sber_mapping(
-ATTR_LED_INDICATION_TYPE,
-mapping_prefix .. "_led_indication_type",
-capability_prefix .. "LedIndicationType",
-data_types.Enum8,
-{
-endpoint=endpoint,
-component=component,
-from_device=function(value)return({[0]="continuous",[1]="flashes"})[value]end,
-to_device=function(value)return({continuous=0,flashes=1})[value]end,
-}
-))
+quick=0,af_250=1,af_500=2,af_750=3,af_1000=4,af_1250=5,af_1750=6,af_2000=7,af_fallback=254})[f]
+end
+}))m(r,y(
+O,c.."_led_indication_type",capability_prefix.."LedIndicationType",e.Enum8,{
+endpoint=l,component=j,
+from_device=function(f)return({[0]="continuous",[1]="flashes"})[f]end,
+to_device=function(f)return({continuous=0,flashes=1})[f]end
+}))
 end
 end
-local function configure_single(model,extras)
-return function(driver,device)
-read_many(device,1,CLUSTER_ON_OFF,{ATTR_ON_OFF,ATTR_STARTUP_ON_OFF})
-read(device,1,CLUSTER_ON_OFF,ATTR_RELAY_DECOUPLE,SBER_MFG_CODE)
-read(device,1,CLUSTER_BASIC,ATTR_SERIAL_NUMBER)
-read_many(device,1,CLUSTER_SBER,{
-ATTR_LED_ON_ENABLE,ATTR_LED_ON_HUE,ATTR_LED_ON_SATURATION,ATTR_LED_ON_BRIGHTNESS,
-ATTR_LED_OFF_ENABLE,ATTR_LED_OFF_HUE,ATTR_LED_OFF_SATURATION,ATTR_LED_OFF_BRIGHTNESS,
-},SBER_MFG_CODE)
-read(device,1,CLUSTER_SBER,ATTR_ALLOW_DOUBLE_CLICK,SBER_MFG_CODE)
-read(device,1,CLUSTER_SBER,ATTR_CHILD_LOCK,SBER_MFG_CODE)
-if extras then
-read_many(device,1,CLUSTER_SBER,{
-ATTR_NEUTRAL_PRESENCE,ATTR_POWER_PROFILE,ATTR_LED_INDICATION_TYPE,
-},SBER_MFG_CODE)
+local function bT(model,C)
+return function(ap,a)
+x(a,1,p,{bq,U})aT(a,1,p,aq,g)aT(a,1,H,G)x(a,1,k,{
+Z,as,E,D,A,P,v,u},g)aT(a,1,k,W,g)aT(a,1,k,Y,g)if C then
+x(a,1,k,{
+ag,au,O},g)
 end
-bind(device,driver.environment_info.hub_zigbee_eui,1,{
-CLUSTER_ON_OFF,CLUSTER_MULTISTATE_INPUT,
-})
-bind(device,driver.environment_info.hub_zigbee_eui,1,{CLUSTER_DIAGNOSTICS})
+br(a,ap.environment_info.hub_zigbee_eui,1,{
+p,R})br(a,ap.environment_info.hub_zigbee_eui,1,{B})
 end
 end
-local function single_definition(model,profile,extras)
-local mapping_prefix="sber_" .. model
-local capability_prefix="sber" .. model
-local mappings={}
-local commands={}
-append(mappings,zcl.switch({endpoint=1,component="main",configure_reporting=false,read_on_configure=false}))
-add_allow_double_click(mappings,mapping_prefix,capability_prefix,1,"main")
-add_led_mappings(mappings,mapping_prefix,capability_prefix,1,"main",false)
-add_identify(mappings,commands,mapping_prefix,capability_prefix,1,"main",3)
-add_power_on_behavior(mappings,mapping_prefix,capability_prefix,1,"main")
-add_relay_mode(mappings,mapping_prefix,capability_prefix,1,"main")
-add_button_action(mappings,1,"main")
-add_shared_mappings(mappings,mapping_prefix,capability_prefix,1,"main",2,1,extras)
-return{
-profile=profile,
-package_group="wave14-switch",
-transport_classification="ZCL_CUSTOM_ATTRIBUTE_COMMAND",
-z2m_converter_source="sdevicesExtend + local sdevices converters",
-wire_cluster="manuSpecificSDevices(0xFCCF) and standard ZCL",
-zcl_clusters=mappings,
-capability_commands=commands,
-button_actions={"pushed","held","double"},
-placeholder_custom_states=false,
-configure=configure_single(model,extras),
-}
+local function be(model,bO,C)
+local c="sber_"..model
+local capability_prefix="sber"..model
+local d={}local J={}m(d,aN.switch{endpoint=1,component="main",configure_reporting=false,read_on_configure=false})aD(d,c,capability_prefix,1,"main")ak(d,c,capability_prefix,1,"main",false)aH(d,J,c,capability_prefix,1,"main",3)aj(d,c,capability_prefix,1,"main")bs(d,c,capability_prefix,1,"main")bc(d,1,"main")V(d,c,capability_prefix,1,"main",2,1,C)return{
+profile=bO,package_group="wave14-switch",zcl_clusters=d,capability_commands=J,button_actions={"pushed","held","double"},configure=bT(model,C)}
 end
-local function read_dynamic_branch(device,cover_enabled,extras)
-local endpoint=cover_enabled and 3 or 1
-if cover_enabled then
-read(device,3,CLUSTER_BASIC,ATTR_SERIAL_NUMBER)
-read_many(device,3,CLUSTER_WINDOW_COVERING,{
-ATTR_CURRENT_POSITION,ATTR_WINDOW_COVERING_MODE,
-})
-read_many(device,3,CLUSTER_WINDOW_COVERING,{
-ATTR_CALIBRATION_TIME,ATTR_BUTTONS_MODE,ATTR_MOTOR_TIMEOUT,
-},SBER_MFG_CODE)
-read_many(device,3,CLUSTER_SBER,{
-ATTR_LED_OFF_ENABLE,ATTR_LED_OFF_HUE,ATTR_LED_OFF_SATURATION,ATTR_LED_OFF_BRIGHTNESS,
-},SBER_MFG_CODE)
-read(device,3,CLUSTER_SBER,ATTR_CHILD_LOCK,SBER_MFG_CODE)
-else
-read(device,1,CLUSTER_BASIC,ATTR_SERIAL_NUMBER)
-for switch_endpoint=1,2 do
-read_many(device,switch_endpoint,CLUSTER_ON_OFF,{ATTR_ON_OFF,ATTR_STARTUP_ON_OFF})
-read(device,switch_endpoint,CLUSTER_ON_OFF,ATTR_RELAY_DECOUPLE,SBER_MFG_CODE)
-read_many(device,switch_endpoint,CLUSTER_SBER,{
-ATTR_ALLOW_DOUBLE_CLICK,
-ATTR_LED_ON_ENABLE,ATTR_LED_ON_HUE,ATTR_LED_ON_SATURATION,ATTR_LED_ON_BRIGHTNESS,
-ATTR_LED_OFF_ENABLE,ATTR_LED_OFF_HUE,ATTR_LED_OFF_SATURATION,ATTR_LED_OFF_BRIGHTNESS,
-},SBER_MFG_CODE)
+local function ar(a,i,C)
+local l=i and 3 or 1
+if i then
+aT(a,3,H,G)x(a,3,h,{
+ae,at})x(a,3,h,{
+aF,bb,aU},g)x(a,3,k,{
+A,P,v,u},g)aT(a,3,k,Y,g)else
+aT(a,1,H,G)for ad=1,2 do
+x(a,ad,p,{bq,U})aT(a,ad,p,aq,g)x(a,ad,k,{
+W,Z,as,E,D,A,P,v,u},g)
 end
-read(device,1,CLUSTER_SBER,ATTR_CHILD_LOCK,SBER_MFG_CODE)
+aT(a,1,k,Y,g)
 end
-if extras then
-read_many(device,endpoint,CLUSTER_SBER,{
-ATTR_NEUTRAL_PRESENCE,ATTR_POWER_PROFILE,ATTR_LED_INDICATION_TYPE,
-},SBER_MFG_CODE)
+if C then
+x(a,l,k,{
+ag,au,O},g)
 end
 end
-local function bind_dynamic_branch(device,hub_eui,cover_enabled)
-if hub_eui==nil then return end
-if cover_enabled then
-bind(device,hub_eui,3,{CLUSTER_WINDOW_COVERING})
-bind(device,hub_eui,3,{CLUSTER_SBER})
-bind(device,hub_eui,3,{CLUSTER_DIAGNOSTICS})
-return
+local function bD(a,q,i)
+if q==nil then return end
+if i then
+br(a,q,3,{h})br(a,q,3,{k})br(a,q,3,{B})return
 end
-for switch_endpoint=1,2 do
-bind(device,hub_eui,switch_endpoint,{CLUSTER_ON_OFF,CLUSTER_MULTISTATE_INPUT})
+for ad=1,2 do
+br(a,q,ad,{p,R})
 end
-bind(device,hub_eui,1,{CLUSTER_SBER})
-bind(device,hub_eui,1,{CLUSTER_DIAGNOSTICS})
+br(a,q,1,{k})br(a,q,1,{B})
 end
-local function configure_dynamic_branch(device,hub_eui,cover_enabled,extras)
-read_dynamic_branch(device,cover_enabled,extras)
-bind_dynamic_branch(device,hub_eui,cover_enabled)
+local function T(a,q,i,C)
+ar(a,i,C)bD(a,q,i)
 end
-local function dynamic_definition(model,profile,extras)
-local mapping_prefix="sber_" .. model
-local capability_prefix="sber" .. model
-local switch_profile=profile
-local cover_profile=profile .. "-cover"
-local mode_field="__wave14_sber_" .. model .. "_cover_enabled"
-local pending_field="__wave14_sber_" .. model .. "_mode_pending"
-local timer_field="__wave14_sber_" .. model .. "_mode_timer"
-local hub_field="__wave14_sber_" .. model .. "_hub_eui"
-local probe_action_field="__wave14_sber_" .. model .. "_probe_action"
-local profile_reconfigure_field="__wave14_sber_" .. model .. "_profile_reconfigure"
-local mappings={}
-local commands={}
-local function branch_allowed(device,cover_enabled)
-local active_profile=cover_enabled and cover_profile or switch_profile
-return device:get_field(pending_field)~=true and
-device:get_field(mode_field)==cover_enabled and
-device.profile ~=nil and device.profile.id==active_profile
+local function aV(model,bO,C)
+local c="sber_"..model
+local capability_prefix="sber"..model
+local aB=bO
+local ao=bO .."-cover"
+local aa="__wave14_sber_"..model.."_cover_enabled"
+local s="__wave14_sber_"..model.."_mode_pending"
+local aE="__wave14_sber_"..model.."_mode_timer"
+local aX="__wave14_sber_"..model.."_hub_eui"
+local ab="__wave14_sber_"..model.."_probe_action"
+local M="__wave14_sber_"..model.."_profile_reconfigure"
+local d={}local J={}
+local function ac(a,i)
+local am=a.profile and a.profile.components
+if type(am)~="table"or am.main==nil then return false end
+for cc in pairs(am)do
+if cc~="main"and cc~=(i and"cover"or"switch2")then return false end
 end
-local function apply_mode_profile(device,cover_enabled,force,suppress_reconfigure)
-local wanted=cover_enabled and cover_profile or switch_profile
-local current=device.profile and device.profile.id or nil
-if force or current ~=wanted then
-if suppress_reconfigure then
-device:set_field(profile_reconfigure_field,wanted)
+local aw=a.supports_capability_by_id
+if i then
+return am.cover~=nil and am.switch2==nil and
+aw(a,"refresh","main")and aw(a,"windowShade","cover")and
+aw(a,"windowShadeLevel","cover")and
+aw(a,K ..capability_prefix.."CoverMode","cover")
 end
-device:try_update_metadata({profile=wanted})
-return true
+return am.switch2~=nil and am.cover==nil and
+aw(a,"switch","main")and aw(a,"switch","switch2")and
+aw(a,K ..capability_prefix.."OneRelayMode","main")and
+aw(a,K ..capability_prefix.."TwoRelayMode","switch2")
+end
+local function ay(a,i)
+return a:get_field(s)~=true and
+a:get_field(aa)==i and
+ac(a,i)
+end
+local function av(a,i,cH,bz)
+local cq=i and ao or aB
+if cH or not ac(a,i)then
+if bz then
+a:set_field(M,cq)
+end
+a:try_update_metadata{profile=cq}return true
 end
 return false
 end
-local function cancel_mode_timer(device)
-local timer=device:get_field(timer_field)
-if timer ~=nil and device.thread ~=nil and type(device.thread.cancel_timer)=="function" then
-device.thread:cancel_timer(timer)
+local function bd(a)
+local bP=a:get_field(aE)
+if bP~=nil and a.thread~=nil and type(a.thread.cancel_timer)=="function"then
+a.thread:cancel_timer(bP)
 end
-device:set_field(timer_field,nil)
+a:set_field(aE,nil)
 end
-local switch_mapping_start=#mappings + 1
-for channel=1,2 do
-local word=channel==1 and "One" or "Two"
-local component=channel==1 and "main" or "switch2"
-local ep_prefix=mapping_prefix .. "_" .. string.lower(word)
-local cap_prefix=capability_prefix .. word
-append(mappings,zcl.switch({endpoint=channel,component=component,configure_reporting=false,read_on_configure=false}))
-add_power_on_behavior(mappings,ep_prefix,cap_prefix,channel,component)
-add_relay_mode(mappings,ep_prefix,cap_prefix,channel,component)
-add_allow_double_click(mappings,ep_prefix,cap_prefix,channel,component)
-add_identify(mappings,commands,ep_prefix,cap_prefix,channel,component,30)
-add_led_mappings(mappings,ep_prefix,cap_prefix,channel,component,false)
-add_button_action(mappings,channel,component)
+local bA=#d+1
+for az=1,2 do
+local word=az==1 and"One"or"Two"
+local j=az==1 and"main"or"switch2"
+local aW=c.."_"..string.lower(word)local aI=capability_prefix..word
+m(d,aN.switch{endpoint=az,component=j,configure_reporting=false,read_on_configure=false})aj(d,aW,aI,az,j)bs(d,aW,aI,az,j)aD(d,aW,aI,az,j)aH(d,J,aW,aI,az,j,30)ak(d,aW,aI,az,j,false)bc(d,az,j)
 end
-guard_dynamic_mappings(
-mappings,
-switch_mapping_start,
-#mappings,
-"switch",
-function(device)return branch_allowed(device,false)end
+F(
+d,bA,#d,"switch",
+function(a)return ay(a,false)end
+)local bE=#d+1
+m(d,aN.cluster_attribute(h,ae,{
+name="cover_position",endpoint=3,component="cover",data_type=e.Uint8,
+from_device=function(f)return 100-f end,
+emit=bV.shade_level(),sender=bt}))m(d,aN.cluster_attribute(h,ae,{
+name=c.."_cover_state_rx",endpoint=3,component="cover",read_only=true,data_type=e.Uint8,
+from_device=function(f)return f==100 and"closed"or"open"end,
+emit=bV.shade_state()}))m(d,aN.cluster_attribute(h,nil,{
+name="cover_state",endpoint=3,component="cover",write_only=true,sender=bL}))m(d,t(
+h,at,c.."_cover_mode",capability_prefix.."CoverMode",e.Bitmap8,{
+endpoint=3,component="cover",sender=z,
+from_device=function(f)return f%2==1 and"reversed"or"normal"end,
+to_device=function(f)return f=="reversed"and 1 or 0 end
+}))m(d,t(
+h,aF,c.."_calibration_time",capability_prefix.."CalibrationTime",e.Uint16,{
+endpoint=3,component="cover",mfg_code=g,sender=z,
+from_device=function(f)return f*0.1 end,
+to_device=function(f)return f*10 end,
+numeric_range={minimum=0,maximum=3600,step=0.1,unit="s"}}))m(d,t(
+h,aU,c.."_motor_timeout",capability_prefix.."MotorTimeout",e.Uint16,{
+endpoint=3,component="cover",mfg_code=g,sender=z,numeric_range={minimum=0,maximum=3600,step=1,unit="s"}}))m(d,t(
+h,bb,c.."_buttons_mode",capability_prefix.."ButtonsMode",e.Enum8,{
+endpoint=3,component="cover",mfg_code=g,sender=z,
+from_device=function(f)return f==1 and"inverted"or"normal"end,
+to_device=function(f)return f=="inverted"and 1 or 0 end
+}))aH(d,J,c.."_cover",capability_prefix.."Cover",3,"cover",30)ak(d,c.."_cover",capability_prefix.."Cover",3,"cover",true)F(
+d,bE,#d,"cover",
+function(a)return ay(a,true)end
+)local bF=#d+1
+V(d,c,capability_prefix,1,"main",3,2,C)F(
+d,bF,#d,"switch",
+function(a)return ay(a,false)end
+)local bK=#d+1
+V(d,c,capability_prefix,3,"cover",3,2,C)F(
+d,bK,#d,"cover",
+function(a)return ay(a,true)end
 )
-local cover_mapping_start=#mappings + 1
-append(mappings,zcl.cluster_attribute(CLUSTER_WINDOW_COVERING,ATTR_CURRENT_POSITION,{
-name="cover_position",
-endpoint=3,
-component="cover",
-data_type=data_types.Uint8,
-from_device=function(value)return 100 - value end,
-emit=emit.shade_level(),
-sender=cover_position_sender,
-}))
-append(mappings,zcl.cluster_attribute(CLUSTER_WINDOW_COVERING,ATTR_CURRENT_POSITION,{
-name=mapping_prefix .. "_cover_state_rx",
-endpoint=3,
-component="cover",
-read_only=true,
-data_type=data_types.Uint8,
-from_device=function(value)return value==100 and "closed" or "open" end,
-emit=emit.shade_state(),
-}))
-append(mappings,zcl.cluster_attribute(CLUSTER_WINDOW_COVERING,nil,{
-name="cover_state",
-endpoint=3,
-component="cover",
-write_only=true,
-sender=cover_state_sender,
-}))
-append(mappings,custom_mapping(
-CLUSTER_WINDOW_COVERING,
-ATTR_WINDOW_COVERING_MODE,
-mapping_prefix .. "_cover_mode",
-capability_prefix .. "CoverMode",
-data_types.Bitmap8,
-{
-endpoint=3,
-component="cover",
-sender=window_attribute_sender,
-from_device=function(value)return value % 2==1 and "reversed" or "normal" end,
-to_device=function(value)return value=="reversed" and 1 or 0 end,
-}
-))
-append(mappings,custom_mapping(
-CLUSTER_WINDOW_COVERING,
-ATTR_CALIBRATION_TIME,
-mapping_prefix .. "_calibration_time",
-capability_prefix .. "CalibrationTime",
-data_types.Uint16,
-{
-endpoint=3,
-component="cover",
-mfg_code=SBER_MFG_CODE,
-sender=window_attribute_sender,
-from_device=function(value)return value * 0.1 end,
-to_device=function(value)return value * 10 end,
-numeric_range={minimum=0,maximum=3600,step=0.1,unit="s"},
-}
-))
-append(mappings,custom_mapping(
-CLUSTER_WINDOW_COVERING,
-ATTR_MOTOR_TIMEOUT,
-mapping_prefix .. "_motor_timeout",
-capability_prefix .. "MotorTimeout",
-data_types.Uint16,
-{
-endpoint=3,
-component="cover",
-mfg_code=SBER_MFG_CODE,
-sender=window_attribute_sender,
-numeric_range={minimum=0,maximum=3600,step=1,unit="s"},
-}
-))
-append(mappings,custom_mapping(
-CLUSTER_WINDOW_COVERING,
-ATTR_BUTTONS_MODE,
-mapping_prefix .. "_buttons_mode",
-capability_prefix .. "ButtonsMode",
-data_types.Enum8,
-{
-endpoint=3,
-component="cover",
-mfg_code=SBER_MFG_CODE,
-sender=window_attribute_sender,
-from_device=function(value)return value==1 and "inverted" or "normal" end,
-to_device=function(value)return value=="inverted" and 1 or 0 end,
-}
-))
-add_identify(mappings,commands,mapping_prefix .. "_cover",capability_prefix .. "Cover",3,"cover",30)
-add_led_mappings(mappings,mapping_prefix .. "_cover",capability_prefix .. "Cover",3,"cover",true)
-guard_dynamic_mappings(
-mappings,
-cover_mapping_start,
-#mappings,
-"cover",
-function(device)return branch_allowed(device,true)end
-)
-local switch_shared_start=#mappings + 1
-add_shared_mappings(mappings,mapping_prefix,capability_prefix,1,"main",3,2,extras)
-guard_dynamic_mappings(
-mappings,
-switch_shared_start,
-#mappings,
-"switch",
-function(device)return branch_allowed(device,false)end
-)
-local cover_shared_start=#mappings + 1
-add_shared_mappings(mappings,mapping_prefix,capability_prefix,3,"cover",3,2,extras)
-guard_dynamic_mappings(
-mappings,
-cover_shared_start,
-#mappings,
-"cover",
-function(device)return branch_allowed(device,true)end
-)
-local function mode_handler(device,value)
-local previous_mode=device:get_field(mode_field)
-local action=device:get_field(probe_action_field)or "configure"
-local cover_enabled=value==true or value==1
-device:set_field(mode_field,cover_enabled,{persist=true})
-device:set_field(probe_action_field,nil)
-cancel_mode_timer(device)
-local profile_changed=apply_mode_profile(device,cover_enabled,false,true)
-if profile_changed then
-device:set_field(pending_field,true)
-return
+local function ci(a,f)
+local cf=a:get_field(aa)local bk=a:get_field(ab)or"configure"
+local i=f==true or f==1
+a:set_field(aa,i,{persist=true})a:set_field(ab,nil)bd(a)local aM=av(a,i,false,true)if aM then
+a:set_field(s,true)return
 end
-device:set_field(pending_field,false)
-if action=="refresh" and previous_mode==cover_enabled then
-read_dynamic_branch(device,cover_enabled,extras)
-else
-configure_dynamic_branch(device,device:get_field(hub_field),cover_enabled,extras)
+a:set_field(s,false)if bk=="refresh"and cf==i then
+ar(a,i,C)else
+T(a,a:get_field(aX),i,C)
 end
 end
-append(mappings,zcl.cluster_attribute(CLUSTER_BASIC,ATTR_DEVICE_ENABLED,{
-name=mapping_prefix .. "_window_covering_enabled",
-endpoint=3,
-component="cover",
-read_only=true,
-data_type=data_types.Boolean,
-handler=mode_handler,
-}))
-local function probe_dynamic_mode(device,hub_eui,action)
-if hub_eui ~=nil then device:set_field(hub_field,hub_eui)end
-device:set_field(pending_field,true)
-device:set_field(probe_action_field,action)
-cancel_mode_timer(device)
-read(device,3,CLUSTER_BASIC,ATTR_DEVICE_ENABLED)
-if device.thread ~=nil and type(device.thread.call_with_delay)=="function" then
-local timer
-timer=device.thread:call_with_delay(3,function()
-if device:get_field(pending_field)==true and device:get_field(timer_field)==timer then
-local retained_mode=device:get_field(mode_field)
-if type(retained_mode)~="boolean" then
-retained_mode=false
-device:set_field(mode_field,retained_mode,{persist=true})
+m(d,aN.cluster_attribute(H,aO,{
+name=c.."_window_covering_enabled",endpoint=3,component="cover",read_only=true,data_type=e.Boolean,handler=ci}))
+local function aY(a,q,bk)
+if q~=nil then a:set_field(aX,q)end
+a:set_field(s,true)a:set_field(ab,bk)bd(a)aT(a,3,H,aO)
+if a.thread~=nil and type(a.thread.call_with_delay)=="function"then
+local bP
+bP=a.thread:call_with_delay(3,function()
+if a:get_field(s)==true and a:get_field(aE)==bP then
+local X=a:get_field(aa)if type(X)~="boolean"then
+X=false
+a:set_field(aa,X,{persist=true})
 end
-device:set_field(timer_field,nil)
-device:set_field(probe_action_field,nil)
-local profile_changed=apply_mode_profile(device,retained_mode,false,true)
-if profile_changed then
-device:set_field(pending_field,true)
-return
+a:set_field(aE,nil)a:set_field(ab,nil)local aM=av(a,X,false,true)if aM then
+a:set_field(s,true)return
 end
-device:set_field(pending_field,false)
-if action=="refresh" then
-read_dynamic_branch(device,retained_mode,extras)
-else
-configure_dynamic_branch(device,hub_eui,retained_mode,extras)
+a:set_field(s,false)if bk=="refresh"then
+ar(a,X,C)else
+T(a,q,X,C)
 end
 end
-end,"wave14 Sber mode fallback " .. model)
-device:set_field(timer_field,timer)
+end,"wave14 Sber mode fallback "..model)
+a:set_field(aE,bP)
 end
 end
-local function configure(driver,device)
-local expected_profile=device:get_field(profile_reconfigure_field)
-if expected_profile ~=nil and device.profile ~=nil and device.profile.id==expected_profile then
-device:set_field(profile_reconfigure_field,nil)
-local selected_mode=device:get_field(mode_field)
-if type(selected_mode)=="boolean" then
-device:set_field(pending_field,false)
-local hub_eui=driver.environment_info.hub_zigbee_eui
-if hub_eui ~=nil then device:set_field(hub_field,hub_eui)end
-configure_dynamic_branch(device,hub_eui or device:get_field(hub_field),selected_mode,extras)
+local function bI(ap,a)
+local expected_profile=a:get_field(M)if expected_profile~=nil and ac(a,expected_profile==ao)then
+a:set_field(M,nil)local bC=a:get_field(aa)if type(bC)=="boolean"then
+a:set_field(s,false)local q=ap.environment_info.hub_zigbee_eui
+if q~=nil then a:set_field(aX,q)end
+T(a,q or a:get_field(aX),bC,C)
 end
 return
 end
-probe_dynamic_mode(device,driver.environment_info.hub_zigbee_eui,"configure")
+aY(a,ap.environment_info.hub_zigbee_eui,"configure")
 end
-local function parent_refresh(device,_,driver)
-local hub_eui=driver ~=nil and driver.environment_info ~=nil and
-driver.environment_info.hub_zigbee_eui or device:get_field(hub_field)
-probe_dynamic_mode(device,hub_eui,"refresh")
+local function cd(a,_,ap)
+local q=ap~=nil and ap.environment_info~=nil and
+ap.environment_info.hub_zigbee_eui or a:get_field(aX)aY(a,q,"refresh")
 end
-local function runtime_start(device)
-local persisted_mode=device:get_field(mode_field)
-if type(persisted_mode)=="boolean" then
-if apply_mode_profile(device,persisted_mode,false,true)then
-device:set_field(pending_field,true)
+local function cg(a)
+local bv=a:get_field(aa)if type(bv)=="boolean"then
+if av(a,bv,false,true)then
+a:set_field(s,true)
 end
 end
 end
 return{
-profile=switch_profile,
-auxiliary_profiles={cover_profile},
-sber_switch_profile=switch_profile,
-sber_cover_profile=cover_profile,
-sber_mode_field=mode_field,
-sber_pending_field=pending_field,
-valid_parent_profiles={[switch_profile]=true,[cover_profile]=true},
-package_group="wave14-switch",
-transport_classification="ZCL_DYNAMIC_SWITCH_OR_COVER",
-z2m_converter_source="local sdevices fz/tz + dynamic exposes(device.meta.window_covering_enabled)",
-wire_cluster="standard ZCL + Sber 0xFCCF/0x152F",
-zcl_clusters=mappings,
-capability_commands=commands,
-button_actions={"pushed","held","double"},
-component_to_endpoint_map={main=1,switch2=2,cover=3},
-endpoint_to_component_map={[1]="main",[2]="switch2",[3]="cover"},
-placeholder_custom_states=false,
-runtime_start=runtime_start,
-configure=configure,
-parent_refresh=parent_refresh,
-}
+profile=aB,auxiliary_profiles={ao},sber_switch_profile=aB,sber_cover_profile=ao,sber_mode_field=aa,sber_pending_field=s,valid_parent_profiles={[aB]=true,[ao]=true},
+parent_profile_matches=function(a)
+return ac(a,false)or ac(a,true)
+end,
+package_group="wave14-switch",zcl_clusters=d,capability_commands=J,button_actions={"pushed","held","double"},component_to_endpoint_map={main=1,switch2=2,cover=3},endpoint_to_component_map={[1]="main",[2]="switch2",[3]="cover"},runtime_start=cg,configure=bI,parent_refresh=cd}
 end
-local function socket_definition()
-local mapping_prefix="sber_202"
+local function bS()
+local c="sber_202"
 local capability_prefix="sber202"
-local mappings={}
-local commands={}
-append(mappings,zcl.switch({endpoint=1,component="main",configure_reporting=false,read_on_configure=false}))
-add_identify(mappings,commands,mapping_prefix,capability_prefix,1,"main",3)
-add_power_on_behavior(mappings,mapping_prefix,capability_prefix,1,"main")
-add_shared_mappings(mappings,mapping_prefix,capability_prefix,1,"main",1,1,false)
-add_led_mappings(mappings,mapping_prefix,capability_prefix,1,"main",false)
-for _,item in ipairs({
-{"EmergencyOvervoltage","emergency_overvoltage",0x01},
-{"EmergencyUndervoltage","emergency_undervoltage",0x02},
-{"EmergencyOvercurrent","emergency_overcurrent",0x04},
-{"EmergencyOverheat","emergency_overheat",0x08},
-})do
-append(mappings,sber_mapping(
-ATTR_EMERGENCY_STATE,
-mapping_prefix .. "_" .. item[2],
-capability_prefix .. item[1],
-data_types.Bitmap16,
-{
-endpoint=1,
-component="main",
-read_only=true,
-from_device=function(value)return bit32.band(value,item[3])~=0 and "active" or "clear" end,
-}
-))
+local d={}local J={}m(d,aN.switch{endpoint=1,component="main",configure_reporting=false,read_on_configure=false})aH(d,J,c,capability_prefix,1,"main",3)aj(d,c,capability_prefix,1,"main")V(d,c,capability_prefix,1,"main",1,1,false)ak(d,c,capability_prefix,1,"main",false)for _,item in ipairs{
+{"EmergencyOvervoltage","emergency_overvoltage",1},{"EmergencyUndervoltage","emergency_undervoltage",2},{"EmergencyOvercurrent","emergency_overcurrent",4},{"EmergencyOverheat","emergency_overheat",8}}do
+m(d,y(
+bw,c.."_"..item[2],capability_prefix..item[1],e.Bitmap16,{
+endpoint=1,component="main",read_only=true,
+from_device=function(f)return bit32.band(f,item[3])~=0 and"active"or"clear"end
+}))
 end
-append(mappings,zcl.cluster_attribute(
-CLUSTER_DEVICE_TEMPERATURE,
-0x0000,
-{
-name="device_temperature",
-endpoint=1,
-component="main",
-read_only=true,
-data_type=data_types.Int16,
-emit=emit.temperature("C"),
-}
-))
-append(mappings,zcl.cluster_attribute(CLUSTER_SBER,ATTR_RMS_VOLTAGE_MV,{
-name="voltage",endpoint=1,component="main",read_only=true,
-mfg_code=SBER_MFG_CODE,data_type=data_types.Uint32,
-from_device=function(value)return value * 0.001 end,emit=emit.voltage(),
-}))
-append(mappings,zcl.cluster_attribute(CLUSTER_SBER,ATTR_RMS_CURRENT_MA,{
-name="current",endpoint=1,component="main",read_only=true,
-mfg_code=SBER_MFG_CODE,data_type=data_types.Uint32,
-from_device=function(value)return value * 0.001 end,emit=emit.current(),
-}))
-append(mappings,zcl.cluster_attribute(CLUSTER_SBER,ATTR_ACTIVE_POWER_MW,{
-name="power",endpoint=1,component="main",read_only=true,
-mfg_code=SBER_MFG_CODE,data_type=data_types.Int32,
-from_device=function(value)return value * 0.001 end,emit=emit.power(),
-}))
-append(mappings,sber_mapping(
-ATTR_EMERGENCY_RECOVERY,
-mapping_prefix .. "_emergency_recovery",
-capability_prefix .. "EmergencyRecovery",
-data_types.Bitmap16,
-{
+m(d,aN.cluster_attribute(
+I,0,{
+name="device_temperature",endpoint=1,component="main",read_only=true,data_type=e.Int16,emit=bV.temperature"C"}))m(d,aN.cluster_attribute(k,aQ,{
+name="voltage",endpoint=1,component="main",read_only=true,mfg_code=g,data_type=e.Uint32,
+from_device=function(f)return f*0.001 end,emit=bV.voltage()
+}))m(d,aN.cluster_attribute(k,aP,{
+name="current",endpoint=1,component="main",read_only=true,mfg_code=g,data_type=e.Uint32,
+from_device=function(f)return f*0.001 end,emit=bV.current()
+}))m(d,aN.cluster_attribute(k,aG,{
+name="power",endpoint=1,component="main",read_only=true,mfg_code=g,data_type=e.Int32,
+from_device=function(f)return f*0.001 end,emit=bV.power()
+}))m(d,y(
+aC,c.."_emergency_recovery",capability_prefix.."EmergencyRecovery",e.Bitmap16,{
 endpoint=1,component="main",
-from_device=function(value)return({[0]="disabled",[1]="voltage_is_good"})[value]end,
-to_device=function(value)return({disabled=0,voltage_is_good=1})[value]end,
-}
-))
-local thresholds={
-{ATTR_UPPER_VOLTAGE_THRESHOLD,"UpperVoltageThreshold","upper_voltage_threshold",data_types.Uint32,230000,260000,1000,"mV"},
-{ATTR_LOWER_VOLTAGE_THRESHOLD,"LowerVoltageThreshold","lower_voltage_threshold",data_types.Uint32,100000,230000,1000,"mV"},
-{ATTR_UPPER_CURRENT_THRESHOLD,"UpperCurrentThreshold","upper_current_threshold",data_types.Uint32,100,16000,100,"mA"},
-{ATTR_UPPER_TEMPERATURE_THRESHOLD,"TemperatureThreshold","temperature_threshold",data_types.Int16,-200,200,1,"°C"},
-}
-for _,field in ipairs(thresholds)do
-append(mappings,sber_mapping(
-field[1],mapping_prefix .. "_" .. field[3],capability_prefix .. field[2],field[4],
-{
-endpoint=1,component="main",
-numeric_range={minimum=field[5],maximum=field[6],step=field[7],unit=field[8]},
-}
-))
+from_device=function(f)return({[0]="disabled",[1]="voltage_is_good"})[f]end,
+to_device=function(f)return({disabled=0,voltage_is_good=1})[f]end
+}))local co={
+{ai,"UpperVoltageThreshold","upper_voltage_threshold",e.Uint32,230000,260000,1000,"mV"},{af,"LowerVoltageThreshold","lower_voltage_threshold",e.Uint32,100000,230000,1000,"mV"},{ah,"UpperCurrentThreshold","upper_current_threshold",e.Uint32,100,16000,100,"mA"},{Q,"TemperatureThreshold","temperature_threshold",e.Int16,-200,200,1,"°C"}}for _,field in ipairs(co)do
+m(d,y(
+field[1],c.."_"..field[3],capability_prefix..field[2],field[4],{
+endpoint=1,component="main",numeric_range={minimum=field[5],maximum=field[6],step=field[7],unit=field[8]}}))
 end
-local function configure(driver,device)
-read(device,1,CLUSTER_BASIC,ATTR_SERIAL_NUMBER)
-read(device,1,CLUSTER_DEVICE_TEMPERATURE,0x0000)
-read_many(device,1,CLUSTER_ON_OFF,{ATTR_ON_OFF,ATTR_STARTUP_ON_OFF})
-read_many(device,1,CLUSTER_SBER,{
-ATTR_CHILD_LOCK,ATTR_EMERGENCY_RECOVERY,
-ATTR_RMS_VOLTAGE_MV,ATTR_RMS_CURRENT_MA,ATTR_ACTIVE_POWER_MW,
-},SBER_MFG_CODE)
-read_many(device,1,CLUSTER_SBER,{
-ATTR_LED_ON_ENABLE,ATTR_LED_ON_HUE,ATTR_LED_ON_SATURATION,ATTR_LED_ON_BRIGHTNESS,
-ATTR_LED_OFF_ENABLE,ATTR_LED_OFF_HUE,ATTR_LED_OFF_SATURATION,ATTR_LED_OFF_BRIGHTNESS,
-},SBER_MFG_CODE)
-read_many(device,1,CLUSTER_SBER,{
-ATTR_UPPER_VOLTAGE_THRESHOLD,ATTR_LOWER_VOLTAGE_THRESHOLD,
-ATTR_UPPER_CURRENT_THRESHOLD,ATTR_UPPER_TEMPERATURE_THRESHOLD,
-},SBER_MFG_CODE)
-bind(device,driver.environment_info.hub_zigbee_eui,1,{
-CLUSTER_ON_OFF,CLUSTER_DEVICE_TEMPERATURE,CLUSTER_SBER,
-})
-bind(device,driver.environment_info.hub_zigbee_eui,1,{CLUSTER_DIAGNOSTICS})
+local function bI(ap,a)
+aT(a,1,H,G)aT(a,1,I,0)x(a,1,p,{bq,U})x(a,1,k,{
+Y,aC,aQ,aP,aG},g)x(a,1,k,{
+Z,as,E,D,A,P,v,u},g)x(a,1,k,{
+ai,af,ah,Q},g)br(a,ap.environment_info.hub_zigbee_eui,1,{
+p,I,k})br(a,ap.environment_info.hub_zigbee_eui,1,{B})
 end
 return{
-profile="switches-wave14-sber-sbdv-00202",
-package_group="wave14-switch",
-transport_classification="ZCL_CUSTOM_ATTRIBUTE_COMMAND",
-z2m_converter_source="sdevices.fz.emergency_shutoff_state + sdevicesExtend",
-wire_cluster="standard ZCL + Sber 0xFCCF/0x152F",
-zcl_clusters=mappings,
-capability_commands=commands,
-placeholder_custom_states=false,
-configure=configure,
-}
+profile="switches-wave14-sber-sbdv-00202",package_group="wave14-switch",zcl_clusters=d,capability_commands=J,configure=bI}
 end
-local sber_196=single_definition("196","switches-wave14-sber-sbdv-00196",false)
-local sber_197=single_definition("197","switches-wave14-sber-sbdv-00197",true)
-local sber_199=dynamic_definition("199","switches-wave14-sber-sbdv-00199",false)
-local sber_200=dynamic_definition("200","switches-wave14-sber-sbdv-00200",true)
-local sber_202=socket_definition()
-register_device_definition(sber_196,{device_helpers.create_fingerprint("SDevices","SBDV-00196")})
-register_device_definition(sber_197,{device_helpers.create_fingerprint("SDevices","SBDV-00197")})
-register_device_definition(sber_199,{device_helpers.create_fingerprint("SDevices","SBDV-00199")})
-register_device_definition(sber_200,{device_helpers.create_fingerprint("SDevices","SBDV-00200")})
-register_device_definition(sber_202,{device_helpers.create_fingerprint("SDevices","SBDV-00202")})
-return{
-id="wave14.sber.zcl_switches",
-registrations=device_definitions,
-}
+local cu=be("196","switches-wave14-sber-sbdv-00196",false)local cv=be("197","switches-wave14-sber-sbdv-00197",true)local cw=aV("199","switches-wave14-sber-sbdv-00199",false)local cx=aV("200","switches-wave14-sber-sbdv-00200",true)local cy=bS()o(cu,{N.create_fingerprint("SDevices","SBDV-00196")})o(cv,{N.create_fingerprint("SDevices","SBDV-00197")})o(cw,{N.create_fingerprint("SDevices","SBDV-00199")})o(cx,{N.create_fingerprint("SDevices","SBDV-00200")})o(cy,{N.create_fingerprint("SDevices","SBDV-00202")})return{
+id="wave14.sber.zcl_switches",registrations=bM}

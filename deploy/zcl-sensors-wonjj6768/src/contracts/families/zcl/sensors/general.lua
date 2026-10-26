@@ -1,285 +1,124 @@
-local zcl=require "protocol.zcl"
-local device_helpers=require "contracts.helpers.family"
-local emit=require "capabilities.events.all"
-local types=require "st.zigbee.data_types"
-local device_management=require "st.zigbee.device_management"
-local device_definitions,register_device_definition=device_helpers.definition_registry()
-local function build_temp_humidity_clusters(options)
-options=options or{}
-local humidity_scale=options.humidity_scale
-local profile=options.profile
-local clusters={
-zcl.temperature(),
-humidity_scale ~=nil and humidity_scale ~=100 and
-zcl.humidity({scale=humidity_scale})or
-zcl.humidity(),
-zcl.battery(),
-}
-if options.battery_voltage then
-clusters[#clusters + 1]=zcl.battery_voltage()
+local s=require"protocol.zcl"
+local d=require"contracts.helpers.family"
+local v=require"capabilities.events.all"
+local B=require"st.zigbee.data_types"
+local p=require"st.zigbee.device_management"
+local l,b=d.definition_registry()
+local function a(g)
+g=g or{}local k=g.humidity_scale
+local E=g.profile
+local i={
+s.temperature(),k~=nil and k~=100 and
+s.humidity{scale=k}or
+s.humidity(),s.battery()}if g.battery_voltage then
+i[#i+1]=s.battery_voltage()
 end
-if options.illuminance then
-clusters[#clusters + 1]=zcl.illuminance()
+if g.illuminance then
+i[#i+1]=s.illuminance()
 end
-if options.tuya_magic then
-table.insert(clusters,1,zcl.tuya_magic_packet())
+if g.tuya_magic then
+table.insert(i,1,s.tuya_magic_packet())
 end
 return{
-profile=profile,
-zcl_clusters=clusters,
-}
+profile=E,zcl_clusters=i}
 end
-local function build_illuminance_battery_clusters(options)
-options=options or{}
-local clusters={
-zcl.illuminance(),
-zcl.battery(),
-}
-if options.tuya_magic then
-table.insert(clusters,1,zcl.tuya_magic_packet())
+local function j(g)
+g=g or{}local i={
+s.illuminance(),s.battery()}if g.tuya_magic then
+table.insert(i,1,s.tuya_magic_packet())
 end
 return{
-profile=options.profile,
-zcl_clusters=clusters,
-}
+profile=g.profile,zcl_clusters=i}
 end
-local temp_humidity_battery_profile="sensors-temp-humidity-battery"
-local temp_humidity_battery_voltage_profile="sensors-temp-humidity-battery-voltage"
-local illuminance_temp_humidity_battery_profile="sensors-illuminance-temp-humidity-battery"
-local illuminance_battery_profile="sensors-illuminance-battery"
-local function lcd_attribute(name,attribute,datatype,emitter,values)
-local encoded={}
-for raw,value in pairs(values or{})do encoded[value]=raw end
-return zcl.cluster_attribute(0xE002,attribute,{
-name=name,endpoint=1,data_type=datatype,write_type=datatype,
-read_on_configure=false,emit=emitter,
-from_device=function(value)
-if type(value)=="table" then value=value.value end
-if values then return values[value]end
-return value
+local h="sensors-temp-humidity-battery"
+local c="sensors-temp-humidity-battery-voltage"
+local e="sensors-illuminance-temp-humidity-battery"
+local m="sensors-illuminance-battery"
+local function o(F,C,y,D,w)
+local A={}
+for G,q in pairs(w or{})do A[q]=G end
+return s.cluster_attribute(57346,C,{
+name=F,endpoint=1,data_type=y,write_type=y,read_on_configure=false,emit=D,
+from_device=function(q)
+if type(q)=="table"then q=q.value end
+if w then return w[q]end
+return q
 end,
-to_device=values and function(value)return encoded[value]end or nil,
+to_device=w and function(q)return A[q]end or nil
 })
 end
-local kctw1z=build_temp_humidity_clusters({
-profile="sensors-temp-humidity-battery-voltage-kctw1z-pending",
-humidity_scale=10,battery_voltage=true,
-})
-kctw1z.magic_packet=false
-kctw1z.query_on_configure=false
-kctw1z.force_time_updates=true
-for _,mapping in ipairs(kctw1z.zcl_clusters)do
-mapping.minimum_interval,mapping.maximum_interval,mapping.reportable_change=nil,nil,nil
-mapping.read_on_configure=mapping.cluster_id==0x0001
-if mapping.attribute_id==0x0021 and mapping.cluster_id==0x0001 then
-mapping.minimum_interval,mapping.maximum_interval,mapping.reportable_change=3600,65000,0
+local n=a{
+profile="sensors-temp-humidity-battery-voltage-kctw1z-pending",humidity_scale=10,battery_voltage=true}n.magic_packet=false
+n.query_on_configure=false
+n.force_time_updates=true
+for _,f in ipairs(n.zcl_clusters)do
+f.minimum_interval,f.maximum_interval,f.reportable_change=nil,nil,nil
+f.read_on_configure=f.cluster_id==1
+if f.attribute_id==33 and f.cluster_id==1 then
+f.minimum_interval,f.maximum_interval,f.reportable_change=3600,65000,0
 end
 end
-kctw1z.configure=function(driver,device)
-for _,cluster in ipairs({0x0001,0x0402,0x0405})do
-device:send(device_management.build_bind_request(device,cluster,driver.environment_info.hub_zigbee_eui,1))
+n.configure=function(z,t)
+for _,x in ipairs{1,1026,1029}do
+t:send(p.build_bind_request(t,x,z.environment_info.hub_zigbee_eui,1))
 end
 end
-kctw1z.zcl_clusters[#kctw1z.zcl_clusters + 1]=lcd_attribute(
-"kctw_display_unit",0xE00B,types.Enum8,emit.kctwDisplayUnit(),{[0]="celsius","fahrenheit"})
-local lcz030=build_temp_humidity_clusters({
-profile="sensors-illuminance-temp-humidity-battery-lcz030-pending",
-illuminance=true,tuya_magic=true,
-})
-for _,spec in ipairs({
-{"lcz_temp_max",0xD00A,emit.lczTempMax("C")},
-{"lcz_temp_min",0xD00B,emit.lczTempMin("C")},
-{"lcz_humidity_max",0xD00D,emit.lczHumidityMax("%")},
-{"lcz_humidity_min",0xD00E,emit.lczHumidityMin("%")},
-})do
-lcz030.zcl_clusters[#lcz030.zcl_clusters + 1]=lcd_attribute(spec[1],spec[2],types.Int16,spec[3])
+n.zcl_clusters[#n.zcl_clusters+1]=o(
+"kctw_display_unit",57355,B.Enum8,v.kctwDisplayUnit(),{[0]="celsius","fahrenheit"})local r=a{
+profile="sensors-illuminance-temp-humidity-battery-lcz030-pending",illuminance=true,tuya_magic=true}for _,u in ipairs{
+{"lcz_temp_max",53258,v.lczTempMax"C"},{"lcz_temp_min",53259,v.lczTempMin"C"},{"lcz_humidity_max",53261,v.lczHumidityMax"%"},{"lcz_humidity_min",53262,v.lczHumidityMin"%"}}do
+r.zcl_clusters[#r.zcl_clusters+1]=o(u[1],u[2],B.Int16,u[3])
 end
-for _,spec in ipairs({
-{"lcz_temp_alarm",0xD006,emit.lczTempAlarm(),{[0]="below_min_temperature","over_temperature","off"}},
-{"lcz_humidity_alarm",0xD00F,emit.lczHumidityAlarm(),{[0]="below_min_humdity","over_humidity","off"}},
-})do
-local mapping=lcd_attribute(spec[1],spec[2],types.Enum8,spec[3],spec[4])
-mapping.read_only=true
-lcz030.zcl_clusters[#lcz030.zcl_clusters + 1]=mapping
+for _,u in ipairs{
+{"lcz_temp_alarm",53254,v.lczTempAlarm(),{[0]="below_min_temperature","over_temperature","off"}},{"lcz_humidity_alarm",53263,v.lczHumidityAlarm(),{[0]="below_min_humdity","over_humidity","off"}}}do
+local f=o(u[1],u[2],B.Enum8,u[3],u[4])f.read_only=true
+r.zcl_clusters[#r.zcl_clusters+1]=f
 end
-lcz030.configure=function(driver,device)
-for _,cluster in ipairs({0x0000,0x0001,0x0402,0x0405,0xE002})do
-device:send(device_management.build_bind_request(device,cluster,driver.environment_info.hub_zigbee_eui,1))
+r.configure=function(z,t)
+for _,x in ipairs{0,1,1026,1029,57346}do
+t:send(p.build_bind_request(t,x,z.environment_info.hub_zigbee_eui,1))
 end
 end
-register_device_definition(build_temp_humidity_clusters({
-profile=temp_humidity_battery_voltage_profile,
-battery_voltage=true,
-}),{
-device_helpers.create_fingerprint("LINCUKOO","SZT06"),
-})
-register_device_definition(build_temp_humidity_clusters({
-profile=temp_humidity_battery_voltage_profile,
-battery_voltage=true,
-tuya_magic=true,
-}),device_helpers.create_fingerprints("TS0201",{
-"_TZ3210_alxkwn0h",
-"_TZ3000_0s1izerx",
-"_TZ3000_v1w2k9dd",
-"_TZ3000_rdhukkmi",
-"Zbeacon",
-"_TZ3000_lqmvrwa2",
-"_TZ3000_f2bw0b6k",
-"_TZ3000_mxzo5rhf",
-"_TZ3000_1twfmkcc",
-"_TZ3000_fie1dpkm",
-"_TZ3000_bgsigers",
-"_TYZB01_ujfk3xd9",
-"_TZ3000_82ptnsd4",
-"_TZ3000_amqudjr0",
-"_TZ3000_lbtpiody",
-"_TZ3000_rusu2vzb",
-"_TZ3000_zfirri2d",
-"_TZ3000_yujem9ee",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=temp_humidity_battery_voltage_profile,
-battery_voltage=true,
-}),{
-device_helpers.create_fingerprint("eWeLink","SNZB-02"),
-})
-register_device_definition(build_temp_humidity_clusters({
-profile="sensors-temp-humidity-battery-legacy-pending",
-}),{
-device_helpers.create_fingerprint("Zbeacon","TS0202"),
-device_helpers.create_fingerprint("Zbeacon","TS0203"),
-})
-register_device_definition(build_temp_humidity_clusters({
-profile=temp_humidity_battery_profile,
-}),device_helpers.create_fingerprints("SNZB-02",{
-"_TZ3000_utwgoauk",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=temp_humidity_battery_voltage_profile,
-battery_voltage=true,
-tuya_magic=true,
-}),device_helpers.create_fingerprints("TY0201",{
-"_TZ3000_bjawzodf",
-"_TZ3000_zl1kmjqx",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=temp_humidity_battery_voltage_profile,
-battery_voltage=true,
-tuya_magic=true,
-}),device_helpers.create_fingerprints("TS0201",{
-"_TZ3000_bguser20",
-"_TZ3000_yd2e749y",
-"_TZ3000_6uzkisv2",
-"_TZ3000_xr3htd96",
-"_TZ3000_fllyghyj",
-"_TZ3000_saiqcn0y",
-"_TZ3000_bjawzodf",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=temp_humidity_battery_voltage_profile,
-battery_voltage=true,
-tuya_magic=true,
-}),device_helpers.create_fingerprints("TS0201",{
-"_TZ3000_dowj6gyi",
-"_TZ3000_8ybe88nf",
-"_TZ3000_akqdg6g7",
-"_TZ3000_zl1kmjqx",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=temp_humidity_battery_voltage_profile,
-battery_voltage=true,
-}),device_helpers.create_fingerprints("SM0201",{
-"_TYZB01_cbiezpds",
-"_TYZB01_zqvwka4k",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=temp_humidity_battery_profile,
-}),device_helpers.create_fingerprints("SM0201",{
-"_TYZB01_lzrhtcxu",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=temp_humidity_battery_voltage_profile,
-battery_voltage=true,
-}),device_helpers.create_fingerprints("TS0601",{
-"_TZ3000_kkerjand",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=temp_humidity_battery_voltage_profile,
-humidity_scale=10,
-battery_voltage=true,
-tuya_magic=true,
-}),device_helpers.create_fingerprints("TS0201",{
-"_TZ3210_ncw88jfq",
-"_TZ3000_ywagc4rj",
-"_TZ3000_isw9u95y",
-"_TZ3000_yupc0pb7",
-}))
-register_device_definition(kctw1z,device_helpers.create_fingerprints("TS0201",{
-"_TZ3000_itnrsufe",
-}))
-register_device_definition(lcz030,device_helpers.create_fingerprints("TS0201",{
-"_TZ3000_qaaysllp",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=illuminance_temp_humidity_battery_profile,
-humidity_scale=10,
-illuminance=true,
-tuya_magic=true,
-}),device_helpers.create_fingerprints("TS0222",{
-"_TZ3000_kky16aay",
-"_TZE204_myd45weu",
-"_TZ3000_ceplrhnu",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=illuminance_temp_humidity_battery_profile,
-illuminance=true,
-tuya_magic=true,
-}),device_helpers.create_fingerprints("TS0222",{
-"_TZ3000_t9qqxn70",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=illuminance_temp_humidity_battery_profile,
-illuminance=true,
-}),device_helpers.create_fingerprints("TS0222",{
-"_TYZB01_ftdkanlj",
-"_TYZB01_kvwjujy9",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=illuminance_temp_humidity_battery_profile,
-illuminance=true,
-tuya_magic=true,
-}),device_helpers.create_fingerprints("TS0222",{
-"_TZ3000_ubuikmgo",
-}))
-register_device_definition(build_temp_humidity_clusters({
-profile=illuminance_temp_humidity_battery_profile,
-illuminance=true,
-}),{
-device_helpers.create_fingerprint("easyiot","ZB-LTH01"),
-})
-register_device_definition(build_temp_humidity_clusters({
-profile="sensors-illuminance-temp-humidity-battery-konke-pending",
-illuminance=true,
-battery_voltage=true,
-}),device_helpers.create_fingerprints("TS0222",{
-"_TYZB01_fi5yftwv",
-}))
-register_device_definition(build_illuminance_battery_clusters({
-profile=illuminance_battery_profile,
-tuya_magic=true,
-}),device_helpers.create_fingerprints("TS0222",{
-"_TZ3000_8uxxzz4b",
-"_TZ3000_9kbbfeho",
-"_TZ3000_l6rsaipj",
-"_TYZB01_4mdqxxnn",
-"_TYZB01_m6ec2pgj",
-"_TZ3000_do6txrcw",
-"_TZ3000_7kscdesh",
-"_TZ3000_hy6ncvmw",
-"_TZ3000_7y90pany",
-"_TZ3000_j6adk9id",
-}))
-return{
-id="zcl.sensors.general",
-registrations=device_definitions,
-}
+b(a{
+profile=c,battery_voltage=true},{
+d.create_fingerprint("LINCUKOO","SZT06")})b(a{
+profile=c,battery_voltage=true,tuya_magic=true},d.create_fingerprints("TS0201",{
+"_TZ3210_alxkwn0h","_TZ3000_0s1izerx","_TZ3000_v1w2k9dd","_TZ3000_rdhukkmi","Zbeacon","_TZ3000_lqmvrwa2","_TZ3000_f2bw0b6k","_TZ3000_mxzo5rhf","_TZ3000_1twfmkcc","_TZ3000_fie1dpkm","_TZ3000_bgsigers","_TYZB01_ujfk3xd9","_TZ3000_82ptnsd4","_TZ3000_amqudjr0","_TZ3000_lbtpiody","_TZ3000_rusu2vzb","_TZ3000_zfirri2d","_TZ3000_yujem9ee"}))b(a{
+profile=c,battery_voltage=true},{
+d.create_fingerprint("eWeLink","SNZB-02")})b(a{
+profile="sensors-temp-humidity-battery-legacy-pending"},{
+d.create_fingerprint("Zbeacon","TS0202"),d.create_fingerprint("Zbeacon","TS0203")})b(a{
+profile=h},d.create_fingerprints("SNZB-02",{
+"_TZ3000_utwgoauk"}))b(a{
+profile=c,battery_voltage=true,tuya_magic=true},d.create_fingerprints("TY0201",{
+"_TZ3000_bjawzodf","_TZ3000_zl1kmjqx"}))b(a{
+profile=c,battery_voltage=true,tuya_magic=true},d.create_fingerprints("TS0201",{
+"_TZ3000_bguser20","_TZ3000_yd2e749y","_TZ3000_6uzkisv2","_TZ3000_xr3htd96","_TZ3000_fllyghyj","_TZ3000_saiqcn0y","_TZ3000_bjawzodf"}))b(a{
+profile=c,battery_voltage=true,tuya_magic=true},d.create_fingerprints("TS0201",{
+"_TZ3000_dowj6gyi","_TZ3000_8ybe88nf","_TZ3000_akqdg6g7","_TZ3000_zl1kmjqx"}))b(a{
+profile=c,battery_voltage=true},d.create_fingerprints("SM0201",{
+"_TYZB01_cbiezpds","_TYZB01_zqvwka4k"}))b(a{
+profile=h},d.create_fingerprints("SM0201",{
+"_TYZB01_lzrhtcxu"}))b(a{
+profile=c,battery_voltage=true},d.create_fingerprints("TS0601",{
+"_TZ3000_kkerjand"}))b(a{
+profile=c,humidity_scale=10,battery_voltage=true,tuya_magic=true},d.create_fingerprints("TS0201",{
+"_TZ3210_ncw88jfq","_TZ3000_ywagc4rj","_TZ3000_isw9u95y","_TZ3000_yupc0pb7"}))b(n,d.create_fingerprints("TS0201",{
+"_TZ3000_itnrsufe"}))b(r,d.create_fingerprints("TS0201",{
+"_TZ3000_qaaysllp"}))b(a{
+profile=e,humidity_scale=10,illuminance=true,tuya_magic=true},d.create_fingerprints("TS0222",{
+"_TZ3000_kky16aay","_TZE204_myd45weu","_TZ3000_ceplrhnu"}))b(a{
+profile=e,illuminance=true,tuya_magic=true},d.create_fingerprints("TS0222",{
+"_TZ3000_t9qqxn70"}))b(a{
+profile=e,illuminance=true},d.create_fingerprints("TS0222",{
+"_TYZB01_ftdkanlj","_TYZB01_kvwjujy9"}))b(a{
+profile=e,illuminance=true,tuya_magic=true},d.create_fingerprints("TS0222",{
+"_TZ3000_ubuikmgo"}))b(a{
+profile=e,illuminance=true},{
+d.create_fingerprint("easyiot","ZB-LTH01")})b(a{
+profile="sensors-illuminance-temp-humidity-battery-konke-pending",illuminance=true,battery_voltage=true},d.create_fingerprints("TS0222",{
+"_TYZB01_fi5yftwv"}))b(j{
+profile=m,tuya_magic=true},d.create_fingerprints("TS0222",{
+"_TZ3000_8uxxzz4b","_TZ3000_9kbbfeho","_TZ3000_l6rsaipj","_TYZB01_4mdqxxnn","_TYZB01_m6ec2pgj","_TZ3000_do6txrcw","_TZ3000_7kscdesh","_TZ3000_hy6ncvmw","_TZ3000_7y90pany","_TZ3000_j6adk9id"}))s.attach_reporting_capabilities(l,{
+{1,"rpt-sgy"},{2,"rpt-sgy"},{3,"rpt-sgy"},{4,"rpt-tgdf"},{5,"rpt-tgdf"},{6,"rpt-sgy"},{7,"rpt-sgy"},{8,"rpt-sgy"},{9,"rpt-sgy"},{10,"rpt-tgdf"},{11,"rpt-sgy"},{12,"rpt-sgy"},{13,"rpt-thw"},{14,"rpt-tkh"},{15,"rpt-tfe"},{16,"rpt-tfe"},{17,"rpt-tfe"},{18,"rpt-tfe"},{19,"rpt-tfe"},{20,"rpt-tlna"},{21,"rpt-tuh"}})return{
+id="zcl.sensors.general",registrations=l}

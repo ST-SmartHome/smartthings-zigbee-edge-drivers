@@ -10,13 +10,6 @@ local fp = device_helpers.create_fingerprint
 
 local device_definitions, register_device_definition = device_helpers.definition_registry()
 
-local contact_sensor = {
-  profile = "safety-contact-battery",
-  zcl_clusters = {
-    zcl.contact(),
-    zcl.battery(),
-  },
-}
 
 local contact_tamper_sensor = {
   profile = "safety-contact-tamper-battery",
@@ -113,14 +106,6 @@ local tuya_scene_contact_sensor = {
   },
 }
 
-local contact_temp_sensor = {
-  profile = "safety-contact-temp-battery",
-  zcl_clusters = {
-    zcl.contact(),
-    zcl.temperature(),
-    zcl.battery(),
-  },
-}
 
 local contact_temp_battery_low_sensor = {
   profile = "safety-contact-temp-battery-low-battery",
@@ -281,14 +266,6 @@ local c3007_pressure_sensor = {
     zcl.battery_voltage(),
   },
 }
-local motion_tamper_sensor = {
-  profile = "safety-motion-tamper-battery",
-  zcl_clusters = {
-    zcl.motion(),
-    zcl.tamper(),
-    zcl.battery(),
-  },
-}
 
 local whd02_motion_sensor = {
   profile = "safety-motion-tamper-battery-battery-low",
@@ -328,14 +305,6 @@ local motion_illuminance_tamper_battery_low_battery_sensor = {
   },
 }
 
-local motion_illuminance_sensor = {
-  profile = "safety-motion-illuminance-battery",
-  zcl_clusters = {
-    zcl.motion(),
-    zcl.illuminance(),
-    zcl.battery(),
-  },
-}
 
 local tuya_motion_illuminance_sensor = {
   profile = "safety-motion-illuminance-tamper-battery-low-battery",
@@ -361,16 +330,6 @@ local motion_illuminance_temp_humidity_tamper_sensor = {
   },
 }
 
-local motion_illuminance_temp_humidity_sensor = {
-  profile = "safety-motion-illuminance-temp-humidity-battery",
-  zcl_clusters = {
-    zcl.motion(),
-    zcl.illuminance(),
-    zcl.temperature(),
-    zcl.humidity(),
-    zcl.battery(),
-  },
-}
 
 local sunricher_4in1_sensor = {
   profile = "safety-occupancy-illuminance-temp-humidity-battery",
@@ -430,13 +389,6 @@ local namron_4512771_multisensor = {
   end,
 }
 
-local water_sensor = {
-  profile = "safety-water-leak-battery",
-  zcl_clusters = {
-    zcl.water(),
-    zcl.battery(),
-  },
-}
 
 local water_battery_low_battery_sensor = {
   profile = "safety-water-leak-battery-low-battery",
@@ -477,14 +429,6 @@ local water_temp_battery_low_battery_sensor = {
   },
 }
 
-local water_temp_sensor = {
-  profile = "safety-water-leak-temp-battery",
-  zcl_clusters = {
-    zcl.water(),
-    zcl.temperature(),
-    zcl.battery(),
-  },
-}
 
 local sunricher_water_temp_sensor = {
   profile = "safety-water-temp-tamper-battery-low-battery",
@@ -521,10 +465,6 @@ local solar_rain_sensor = {
   },
 }
 
-local vibration_sensor = {
-  profile = "safety-acceleration-battery",
-  zcl_clusters = { zcl.motion({ emit = emit.acceleration() }), zcl.battery() },
-}
 
 local tuya_vibration_sensor = {
   profile = "safety-acceleration-battery-tuya-pending",
@@ -553,13 +493,6 @@ local third_reality_vibration_sensor = {
   zcl_clusters = { zcl.motion({ emit = emit.acceleration() }), zcl.battery() },
 }
 
-local smoke_sensor = {
-  profile = "safety-smoke-detector-battery",
-  zcl_clusters = {
-    zcl.smoke(),
-    zcl.battery(),
-  },
-}
 
 local smoke_battery_low_battery_sensor = {
   profile = "safety-smoke-battery-low-battery",
@@ -1009,6 +942,66 @@ register_device_definition(co_sensor, {
 register_device_definition(co_alarm12_sensor, {
   fp("Sunricher", "HK-SENSOR-CO"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tcu"},
+  {2, "rpt-tcu"},
+  {3, "rpt-tplp"},
+  {4, "rpt-tku"},
+  {5, "rpt-tvc"},
+  {6, "rpt-txk"},
+  {8, "rpt-wwy"},
+  {9, "rpt-tbf"},
+  {10, "rpt-tii"},
+  {11, "rpt-tctq"},
+  {12, "rpt-tnd"},
+  {13, "rpt-tctq"},
+  {15, "rpt-tdb"},
+  {16, "rpt-thv"},
+  {17, "rpt-tnd"},
+  {18, "rpt-tvcf"},
+  {19, "rpt-rsp"},
+  {20, "rpt-txo"},
+  {21, "rpt-tjt"},
+  {22, "rpt-hpl"},
+  {23, "rpt-zlg"},
+  {24, "rpt-rab"},
+  {25, "rpt-tjq"},
+  {26, "rpt-tctq"},
+  {27, "rpt-psu"},
+  {28, "rpt-pyf"},
+  {29, "rpt-tii"},
+  {30, "rpt-txk"},
+  {31, "rpt-txk"},
+  {32, "rpt-tej"},
+  {33, "rpt-tml"},
+  {34, "rpt-tej"},
+  {35, "rpt-tej"},
+  {36, "rpt-wpc"},
+  {37, "rpt-tej"},
+  {38, "rpt-htd"},
+  {39, "rpt-tie"},
+  {40, "rpt-tfj"},
+  {41, "rpt-vmx"},
+  {42, "rpt-zig"},
+  {43, "rpt-tgl"},
+  {44, "rpt-btf"},
+  {45, "rpt-hfu"},
+  {46, "rpt-hqz"},
+  {47, "rpt-ave"},
+  {48, "rpt-tek"},
+  {49, "rpt-shg"},
+  {50, "rpt-shg"},
+  {51, "rpt-shg"},
+  {52, "rpt-shg"},
+  {53, "rpt-rab"},
+  {54, "rpt-hqa"},
+  {55, "rpt-dmz"},
+  {56, "rpt-tnw"},
+  {57, "rpt-hpc"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.sensors.safety",

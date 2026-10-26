@@ -1,108 +1,79 @@
-local custom_capabilities={}
-local strings={"s","power_poll_interval","powerPollIntervalV2","powerPollInterval","powerPollIntervalRange","Power poll interval","C","temperature_threshold","temperatureThreshold","temperatureThresholdRange","Temperature threshold","kW","power_threshold","powerThreshold","powerThresholdRange","Power threshold","V","over_voltage_threshold","overVoltageThreshold","overVoltageThresholdRange","Over voltage threshold","ts0003Module2CountdownOne","countdownOne","ts0003_module2_countdown_one","Ts0003Module2Countdown One","ts0003Module2CountdownTwo","countdownTwo","ts0003_module2_countdown_two","Ts0003Module2Countdown Two","ts0003Module2CountdownThree","countdownThree","ts0003_module2_countdown_three","Ts0003Module2Countdown Three","nfzb03CountdownOne","nfzb03_countdown_one","Nfzb03Countdown One","nfzb03CountdownTwo","nfzb03_countdown_two","Nfzb03Countdown Two","nfzb03CountdownThree","nfzb03_countdown_three","Nfzb03Countdown Three","nfzb03InchingTimeOne","inchingTimeOne","nfzb03_inching_time_one","Nfzb03Inching Time One","nfzb03InchingTimeTwo","inchingTimeTwo","nfzb03_inching_time_two","Nfzb03Inching Time Two","nfzb03InchingTimeThree","inchingTimeThree","nfzb03_inching_time_three","Nfzb03Inching Time Three","A","ts011fDinOverCurrentThreshold","overCurrentThreshold","ts011f_din_over_current_threshold","Ts011f Din Over Current Threshold","ts011fDinUnderVoltageThreshold","underVoltageThreshold","ts011f_din_under_voltage_threshold","Ts011f Din Under Voltage Threshold","min","haozeeHzWt02WaterCountdown","waterCountdown","haozee_hz_wt02_water_countdown","Haozee Hz Wt02Water Countdown","easyiotSp1000PlayVoice","playVoice","easyiot_sp1000_play_voice","Easyiot Sp1000Play Voice","easyiotSp1000Volume","volume","easyiot_sp1000_volume","Easyiot Sp1000Volume","sonoffZbminir2DelayPowerTime","delayedPowerOnTime","sonoff_zbmini_r2_delayed_power_on_time","Sonoff Zbminir2Delay Power Time","sonoffZbminir2InchingTime","inchingTime","sonoff_zbmini_r2_inching_time","Sonoff Zbminir2Inching Time","countdownTimerZclTwelveHours","countdown_timer","Countdown Timer Zcl Twelve Hours","temperature_breaker","temperatureBreaker","supportedTemperatureBreakers","Temperature breaker","on","off","power_breaker","powerBreaker","supportedPowerBreakers","Power breaker","over_current_breaker","overCurrentBreaker","supportedOverCurrentBreakers","Over current breaker","over_voltage_breaker","overVoltageBreaker","supportedOverVoltageBreakers","Over voltage breaker","under_voltage_breaker","underVoltageBreaker","supportedUnderVoltageBreakers","Under voltage breaker","indicator_mode","indicatorMode","supportedIndicatorModes","Indicator mode","off/on","on/off","power_on_behavior","powerOnBehavior","supportedPowerOnBehaviors","Power on behavior","previous","power_outage_memory","powerOutageMemory","supportedPowerOutageMemories","Power outage memory","restore","switch_type","switchType","supportedSwitchTypes","Switch type","toggle","state","momentary","ts0001BbebPowerOnBehavior","ts0001_bbeb_power_on_behavior","Ts0001Bbeb Power On Behavior","ts0001BbebBacklightMode","backlightMode","ts0001_bbeb_backlight_mode","Ts0001Bbeb Backlight Mode","ts0001BbebIndicatorPattern","indicatorPattern","ts0001_bbeb_indicator_mode","Ts0001Bbeb Indicator Pattern","ts0003Module2SwitchType","ts0003_module2_switch_type","Ts0003Module2Switch Type","ts0003Module2IndicatorMode","ts0003_module2_indicator_mode","Ts0003Module2Indicator Mode","off_on","on_off","nfzb03PowerOutageMemory","nfzb03_power_outage_memory","Nfzb03Power Outage Memory","nfzb03SwitchType","nfzb03_switch_type","Nfzb03Switch Type","nfzb03IndicatorMode","nfzb03_indicator_mode","Nfzb03Indicator Mode","nfzb03BacklightMode","nfzb03_backlight_mode","Nfzb03Backlight Mode","nfzb03InchingControlOne","inchingControlOne","nfzb03_inching_enabled_one","Nfzb03Inching Control One","DISABLE","ENABLE","nfzb03InchingControlTwo","inchingControlTwo","nfzb03_inching_enabled_two","Nfzb03Inching Control Two","nfzb03InchingControlThree","inchingControlThree","nfzb03_inching_enabled_three","Nfzb03Inching Control Three","lellkiWp33PowerOnBehavior","lellki_wp33_power_on_behavior","Lellki Wp33Power On Behavior","candeoSm30PowerBehavior","candeo_sm30_power_on_behavior","Candeo Sm30Power Behavior","ts011fDinIndicatorMode","ts011f_din_indicator_mode","Ts011f Din Indicator Mode","sonoffZbminir2NetworkIndicator","networkIndicator","sonoff_zbmini_r2_network_indicator","Sonoff Zbminir2Network Indicator","sonoffZbminir2TurboMode","turboMode","sonoff_zbmini_r2_turbo_mode","Sonoff Zbminir2Turbo Mode","sonoffZbminir2DelayPowerState","delayedPowerOnState","sonoff_zbmini_r2_delayed_power_on_state","Sonoff Zbminir2Delay Power State","sonoffZbminir2DetachRelayMode","detachRelayMode","sonoff_zbmini_r2_detach_relay_mode","Sonoff Zbminir2Detach Relay Mode","sonoffZbminir2ExtTriggerMode","externalTriggerMode","sonoff_zbmini_r2_external_trigger_mode","Sonoff Zbminir2Ext Trigger Mode","edge","pulse","following_off","following_on","sonoffZbminir2InchingControl","inchingControl","sonoff_zbmini_r2_inching_control","Sonoff Zbminir2Inching Control","sonoffZbminir2InchingMode","inchingMode","sonoff_zbmini_r2_inching_mode","Sonoff Zbminir2Inching Mode","sonoffZbminir2PowerOnBehavior","sonoff_zbmini_r2_power_on_behavior","Sonoff Zbminir2Power On Behavior","childLock","child_lock","Child Lock","lyaiRainState","rainState","lyai_rain_state","Lyai Rain State","rain","no_rain","lyaiRainEnabled","rainEnabled","lyai_rain_enabled","Lyai Rain Enabled","lyaiChargeState","chargeState","lyai_charge_state","Lyai Charge State","no_charge","charging","charged","last_power_response_time","lastPowerResponseTime","Last power response time","easyiotSp1000Status","status","easyiot_sp1000_status","Easyiot Sp1000Status"}
-local function string_value(value)
-if type(value)=="number" then return strings[value]end
-return value
+local a={}local H={"off","on","s","toggle","previous","restore","state","momentary","powerOnBehavior","switchType","off_on","on_off","DISABLE","ENABLE","indicatorMode","off/on","on/off","powerOutageMemory","power_poll_interval","temperature_threshold","power_threshold","over_voltage_threshold","countdownOne","countdownTwo","countdownTimerZclTwelveHours","temperature_breaker","power_breaker","over_current_breaker","over_voltage_breaker","under_voltage_breaker","indicator_mode","power_on_behavior","power_outage_memory","switch_type","childLock","temperatureThreshold","powerThreshold","overVoltageThreshold","ts0003Module2CountdownOne","ts0003Module2CountdownTwo","ts0003Module2CountdownThree","countdownThree","nfzb03CountdownOne","nfzb03CountdownTwo","nfzb03CountdownThree","nfzb03InchingTimeOne","nfzb03InchingTimeTwo","nfzb03InchingTimeThree","ts011fDinOverCurrentThreshold","ts011fDinUnderVoltageThreshold","haozeeHzWt02WaterCountdown","easyiotSp1000PlayVoice","easyiotSp1000Volume","sonoffZbminir2DelayPowerTime","sonoffZbminir2InchingTime","nousB3zCountdown1","nousB3zCountdown2","temperatureBreaker","powerBreaker","overCurrentBreaker","overVoltageBreaker","underVoltageBreaker","ts0001BbebPowerOnBehavior","ts0001BbebBacklightMode","backlightMode","ts0001BbebIndicatorPattern","ts0003Module2SwitchType","ts0003Module2IndicatorMode","nfzb03PowerOutageMemory","nfzb03SwitchType","nfzb03IndicatorMode","nfzb03BacklightMode","nfzb03InchingControlOne","nfzb03InchingControlTwo","nfzb03InchingControlThree","lellkiWp33PowerOnBehavior","candeoSm30PowerBehavior","ts011fDinIndicatorMode","sonoffZbminir2NetworkIndicator","sonoffZbminir2TurboMode","sonoffZbminir2DelayPowerState","sonoffZbminir2DetachRelayMode","sonoffZbminir2ExtTriggerMode","edge","pulse","following_off","following_on","sonoffZbminir2InchingControl","sonoffZbminir2InchingMode","sonoffZbminir2PowerOnBehavior","lyaiRainState","rain","no_rain","lyaiRainEnabled","lyaiChargeState","no_charge","charging","charged","ts0002RuxSwitchType","ts0002RuxPowerOutageMemory","nousB3zPowerBehavior","powerBehavior","nousB3zSwitchType","spp04PowerBehavior","lastPowerResponseTime","easyiotSp1000Status"}
+local function b(g)
+if type(g)=="number"then return H[g]end
+return g
 end
-local function capability_id(value)local suffix=string_value(value);if suffix==nil then return nil end;return "concertmirror08464." .. suffix end
-local table_groups={}
-local function grouped_table(group_id)
-if type(group_id)~="number" then return{}end
-local existing=table_groups[group_id]
-if existing ~=nil then return existing end
-local out={}
-table_groups[group_id]=out
-return out
+local function p(g)local suffix=b(g);if suffix==nil then return nil end;return"concertmirror08464."..suffix end
+local t={}
+local function q(k)
+if type(k)~="number"then return{}end
+local x=t[k]
+if x~=nil then return x end
+local n={}t[k]=n
+return n
 end
-local function string_list(values,group_id)
-if type(values)~="table" then return nil end
-local out=grouped_table(group_id)
-for index,value in ipairs(values)do out[index]=string_value(value)end
-return out
+local function s(D,k)
+if type(D)~="table"then return nil end
+local n=q(k)
+for A,g in ipairs(D)do n[A]=b(g)end
+return n
 end
-local function optional_string(value,default)
-if value==nil then return default end
-if value==0 then return nil end
-return string_value(value)
+local function i(g,E)
+if g==nil then return E end
+if g==0 then return nil end
+return b(g)
 end
-local function command_default(attribute_name)
-if type(attribute_name)~="string" or attribute_name=="" then return nil end
-return "set" .. attribute_name:sub(1,1):upper().. attribute_name:sub(2)
+local function m(attribute_name)
+if type(attribute_name)~="string"or attribute_name==""then return nil end
+return"set"..attribute_name:sub(1,1):upper()..attribute_name:sub(2)
 end
-local function range(value)
-if type(value)~="table" then return nil end
-local out=grouped_table(value[6])
-out.minimum=value[1]
-out.maximum=value[2]
-out.step=value[3]
-out.unit=string_value(value[4])
-out.allowed_values=string_list(value[5],value[7])
-return out
+local function J(g)
+if type(g)~="table"then return nil end
+local n=q(g[6])n.minimum=g[1]n.maximum=g[2]n.step=g[3]n.unit=b(g[4])n.allowed_values=s(g[5],g[7])return n
 end
-local function allowed_range(allowed_values,group_id)
-if allowed_values==nil and group_id==nil then return nil end
-local out=grouped_table(group_id)
-out.allowed_values=allowed_values
-return out
+local function w(j,k)
+if j==nil and k==nil then return nil end
+local n=q(k)n.allowed_values=j
+return n
 end
-local function numeric(row)
-local attribute_name=string_value(row[4])
-return{kind="numeric",emit_name=string_value(row[1]),range_key=string_value(row[2]),capability_id=capability_id(row[3]),attribute_name=attribute_name,range_attribute_name=string_value(row[5]),command_name=optional_string(row[6],command_default(attribute_name)),argument_name=optional_string(row[7],attribute_name),mapping_name=string_value(row[8]),label=string_value(row[9]),default_range=range(row[10]),event_minimum=row[11],event_maximum=row[12],event_unit=string_value(row[13])}
+local function G(f)
+local attribute_name=b(f[4])return{kind="numeric",emit_name=b(f[1]),range_key=b(f[2]),capability_id=p(f[3]),attribute_name=attribute_name,range_attribute_name=b(f[5]),command_name=i(f[6],m(attribute_name)),argument_name=i(f[7],attribute_name),mapping_name=b(f[8]),label=b(f[9]),default_range=J(f[10]),event_minimum=f[11],event_maximum=f[12],event_unit=b(f[13])}
 end
-local function enum(row)
-local attribute_name=string_value(row[4])
-local supported_values=string_list(row[10],row[12])
-local default_allowed_values=string_list(row[11],row[14])
-local default_range=allowed_range(default_allowed_values,row[13])
-return{kind="enum",emit_name=string_value(row[1]),range_key=string_value(row[2]),capability_id=capability_id(row[3]),attribute_name=attribute_name,supported_attribute_name=string_value(row[5]),command_name=optional_string(row[6],command_default(attribute_name)),argument_name=optional_string(row[7],attribute_name),mapping_name=string_value(row[8]),label=string_value(row[9]),supported_values=supported_values,default_range=default_range}
+local function K(f)
+local attribute_name=b(f[4])local u=s(f[10],f[12])local r=s(f[11],f[14])local d=w(r,f[13])return{kind="enum",emit_name=b(f[1]),range_key=b(f[2]),capability_id=p(f[3]),attribute_name=attribute_name,supported_attribute_name=b(f[5]),command_name=i(f[6],m(attribute_name)),argument_name=i(f[7],attribute_name),mapping_name=b(f[8]),label=b(f[9]),supported_values=u,default_range=d}
 end
-local function text(row)
-local attribute_name=string_value(row[3])
-return{kind="text",emit_name=string_value(row[1]),capability_id=capability_id(row[2]),attribute_name=attribute_name,command_name=optional_string(row[4],command_default(attribute_name)),argument_name=optional_string(row[5],attribute_name),mapping_name=string_value(row[6]),label=string_value(row[7]),maximum_length=row[8]}
+local function M(f)
+local attribute_name=b(f[3])return{kind="text",emit_name=b(f[1]),capability_id=p(f[2]),attribute_name=attribute_name,command_name=i(f[4],m(attribute_name)),argument_name=i(f[5],attribute_name),mapping_name=b(f[6]),label=b(f[7]),maximum_length=f[8]}
 end
-local function build(rows,factory)
-local out={}
-for _,row in ipairs(rows)do out[#out + 1]=factory(row)end
-return out
+local function z(L,F)
+local n={}
+for _,f in ipairs(L)do n[#n+1]=F(f)end
+return n
 end
-custom_capabilities.numeric=build({{2,2,3,4,5,nil,nil,2,6,{5,3600,5,1,nil,1,nil},5,3600,1},{8,8,9,9,10,nil,nil,8,11,{40,100,1,7,nil,2,nil},40,100,7},{13,13,14,14,15,nil,nil,13,16,{1,26,1,12,nil,3,nil},1,26,12},{18,18,19,19,20,nil,nil,18,21,{220,265,1,17,nil,4,nil},220,265,17},{22,nil,22,23,nil,nil,nil,24,25,{0,43200,1,1,nil,5,nil},nil,nil,1},{26,nil,26,27,nil,nil,nil,28,29,{0,43200,1,1,nil,6,nil},nil,nil,1},{30,nil,30,31,nil,nil,nil,32,33,{0,43200,1,1,nil,7,nil},nil,nil,1},{34,nil,34,23,nil,nil,nil,35,36,{0,43200,1,1,nil,8,nil},nil,nil,1},{37,nil,37,27,nil,nil,nil,38,39,{0,43200,1,1,nil,9,nil},nil,nil,1},{40,nil,40,31,nil,nil,nil,41,42,{0,43200,1,1,nil,10,nil},nil,nil,1},{43,nil,43,44,nil,nil,nil,45,46,{1,65535,1,1,nil,11,nil},nil,nil,1},{47,nil,47,48,nil,nil,nil,49,50,{1,65535,1,1,nil,12,nil},nil,nil,1},{51,nil,51,52,nil,nil,nil,53,54,{1,65535,1,1,nil,13,nil},nil,nil,1},{56,nil,56,57,nil,nil,nil,58,59,{1,65,1,55,nil,14,nil},nil,nil,55},{60,nil,60,61,nil,nil,nil,62,63,{75,240,1,17,nil,15,nil},nil,nil,17},{65,nil,65,66,nil,nil,nil,67,68,{1,1440,1,64,nil,16,nil},nil,nil,64},{69,nil,69,70,nil,nil,nil,71,72,{1,999,1,nil,nil,17,nil},nil,nil,nil},{73,nil,73,74,nil,nil,nil,75,76,{1,30,1,nil,nil,18,nil},nil,nil,nil},{77,nil,77,78,nil,nil,nil,79,80,{0.5,3599.5,0.5,1,nil,19,nil},nil,nil,1},{81,nil,81,82,nil,nil,nil,83,84,{0.5,3599.5,0.5,1,nil,20,nil},nil,nil,1},{85,nil,85,85,nil,nil,nil,86,87,{0,43200,1,1,nil,21,nil},nil,nil,1}},numeric)
-custom_capabilities.enum=build({{88,88,89,89,90,nil,nil,88,91,{92,93},{92,93},22,23,22},{94,94,95,95,96,nil,nil,94,97,{92,93},{92,93},22,24,22},{98,98,99,99,100,nil,nil,98,101,{92,93},{92,93},22,25,22},{102,102,103,103,104,nil,nil,102,105,{92,93},{92,93},22,26,22},{106,106,107,107,108,nil,nil,106,109,{92,93},{92,93},22,27,22},{110,110,111,111,112,nil,nil,110,113,{93,114,115,92},{93,114,115,92},28,29,28},{116,116,117,117,118,nil,nil,116,119,{93,92,120},{93,92,120},30,31,30},{121,121,122,122,123,nil,nil,121,124,{93,92,125},{93,92,125},32,33,32},{126,126,127,127,128,nil,nil,126,129,{130,131,132},{130,131,132},34,35,34},{133,nil,133,117,nil,nil,nil,134,135,{93,92,120},{93,92,120},36,37,36},{136,nil,136,137,nil,nil,nil,138,139,{93,92},{93,92},38,39,38},{140,nil,140,141,nil,nil,nil,142,143,{93,114,115,92},{93,114,115,92},40,41,40},{144,nil,144,127,nil,nil,nil,145,146,{130,131,132},{130,131,132},42,43,42},{147,nil,147,111,nil,nil,nil,148,149,{93,150,151,92},{93,150,151,92},44,45,44},{152,nil,152,122,nil,nil,nil,153,154,{93,92,125},{93,92,125},46,47,46},{155,nil,155,127,nil,nil,nil,156,157,{130,131,132},{130,131,132},48,49,48},{158,nil,158,111,nil,nil,nil,159,160,{93,150,151,92},{93,150,151,92},50,51,50},{161,nil,161,137,nil,nil,nil,162,163,{93,92},{93,92},52,53,52},{164,nil,164,165,nil,nil,nil,166,167,{168,169},{168,169},54,55,54},{170,nil,170,171,nil,nil,nil,172,173,{168,169},{168,169},56,57,56},{174,nil,174,175,nil,nil,nil,176,177,{168,169},{168,169},58,59,58},{178,nil,178,117,nil,nil,nil,179,180,{93,92,120},{93,92,120},60,61,60},{181,nil,181,117,nil,nil,nil,182,183,{93,92,120},{93,92,120},62,63,62},{184,nil,184,111,nil,nil,nil,185,186,{93,150,151},{93,150,151},64,65,64},{187,nil,187,188,nil,nil,nil,189,190,{93,92},{93,92},66,67,66},{191,nil,191,192,nil,nil,nil,193,194,{93,92},{93,92},68,69,68},{195,nil,195,196,nil,nil,nil,197,198,{93,92},{93,92},70,71,70},{199,nil,199,200,nil,nil,nil,201,202,{93,92},{93,92},72,73,72},{203,nil,203,204,nil,nil,nil,205,206,{207,208,209,210},{207,208,209,210},74,75,74},{211,nil,211,212,nil,nil,nil,213,214,{93,92},{93,92},76,77,76},{215,nil,215,216,nil,nil,nil,217,218,{93,92},{93,92},78,79,78},{219,nil,219,117,nil,nil,nil,220,221,{93,92,130,120},{93,92,130,120},80,81,80},{222,nil,222,222,nil,nil,nil,223,224,{93,92},{93,92},82,83,82},{225,nil,225,226,nil,0,0,227,228,{229,230},{229,230},84,85,84},{231,nil,231,232,nil,nil,nil,233,234,{92,93},{92,93},86,87,86},{235,nil,235,236,nil,0,0,237,238,{239,240,241},{239,240,241},88,89,88}},enum)
-custom_capabilities.text=build({{242,243,243,0,0,nil,244,64},{245,245,246,0,0,247,248,16}},text)
-custom_capabilities.driver_message={["attribute_name"]="driverMessage",["capability_id"]="concertmirror08464.driverMessage",["emit_name"]="driver_message",["label"]="Driver message",["maximum_length"]=512}
-custom_capabilities.by_range_key={}
-custom_capabilities.by_emit_name={}
-custom_capabilities.by_capability_id={}
-local function index_metadata(definitions)
-for _,metadata in ipairs(definitions)do
-custom_capabilities.by_emit_name[metadata.emit_name]=metadata
-if type(metadata.capability_id)=="string" and metadata.capability_id ~="" then custom_capabilities.by_capability_id[metadata.capability_id]=metadata end
-if type(metadata.range_key)=="string" and metadata.range_key ~="" then custom_capabilities.by_range_key[metadata.range_key]=metadata end
+a.numeric=z({{19,19,"powerPollIntervalV2","powerPollInterval","powerPollIntervalRange",nil,nil,19,"Power poll interval",{5,3600,5,3,nil,1},5,3600,3},{20,20,36,36,"temperatureThresholdRange",nil,nil,20,"Temperature threshold",{40,100,1,"C",nil,2},40,100,"C"},{21,21,37,37,"powerThresholdRange",nil,nil,21,"Power threshold",{1,26,1,"kW",nil,3},1,26,"kW"},{22,22,38,38,"overVoltageThresholdRange",nil,nil,22,"Over voltage threshold",{220,265,1,"V",nil,4},220,265,"V"},{39,nil,39,23,nil,nil,nil,"ts0003_module2_countdown_one","Ts0003Module2Countdown One",{0,43200,1,3,nil,5},nil,nil,3},{40,nil,40,24,nil,nil,nil,"ts0003_module2_countdown_two","Ts0003Module2Countdown Two",{0,43200,1,3,nil,6},nil,nil,3},{41,nil,41,42,nil,nil,nil,"ts0003_module2_countdown_three","Ts0003Module2Countdown Three",{0,43200,1,3,nil,7},nil,nil,3},{43,nil,43,23,nil,nil,nil,"nfzb03_countdown_one","Nfzb03Countdown One",{0,43200,1,3,nil,8},nil,nil,3},{44,nil,44,24,nil,nil,nil,"nfzb03_countdown_two","Nfzb03Countdown Two",{0,43200,1,3,nil,9},nil,nil,3},{45,nil,45,42,nil,nil,nil,"nfzb03_countdown_three","Nfzb03Countdown Three",{0,43200,1,3,nil,10},nil,nil,3},{46,nil,46,"inchingTimeOne",nil,nil,nil,"nfzb03_inching_time_one","Nfzb03Inching Time One",{1,65535,1,3,nil,11},nil,nil,3},{47,nil,47,"inchingTimeTwo",nil,nil,nil,"nfzb03_inching_time_two","Nfzb03Inching Time Two",{1,65535,1,3,nil,12},nil,nil,3},{48,nil,48,"inchingTimeThree",nil,nil,nil,"nfzb03_inching_time_three","Nfzb03Inching Time Three",{1,65535,1,3,nil,13},nil,nil,3},{49,nil,49,"overCurrentThreshold",nil,nil,nil,"ts011f_din_over_current_threshold","Ts011f Din Over Current Threshold",{1,65,1,"A",nil,14},nil,nil,"A"},{50,nil,50,"underVoltageThreshold",nil,nil,nil,"ts011f_din_under_voltage_threshold","Ts011f Din Under Voltage Threshold",{75,240,1,"V",nil,15},nil,nil,"V"},{51,nil,51,"waterCountdown",nil,nil,nil,"haozee_hz_wt02_water_countdown","Haozee Hz Wt02Water Countdown",{1,1440,1,"min",nil,16},nil,nil,"min"},{52,nil,52,"playVoice",nil,nil,nil,"easyiot_sp1000_play_voice","Easyiot Sp1000Play Voice",{1,999,1,nil,nil,17}},{53,nil,53,"volume",nil,nil,nil,"easyiot_sp1000_volume","Easyiot Sp1000Volume",{1,30,1,nil,nil,18}},{54,nil,54,"delayedPowerOnTime",nil,nil,nil,"sonoff_zbmini_r2_delayed_power_on_time","Sonoff Zbminir2Delay Power Time",{0.5,3599.5,0.5,3,nil,19},nil,nil,3},{55,nil,55,"inchingTime",nil,nil,nil,"sonoff_zbmini_r2_inching_time","Sonoff Zbminir2Inching Time",{0.5,3599.5,0.5,3,nil,20},nil,nil,3},{25,nil,25,25,nil,nil,nil,"countdown_timer","Countdown Timer Zcl Twelve Hours",{0,43200,1,3,nil,21},nil,nil,3},{56,nil,56,23,nil,nil,nil,"nous_b3z_countdown1","Nous B3z Countdown1",{0,43200,1,3,nil,22},nil,nil,3},{57,nil,57,24,nil,nil,nil,"nous_b3z_countdown2","Nous B3z Countdown2",{0,43200,1,3,nil,23},nil,nil,3}},G)a.enum=z({{26,26,58,58,"supportedTemperatureBreakers",nil,nil,26,"Temperature breaker",{2,1},{2,1},24,25,24},{27,27,59,59,"supportedPowerBreakers",nil,nil,27,"Power breaker",{2,1},{2,1},24,26,24},{28,28,60,60,"supportedOverCurrentBreakers",nil,nil,28,"Over current breaker",{2,1},{2,1},24,27,24},{29,29,61,61,"supportedOverVoltageBreakers",nil,nil,29,"Over voltage breaker",{2,1},{2,1},24,28,24},{30,30,62,62,"supportedUnderVoltageBreakers",nil,nil,30,"Under voltage breaker",{2,1},{2,1},24,29,24},{31,31,15,15,"supportedIndicatorModes",nil,nil,31,"Indicator mode",{1,16,17,2},{1,16,17,2},30,31,30},{32,32,9,9,"supportedPowerOnBehaviors",nil,nil,32,"Power on behavior",{1,2,5},{1,2,5},32,33,32},{33,33,18,18,"supportedPowerOutageMemories",nil,nil,33,"Power outage memory",{1,2,6},{1,2,6},34,35,34},{34,34,10,10,"supportedSwitchTypes",nil,nil,34,"Switch type",{4,7,8},{4,7,8},36,37,36},{63,nil,63,9,nil,nil,nil,"ts0001_bbeb_power_on_behavior","Ts0001Bbeb Power On Behavior",{1,2,5},{1,2,5},38,39,38},{64,nil,64,65,nil,nil,nil,"ts0001_bbeb_backlight_mode","Ts0001Bbeb Backlight Mode",{1,2},{1,2},40,41,40},{66,nil,66,"indicatorPattern",nil,nil,nil,"ts0001_bbeb_indicator_mode","Ts0001Bbeb Indicator Pattern",{1,16,17,2},{1,16,17,2},42,43,42},{67,nil,67,10,nil,nil,nil,"ts0003_module2_switch_type","Ts0003Module2Switch Type",{4,7,8},{4,7,8},44,45,44},{68,nil,68,15,nil,nil,nil,"ts0003_module2_indicator_mode","Ts0003Module2Indicator Mode",{1,11,12,2},{1,11,12,2},46,47,46},{69,nil,69,18,nil,nil,nil,"nfzb03_power_outage_memory","Nfzb03Power Outage Memory",{1,2,6},{1,2,6},48,49,48},{70,nil,70,10,nil,nil,nil,"nfzb03_switch_type","Nfzb03Switch Type",{4,7,8},{4,7,8},50,51,50},{71,nil,71,15,nil,nil,nil,"nfzb03_indicator_mode","Nfzb03Indicator Mode",{1,11,12,2},{1,11,12,2},52,53,52},{72,nil,72,65,nil,nil,nil,"nfzb03_backlight_mode","Nfzb03Backlight Mode",{1,2},{1,2},54,55,54},{73,nil,73,"inchingControlOne",nil,nil,nil,"nfzb03_inching_enabled_one","Nfzb03Inching Control One",{13,14},{13,14},56,57,56},{74,nil,74,"inchingControlTwo",nil,nil,nil,"nfzb03_inching_enabled_two","Nfzb03Inching Control Two",{13,14},{13,14},58,59,58},{75,nil,75,"inchingControlThree",nil,nil,nil,"nfzb03_inching_enabled_three","Nfzb03Inching Control Three",{13,14},{13,14},60,61,60},{76,nil,76,9,nil,nil,nil,"lellki_wp33_power_on_behavior","Lellki Wp33Power On Behavior",{1,2,5},{1,2,5},62,63,62},{77,nil,77,9,nil,nil,nil,"candeo_sm30_power_on_behavior","Candeo Sm30Power Behavior",{1,2,5},{1,2,5},64,65,64},{78,nil,78,15,nil,nil,nil,"ts011f_din_indicator_mode","Ts011f Din Indicator Mode",{1,11,12},{1,11,12},66,67,66},{79,nil,79,"networkIndicator",nil,nil,nil,"sonoff_zbmini_r2_network_indicator","Sonoff Zbminir2Network Indicator",{1,2},{1,2},68,69,68},{80,nil,80,"turboMode",nil,nil,nil,"sonoff_zbmini_r2_turbo_mode","Sonoff Zbminir2Turbo Mode",{1,2},{1,2},70,71,70},{81,nil,81,"delayedPowerOnState",nil,nil,nil,"sonoff_zbmini_r2_delayed_power_on_state","Sonoff Zbminir2Delay Power State",{1,2},{1,2},72,73,72},{82,nil,82,"detachRelayMode",nil,nil,nil,"sonoff_zbmini_r2_detach_relay_mode","Sonoff Zbminir2Detach Relay Mode",{1,2},{1,2},74,75,74},{83,nil,83,"externalTriggerMode",nil,nil,nil,"sonoff_zbmini_r2_external_trigger_mode","Sonoff Zbminir2Ext Trigger Mode",{84,85,86,87},{84,85,86,87},76,77,76},{88,nil,88,"inchingControl",nil,nil,nil,"sonoff_zbmini_r2_inching_control","Sonoff Zbminir2Inching Control",{1,2},{1,2},78,79,78},{89,nil,89,"inchingMode",nil,nil,nil,"sonoff_zbmini_r2_inching_mode","Sonoff Zbminir2Inching Mode",{1,2},{1,2},80,81,80},{90,nil,90,9,nil,nil,nil,"sonoff_zbmini_r2_power_on_behavior","Sonoff Zbminir2Power On Behavior",{1,2,4,5},{1,2,4,5},82,83,82},{35,nil,35,35,nil,nil,nil,"child_lock","Child Lock",{1,2},{1,2},84,85,84},{91,nil,91,"rainState",nil,0,0,"lyai_rain_state","Lyai Rain State",{92,93},{92,93},86,87,86},{94,nil,94,"rainEnabled",nil,nil,nil,"lyai_rain_enabled","Lyai Rain Enabled",{2,1},{2,1},88,89,88},{95,nil,95,"chargeState",nil,0,0,"lyai_charge_state","Lyai Charge State",{96,97,98},{96,97,98},90,91,90},{99,nil,99,10,nil,nil,nil,"ts0002_rux_switch_type","Ts0002Rux Switch Type",{4,7,8},{4,7,8},92,93,92},{100,nil,100,18,nil,nil,nil,"ts0002_rux_power_outage_memory","Ts0002Rux Power Outage Memory",{1,2,6},{1,2,6},94,95,94},{101,nil,101,102,nil,nil,nil,"nous_b3z_power_behavior","Nous B3z Power Behavior",{1,2,6},{1,2,6},96,97,96},{103,nil,103,10,nil,nil,nil,"nous_b3z_switch_type","Nous B3z Switch Type",{4,7,8},{4,7,8},98,99,98},{104,nil,104,102,nil,nil,nil,"spp04_power_behavior","Spp04Power Behavior",{1,2,6},{1,2,6},100,101,100}},K)a.text=z({{"last_power_response_time",105,105,0,0,nil,"Last power response time",64},{106,106,"status",0,0,"easyiot_sp1000_status","Easyiot Sp1000Status",16}},M)a.driver_message={attribute_name="driverMessage",capability_id="concertmirror08464.driverMessage",emit_name="driver_message",label="Driver message",maximum_length=512}a.by_range_key={}a.by_emit_name={}a.by_capability_id={}
+local function o(y)
+for _,e in ipairs(y)do
+a.by_emit_name[e.emit_name]=e
+if type(e.capability_id)=="string"and e.capability_id~=""then a.by_capability_id[e.capability_id]=e end
+if type(e.range_key)=="string"and e.range_key~=""then a.by_range_key[e.range_key]=e end
 end
 end
-index_metadata(custom_capabilities.numeric)
-index_metadata(custom_capabilities.enum)
-index_metadata(custom_capabilities.text)
-custom_capabilities.by_emit_name[custom_capabilities.driver_message.emit_name]=custom_capabilities.driver_message
-custom_capabilities.by_capability_id[custom_capabilities.driver_message.capability_id]=custom_capabilities.driver_message
-local function clone_allowed_values(allowed_values)
-if type(allowed_values)~="table" then return nil end
-local copied={}
-for index,value in ipairs(allowed_values)do copied[index]=value end
-return copied
+o(a.numeric)o(a.enum)o(a.text)a.by_emit_name[a.driver_message.emit_name]=a.driver_message
+a.by_capability_id[a.driver_message.capability_id]=a.driver_message
+local function l(j)
+if type(j)~="table"then return nil end
+local B={}
+for A,g in ipairs(j)do B[A]=g end
+return B
 end
-function custom_capabilities.resolve_range(definition,metadata)
-if type(metadata)~="table" then return nil end
-local default_range=type(metadata.default_range)=="table" and metadata.default_range or nil
-local ranges=type(definition)=="table" and definition.presence_capability_ranges or nil
-local resolved=type(ranges)=="table" and ranges[metadata.range_key]or nil
-if type(resolved)~="table" then resolved=default_range end
-if type(resolved)~="table" then return nil end
+function a.resolve_range(v,e)
+if type(e)~="table"then return nil end
+local d=type(e.default_range)=="table"and e.default_range or nil
+local C=type(v)=="table"and v.presence_capability_ranges or nil
+local h=type(C)=="table"and C[e.range_key]or nil
+if type(h)~="table"then h=d end
+if type(h)~="table"then return nil end
 return{
-minimum=type(resolved.minimum)=="number" and resolved.minimum or(default_range and default_range.minimum or nil),
-maximum=type(resolved.maximum)=="number" and resolved.maximum or(default_range and default_range.maximum or nil),
-step=type(resolved.step)=="number" and resolved.step or(default_range and default_range.step or nil),
-unit=type(resolved.unit)=="string" and resolved.unit or(default_range and default_range.unit or nil),
-allowed_values=type(resolved.allowed_values)=="table" and clone_allowed_values(resolved.allowed_values)or clone_allowed_values(default_range and default_range.allowed_values or nil),
-}
+minimum=type(h.minimum)=="number"and h.minimum or(d and d.minimum or nil),maximum=type(h.maximum)=="number"and h.maximum or(d and d.maximum or nil),step=type(h.step)=="number"and h.step or(d and d.step or nil),unit=type(h.unit)=="string"and h.unit or(d and d.unit or nil),allowed_values=type(h.allowed_values)=="table"and l(h.allowed_values)or l(d and d.allowed_values or nil)}
 end
-return custom_capabilities
+return a

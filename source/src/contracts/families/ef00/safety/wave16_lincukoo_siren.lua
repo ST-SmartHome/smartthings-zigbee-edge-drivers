@@ -34,9 +34,6 @@ end
 local a_zero_eight = {
   profile = "safety-wave16-lincukoo-a08-z10t",
   package_group = "siren",
-  transport_classification = "EF00_DP",
-  z2m_converter_source = "meta.tuyaDatapoints",
-  wire_cluster = "manuSpecificTuya",
   magic_packet = true,
   query_on_configure = false,
   time_start = "off",
@@ -77,6 +74,7 @@ add(enum(21, "a_zero_eight_alarm_ringtone", "aZeroEightAlarmRingtone", ringtones
 
 register_device_definition(a_zero_eight, device_helpers.create_fingerprints("TS0601", {
   "_TZE204_l4daccga",
+  "_TZE28C1000000_l4daccga",
 }))
 
 return {

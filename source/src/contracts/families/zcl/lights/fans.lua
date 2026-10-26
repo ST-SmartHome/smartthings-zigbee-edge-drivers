@@ -166,6 +166,13 @@ register_device_definition(fan_light_switch, device_helpers.create_fingerprints(
   "_TZ3000_ncb6mkx8",
 }))
 
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tse"},
+  {2, "rpt-tmfs"},
+})
+-- ZCL REPORTING CAPABILITIES END
+
 return {
   id = "zcl.lights.fans",
   registrations = device_definitions,

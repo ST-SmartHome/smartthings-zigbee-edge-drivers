@@ -1,0 +1,88 @@
+name: rpt-hqa
+components:
+- id: main
+  capabilities:
+  - id: contactSensor
+    version: 1
+  - id: concertmirror08464.batteryLow
+    version: 1
+  - id: battery
+    version: 1
+  - id: firmwareUpdate
+    version: 1
+  - id: refresh
+    version: 1
+  - id: signalStrength
+    version: 1
+  - id: concertmirror08464.zclIasReportMin
+    version: 1
+  - id: concertmirror08464.zclIasReportMax
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMin
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMax
+    version: 1
+  - id: concertmirror08464.zclBatteryReportChange20
+    version: 1
+  categories:
+  - name: ContactSensor
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: contactSensor
+      group: main
+    actions: []
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: contactSensor
+  - component: main
+    capability: concertmirror08464.batteryLow
+  - component: main
+    capability: battery
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
+  - component: main
+    capability: concertmirror08464.zclIasReportMin
+  - component: main
+    capability: concertmirror08464.zclIasReportMax
+  - component: main
+    capability: concertmirror08464.zclBatteryReportMin
+  - component: main
+    capability: concertmirror08464.zclBatteryReportMax
+  - component: main
+    capability: concertmirror08464.zclBatteryReportChange20
+  automation:
+    conditions:
+    - component: main
+      capability: contactSensor
+    - component: main
+      capability: concertmirror08464.batteryLow
+    - component: main
+      capability: battery
+    - component: main
+      capability: signalStrength
+    - component: main
+      capability: concertmirror08464.zclIasReportMin
+    - component: main
+      capability: concertmirror08464.zclIasReportMax
+    - component: main
+      capability: concertmirror08464.zclBatteryReportMin
+    - component: main
+      capability: concertmirror08464.zclBatteryReportMax
+    - component: main
+      capability: concertmirror08464.zclBatteryReportChange20
+    actions:
+    - component: main
+      capability: concertmirror08464.zclIasReportMin
+    - component: main
+      capability: concertmirror08464.zclIasReportMax
+    - component: main
+      capability: concertmirror08464.zclBatteryReportMin
+    - component: main
+      capability: concertmirror08464.zclBatteryReportMax
+    - component: main
+      capability: concertmirror08464.zclBatteryReportChange20

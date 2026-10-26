@@ -5,12 +5,68 @@ local zcl_device_helpers = require "contracts.helpers.zcl"
 local device_management = require "st.zigbee.device_management"
 local capabilities = require "st.capabilities"
 local data_types = require "st.zigbee.data_types"
+local cluster_base = require "st.zigbee.cluster_base"
+local read_attribute = require "st.zigbee.zcl.global_commands.read_attribute"
 
-local device_definitions, register_device_definition = device_helpers.definition_registry()
+local device_definitions, register = device_helpers.definition_registry()
 
-local function register_aliases(definition, aliases)
-  register_device_definition(definition, aliases)
+local ADUROSMART_MANUFACTURERS = {
+  "AduroSmart ERIA",
+  "ERIA",
+  "AduroSmart Eria",
+}
+
+local function adurosmart_fingerprints(models)
+  local fingerprints = {}
+  for _, model in ipairs(models) do
+    for _, manufacturer in ipairs(ADUROSMART_MANUFACTURERS) do
+      fingerprints[#fingerprints + 1] = device_helpers.create_fingerprint(manufacturer, model)
+    end
+  end
+  return fingerprints
 end
+
+local function build_adurosmart_light(profile, color)
+  local definition
+  definition = {
+    profile = profile,
+    color_temperature_range = {
+      minimum = math.floor((1000000 / 500) + 0.5),
+      maximum = math.floor((1000000 / 153) + 0.5),
+    },
+    zcl_clusters = {
+      zcl.switch({ endpoint = 1, configure_reporting = false }),
+      zcl.level({ endpoint = 1, configure_reporting = false }),
+      zcl.color_temperature({ endpoint = 1, configure_reporting = false }),
+    },
+    runtime_start = function(device)
+      device:emit_component_event(
+        { id = "main" },
+        capabilities.colorTemperature.colorTemperatureRange({
+          value = definition.color_temperature_range,
+          unit = "K",
+        })
+      )
+      return true
+    end,
+  }
+
+  if color then
+    definition.zcl_clusters[#definition.zcl_clusters + 1] =
+      zcl.color_hue({ endpoint = 1, configure_reporting = false })
+    definition.zcl_clusters[#definition.zcl_clusters + 1] =
+      zcl.color_saturation({ endpoint = 1, configure_reporting = false })
+    definition.zcl_clusters[#definition.zcl_clusters + 1] = zcl.color({ endpoint = 1 })
+  end
+
+  return definition
+end
+
+-- Current ZHC adurosmart.ts uses the same standard endpoint-1 light contract
+-- for these new ERIA identities.  Z2M leaves reporting disabled and explicitly
+-- omits power-on behavior, so this family does the same.
+local adurosmart_tunable_white = build_adurosmart_light("lights-color-temperature", false)
+local adurosmart_color_light = build_adurosmart_light("lights-color-temperature-color", true)
 
 local function clamp_round(value, minimum, maximum)
   value = tonumber(value)
@@ -80,7 +136,6 @@ local candeo_rd1p_dpm = {
       endpoint = 1,
       minimum_interval = 0,
       maximum_interval = 65000,
-      reportable_change = 1,
     }),
     zcl.level({
       endpoint = 1,
@@ -155,7 +210,7 @@ local candeo_rd1p_dpm = {
       write_type = data_types.Uint8,
       read_on_configure = true,
     }),
-    zcl.cluster_attribute(zcl.CLUSTER_LEVEL_CONTROL, 0x0010, {
+    zcl.cluster_attribute(zcl.CLUSTER_LEVEL_CONTROL, 0x0012, {
       name = "candeo_rd1p_dpm_on_transition_time",
       emit = emit.candeoRd1pDpmOnTransitionTime(),
       endpoint = 1,
@@ -166,7 +221,7 @@ local candeo_rd1p_dpm = {
       write_type = data_types.Uint16,
       read_on_configure = true,
     }),
-    zcl.cluster_attribute(zcl.CLUSTER_LEVEL_CONTROL, 0x0012, {
+    zcl.cluster_attribute(zcl.CLUSTER_LEVEL_CONTROL, 0x0013, {
       name = "candeo_rd1p_dpm_off_transition_time",
       emit = emit.candeoRd1pDpmOffTransitionTime(),
       endpoint = 1,
@@ -197,42 +252,10 @@ local candeo_rd1p_dpm = {
   end,
 }
 
-local function paulmann_send_raw(device, cluster_id, command_id, payload, endpoint)
-  return zcl.send_raw_cluster_command(device, cluster_id, command_id, payload, endpoint)
-end
-
-local function paulmann_rgbww_effect_sender(device, _, value, context)
-  local endpoint = context.endpoint or 1
-  local sent = false
-  if value == "colorloop" then
-    sent = paulmann_send_raw(device, zcl.CLUSTER_COLOR_CONTROL, 0x01, string.char(0x01, 17), endpoint)
-  elseif value == "stop_colorloop" then
-    sent = paulmann_send_raw(device, zcl.CLUSTER_COLOR_CONTROL, 0x01, string.char(0x00, 1), endpoint)
-  else
-    local effect_id = ({
-      blink = 0,
-      breathe = 1,
-      okay = 2,
-      channel_change = 11,
-      finish_effect = 254,
-      stop_effect = 255,
-    })[value]
-    if effect_id == nil then return false end
-    sent = paulmann_send_raw(device, 0x0003, 0x40, string.char(effect_id, 0), endpoint)
-  end
-
-  if sent ~= false then
-    local event = emit.paulmannRgbwwEffect()(device, value)
-    if event ~= nil then
-      device:emit_component_event({ id = context.component_id or "main" }, event)
-    end
-  end
-  return sent
-end
-
 local paulmann_rgbww
 paulmann_rgbww = {
   profile = "lights-paulmann-rgbww",
+  auto_on_before_light_command = false,
   capability_commands = {
     {
       capability_id = "concertmirror08464.paulmannRgbwwStartupCct",
@@ -248,7 +271,10 @@ paulmann_rgbww = {
   zcl_clusters = {
     zcl.switch({ configure_reporting = false }),
     zcl.level({ configure_reporting = false }),
-    zcl.color_temperature({ configure_reporting = false }),
+    zcl.color_temperature({
+      configure_reporting = false,
+      to_device = function(value) return math.max(153, math.min(454, math.floor(1000000 / value + 0.5))) end,
+    }),
     zcl.color_hue({ configure_reporting = false }),
     zcl.color_saturation({ configure_reporting = false }),
     zcl.color(),
@@ -256,6 +282,7 @@ paulmann_rgbww = {
       name = "paulmann_rgbww_power_on_behavior",
       emit = emit.paulmannRgbwwPowerOnBehavior(),
       from_device = function(value)
+        value = type(value) == "table" and value.value or value
         return ({ [0] = "off", [1] = "on", [2] = "toggle", [255] = "previous" })[value]
       end,
       to_device = function(value)
@@ -263,7 +290,6 @@ paulmann_rgbww = {
       end,
       data_type = data_types.Enum8,
       write_type = data_types.Enum8,
-      read_on_configure = true,
     }),
     zcl.cluster_attribute(zcl.CLUSTER_COLOR_CONTROL, 0x4010, {
       name = "paulmann_rgbww_startup_color_temperature",
@@ -277,16 +303,19 @@ paulmann_rgbww = {
       end,
       data_type = data_types.Uint16,
       write_type = data_types.Uint16,
-      read_on_configure = true,
     }),
     zcl.cluster_attribute(0x0003, 0xFFFF, {
       name = "paulmann_rgbww_effect",
       emit = emit.paulmannRgbwwEffect(),
-      data_type = data_types.Enum8,
       write_only = true,
-      sender = paulmann_rgbww_effect_sender,
+      sender = zcl.send_light_effect,
     }),
   },
+  configure = function(_, device)
+    for _, attribute in ipairs({ 0x400A, 0x400B, 0x400C }) do
+      zcl.read_mapping(device, zcl.cluster_attribute(0x0300, attribute, { endpoint = 1 }))
+    end
+  end,
   runtime_start = function(device)
     device:emit_component_event(
       { id = "main" },
@@ -298,14 +327,320 @@ paulmann_rgbww = {
     return true
   end,
 }
+zcl_device_helpers.append_clusters(paulmann_rgbww.zcl_clusters, zcl.color_xy({ endpoint = 1 }))
 
-register_aliases(candeo_rd1p_dpm, {
+-- ZHC 764f7d10: Hejhome GKZ-LB431RGBCW-E26. This firmware leaves the
+-- network after roughly ten minutes unless endpoint 1 receives periodic
+-- Basic/appVersion reads, so the keepalive is part of this exact contract.
+local hejhome_z26
+hejhome_z26 = {
+  profile = "lights-color-temperature-color",
+  color_temperature_range = {
+    minimum = math.floor((1000000 / 500) + 0.5),
+    maximum = math.floor((1000000 / 153) + 0.5),
+  },
+  zcl_clusters = {
+    zcl.switch({ endpoint = 1 }),
+    zcl.level({ endpoint = 1 }),
+    zcl.color_temperature({ endpoint = 1 }),
+    zcl.color_hue({ endpoint = 1 }),
+    zcl.color_saturation({ endpoint = 1 }),
+    zcl.color({ endpoint = 1 }),
+    zcl.cluster_attribute(0x0000, 0x0001, {
+      name = "hejhome_z26_app_version_keepalive",
+      endpoint = 1,
+      read_only = true,
+      data_type = data_types.Uint8,
+      read_on_configure = true,
+      poll_interval = 120,
+    }),
+  },
+  runtime_start = function(device)
+    device:emit_component_event(
+      { id = "main" },
+      capabilities.colorTemperature.colorTemperatureRange({
+        value = hejhome_z26.color_temperature_range,
+        unit = "K",
+      })
+    )
+    return true
+  end,
+}
+
+local function luumr_g9_setting_sender(device, mapping, value, context)
+  if mapping.name == "luumr_g9_do_not_disturb" then
+    return zcl.send_raw_cluster_command(device, 0x0300, 0xFA, string.char(value == "enabled" and 1 or 0), context.endpoint or 1)
+  end
+  local effect = ({blink = 0, breathe = 1, okay = 2, channel_change = 11, finish_effect = 254, stop_effect = 255})[value]
+  return zcl.send_raw_cluster_command(device, 3, 0x40, string.char(effect, 0), context.endpoint or 1)
+end
+
+local luumr_g9 = {
+  profile = "lights-luumr-g9",
+  auto_on_before_light_command = false,
+  color_temperature_range = {minimum = 2000, maximum = 6536},
+  zcl_clusters = {
+    zcl.tuya_magic_packet({read_on_configure = false}),
+    zcl.switch({endpoint = 1, minimum_interval = 0, maximum_interval = 65000}),
+    zcl.level({endpoint = 1, minimum_interval = 5, maximum_interval = 65000, reportable_change = 1}),
+    zcl.color_temperature({
+      endpoint = 1, minimum_interval = 10, maximum_interval = 65000, reportable_change = 1,
+      to_device = function(value) return math.max(153, math.min(500, math.floor(1000000 / value + 0.5))) end,
+    }),
+    zcl.cluster_attribute(8, 0xF000, {
+      name = "luumr_g9_tuya_brightness", endpoint = 1, data_type = data_types.Uint16, read_only = true, emit = emit.level(),
+      from_device = function(value) return math.floor(value / 10 + 0.5) end,
+    }),
+    zcl.cluster_attribute(3, 0xFFFF, {
+      name = "luumr_g9_effect", endpoint = 1, write_only = true, suppress_optimistic_state = true,
+      emit = emit.luumrG9Effect(), sender = luumr_g9_setting_sender,
+    }),
+    zcl.cluster_attribute(0x0300, 0xFFFE, {
+      name = "luumr_g9_do_not_disturb", endpoint = 1, write_only = true,
+      emit = emit.luumrG9DoNotDisturb(), sender = luumr_g9_setting_sender,
+    }),
+  },
+  configure = function(driver, device)
+    local hub_eui = driver.environment_info.hub_zigbee_eui
+    for _, cluster in ipairs({6, 8, 0x0300}) do zcl.bind_cluster(device, cluster, hub_eui, 1) end
+    for _, attribute in ipairs({0x400A, 0x400B, 0x400C}) do zcl.read_attribute(device, 0x0300, attribute, 1) end
+  end,
+  runtime_start = function(device)
+    device:emit_component_event({id = "main"}, capabilities.colorTemperature.colorTemperatureRange({value = {minimum = 2000, maximum = 6536}, unit = "K"}))
+    return true
+  end,
+  parent_refresh = function(device)
+    for _, item in ipairs({{6, 0}, {8, 0}, {0x0300, 7}}) do zcl.read_attribute(device, item[1], item[2], 1) end
+    return true
+  end,
+}
+
+local function tuya_hs_setting_sender(device, mapping, value, context)
+  if mapping.name:sub(-7) == "_effect" then
+    local endpoint = context.endpoint or 1
+    if value == "colorloop" or value == "stop_colorloop" then
+      local sent = zcl.send_raw_cluster_command(device, 0x0300, 1,
+        string.char(value == "colorloop" and 1 or 0, value == "colorloop" and 17 or 1, 0, 0), endpoint)
+      if value == "stop_colorloop" and sent ~= false then
+        device.thread:call_with_delay(0.1, function()
+          zcl.read_attribute(device, 0x0300, 0, endpoint)
+          zcl.read_attribute(device, 0x0300, 8, endpoint)
+        end)
+      end
+      return sent
+    end
+    local effect = ({blink = 0, breathe = 1, okay = 2, channel_change = 11, finish_effect = 254, stop_effect = 255})[value]
+    return zcl.send_raw_cluster_command(device, 3, 0x40, string.char(effect, 0), endpoint)
+  end
+  if mapping.name:find("_do_not_disturb", 1, true) then
+    return zcl.send_raw_cluster_command(device, 0x0300, 0xFA, string.char(value == "enabled" and 1 or 0), context.endpoint or 1)
+  end
+  local mode = ({initial = 0, previous = 1, customized = 2})[value]
+  return zcl.send_raw_cluster_command(device, 0x0300, 0xF9, string.char(0, mode) .. string.rep("\0", 10), context.endpoint or 1)
+end
+
+local function build_tuya_hs_light(profile, prefix, color_temperature)
+  local definition = {
+    profile = profile,
+    auto_on_before_light_command = false,
+    initial_custom_state_query = false,
+    zcl_clusters = {
+      zcl.switch({endpoint = 1, configure_reporting = false}),
+      zcl.level({endpoint = 1, configure_reporting = false}),
+      zcl.color_hue({endpoint = 1, configure_reporting = false}),
+      zcl.color_saturation({endpoint = 1, configure_reporting = false}),
+      zcl.color({endpoint = 1}),
+      zcl.cluster_attribute(8, 0xF000, {
+        name = prefix .. "_tuya_brightness", endpoint = 1, data_type = data_types.Uint16, read_only = true,
+        emit = emit.level(), from_device = function(value) return math.floor(value / 10 + 0.5) end,
+      }),
+      zcl.cluster_attribute(3, 0xFFFF, {
+        name = prefix .. "_effect", endpoint = 1, write_only = true, suppress_optimistic_state = true,
+        emit = emit[prefix .. "Effect"](), sender = tuya_hs_setting_sender,
+      }),
+      zcl.cluster_attribute(0x0300, 0xFFFE, {
+        name = prefix .. "_do_not_disturb", endpoint = 1, write_only = true,
+        emit = emit[prefix .. "DoNotDisturb"](), sender = tuya_hs_setting_sender,
+      }),
+      zcl.cluster_attribute(0x0300, 0xFFFD, {
+        name = prefix .. "_color_power_on_behavior", endpoint = 1, write_only = true,
+        emit = emit[prefix .. "ColorPowerOnBehavior"](), sender = tuya_hs_setting_sender,
+      }),
+    },
+    configure = function(_, device)
+      for _, attribute in ipairs({0x400A, 0x400B, 0x400C}) do zcl.read_attribute(device, 0x0300, attribute, 1) end
+    end,
+    parent_refresh = function(device)
+      for _, item in ipairs({{6, 0}, {8, 0}, {0x0300, 0}, {0x0300, 1}, {0x0300, 8}}) do
+        zcl.read_attribute(device, item[1], item[2], 1)
+      end
+      if color_temperature then zcl.read_attribute(device, 0x0300, 7, 1) end
+      return true
+    end,
+  }
+  if color_temperature then
+    definition.color_temperature_range = {minimum = 2000, maximum = 6536}
+    definition.zcl_clusters[#definition.zcl_clusters + 1] = zcl.color_temperature({
+      endpoint = 1, configure_reporting = false,
+      to_device = function(value) return math.max(153, math.min(500, math.floor(1000000 / value + 0.5))) end,
+    })
+    definition.runtime_start = function(device)
+      device:emit_component_event({id = "main"}, capabilities.colorTemperature.colorTemperatureRange({value = {minimum = 2000, maximum = 6536}, unit = "K"}))
+      return true
+    end
+  end
+  return definition
+end
+
+local tuya_ts0505b_hs = build_tuya_hs_light("lights-tuya-ts0505b-hs", "ts0505bHs", true)
+local tuya_ts0503b_hs = build_tuya_hs_light("lights-tuya-ts0503b-hs", "ts0503bHs", false)
+
+local function ecodo_indicator_endpoint(device)
+  return device:get_endpoint(0x0008)
+end
+
+local function ecodo_level_percent(value, device)
+  device:set_field("_ecodo_brightness", value)
+  return math.floor(math.max(0, math.min(254, value)) * 100 / 254 + 0.5)
+end
+
+local ecodo_repeater = {
+  profile = "lights-ecodo-repeater",
+  component_to_endpoint = ecodo_indicator_endpoint,
+  auto_on_before_light_command = false,
+  initial_custom_state_query = false,
+  capability_commands = {},
+  protocol_writers = {
+    brightness = function(device, value, command)
+      if type(value) ~= "number" or value % 1 ~= 0 or value < 0 or value > 100 then return false end
+      local level = math.floor(value * 254 / 100 + 0.5)
+      local rate = math.max(0, math.min(65535, math.floor(tonumber(command.args.rate) or 0)))
+      local sent = zcl.send_raw_cluster_command(device, 0x0008, 0x04,
+        string.pack("<BI2BB", level, rate, 0, 0), ecodo_indicator_endpoint(device))
+      if sent ~= false then
+        device:emit_component_event({id = command.component or "main"}, emit.level()(device, value))
+        device:emit_component_event({id = command.component or "main"}, emit.switch()(device, value > 0))
+      end
+      return sent ~= false
+    end,
+  },
+  zcl_clusters = {
+    zcl.switch({endpoint = ecodo_indicator_endpoint, configure_reporting = false, read_on_configure = false}),
+    zcl.cluster_attribute(0x0008, 0x0000, {
+      name = "ecodo_standard_brightness", endpoint = ecodo_indicator_endpoint,
+      data_type = data_types.Uint8, read_only = true, read_on_configure = false,
+      emit = emit.level(), from_device = ecodo_level_percent,
+    }),
+    zcl.cluster_attribute(0x0008, 0xF000, {
+      name = "ecodo_tuya_brightness", endpoint = ecodo_indicator_endpoint,
+      data_type = data_types.Uint16, read_only = true, read_on_configure = false, read_on_refresh = false,
+      emit = emit.level(),
+      from_device = function(value, device)
+        return ecodo_level_percent(math.floor(value * 255 / 1000 + 0.5), device)
+      end,
+    }),
+    {
+      name = "ecodo_do_not_disturb", cluster_id = 0x0300, endpoint = ecodo_indicator_endpoint,
+      write_only = true, emit = emit.ecodoRepeaterDoNotDisturb(),
+      sender = function(device, _, value, context)
+        if value ~= "enabled" and value ~= "disabled" then return false end
+        return zcl.send_raw_cluster_command(device, 0x0300, 0xFA,
+          string.char(value == "enabled" and 1 or 0), context.endpoint)
+      end,
+    },
+    {
+      name = "ecodo_effect", cluster_id = 0x0003, endpoint = ecodo_indicator_endpoint,
+      write_only = true, suppress_optimistic_state = true,
+      sender = function(device, _, value, context)
+        local effect = ({blink = 0, breathe = 1, okay = 2, channel_change = 11,
+                         finish_effect = 254, stop_effect = 255})[value]
+        if effect == nil then return false end
+        return zcl.send_raw_cluster_command(device, 0x0003, 0x40, string.char(effect, 0), context.endpoint)
+      end,
+    },
+    zcl.cluster_attribute(0x0300, 0x400A, {
+      name = "ecodo_color_capabilities", data_type = data_types.Bitmap16,
+      read_only = true, read_on_configure = false, read_on_refresh = false,
+      handler = function(device, _, context)
+        local header = context.zb_rx and context.zb_rx.body and context.zb_rx.body.zcl_header
+        if header and header.cmd.value == 0x01 then
+          local request = cluster_base.read_attribute(device,
+            data_types.ClusterId(0x0300), data_types.AttributeId(0x400B))
+          request.body.zcl_body = read_attribute.ReadAttribute({data_types.AttributeId(0x400B), data_types.AttributeId(0x400C)})
+          device:send(request:to_endpoint(context.endpoint))
+        end
+      end,
+    }),
+  },
+  configure = function(_, device)
+    for _, endpoint in pairs(device.zigbee_endpoints) do
+      if device:supports_server_cluster(0x0300, endpoint.id) then
+        zcl.read_attribute(device, 0x0300, 0x400A, endpoint.id)
+      end
+    end
+  end,
+}
+
+for _, effect in ipairs({{"blink", "blink"}, {"breathe", "breathe"}, {"okay", "okay"},
+                        {"channelChange", "channel_change"}, {"finishEffect", "finish_effect"},
+                        {"stopEffect", "stop_effect"}}) do
+  ecodo_repeater.capability_commands[#ecodo_repeater.capability_commands + 1] = {
+    capability_id = "concertmirror08464.ecodoRepeaterEffect", command_name = effect[1],
+    mapping_name = "ecodo_effect", value = effect[2],
+  }
+end
+
+register(candeo_rd1p_dpm, {
   device_helpers.create_fingerprint("Candeo", "C-ZB-RD1Pv2-DPM"),
 })
 
-register_aliases(paulmann_rgbww, {
+register(paulmann_rgbww, {
   device_helpers.create_fingerprint("Paulmann Licht GmbH", "RGBWW"),
 })
+
+register(hejhome_z26, {
+  device_helpers.create_fingerprint("_TZ3210_cnicaghm", "TS0505B"),
+})
+
+register(adurosmart_tunable_white, adurosmart_fingerprints({
+  "AD-DL4CT3001",
+  "AD-DL4CTW3001",
+  "AD-DL6CT3001",
+  "AD-DL6CTW3001",
+  "AD-FLMCT3001",
+}))
+
+register(adurosmart_color_light, adurosmart_fingerprints({
+  "AD-DL4RGBW3001",
+  "AD-DL6RGBW3001",
+  "AD-GU10RGB3001",
+  "AD-GU10RGBW3001",
+}))
+
+register(luumr_g9, {
+  device_helpers.create_fingerprint("_TZ3210_tqwyiitv", "TS0502B"),
+})
+
+register(tuya_ts0505b_hs, {
+  device_helpers.create_fingerprint("_TZ3210_ffuna0nr", "TS0505B"),
+})
+
+register(tuya_ts0503b_hs, {
+  device_helpers.create_fingerprint("_TZ3210_rbixajyp", "TS0503B"),
+  device_helpers.create_fingerprint("_TZ3210_w7ge4ldo", "TS0503B"),
+})
+
+register(ecodo_repeater, {
+  device_helpers.create_fingerprint("_TZ3210_cmnwaylf", "TS0501B"),
+})
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-cxt"},
+  {3, "rpt-tkj"},
+  {6, "rpt-tcn"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.lights.z2m_absorption",

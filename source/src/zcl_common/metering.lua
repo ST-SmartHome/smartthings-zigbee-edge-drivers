@@ -7,7 +7,6 @@ local function load_metering(zcl)
   local custom_capabilities = require "runtime.capability_metadata"
   local capability_support = require "runtime.capability_support"
   local zigbee_constants = require "st.zigbee.constants"
-  local device_management = require "st.zigbee.device_management"
 
   local POWER_POLL_INTERVAL_METADATA = custom_capabilities.by_emit_name.power_poll_interval
   local LAST_POWER_RESPONSE_TIME_METADATA = custom_capabilities.by_emit_name.last_power_response_time
@@ -25,6 +24,7 @@ local function load_metering(zcl)
   local OFF_STATE_CONFIRM_POLL_DELAYS = { 1, 3 }
 
   local metering_specs = {}
+  local simple_metering_kinds = { demand = "energy", summation = "energy" }
   local poll_timers = setmetatable({}, { __mode = "k" })
   local scaler_pair_reports = setmetatable({}, { __mode = "k" })
 
@@ -115,18 +115,7 @@ local function load_metering(zcl)
     return false
   end
 
-  local function is_callable(value)
-    if type(value) == "function" then
-      return true
-    end
-
-    if type(value) ~= "table" then
-      return false
-    end
-
-    local metatable = getmetatable(value)
-    return type(metatable) == "table" and type(metatable.__call) == "function"
-  end
+  local is_callable = capability_support.is_callable
 
   local function resolve_capability_attribute(device, metadata, attribute_name)
     if type(metadata) ~= "table" or type(attribute_name) ~= "string" or attribute_name == "" then
@@ -156,7 +145,7 @@ local function load_metering(zcl)
       return LAST_POWER_RESPONSE_WAITING_TEXT
     end
 
-    return os.date("%Y-%m-%d %H:%M:%S", epoch)
+    return os.date("!%Y-%m-%d %H:%M:%S UTC", epoch)
   end
 
   local function select_primary_power_mapping(device, zcl_clusters)
@@ -207,15 +196,6 @@ local function load_metering(zcl)
     end
 
     return default_power_poll_interval(device, zcl_clusters)
-  end
-
-  local function current_time_epoch()
-    local epoch = os.time()
-    if type(epoch) == "number" then
-      return epoch
-    end
-
-    return nil
   end
 
   local function normalize_switch_state(value)
@@ -508,7 +488,8 @@ local function load_metering(zcl)
             seen[key] = true
             local reportable_change = exact_raw_reportable_change(device, mapping, meta, spec, endpoint)
             if reportable_change ~= nil then
-              local request = device_management.attr_config(device, {
+              local reporting = require "zcl_common.reporting"
+              local config = reporting.configuration(zcl, device, mapping, reportable_change) or {
                 cluster = meta.cluster_id,
                 attribute = meta.attribute_id,
                 minimum_interval = meta.minimum_interval or 0,
@@ -516,11 +497,9 @@ local function load_metering(zcl)
                 data_type = meta.data_type,
                 reportable_change = reportable_change,
                 mfg_code = meta.mfg_code,
-              })
-              if type(request.to_endpoint) == "function" then
-                request = request:to_endpoint(endpoint)
-              end
-              device:send(request)
+              }
+              local descriptor = reporting.describe(zcl, mapping, device)
+              reporting.send_config(device, descriptor and descriptor.key, config, endpoint)
               sent = true
             end
           end
@@ -667,11 +646,21 @@ local function load_metering(zcl)
       return raw_value
     end
 
-    local spec = meta.metering_kind and metering_specs[meta.metering_kind] or nil
-    if spec ~= nil and type(raw_value) == "number" then
+    local spec = meta.metering_kind and metering_specs[simple_metering_kinds[meta.metering_kind] or meta.metering_kind] or nil
+    -- Some plugs report a SimpleMetering multiplier/divisor pair that is simply
+    -- wrong (the Mercator Ikuu SPP02GIP reports a 0x200010 ratio, so 61.63 kWh
+    -- became 12,924,846,384 kWh). Mappings flagged ignore_reported_scaler always
+    -- use their fixed meta.scale instead, as Zigbee2MQTT does for that plug.
+    if spec ~= nil and type(raw_value) == "number" and not meta.ignore_reported_scaler then
       local endpoint = mapping_context and mapping_context.endpoint or nil
       local reported_multiplier = get_scaler(device, spec, "multiplier", endpoint)
       local reported_divisor = get_scaler(device, spec, "divisor", endpoint)
+
+      if simple_metering_kinds[meta.metering_kind] then
+        local factor = reported_multiplier and reported_multiplier ~= 0 and
+          reported_divisor and reported_divisor ~= 0 and reported_multiplier / reported_divisor
+        return raw_value * (factor and factor * (meta.metering_kind == "demand" and 1000 or 1) or 1)
+      end
 
       local multiplier = reported_multiplier or 1
       local divisor = reported_divisor or 1
@@ -714,8 +703,8 @@ local function load_metering(zcl)
     for _, mapping in ipairs(zcl_clusters) do
       if type(mapping) == "table" then
         local meta = zcl.mapping_meta(mapping)
-        local spec = meta and meta.metering_kind and metering_specs[meta.metering_kind] or nil
-        if spec ~= nil then
+        local spec = meta and meta.metering_kind and metering_specs[simple_metering_kinds[meta.metering_kind] or meta.metering_kind] or nil
+        if spec ~= nil and not meta.ignore_reported_scaler then
           local mapping_context = zcl.build_mapping_context(device, mapping, nil)
           local endpoint = normalize_endpoint(mapping_context.endpoint)
 

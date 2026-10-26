@@ -36,7 +36,6 @@ local definition = {
   time_start = "2000",
   initial_custom_state_query = false,
   refresh_state_query = false,
-  placeholder_custom_states = false,
 
   tuya.dp_on_off(1, { name = "switch", emit = emit.switch() }),
   tuya.dp_enum(3, {

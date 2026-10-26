@@ -1,0 +1,30 @@
+name: rpt-els
+components:
+- id: main
+  capabilities:
+  - id: temperatureMeasurement
+    version: 1
+  - id: battery
+    version: 1
+  - id: batteryLevel
+    version: 1
+  - id: voltageMeasurement
+    version: 1
+  - id: refresh
+    version: 1
+  - id: signalStrength
+    version: 1
+  - id: concertmirror08464.zclTempReportMin
+    version: 1
+  - id: concertmirror08464.zclTempReportMax
+    version: 1
+  - id: concertmirror08464.zclTempReportChange29
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMin
+    version: 1
+  - id: concertmirror08464.zclBatteryReportMax
+    version: 1
+  - id: concertmirror08464.zclBatteryReportChange20
+    version: 1
+  categories:
+  - name: MultiFunctionalSensor

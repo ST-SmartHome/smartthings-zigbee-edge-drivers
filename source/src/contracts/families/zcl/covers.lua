@@ -87,6 +87,7 @@ register_device_definition(ts130f_cover, device_helpers.create_fingerprints("TS1
   "_TZ3000_jwv3cwak",
   "_TZ3000_74hsp7qy",
   "_TZ3210_dwytrmda",
+  "_TZ3210_jrhczaaa",
   "_TZ3000_vw8pawxa",
   "_TZ3210_xbpt8ewc",
   "_TZ3000_egq7y6pr",
@@ -112,6 +113,7 @@ register_device_definition(ts130f_dual_cover, device_helpers.create_fingerprints
   "_TZ3000_j1xl73iw",
   "_TZ3000_kmsbwdol",
   "_TZ3000_l6iqph4f",
+  "_TZ3000_wvedmwyp",
   "_TZ3000_xdo0hj1k",
 }))
 
@@ -129,40 +131,6 @@ register_device_definition(standard_cover_battery, {
   device_helpers.create_fingerprint("IKEA of Sweden", "PRAKTLYSING cellular blind"),
   device_helpers.create_fingerprint("IKEA of Sweden", "TREDANSEN block-out cellul blind"),
 })
-
-local function standard_cover_position_converter()
-  return {
-    from = function(value)
-      if type(value) ~= "number" then
-        return value
-      end
-      return 100 - math.max(0, math.min(100, value))
-    end,
-    to = function(value)
-      if type(value) ~= "number" then
-        return value
-      end
-      return 100 - math.max(0, math.min(100, value))
-    end,
-  }
-end
-
-local function standard_window_shade_state_converter()
-  return {
-    from = function(value)
-      if type(value) ~= "number" then
-        return value
-      end
-      if value <= 0 then
-        return "open"
-      end
-      if value >= 100 then
-        return "closed"
-      end
-      return "partially open"
-    end,
-  }
-end
 
 local cover = {
   profile = "covers-cover",
@@ -209,6 +177,22 @@ register_device_definition(cover_battery, {
   device_helpers.create_fingerprint("Third Reality, Inc", "3RSB015BZ"),
   device_helpers.create_fingerprint("Third Reality, Inc", "3RSB02015Z"),
 })
+
+-- ZCL REPORTING CAPABILITIES BEGIN
+zcl.attach_reporting_capabilities(device_definitions, {
+  {1, "rpt-tci"},
+  {2, "rpt-tci"},
+  {3, "rpt-tci"},
+  {4, "rpt-tuv", {zr010200081 = "Position", zr010200082 = "PositionTwo"}},
+  {5, "rpt-txq"},
+  {6, "rpt-txq"},
+  {7, "rpt-txq"},
+  {8, "rpt-txq"},
+  {9, "rpt-tci"},
+  {10, "rpt-txq"},
+  {11, "rpt-txq"},
+})
+-- ZCL REPORTING CAPABILITIES END
 
 return {
   id = "zcl.covers",

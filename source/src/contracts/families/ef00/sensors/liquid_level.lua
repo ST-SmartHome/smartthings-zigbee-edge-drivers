@@ -117,6 +117,172 @@ register_sensor_definition(liquid_level_872wz, {
   device_helpers.create_fingerprint("_TZE204_7yyuo8sr", "TS0601"),
 })
 
+local ME201_CANDIDATE_FIELD = "__me201wz_candidate"
+local ME201_PENDING_FIELD = "__me201wz_pending_state"
+local ME201_VALUE_TYPE = 0x02
+local ME201_TRANSIENT = { persist = false }
+local ME201_PERSISTENT = { persist = true }
+local ME201_STATES = { [0] = "normal", [1] = "low", [2] = "high" }
+
+local function me201_dp_value(dp_info)
+  if dp_info.datatype == ME201_VALUE_TYPE then
+    return dp_info.signed_value
+  end
+  return dp_info.value
+end
+
+local function me201_frame_cache(device, context)
+  local frame = context.frame
+  if frame.me201wz == nil then
+    -- Snapshot before any level or geometry/threshold mapping stores this frame.
+    frame.me201wz = {
+      state = {
+        liquid_depth = device:get_field("liquid_depth"),
+        liquid_level_percent = device:get_field("liquid_level_percent"),
+        liquid_state = device:get_field("liquid_state"),
+        installation_height = device:get_field("installation_height"),
+        liquid_depth_max = device:get_field("liquid_depth_max"),
+        min_set = device:get_field("min_set"),
+        max_set = device:get_field("max_set"),
+      },
+    }
+  end
+  return frame.me201wz
+end
+
+local function me201_filter(device, result, state)
+  local depth, percent = result.liquid_depth, result.liquid_level_percent
+  local last_depth, height, depth_max = state.liquid_depth, state.installation_height, state.liquid_depth_max
+  local glitch = false
+  if depth ~= nil then
+    if depth < 0 or (height ~= nil and depth > height) then
+      glitch = true
+    elseif last_depth ~= nil and math.abs(depth - last_depth) > 0.05 then
+      local candidate = device:get_field(ME201_CANDIDATE_FIELD)
+      local now = math.floor(require("cosock.socket").gettime() * 1000)
+      if candidate ~= nil and math.abs(depth - candidate.depth) <= 0.03 then
+        glitch = now - candidate.since < 43200000
+      else
+        device:set_field(ME201_CANDIDATE_FIELD, { depth = depth, since = now }, ME201_TRANSIENT)
+        glitch = true
+      end
+    end
+    if not glitch then
+      device:set_field(ME201_CANDIDATE_FIELD, nil, ME201_TRANSIENT)
+    end
+  elseif percent ~= nil and last_depth ~= nil and depth_max ~= nil and depth_max ~= 0 then
+    -- JavaScript's truthy depthMax excludes zero; Lua's truthiness does not.
+    glitch = math.abs(percent - math.min(100, last_depth / depth_max * 100)) > 5 / depth_max
+  end
+  if glitch then
+    result.liquid_depth, result.liquid_level_percent, result.liquid_state = nil, nil, nil
+    return result
+  end
+
+  local min_set, max_set = state.min_set, state.max_set
+  local level = percent
+  if level == nil then level = state.liquid_level_percent end
+  if min_set == nil or max_set == nil or level == nil then return result end
+  local function matches(value)
+    return (value == "low" and level <= min_set + 1)
+      or (value == "high" and level >= max_set - 1)
+      or (value == "normal" and level >= min_set - 1 and level <= max_set + 1)
+  end
+  if result.liquid_state ~= nil and not matches(result.liquid_state) then
+    device:set_field(ME201_PENDING_FIELD, result.liquid_state, ME201_TRANSIENT)
+    result.liquid_state = nil
+  elseif result.liquid_state == nil and percent ~= nil then
+    local pending = device:get_field(ME201_PENDING_FIELD)
+    if pending ~= nil and pending ~= state.liquid_state and matches(pending) then
+      result.liquid_state = pending
+    end
+  end
+  if result.liquid_state ~= nil then
+    device:set_field(ME201_PENDING_FIELD, nil, ME201_TRANSIENT)
+  end
+  return result
+end
+
+local function me201_level_from(_, device, _, context)
+  local cache = me201_frame_cache(device, context)
+  if cache.result == nil then
+    local values = {}
+    for _, dp_info in ipairs(context.frame.datapoints) do
+      if dp_info.dp == 1 or dp_info.dp == 2 or dp_info.dp == 22 then
+        values[dp_info.dp] = me201_dp_value(dp_info)
+      end
+    end
+    local result = {}
+    if values[1] ~= nil then result.liquid_state = ME201_STATES[values[1]] end
+    if values[2] ~= nil then result.liquid_depth = values[2] / 100 end
+    if values[22] ~= nil then result.liquid_level_percent = values[22] end
+    cache.result = me201_filter(device, result, cache.state)
+  end
+  return cache.result
+end
+
+local function me201_level_emitter(state_emit, depth_emit, percent_emit)
+  return function(device, result, _, context)
+    local cache = me201_frame_cache(device, context)
+    if cache.emitted then return end
+    cache.emitted = true
+    local events = {}
+    if result.liquid_state ~= nil then
+      device:set_field("liquid_state", result.liquid_state, ME201_PERSISTENT)
+      events[#events + 1] = state_emit(device, result.liquid_state)
+    end
+    if result.liquid_depth ~= nil then
+      device:set_field("liquid_depth", result.liquid_depth, ME201_PERSISTENT)
+      events[#events + 1] = depth_emit(device, result.liquid_depth)
+    end
+    if result.liquid_level_percent ~= nil then
+      device:set_field("liquid_level_percent", result.liquid_level_percent, ME201_PERSISTENT)
+      events[#events + 1] = percent_emit(device, result.liquid_level_percent)
+    end
+    if #events > 0 then return events end
+  end
+end
+
+local function me201_numeric_setting(dp, name, event_emit, minimum, maximum, scale)
+  local function encode(value)
+    if type(value) ~= "number" or value ~= value or value < minimum or value > maximum then return end
+    if scale == 1 and value % 1 ~= 0 then return end
+    local scaled = value * scale
+    local encoded = math.floor(scaled + 0.5)
+    -- Only SET grid validation tolerates multiplication noise, not the filter.
+    if math.abs(scaled - encoded) > 0.0000001 then return end
+    return encoded
+  end
+  return tuya.dp_numeric(dp, {
+    name = name,
+    emit = event_emit,
+    persist = true,
+    from_device = function(_, device, dp_info, context)
+      me201_frame_cache(device, context)
+      return me201_dp_value(dp_info) / scale
+    end,
+    to_device = encode,
+    optimistic_value = function(value, device)
+      local encoded = encode(value)
+      if encoded == nil then return end
+      local actual = encoded / scale
+      device:set_field(name, actual, ME201_PERSISTENT)
+      return actual
+    end,
+  })
+end
+
+local function me201_voltage_from(_, _, dp_info)
+  return me201_dp_value(dp_info) / 10
+end
+
+local me201_emit_level = me201_level_emitter(
+  emit.me201LiquidState(), emit.me201DepthV2(), emit.me201LevelPercent()
+)
+local me202_emit_level = me201_level_emitter(
+  emit.me202LiquidState(), emit.me202DepthV2(), emit.me202LevelPercent()
+)
+
 -- ══════════════════════════════════════════════════════════════
 -- 2-12a. liquid_level_me201wz: ME201WZ 수위 센서
 -- Z2M: _TZE284_kyyu8rbj
@@ -124,46 +290,38 @@ register_sensor_definition(liquid_level_872wz, {
 local liquid_level_me201wz = {
   profile = "sensors-liquid-level-me201wz",
   force_time_updates = true,
-  time_start = "1970",
+  time_start = "off",
   datapoints = {
     tuya.dp_enum(1, {
       name = "liquid_state",
-      emit = emit.liquid_state(),
+      field = false,
+      emit = me201_emit_level,
       read_only = true,
-      converter = converter.from_only(converter.lookup_value({
-        [0] = "normal",
-        [1] = "low",
-        [2] = "high",
-      })),
+      from_device = me201_level_from,
     }),
     tuya.dp_numeric(2, {
       name = "liquid_depth",
-      emit = emit.me201LiquidDepth(),
+      field = false,
+      emit = me201_emit_level,
       read_only = true,
-      converter = converter.divide_by_pair(100),
+      from_device = me201_level_from,
     }),
     tuya.dp_numeric(5, {
       name = "voltage",
       emit = emit.voltage(),
       read_only = true,
-      converter = converter.divide_by_pair(10),
+      from_device = me201_voltage_from,
     }),
-    tuya.dp_numeric(7, { name = "max_set", emit = emit.me201MaximumPercent() }),
-    tuya.dp_numeric(8, { name = "min_set", emit = emit.me201MinimumPercent() }),
-    tuya.dp_numeric(19, {
-      name = "installation_height",
-      emit = emit.me201InstallationHeight(),
-      converter = converter.divide_by_pair(100),
-    }),
-    tuya.dp_numeric(21, {
-      name = "liquid_depth_max",
-      emit = emit.me201MaximumDepth(),
-      converter = converter.divide_by_pair(100),
-    }),
+    me201_numeric_setting(7, "max_set", emit.me201MaximumPercentV2(), 0, 100, 1),
+    me201_numeric_setting(8, "min_set", emit.me201MinimumPercentV2(), 0, 100, 1),
+    me201_numeric_setting(19, "installation_height", emit.me201InstallationHeightV2(), 0.1, 5, 100),
+    me201_numeric_setting(21, "liquid_depth_max", emit.me201MaximumDepthV2(), 0.1, 5, 100),
     tuya.dp_numeric(22, {
       name = "liquid_level_percent",
-      emit = emit.liquid_level_percent(),
+      field = false,
+      emit = me201_emit_level,
       read_only = true,
+      from_device = me201_level_from,
     }),
     tuya.dp_binary(24, {
       name = "relay_switch",
@@ -246,41 +404,37 @@ register_sensor_definition(liquid_level_tlc2206, {
 local liquid_level_me202wz = {
   profile = "sensors-liquid-level-me202wz",
   force_time_updates = true,
-  time_start = "1970",
+  time_start = "off",
   datapoints = {
     tuya.dp_enum(1, {
       name = "liquid_state",
-      emit = emit.liquid_state(),
+      field = false,
+      emit = me202_emit_level,
       read_only = true,
-      converter = converter.from_only(converter.lookup_value({
-        [0] = "normal",
-        [1] = "low",
-        [2] = "high",
-      })),
+      from_device = me201_level_from,
     }),
     tuya.dp_numeric(2, {
       name = "liquid_depth",
-      emit = emit.me202LiquidDepth(),
+      field = false,
+      emit = me202_emit_level,
       read_only = true,
-      converter = converter.divide_by_pair(100),
+      from_device = me201_level_from,
     }),
     tuya.dp_numeric(5, {
       name = "voltage",
       emit = emit.voltage(),
       read_only = true,
-      converter = converter.divide_by_pair(10),
+      from_device = me201_voltage_from,
     }),
-    tuya.dp_numeric(7, { name = "max_set", emit = emit.me202MaximumPercent() }),
-    tuya.dp_numeric(8, { name = "min_set", emit = emit.me202MinimumPercent() }),
-    tuya.dp_numeric(21, {
-      name = "liquid_depth_max",
-      emit = emit.me202MaximumDepth(),
-      converter = converter.divide_by_pair(100),
-    }),
+    me201_numeric_setting(7, "max_set", emit.me202MaximumPercentV2(), 0, 100, 1),
+    me201_numeric_setting(8, "min_set", emit.me202MinimumPercentV2(), 0, 100, 1),
+    me201_numeric_setting(21, "liquid_depth_max", emit.me202MaximumDepthV2(), 0.1, 10, 100),
     tuya.dp_numeric(22, {
       name = "liquid_level_percent",
-      emit = emit.liquid_level_percent(),
+      field = false,
+      emit = me202_emit_level,
       read_only = true,
+      from_device = me201_level_from,
     }),
     tuya.dp_binary(24, {
       name = "relay_switch",
