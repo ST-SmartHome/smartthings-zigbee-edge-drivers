@@ -4468,6 +4468,15 @@ local ATTRIBUTE_OVERRIDES = {
   ewelinkSw04PowerFour = "powerOnBehavior",
   iris3460Action = "action",
   iris3460Group = "actionGroup",
+  ikeaE1766Action = "action",
+  ikeaE1766ActionGroup = "group",
+  zg210zPressureState = "pressureState",
+  zg210zCurrentPressure = "currentPressure",
+  zg210zPressureIntensity = "pressureIntensity",
+  zg210zPresenceDelay = "presenceDelay",
+  zg210zSedentaryReminder = "sedentaryReminder",
+  zg210zTemperatureCalibration = "temperatureCalibration",
+  zg210zHumidityCalibration = "humidityCalibration",
 }
 
 local function attribute_name(capability_id)
@@ -6804,6 +6813,13 @@ local numeric_rows = {
   {"nodonIrbHolderCalibration",true,"nodon_irb_holder_calibration",-3276.8,3276.7,nil,"C"},
   {"thirdWsBuzzerMinutes",true,"third_ws_buzzer_minutes",0,255,1,"min"},
   {"iris3460Group",false,"iris3460_group",1,65527,1,nil},
+  {"ikeaE1766ActionGroup",false,"ikea_e1766_action_group",1,65527,1,nil},
+  {"zg210zCurrentPressure",false,"zg210z_current_pressure",nil,nil,nil,"x"},
+  {"zg210zPressureIntensity",true,"zg210z_pressure_intensity",0,2000,1,"x"},
+  {"zg210zPresenceDelay",true,"zg210z_presence_delay",0,3600,1,"s"},
+  {"zg210zSedentaryReminder",true,"zg210z_sedentary_reminder",0,1440,1,"minutes"},
+  {"zg210zTemperatureCalibration",true,"zg210z_temperature_calibration",-2,2,nil,"C"},
+  {"zg210zHumidityCalibration",true,"zg210z_humidity_calibration",-30,30,1,"%"},
 }
 local enum_rows = {
   {"zmsFourBacklightSetting",true,"zms206_backlight_mode",{"OFF","ON"}},
@@ -8922,6 +8938,8 @@ local enum_rows = {
   {"ewelinkSw04PowerThree",true,"ewelink_sw04_power_three",{"off","on","toggle","previous"}},
   {"ewelinkSw04PowerFour",true,"ewelink_sw04_power_four",{"off","on","toggle","previous"}},
   {"iris3460Action",false,"iris3460_action",{"on","off"}},
+  {"ikeaE1766Action",false,"ikea_e1766_action",{"open","close","stop"}},
+  {"zg210zPressureState",false,"zg210z_pressure_state",{"none","sit","sedentary"}},
 }
 local text_rows = {
   {"zmsFourSwitchName",true,"zms206_switch_name",12},

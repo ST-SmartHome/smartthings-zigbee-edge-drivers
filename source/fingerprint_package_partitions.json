@@ -555,6 +555,12 @@
       "newOwner": "ef00-controls-2-wonjj6768"
     },
     {
+      "catalogId": "zcl.controls.ikea_e1766",
+      "catalogModule": "contracts.families.zcl.controls.ikea_e1766",
+      "oldOwner": "zcl-controls-2-wonjj6768",
+      "newOwner": "zcl-controls-2-wonjj6768"
+    },
+    {
       "catalogId": "zcl.covers.z2m_absorption",
       "catalogModule": "contracts.families.zcl.covers.z2m_absorption",
       "oldOwner": "zcl-covers-2-wonjj6768",
@@ -7313,9 +7319,13 @@
         {
           "module": "contracts.families.zcl.controls.sonoff",
           "id": "zcl.controls.sonoff"
+        },
+        {
+          "module": "contracts.families.zcl.controls.ikea_e1766",
+          "id": "zcl.controls.ikea_e1766"
         }
       ],
-      "exactCount": 31,
+      "exactCount": 34,
       "catalogMigrations": [
         {
           "catalogId": "zcl.controls.z2m_absorption",
@@ -7685,6 +7695,49 @@
               "newOwner": "zcl-controls-2-wonjj6768",
               "catalogId": "zcl.controls.sonoff",
               "catalogModule": "contracts.families.zcl.controls.sonoff"
+            }
+          ]
+        },
+        {
+          "catalogId": "zcl.controls.ikea_e1766",
+          "catalogModule": "contracts.families.zcl.controls.ikea_e1766",
+          "oldOwner": "zcl-controls-2-wonjj6768",
+          "newOwner": "zcl-controls-2-wonjj6768",
+          "moved": false,
+          "exactCount": 3,
+          "exacts": [
+            {
+              "manufacturer": "\u0002KE",
+              "manufacturerUtf8Hex": "024b45",
+              "model": "TRADFRI open/close remote",
+              "modelUtf8Hex": "54524144465249206f70656e2f636c6f73652072656d6f7465",
+              "profile": "rpt-twy",
+              "oldOwner": "zcl-controls-2-wonjj6768",
+              "newOwner": "zcl-controls-2-wonjj6768",
+              "catalogId": "zcl.controls.ikea_e1766",
+              "catalogModule": "contracts.families.zcl.controls.ikea_e1766"
+            },
+            {
+              "manufacturer": "IKEA of Sweden",
+              "manufacturerUtf8Hex": "494b4541206f662053776564656e",
+              "model": "TRADFRI open/close remote",
+              "modelUtf8Hex": "54524144465249206f70656e2f636c6f73652072656d6f7465",
+              "profile": "rpt-twy",
+              "oldOwner": "zcl-controls-2-wonjj6768",
+              "newOwner": "zcl-controls-2-wonjj6768",
+              "catalogId": "zcl.controls.ikea_e1766",
+              "catalogModule": "contracts.families.zcl.controls.ikea_e1766"
+            },
+            {
+              "manufacturer": "KE",
+              "manufacturerUtf8Hex": "4b45",
+              "model": "TRADFRI open/close remote",
+              "modelUtf8Hex": "54524144465249206f70656e2f636c6f73652072656d6f7465",
+              "profile": "rpt-twy",
+              "oldOwner": "zcl-controls-2-wonjj6768",
+              "newOwner": "zcl-controls-2-wonjj6768",
+              "catalogId": "zcl.controls.ikea_e1766",
+              "catalogModule": "contracts.families.zcl.controls.ikea_e1766"
             }
           ]
         }
@@ -10229,7 +10282,7 @@
           "id": "ef00.presence.simple_sensors"
         }
       ],
-      "exactCount": 36,
+      "exactCount": 37,
       "catalogMigrations": [
         {
           "catalogId": "ef00.presence.z2m_absorption",
@@ -10682,8 +10735,19 @@
           "oldOwner": "ef00-presence-3-wonjj6768",
           "newOwner": "ef00-presence-3-wonjj6768",
           "moved": false,
-          "exactCount": 1,
+          "exactCount": 2,
           "exacts": [
+            {
+              "manufacturer": "_TZE200_ihizzpzn",
+              "manufacturerUtf8Hex": "5f545a453230305f6968697a7a707a6e",
+              "model": "ZG-210Z",
+              "modelUtf8Hex": "5a472d3231305a",
+              "profile": "safety-pressure-zg210z-core",
+              "oldOwner": "ef00-presence-3-wonjj6768",
+              "newOwner": "ef00-presence-3-wonjj6768",
+              "catalogId": "ef00.presence.simple_sensors",
+              "catalogModule": "contracts.families.ef00.presence.simple_sensors"
+            },
             {
               "manufacturer": "_TZE284_mexuq6lm",
               "manufacturerUtf8Hex": "5f545a453238345f6d65787571366c6d",
@@ -12599,7 +12663,7 @@
           "id": "zcl.covers.somfy_tilt_lift"
         }
       ],
-      "exactCount": 16,
+      "exactCount": 17,
       "catalogMigrations": [
         {
           "catalogId": "zcl.covers.z2m_absorption",
@@ -12607,8 +12671,19 @@
           "oldOwner": "zcl-covers-2-wonjj6768",
           "newOwner": "zcl-covers-2-wonjj6768",
           "moved": false,
-          "exactCount": 3,
+          "exactCount": 4,
           "exacts": [
+            {
+              "manufacturer": "AXIS",
+              "manufacturerUtf8Hex": "41584953",
+              "model": "Gear",
+              "modelUtf8Hex": "47656172",
+              "profile": "rpt-gaw",
+              "oldOwner": "zcl-covers-2-wonjj6768",
+              "newOwner": "zcl-covers-2-wonjj6768",
+              "catalogId": "zcl.covers.z2m_absorption",
+              "catalogModule": "contracts.families.zcl.covers.z2m_absorption"
+            },
             {
               "manufacturer": "Aubor",
               "manufacturerUtf8Hex": "4175626f72",
@@ -15119,13 +15194,13 @@
     "legacyExactCount": 3280,
     "legacyOwnerChangeCount": 0,
     "newPackageCount": 27,
-    "newCatalogCount": 114,
-    "newExactCount": 986,
+    "newCatalogCount": 115,
+    "newExactCount": 991,
     "fingerprintOnlyAliasCount": 120,
     "newFamilyExactCount": 5,
     "failClosedExactCount": 0,
     "restoredLegacyExactCount": 5,
-    "runtimeExactCount": 4386,
+    "runtimeExactCount": 4391,
     "movedCatalogCount": 62,
     "movedExactCount": 540,
     "historicalPartitionCount": 17

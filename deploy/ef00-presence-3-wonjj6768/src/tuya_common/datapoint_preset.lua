@@ -47,7 +47,7 @@ return bg
 end
 return z.apply_fixed_send_policy(bg)
 end
-local function q(A,g,x,c,b)
+local function k(A,g,x,c,b)
 local a=e(c,b,g)local y=a.scale
 if y==nil then
 y=x
@@ -217,14 +217,14 @@ threshold_1=true,threshold_1_protection=true,threshold_1_value=true,threshold_2=
 end
 return z.dp_raw(A,a)
 end
-local function am(m)
-if d(m)=="number"and m%1==0 and m>=0 then
-return{m}
+local function am(n)
+if d(n)=="number"and n%1==0 and n>=0 then
+return{n}
 end
-if d(m)~="table"then
+if d(n)~="table"then
 return{}
 end
-local aI={}for _,A in ipairs(m)do
+local aI={}for _,A in ipairs(n)do
 if d(A)=="number"and A%1==0 and A>=0 then
 M(aI,A)
 end
@@ -235,18 +235,18 @@ local function Z(b)
 if d(b)~="table"then
 return b
 end
-local m=b.dps
-if m==nil then
-m=b.dp_list
+local n=b.dps
+if n==nil then
+n=b.dp_list
 end
-if m==nil and b[1]~=nil then
-m=b
+if n==nil and b[1]~=nil then
+n=b
 end
-return m
+return n
 end
 local function ac(b)
-local m=Z(b)if m~=nil then
-return m
+local n=Z(b)if n~=nil then
+return n
 end
 if d(b)~="table"then
 return b
@@ -284,14 +284,14 @@ local P=b.main_component
 if d(P)~="string"or P==""then
 P="main"
 end
-local p=b.index_offset
-if d(p)~="number"or p%1~=0 then
-p=0
+local q=b.index_offset
+if d(q)~="number"or q%1~=0 then
+q=0
 end
 if w==1 and K then
 return P
 end
-local aB=K and(w-1+p)or(w+p)if aB<1 then
+local aB=K and(w-1+q)or(w+q)if aB<1 then
 return b.default_component
 end
 return I..tostring(aB)
@@ -306,14 +306,14 @@ local at=b.main_key
 if d(at)~="string"or at==""then
 at=W
 end
-local p=b.index_offset
-if d(p)~="number"or p%1~=0 then
-p=0
+local q=b.index_offset
+if d(q)~="number"or q%1~=0 then
+q=0
 end
 if w==1 and K then
 return at
 end
-local aB=K and(w-1+p)or(w+p)if aB<1 then
+local aB=K and(w-1+q)or(w+q)if aB<1 then
 return b.default_key
 end
 return W..tostring(aB)
@@ -338,7 +338,7 @@ local aj={
 local function aw(Q)
 return d(Q)=="number"and Q%1==0 and Q>0
 end
-local function o(b,i)
+local function p(b,i)
 local a={}if d(b)~="table"then
 return a
 end
@@ -380,14 +380,14 @@ w=w+1
 end
 return b
 end
-local function s(b,n,i)
+local function s(b,o,i)
 if d(b)~="table"then
 return{}
 end
-local r=b[n]if r==nil then
-return o(b,i)
+local r=b[o]if r==nil then
+return p(b,i)
 end
-local a=o(b,i)if d(r)=="table"then
+local a=p(b,i)if d(r)=="table"then
 j(a,r)else
 a.dp=r
 end
@@ -402,11 +402,11 @@ return r
 end
 return{dp=r}
 end
-local function U(b,n)
+local function U(b,o)
 if d(b)~="table"then
 return nil
 end
-return t(b[n])
+return t(b[o])
 end
 local function au(as,f)
 local L=d(as)=="table"and as.item_options or nil
@@ -419,20 +419,20 @@ return L
 end
 local a={}j(a,L)j(a,C)return a
 end
-local function af(b,n,B,i)
+local function af(b,o,B,i)
 local a={}local r
 if d(b)=="table"then
-bl(a,b,aj)r=b[n]if d(r)=="table"then
-j(a,o(b,i))if i and ab(r)then
+bl(a,b,aj)r=b[o]if d(r)=="table"then
+j(a,p(b,i))if i and ab(r)then
 F(a)
 end
 j(a,r)elseif r~=nil then
-j(a,o(b,i))if i then
+j(a,p(b,i))if i then
 F(a)
 end
 a.dp=r
 else
-j(a,o(b,i))
+j(a,p(b,i))
 end
 end
 if a.key_prefix==nil and B~=nil then
@@ -440,62 +440,62 @@ a.key_prefix=B
 end
 a.item_options=au(b,r)return a
 end
-local function N(b,l)
-local k={}local ap=U(b,"config")j(k,ap)local av=t(k[l])if av~=nil then
-k[l]=av
+local function N(b,m)
+local l={}local ap=U(b,"config")j(l,ap)local av=t(l[m])if av~=nil then
+l[m]=av
 else
-local X=t(k.switch_type)if X==nil then
+local X=t(l.switch_type)if X==nil then
 X=U(b,"switch_type")
 end
 if d(X)=="table"then
-k[l]=X
+l[m]=X
 end
 end
-if l~="switch_type"then
-k.switch_type=nil
+if m~="switch_type"then
+l.switch_type=nil
 end
-if next(k)~=nil then
-return k
+if next(l)~=nil then
+return l
 end
 return{}
 end
-local function O(b,l)
+local function O(b,m)
 local a={}if d(b)=="table"then
 j(a,b)
 end
-local k=N(b,l)if next(k)~=nil then
-a.config=k
+local l=N(b,m)if next(l)~=nil then
+a.config=l
 end
 a.switch_type=nil
 return a
 end
-local function aU(b,l)
+local function aU(b,m)
 local a={}if d(b)=="table"then
 j(a,b)
 end
 local T=O(
-s(b,"switch_module"),l)if next(T)~=nil then
+s(b,"switch_module"),m)if next(T)~=nil then
 a.switch_module=T
 end
 return a
 end
-local function bk(h,b,n,v)
-local f=s(b,n)R(h,f.dp,v,f)
+local function bk(h,b,o,v)
+local f=s(b,o)R(h,f.dp,v,f)
 end
-local function aC(h,b,n,v,J)
-local f=s(b,n)ao(f,J)R(h,f.dp,v,f)
+local function aC(h,b,o,v,J)
+local f=s(b,o)ao(f,J)R(h,f.dp,v,f)
 end
-local function aS(h,b,n,v,ay)
-local f=s(b,n)local m=Z(f)if m~=nil and ay~=nil then
-aa(h,ay(m,f))return
+local function aS(h,b,o,v,ay)
+local f=s(b,o)local n=Z(f)if n~=nil and ay~=nil then
+aa(h,ay(n,f))return
 end
 R(h,f.dp,v,f)
 end
-local function aL(h,b,n,B,v)
-local f=af(b,n,B)aa(h,v(ac(f),f))
+local function aL(h,b,o,B,v)
+local f=af(b,o,B)aa(h,v(ac(f),f))
 end
-local function bf(m,v,g,b)
-local h={}local ai=am(m)local ah=d(b)=="table"and b.item_options or nil
+local function bf(n,v,g,b)
+local h={}local ai=am(n)local ah=d(b)=="table"and b.item_options or nil
 for w,A in ipairs(ai)do
 local a=e(ah,nil,g)if a.component==nil then
 a.component=ag(w,b)
@@ -510,8 +510,8 @@ M(h,v(A,a))
 end
 return h
 end
-local function aN(m,v,b)
-local h={}local ai=am(m)local ah=d(b)=="table"and b.item_options or nil
+local function aN(n,v,b)
+local h={}local ai=am(n)local ah=d(b)=="table"and b.item_options or nil
 for w,A in ipairs(ai)do
 local a=e(ah,nil,nil)if a.phase==nil then
 a.phase=aJ(w,b)
@@ -520,10 +520,10 @@ M(h,v(A,a))
 end
 return h
 end
-local function aM(b,n,v)
+local function aM(b,o,v)
 local f
 if d(b)=="table"then
-f=s(b,n,true)else
+f=s(b,o,true)else
 f={dp=b}
 end
 local h={}R(h,f.dp,v,f)return h
@@ -535,10 +535,13 @@ end
 return z.dp_binary(A,a)
 end
 function z.dp_temperature(A,c,b)
-return q(A,"temperature",10,c,b)
+return k(A,"temperature",10,c,b)
 end
 function z.dp_humidity(A,c,b)
-return q(A,"humidity",10,c,b)
+return k(A,"humidity",10,c,b)
+end
+function z.dp_battery(A,c,b)
+return k(A,"battery",1,c,b)
 end
 function z.dp_illuminance(A,c,b)
 local a=e(c,b,"illuminance")return z.dp_numeric(A,a)
@@ -553,10 +556,10 @@ function z.dp_presence(A,c,b)
 return z.dp_binary(A,e(c,b,"presence"))
 end
 function z.dp_static_detection_distance(A,c,b)
-return q(A,"static_detection_distance",100,c,b)
+return k(A,"static_detection_distance",100,c,b)
 end
 function z.dp_target_distance(A,c,b)
-return q(A,"target_distance",100,c,b)
+return k(A,"target_distance",100,c,b)
 end
 end
 return ar

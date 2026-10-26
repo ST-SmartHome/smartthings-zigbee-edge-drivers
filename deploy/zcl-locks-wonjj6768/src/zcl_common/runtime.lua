@@ -7,7 +7,7 @@ return nil
 end
 return g
 end
-local function n(c,b)
+local function n(d,b)
 if type(b)~="table"then
 return nil
 end
@@ -16,14 +16,14 @@ if type(e)=="string"and e~=""then
 return e
 end
 local g=r(b.endpoint or b.src_endpoint)
-if g~=nil and type(c.get_component_id_for_endpoint)=="function"then
-local G=c:get_component_id_for_endpoint(g)if type(G)=="string"and G~=""then
+if g~=nil and type(d.get_component_id_for_endpoint)=="function"then
+local G=d:get_component_id_for_endpoint(g)if type(G)=="string"and G~=""then
 return G
 end
 end
 return nil
 end
-local function k(c,b)
+local function k(d,b)
 if type(b)~="table"then
 return nil
 end
@@ -31,8 +31,8 @@ local g=r(b.endpoint or b.src_endpoint)if g~=nil then
 return g
 end
 local e=b.component_id or b.component
-if type(e)=="string"and e~=""and type(c.get_endpoint_for_component_id)=="function"then
-local G=c:get_endpoint_for_component_id(e)if type(G)=="table"then
+if type(e)=="string"and e~=""and type(d.get_endpoint_for_component_id)=="function"then
+local G=d:get_endpoint_for_component_id(e)if type(G)=="table"then
 G=G[1]
 end
 return r(G)
@@ -81,28 +81,28 @@ a.physical_reportable_change or nil,read_on_configure=a.read_on_configure==true,
 if ah~=false then ad[a]=ae end
 return ae
 end
-local function t(c,a,b)
+local function t(d,a,b)
 local ae=w(a)local g=ae.endpoint
 if type(g)=="function"then
-g=g(c,a,b)
+g=g(d,a,b)
 end
 return r(g)
 end
-local function o(c,a,b)
+local function o(d,a,b)
 local ae=w(a)local e=ae.component
 if type(e)=="function"then
-e=e(c,a,b)
+e=e(d,a,b)
 end
 if type(e)=="string"and e~=""then
 return e
 end
 return nil
 end
-local function W(c,a,b,ai)
+local function W(d,a,b,al)
 local f={
-mapping=a,value=ai}if type(b)=="table"then
-for aj,am in pairs(b)do
-f[aj]=am
+mapping=a,value=al}if type(b)=="table"then
+for ai,am in pairs(b)do
+f[ai]=am
 end
 end
 if f.cluster_id==nil and type(a)=="table"then
@@ -111,31 +111,31 @@ end
 if f.attribute_id==nil and type(a)=="table"then
 f.attribute_id=a.attribute_id
 end
-local g=t(c,a,f)if g==nil then
-g=k(c,f)
+local g=t(d,a,f)if g==nil then
+g=k(d,f)
 end
-local e=o(c,a,f)if e==nil then
-if g~=nil and type(c.get_component_id_for_endpoint)=="function"then
-e=c:get_component_id_for_endpoint(g)else
-e=n(c,f)
+local e=o(d,a,f)if e==nil then
+if g~=nil and type(d.get_component_id_for_endpoint)=="function"then
+e=d:get_component_id_for_endpoint(g)else
+e=n(d,f)
 end
 end
 f.endpoint=g
 f.component_id=e
-f.component=e and c.profile and c.profile.components and c.profile.components[e]or nil
+f.component=e and d.profile and d.profile.components and d.profile.components[e]or nil
 return f
 end
-local function u(a,c,b)
-if type(a)~="table"or c==nil then
+local function u(a,d,b)
+if type(a)~="table"or d==nil then
 return 0
 end
-local x=t(c,a,b)local z=o(c,a,b)local H=w(a).mfg_code
-local v=k(c,b)local m=n(c,b)local ac=type(b)=="table"and b.mfg_code or nil
+local x=t(d,a,b)local z=o(d,a,b)local H=w(a).mfg_code
+local v=k(d,b)local m=n(d,b)local ac=type(b)=="table"and b.mfg_code or nil
 if v==nil and m~=nil then
-v=k(c,{component_id=m})
+v=k(d,{component_id=m})
 end
-if m==nil and v~=nil and type(c.get_component_id_for_endpoint)=="function"then
-m=c:get_component_id_for_endpoint(v)
+if m==nil and v~=nil and type(d.get_component_id_for_endpoint)=="function"then
+m=d:get_component_id_for_endpoint(v)
 end
 if x~=nil and v~=x then
 return-1
@@ -162,57 +162,57 @@ C=C+4
 end
 return C
 end
-local function I(h)
-return type(h)=="table"and h[O]==true
+local function I(j)
+return type(j)=="table"and j[O]==true
 end
-local function U(q,aj,a)
-local X=q[aj]if X==nil then
-q[aj]=a
+local function U(q,ai,a)
+local X=q[ai]if X==nil then
+q[ai]=a
 return
 end
 if I(X)then
 X[#X+1]=a
 return
 end
-q[aj]={
+q[ai]={
 [O]=true,X,a}
 end
-local function D(h,c,b)
-if h==nil then
+local function D(j,d,b)
+if j==nil then
 return nil
 end
-if not I(h)then
-if c==nil or u(h,c,b)>=0 then
-return h
+if not I(j)then
+if d==nil or u(j,d,b)>=0 then
+return j
 end
 return nil
 end
-if c==nil then
-return h[1]
+if d==nil then
+return j[1]
 end
 local J
 local p=-1
-for _,a in ipairs(h)do
-local C=u(a,c,b)if C>p then
+for _,a in ipairs(j)do
+local C=u(a,d,b)if C>p then
 J=a
 p=C
 end
 end
 return J
 end
-local function F(h,c,b)
-if h==nil then
+local function F(j,d,b)
+if j==nil then
 return{}
 end
-if not I(h)then
-if c==nil or u(h,c,b)>=0 then
-return{h}
+if not I(j)then
+if d==nil or u(j,d,b)>=0 then
+return{j}
 end
 return{}
 end
 local J={}local p
-for _,a in ipairs(h)do
-local C=c==nil and 0 or u(a,c,b)if C>=0 then
+for _,a in ipairs(j)do
+local C=d==nil and 0 or u(a,d,b)if C>=0 then
 if p==nil or C>p then
 J={a}p=C
 elseif C==p then
@@ -222,21 +222,21 @@ end
 end
 return J
 end
-local function j(d)
-if d==nil then
+local function i(c)
+if c==nil then
 return nil
 end
-local Z=ab[d]if Z~=nil then
+local Z=ab[c]if Z~=nil then
 return Z
 end
-local s={}local ag={}local V={}local Y={}for _,a in ipairs(d)do
+local s={}local ag={}local V={}local Y={}for _,a in ipairs(c)do
 if type(a)=="table"then
-local i=a.cluster_id
+local h=a.cluster_id
 local y=a.attribute_id
-if i~=nil and y~=nil then
-s[i]=s[i]or{}U(s[i],y,a)if not Y[i]then
-Y[i]=true
-V[#V+1]=i
+if h~=nil and y~=nil then
+s[h]=s[h]or{}U(s[h],y,a)if not Y[h]then
+Y[h]=true
+V[#V+1]=h
 end
 end
 if a.name~=nil then
@@ -245,96 +245,78 @@ end
 end
 end
 local q={
-by_cluster_attribute=s,by_name=ag,cluster_ids=V}ab[d]=q
+by_cluster_attribute=s,by_name=ag,cluster_ids=V}ab[c]=q
 return q
 end
-function M.normalize_endpoint(g)
-return r(g)
-end
+M.normalize_endpoint=r
 function M.mapping_meta(a,ah)
 if type(a)~="table"then
 return nil
 end
 return w(a,ah)
 end
-function M.resolve_context_component_id(c,b)
-return n(c,b)
+M.resolve_context_component_id=n
+M.resolve_context_endpoint=k
+M.resolve_mapping_endpoint=t
+M.resolve_mapping_component_id=o
+M.build_mapping_context=W
+M.select_mapping_entry=D
+M.collect_matching_entries=F
+M.build_mapping_index=i
+function M.prepare_mappings(c)
+if type(c)~="table"then
+return c
 end
-function M.resolve_context_endpoint(c,b)
-return k(c,b)
+if not R[c]then
+R[c]=true
+i(c)
 end
-function M.resolve_mapping_endpoint(c,a,b)
-return t(c,a,b)
+return c
 end
-function M.resolve_mapping_component_id(c,a,b)
-return o(c,a,b)
-end
-function M.build_mapping_context(c,a,b,ai)
-return W(c,a,b,ai)
-end
-function M.select_mapping_entry(h,c,b)
-return D(h,c,b)
-end
-function M.collect_matching_entries(h,c,b)
-return F(h,c,b)
-end
-function M.build_mapping_index(d)
-return j(d)
-end
-function M.prepare_mappings(d)
-if type(d)~="table"then
-return d
-end
-if not R[d]then
-R[d]=true
-j(d)
-end
-return d
-end
-function M.find_mapping(d,i,y,c,b)
-local q=j(d)if q==nil then
+function M.find_mapping(c,h,y,d,b)
+local q=i(c)if q==nil then
 return nil
 end
-local E=q.by_cluster_attribute[i]if E==nil then
+local E=q.by_cluster_attribute[h]if E==nil then
 return nil
 end
-return D(E[y],c,b)
+return D(E[y],d,b)
 end
-function M.find_mappings(d,i,y,c,b)
-local q=j(d)if q==nil then
+function M.find_mappings(c,h,y,d,b)
+local q=i(c)if q==nil then
 return{}
 end
-local E=q.by_cluster_attribute[i]if E==nil then
+local E=q.by_cluster_attribute[h]if E==nil then
 return{}
 end
-return F(E[y],c,b)
+return F(E[y],d,b)
 end
-function M.find_mapping_by_name(d,al,c,b)
-if d==nil or al==nil then
+function M.find_mapping_by_name(c,ak,d,b)
+if c==nil or ak==nil then
 return nil
 end
-local q=j(d)if q==nil then
+local q=i(c)if q==nil then
 return nil
 end
-return D(q.by_name[al],c,b)
+return D(q.by_name[ak],d,b)
 end
-function M.has_cluster(d,i)
-if d==nil then
+function M.has_cluster(c,h)
+if c==nil then
 return false
 end
-local q=j(d)return q~=nil and q.by_cluster_attribute[i]~=nil
+local q=i(c)return q~=nil and q.by_cluster_attribute[h]~=nil
 end
-function M.get_cluster_ids(d)
-if d==nil then
+function M.get_cluster_ids(c)
+if c==nil then
 return{}
 end
-local q=j(d)if q==nil then
+local q=i(c)if q==nil then
 return{}
 end
-local ak={}for _,i in ipairs(q.cluster_ids)do
-ak[#ak+1]=i
+local aj={}for _,h in ipairs(q.cluster_ids)do
+aj[#aj+1]=h
 end
-return ak
+return aj
 end
 end
 return af
