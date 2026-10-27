@@ -98,9 +98,7 @@ local function load_attribute_reader(zcl)
     return read_plain_attribute(device, cluster_id, attribute_id, endpoint)
   end
 
-  function zcl.read_mapping(device, mapping, context)
-    return read_mapping_attribute(device, mapping, context)
-  end
+  zcl.read_mapping = read_mapping_attribute
 
   function zcl.read_named_attribute(device, zcl_clusters, name, context)
     local mapping = zcl.find_mapping_by_name(zcl_clusters, name, device, context)

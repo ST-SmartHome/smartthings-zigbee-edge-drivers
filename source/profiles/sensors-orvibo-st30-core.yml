@@ -9,3 +9,40 @@ components:
       - {id: signalStrength, version: 1}
     categories:
       - {name: TempHumiditySensor}
+deviceConfig:
+  dashboard:
+    states:
+    - component: main
+      capability: temperatureMeasurement
+      group: main
+      composite: true
+    - component: main
+      capability: relativeHumidityMeasurement
+      group: main
+      values:
+      - label: ' {{humidity.value}}{{humidity.unit}}'
+      composite: true
+    actions: []
+    basicPlus: []
+  detailView:
+  - component: main
+    capability: temperatureMeasurement
+  - component: main
+    capability: relativeHumidityMeasurement
+  - component: main
+    capability: battery
+  - component: main
+    capability: refresh
+  - component: main
+    capability: signalStrength
+  automation:
+    conditions:
+    - component: main
+      capability: temperatureMeasurement
+    - component: main
+      capability: relativeHumidityMeasurement
+    - component: main
+      capability: battery
+    - component: main
+      capability: signalStrength
+    actions: []

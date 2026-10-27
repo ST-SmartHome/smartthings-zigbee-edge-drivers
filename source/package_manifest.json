@@ -474,6 +474,10 @@
         {
           "module": "contracts.families.zcl.controls.sonoff",
           "id": "zcl.controls.sonoff"
+        },
+        {
+          "module": "contracts.families.zcl.controls.ikea_e1766",
+          "id": "zcl.controls.ikea_e1766"
         }
       ]
     },

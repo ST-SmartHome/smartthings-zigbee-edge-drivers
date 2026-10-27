@@ -17806,5 +17806,41 @@
   [
     "iris3460Group",
     "actionGroup"
+  ],
+  [
+    "ikeaE1766Action",
+    "action"
+  ],
+  [
+    "ikeaE1766ActionGroup",
+    "group"
+  ],
+  [
+    "zg210zPressureState",
+    "pressureState"
+  ],
+  [
+    "zg210zCurrentPressure",
+    "currentPressure"
+  ],
+  [
+    "zg210zPressureIntensity",
+    "pressureIntensity"
+  ],
+  [
+    "zg210zPresenceDelay",
+    "presenceDelay"
+  ],
+  [
+    "zg210zSedentaryReminder",
+    "sedentaryReminder"
+  ],
+  [
+    "zg210zTemperatureCalibration",
+    "temperatureCalibration"
+  ],
+  [
+    "zg210zHumidityCalibration",
+    "humidityCalibration"
   ]
 ]

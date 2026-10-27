@@ -77688,6 +77688,91 @@
       ]
     },
     {
+      "baseProfile": "buttons-ikea-e1766",
+      "capabilities": [
+        "concertmirror08464.zclBatteryReportMin",
+        "concertmirror08464.zclBatteryReportMax",
+        "concertmirror08464.zclBatteryReportChange20"
+      ],
+      "contracts": [
+        {
+          "attribute": 33,
+          "attribute_name": "BatteryPercentageRemaining",
+          "byte_length": 1,
+          "change": 10,
+          "cluster": 1,
+          "component": "main",
+          "control": "zr000100211",
+          "default_change": 10,
+          "default_maximum": 65000,
+          "default_minimum": 3600,
+          "discrete": false,
+          "endpoint": 1,
+          "index": 2,
+          "item": "Battery",
+          "maximum": 65000,
+          "minimum": 3600,
+          "name": "battery",
+          "scale": 2,
+          "type": 32
+        }
+      ],
+      "controls": [
+        {
+          "attribute": 33,
+          "attribute_name": "BatteryPercentageRemaining",
+          "byte_length": 1,
+          "change": 10,
+          "cluster": 1,
+          "component": "main",
+          "control": "zr000100211",
+          "default_change": 10,
+          "default_maximum": 65000,
+          "default_minimum": 3600,
+          "discrete": false,
+          "endpoint": 1,
+          "index": 2,
+          "item": "Battery",
+          "maximum": 65000,
+          "minimum": 3600,
+          "name": "battery",
+          "scale": 2,
+          "type": 32
+        }
+      ],
+      "identity": "contracts.families.zcl.controls.ikea_e1766:1",
+      "logicalItems": {},
+      "pending": [],
+      "prefix": "tradfWyvk",
+      "profile": "rpt-twy",
+      "registrations": [
+        {
+          "fingerprints": [
+            {
+              "manufacturer": "IKEA of Sweden",
+              "model": "TRADFRI open/close remote"
+            },
+            {
+              "manufacturer": "KE",
+              "model": "TRADFRI open/close remote"
+            },
+            {
+              "manufacturer": "\u0002KE",
+              "model": "TRADFRI open/close remote"
+            }
+          ],
+          "origin": {
+            "line": 122,
+            "source": "contracts/families/zcl/controls/ikea_e1766.lua"
+          },
+          "owner": {
+            "index": 1,
+            "module": "contracts.families.zcl.controls.ikea_e1766"
+          }
+        }
+      ]
+    },
+    {
       "baseProfile": "bridges-wave19-heiman-hs-one-ir",
       "capabilities": [
         "concertmirror08464.zclBatteryReportMin",
@@ -80413,6 +80498,169 @@
           },
           "owner": {
             "index": 2,
+            "module": "contracts.families.zcl.covers.z2m_absorption"
+          }
+        }
+      ]
+    },
+    {
+      "baseProfile": "covers-axis-gear",
+      "capabilities": [
+        "concertmirror08464.zclLevelReportMin",
+        "concertmirror08464.zclLevelReportMax",
+        "concertmirror08464.zclLevelReportChange20",
+        "concertmirror08464.zclPositionReportMin",
+        "concertmirror08464.zclPositionReportMax",
+        "concertmirror08464.zclPositionReportChange20",
+        "concertmirror08464.zclBatteryReportMin",
+        "concertmirror08464.zclBatteryReportMax",
+        "concertmirror08464.zclBatteryReportChange20"
+      ],
+      "contracts": [
+        {
+          "attribute": 0,
+          "attribute_name": "CurrentLevel",
+          "byte_length": 1,
+          "change": 1,
+          "cluster": 8,
+          "component": "nil",
+          "control": "zr000800001",
+          "default_change": 1,
+          "default_maximum": 3600,
+          "default_minimum": 1,
+          "discrete": false,
+          "endpoint": 1,
+          "index": 2,
+          "item": "Level",
+          "maximum": 3600,
+          "minimum": 1,
+          "name": "axis_gear_level",
+          "type": 32
+        },
+        {
+          "attribute": 8,
+          "attribute_name": "CurrentPositionLiftPercentage",
+          "byte_length": 1,
+          "change": 1,
+          "cluster": 258,
+          "component": "nil",
+          "control": "zr010200081",
+          "default_change": 1,
+          "default_maximum": 65000,
+          "default_minimum": 1,
+          "discrete": false,
+          "endpoint": 1,
+          "index": 3,
+          "item": "Position",
+          "maximum": 65000,
+          "minimum": 1,
+          "name": "cover_position",
+          "type": 32
+        },
+        {
+          "attribute": 33,
+          "attribute_name": "BatteryPercentageRemaining",
+          "byte_length": 1,
+          "change": 10,
+          "cluster": 1,
+          "component": "nil",
+          "control": "zr000100211",
+          "default_change": 10,
+          "default_maximum": 65000,
+          "default_minimum": 3600,
+          "discrete": false,
+          "endpoint": 1,
+          "index": 6,
+          "item": "Battery",
+          "maximum": 65000,
+          "minimum": 3600,
+          "name": "battery",
+          "scale": 2,
+          "type": 32
+        }
+      ],
+      "controls": [
+        {
+          "attribute": 0,
+          "attribute_name": "CurrentLevel",
+          "byte_length": 1,
+          "change": 1,
+          "cluster": 8,
+          "component": "nil",
+          "control": "zr000800001",
+          "default_change": 1,
+          "default_maximum": 3600,
+          "default_minimum": 1,
+          "discrete": false,
+          "endpoint": 1,
+          "index": 2,
+          "item": "Level",
+          "maximum": 3600,
+          "minimum": 1,
+          "name": "axis_gear_level",
+          "type": 32
+        },
+        {
+          "attribute": 8,
+          "attribute_name": "CurrentPositionLiftPercentage",
+          "byte_length": 1,
+          "change": 1,
+          "cluster": 258,
+          "component": "nil",
+          "control": "zr010200081",
+          "default_change": 1,
+          "default_maximum": 65000,
+          "default_minimum": 1,
+          "discrete": false,
+          "endpoint": 1,
+          "index": 3,
+          "item": "Position",
+          "maximum": 65000,
+          "minimum": 1,
+          "name": "cover_position",
+          "type": 32
+        },
+        {
+          "attribute": 33,
+          "attribute_name": "BatteryPercentageRemaining",
+          "byte_length": 1,
+          "change": 10,
+          "cluster": 1,
+          "component": "nil",
+          "control": "zr000100211",
+          "default_change": 10,
+          "default_maximum": 65000,
+          "default_minimum": 3600,
+          "discrete": false,
+          "endpoint": 1,
+          "index": 6,
+          "item": "Battery",
+          "maximum": 65000,
+          "minimum": 3600,
+          "name": "battery",
+          "scale": 2,
+          "type": 32
+        }
+      ],
+      "identity": "contracts.families.zcl.covers.z2m_absorption:4",
+      "logicalItems": {},
+      "pending": [],
+      "prefix": "gearAwzd",
+      "profile": "rpt-gaw",
+      "registrations": [
+        {
+          "fingerprints": [
+            {
+              "manufacturer": "AXIS",
+              "model": "Gear"
+            }
+          ],
+          "origin": {
+            "line": 262,
+            "source": "contracts/families/zcl/covers/z2m_absorption.lua"
+          },
+          "owner": {
+            "index": 4,
             "module": "contracts.families.zcl.covers.z2m_absorption"
           }
         }
@@ -98547,6 +98795,14 @@
   "profileChanges": [
     {
       "fingerprint": {
+        "manufacturer": "\u0002KE",
+        "model": "TRADFRI open/close remote"
+      },
+      "oldProfile": "buttons-ikea-e1766",
+      "profile": "rpt-twy"
+    },
+    {
+      "fingerprint": {
         "manufacturer": " Legrand\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
         "model": " Dimmer switch with neutral\u0000\u0000\u0000\u0000"
       },
@@ -98664,6 +98920,14 @@
       },
       "oldProfile": "switches-switch-4",
       "profile": "rpt-tmr"
+    },
+    {
+      "fingerprint": {
+        "manufacturer": "AXIS",
+        "model": "Gear"
+      },
+      "oldProfile": "covers-axis-gear",
+      "profile": "rpt-gaw"
     },
     {
       "fingerprint": {
@@ -102660,6 +102924,14 @@
     {
       "fingerprint": {
         "manufacturer": "IKEA of Sweden",
+        "model": "TRADFRI open/close remote"
+      },
+      "oldProfile": "buttons-ikea-e1766",
+      "profile": "rpt-twy"
+    },
+    {
+      "fingerprint": {
+        "manufacturer": "IKEA of Sweden",
         "model": "TRADFRI_bulb_GU10_WS_345lm"
       },
       "oldProfile": "lights-color-temperature",
@@ -103624,6 +103896,14 @@
       },
       "oldProfile": "switches-switch-1",
       "profile": "rpt-sit"
+    },
+    {
+      "fingerprint": {
+        "manufacturer": "KE",
+        "model": "TRADFRI open/close remote"
+      },
+      "oldProfile": "buttons-ikea-e1766",
+      "profile": "rpt-twy"
     },
     {
       "fingerprint": {

@@ -393,9 +393,7 @@ local function load_runtime(zcl)
     return index
   end
 
-  function zcl.normalize_endpoint(endpoint)
-    return normalize_endpoint(endpoint)
-  end
+  zcl.normalize_endpoint = normalize_endpoint
 
   function zcl.mapping_meta(mapping, cache)
     if type(mapping) ~= "table" then
@@ -405,37 +403,21 @@ local function load_runtime(zcl)
     return build_mapping_meta(mapping, cache)
   end
 
-  function zcl.resolve_context_component_id(device, context)
-    return resolve_context_component_id(device, context)
-  end
+  zcl.resolve_context_component_id = resolve_context_component_id
 
-  function zcl.resolve_context_endpoint(device, context)
-    return resolve_context_endpoint(device, context)
-  end
+  zcl.resolve_context_endpoint = resolve_context_endpoint
 
-  function zcl.resolve_mapping_endpoint(device, mapping, context)
-    return resolve_mapping_endpoint(device, mapping, context)
-  end
+  zcl.resolve_mapping_endpoint = resolve_mapping_endpoint
 
-  function zcl.resolve_mapping_component_id(device, mapping, context)
-    return resolve_mapping_component_id(device, mapping, context)
-  end
+  zcl.resolve_mapping_component_id = resolve_mapping_component_id
 
-  function zcl.build_mapping_context(device, mapping, context, value)
-    return build_mapping_context(device, mapping, context, value)
-  end
+  zcl.build_mapping_context = build_mapping_context
 
-  function zcl.select_mapping_entry(candidate, device, context)
-    return select_mapping_entry(candidate, device, context)
-  end
+  zcl.select_mapping_entry = select_mapping_entry
 
-  function zcl.collect_matching_entries(candidate, device, context)
-    return collect_matching_entries(candidate, device, context)
-  end
+  zcl.collect_matching_entries = collect_matching_entries
 
-  function zcl.build_mapping_index(zcl_clusters)
-    return build_mapping_index(zcl_clusters)
-  end
+  zcl.build_mapping_index = build_mapping_index
 
   function zcl.prepare_mappings(zcl_clusters)
     if type(zcl_clusters) ~= "table" then

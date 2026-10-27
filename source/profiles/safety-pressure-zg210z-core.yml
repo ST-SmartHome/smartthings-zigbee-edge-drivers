@@ -1,0 +1,17 @@
+name: safety-pressure-zg210z-core
+components:
+  - id: main
+    capabilities:
+      - {id: concertmirror08464.zg210zPressureState, version: 1}
+      - {id: concertmirror08464.zg210zCurrentPressure, version: 1}
+      - {id: temperatureMeasurement, version: 1}
+      - {id: relativeHumidityMeasurement, version: 1}
+      - {id: battery, version: 1}
+      - {id: concertmirror08464.zg210zPressureIntensity, version: 1}
+      - {id: concertmirror08464.zg210zPresenceDelay, version: 1}
+      - {id: concertmirror08464.zg210zSedentaryReminder, version: 1}
+      - {id: concertmirror08464.zg210zTemperatureCalibration, version: 1}
+      - {id: concertmirror08464.zg210zHumidityCalibration, version: 1}
+      - {id: signalStrength, version: 1}
+    categories:
+      - {name: PresenceSensor}

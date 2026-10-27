@@ -168,10 +168,104 @@ register(moes_zm108m, {
   device_helpers.create_fingerprint("_TZ3210_mldzab8w", "TS130F"),
 })
 
+local function axis_modern(device)
+  return (device:get_field("axis_gear_version") or 0) >= 1093
+end
+local function axis_refresh(device)
+  zcl.read_attribute(device, 0, 0x4000, 1)
+  zcl.read_attribute(device, 1, 0x21, 1)
+  zcl.read_attribute(device, axis_modern(device) and 0x0102 or 8, axis_modern(device) and 8 or 0, 1)
+end
+local axis_level_event, axis_state_event = emit.shade_level(), emit.shade_state()
+local function axis_position(device, _, value)
+  if type(value) ~= "number" or value < 0 or value > 100 or value % 1 ~= 0 then return false end
+  if axis_modern(device) then
+    local previous = device:get_latest_state("main", "windowShadeLevel", "shadeLevel") or 0
+    device:emit_event(axis_state_event(device, value > previous and "opening" or "closing"))
+    return zcl.send_raw_cluster_command(device, 0x0102, 5, string.char(100 - value), 1)
+  end
+  return zcl.send_raw_cluster_command(device, 8, 4, string.char(math.floor(value * 254 / 100 + 0.5), 0, 0, 0, 0), 1)
+end
+local function axis_state(device, mapping, value)
+  if value == "open" or value == "close" then
+    if not axis_modern(device) then return axis_position(device, mapping, value == "open" and 100 or 0) end
+    device:emit_event(axis_state_event(device, value == "open" and "opening" or "closing"))
+    return zcl.send_raw_cluster_command(device, 0x0102, value == "open" and 0 or 1, "", 1)
+  end
+  if value ~= "stop" then return false end
+  if axis_modern(device) then
+    local state = device:get_latest_state("main", "windowShade", "windowShade")
+    if state == "opening" or state == "closing" then return zcl.send_raw_cluster_command(device, 0x0102, 2, "", 1) end
+    return zcl.read_attribute(device, 0x0102, 8, 1)
+  end
+  device.thread:call_with_delay(5, function() zcl.read_attribute(device, 8, 0, 1) end, "AXIS pause position")
+  return true
+end
+local function axis_terminal(value)
+  return value == 0 and "closed" or value >= 99 and "open" or "partially open"
+end
+local function axis_level_events(device, value)
+  local state = axis_terminal(value)
+  if axis_modern(device) then
+    local previous = device:get_latest_state("main", "windowShadeLevel", "shadeLevel") or 0
+    if value ~= previous then state = value > previous and "opening" or "closing" end
+  end
+  return {axis_level_event(device, value), axis_state_event(device, state)}
+end
+local axis_gear = {
+  profile = "covers-axis-gear", magic_packet = false, initial_custom_state_query = false,
+  component_to_endpoint = function() return 1 end,
+  parent_refresh = axis_refresh,
+  zcl_clusters = {
+    zcl.cluster_attribute(0, 0x4000, {
+      name = "axis_gear_version", endpoint = 1, data_type = data_types.CharString, read_only = true,
+      read_on_configure = false, read_on_refresh = false,
+      handler = function(device, value)
+        local version = type(value) == "string" and tonumber(value:sub(-4)) or nil
+        local modern = (version or 0) >= 1093
+        local changed = axis_modern(device) ~= modern
+        device:set_field("axis_gear_version", version, {persist = true})
+        if changed then zcl.read_attribute(device, modern and 0x0102 or 8, modern and 8 or 0, 1) end
+      end,
+    }),
+    zcl.cluster_attribute(8, 0, {
+      name = "axis_gear_level", endpoint = 1, data_type = data_types.Uint8, read_only = true,
+      read_on_configure = false, read_on_refresh = false, emit = axis_level_events,
+      converter = {from = function(value) if value <= 254 then return math.floor(value * 100 / 254 + 0.5) end end},
+      minimum_interval = 1, maximum_interval = 3600, reportable_change = 1,
+    }),
+    zcl.cover_position({
+      endpoint = 1, read_on_configure = false, read_on_refresh = false, sender = axis_position,
+      converter = position,
+      from_device = function(value, device) if axis_modern(device) then return position.from(value) end end,
+      minimum_interval = 1, maximum_interval = 65000, reportable_change = 1,
+    }),
+    zcl.window_shade_state({
+      endpoint = 1, configure_reporting = false, read_on_configure = false, read_on_refresh = false,
+      from_device = function(value, device)
+        local level = position.from(value)
+        if axis_modern(device) and level ~= nil then return axis_terminal(level) end
+      end,
+    }),
+    zcl.cover_state({endpoint = 1, sender = axis_state}),
+    zcl.battery({
+      endpoint = 1, read_on_configure = false, read_on_refresh = false,
+      from_device = function(value, _, context) if context.raw_value ~= 255 then return value end end,
+      minimum_interval = 3600, maximum_interval = 65000, reportable_change = 10,
+    }),
+  },
+  configure = function(driver, device)
+    for _, cluster in ipairs({8, 0x0102, 1}) do zcl.bind_cluster(device, cluster, driver.environment_info.hub_zigbee_eui, 1) end
+    axis_refresh(device)
+  end,
+}
+register(axis_gear, {device_helpers.create_fingerprint("AXIS", "Gear")})
+
 -- ZCL REPORTING CAPABILITIES BEGIN
 zcl.attach_reporting_capabilities(registrations, {
   {1, "rpt-gtd"},
   {2, "rpt-tqk"},
+  {4, "rpt-gaw"},
 })
 -- ZCL REPORTING CAPABILITIES END
 

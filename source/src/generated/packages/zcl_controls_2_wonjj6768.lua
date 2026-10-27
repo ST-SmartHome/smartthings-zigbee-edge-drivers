@@ -29,4 +29,9 @@ for _, entry in ipairs(registrations(catalog_3, "zcl.controls.sonoff", "contract
   entries[#entries + 1] = entry
 end
 
+local catalog_4 = require "contracts.families.zcl.controls.ikea_e1766"
+for _, entry in ipairs(registrations(catalog_4, "zcl.controls.ikea_e1766", "contracts.families.zcl.controls.ikea_e1766")) do
+  entries[#entries + 1] = entry
+end
+
 return entries

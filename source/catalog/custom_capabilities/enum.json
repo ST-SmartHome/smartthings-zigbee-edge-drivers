@@ -21614,5 +21614,25 @@
       "on",
       "off"
     ]
+  ],
+  [
+    "ikeaE1766Action",
+    false,
+    "ikea_e1766_action",
+    [
+      "open",
+      "close",
+      "stop"
+    ]
+  ],
+  [
+    "zg210zPressureState",
+    false,
+    "zg210z_pressure_state",
+    [
+      "none",
+      "sit",
+      "sedentary"
+    ]
   ]
 ]

@@ -1520,7 +1520,7 @@
         ]
       },
       "converterDeclarations": 0,
-      "dynamicEventMemberSha256": "2762ce2492ba2557288a2913d7e395f034b7a7be704b711c125c2f0997386ce6"
+      "dynamicEventMemberSha256": "dde88d293e7859529ade02dedfd42cea6d1787da2772d79d63b8d2d5d2e622f5"
     },
     "contracts.families.ef00.thermostats.z2m_absorption_wall": {
       "id": "ef00.thermostats.z2m_absorption_wall",
@@ -1596,7 +1596,7 @@
         ]
       },
       "converterDeclarations": 0,
-      "dynamicEventMemberSha256": "57f25cc28aa8cb306aef7478e623035c32983b3870d395adf636160d59766764"
+      "dynamicEventMemberSha256": "176218f0eb44e70b50a1b80ba3410ef8c0f439a4898438c4f51999160806f336"
     },
     "contracts.families.zcl.thermostats.aqara_w500": {
       "id": "zcl.thermostats.aqara_w500",
@@ -2476,6 +2476,55 @@
       ],
       "converterDeclarations": 0,
       "dynamicEventMemberSha256": "80faa83ceaa16e65f74a7e99de6112ed4520500048f33cbf84ff8de106d445c4"
+    },
+    "contracts.families.zcl.controls.ikea_e1766": {
+      "id": "zcl.controls.ikea_e1766",
+      "sourceRelativeToSrc": "contracts/families/zcl/controls/ikea_e1766.lua",
+      "requiredModules": [
+        "protocol.zcl",
+        "contracts.helpers.family",
+        "contracts.helpers.zcl",
+        "st.capabilities",
+        "st.zigbee.data_types",
+        "st.zigbee.device_management",
+        "st.zigbee.zdo.bind_request"
+      ],
+      "externalDependencies": [
+        "protocol.zcl",
+        "st.capabilities",
+        "st.zigbee.data_types",
+        "st.zigbee.device_management",
+        "st.zigbee.zdo.bind_request"
+      ],
+      "contractHelpers": [
+        "contracts/helpers/family.lua",
+        "contracts/helpers/zcl.lua"
+      ],
+      "aliasBindings": {
+        "protocol.zcl": [
+          "zcl"
+        ],
+        "contracts.helpers.family": [
+          "family"
+        ],
+        "contracts.helpers.zcl": [
+          "helpers"
+        ],
+        "st.capabilities": [
+          "capabilities"
+        ],
+        "st.zigbee.data_types": [
+          "types"
+        ],
+        "st.zigbee.device_management": [
+          "management"
+        ],
+        "st.zigbee.zdo.bind_request": [
+          "bind"
+        ]
+      },
+      "converterDeclarations": 0,
+      "dynamicEventMemberSha256": "a1a6985c211948526660c3804b137d1d0fa95e62447d9bfb8114cfdddf658592"
     }
   },
   "composers": {}
