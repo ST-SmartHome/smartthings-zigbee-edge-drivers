@@ -26,6 +26,10 @@ unchanged, so routines that use them keep working. All other devices behave exac
 - **Limits after switching drivers.** The meter only reports its limits when they change (or when it rejoins).
   A refresh doesn't return them. After switching an existing meter to this driver, the limit rows are empty
   or 0 until each one is set once. Setting a limit doesn't change the readings.
+- **Meters that use hundredths, before their first report.** The meter's format can only be learned from a
+  limit it reports, and a refresh doesn't return them. On such a meter, a pH or chlorine limit set before it has
+  reported one is written in tenths and stored 10× too low, although the app shows the value you set. If your meter
+  may use hundredths, re-pair it or let it report its limits before setting any.
 - **Limits are written to the meter.** Each change is sent to the meter, and the meter echoes it back
   within a few seconds. The values are stored in the meter.
 - **The meter can reset its limits by itself.** One meter reported factory limits (pH 0–14, chlorine 0–4,
