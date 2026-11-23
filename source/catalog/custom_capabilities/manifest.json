@@ -2,10 +2,10 @@
   "format_version": 1,
   "namespace": "concertmirror08464.",
   "expected_counts": {
-    "numeric": 2300,
-    "enum": 2118,
+    "numeric": 2303,
+    "enum": 2119,
     "text": 364,
-    "attribute_overrides": 4461,
-    "rows": 4782
+    "attribute_overrides": 4465,
+    "rows": 4786
   }
 }

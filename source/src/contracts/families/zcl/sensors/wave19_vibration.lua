@@ -1,4 +1,3 @@
--- Wave19 Tuya TS0210 literal-quote exact source-only candidate.
 -- Frozen Zigbee2MQTT v26.99.0:
 --   src/devices/tuya.ts:1271-1279,13933-13960
 --   src/converters/fromZigbee.ts:1084-1115
@@ -89,6 +88,8 @@ register_device_definition(ts0210, {
   -- The two apostrophes are literal Basic-cluster bytes in frozen Z2M. Do not
   -- normalize them away and do not add a model-only fallback.
   device_helpers.create_fingerprint("'_TZ32101000000_5oy7cysk'", "TS0210"),
+  -- Issue55 reports this separate Basic-cluster identity. No normalization.
+  device_helpers.create_fingerprint("_TZ32101000000_5oy7cysk", "TS0210"),
 })
 
 return {

@@ -1,4 +1,3 @@
--- 버튼/리모컨 디바이스 정의
 
 local zcl = require "protocol.zcl"
 local device_helpers = require "contracts.helpers.family"
@@ -165,6 +164,7 @@ register_device_definition(remote_3, device_helpers.create_fingerprints("TS0043"
   "_TZ3000_w4thianr",
   "_TZ3000_a7ouggvs",
   "_TZ3000_yw5tvzsk",
+  "_TZ3000_7uglqmvv",
 }))
 
 register_device_definition(remote_4_voltage, device_helpers.create_fingerprints("TS0044", {

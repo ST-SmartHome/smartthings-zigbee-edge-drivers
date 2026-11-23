@@ -1,4 +1,3 @@
--- ZCL 온습도 센서 정의
 -- zigbee-herdsman-converters 의 Tuya TS0201/TS0222 온습도 계열을 기준으로 포팅
 
 local zcl = require "protocol.zcl"
@@ -132,12 +131,24 @@ register_device_definition(build_temp_humidity_clusters({
   device_helpers.create_fingerprint("LINCUKOO", "SZT06"),
 })
 
--- TS0201 표준형
-register_device_definition(build_temp_humidity_clusters({
+local ts0201 = build_temp_humidity_clusters({
   profile = temp_humidity_battery_voltage_profile,
   battery_voltage = true,
   tuya_magic = true,
-}), device_helpers.create_fingerprints("TS0201", {
+})
+ts0201.runtime_start = function(device)
+  if device:get_manufacturer() == "_TZ3000_f2bw0b6k" and device:get_model() == "TS0201" then
+    -- This firmware reports quiet measurements about hourly despite accepting 300s.
+    -- Apply on its next RX and retain the request until actual device readback.
+    zcl.queue_reporting_defaults(device, ts0201, {
+      zr04020000auto = {maximum_interval = 3600},
+      zr04050000auto = {maximum_interval = 3600},
+      zr00010021auto = {maximum_interval = 21600},
+      zr00010020auto = {maximum_interval = 21600},
+    })
+  end
+end
+register_device_definition(ts0201, device_helpers.create_fingerprints("TS0201", {
   "_TZ3210_alxkwn0h",
   "_TZ3000_0s1izerx",
   "_TZ3000_v1w2k9dd",
@@ -157,6 +168,7 @@ register_device_definition(build_temp_humidity_clusters({
   "_TZ3000_zfirri2d",
   "_TZ3000_yujem9ee",
 }))
+ts0201 = device_definitions[#device_definitions]
 
 register_device_definition(build_temp_humidity_clusters({
   profile = temp_humidity_battery_voltage_profile,
