@@ -59,8 +59,16 @@ end
 local function mirror_current(parent,component_id,child)
 local value=parent:get_latest_state(component_id,capabilities.switch.ID,capabilities.switch.switch.NAME)
 emit_child_switch(child,value)
-emit_child_countdown(child,parent:get_latest_state(component_id,COUNTDOWN_ID,COUNTDOWN_ATTRIBUTE))
+local countdown=parent:get_latest_state(component_id,COUNTDOWN_ID,COUNTDOWN_ATTRIBUTE)
+-- Never set on either: 0, so the child's slider isn't blank and stuck.
+if countdown==nil and child:get_latest_state("main",COUNTDOWN_ID,COUNTDOWN_ATTRIBUTE)==nil then
+countdown=0
 end
+emit_child_countdown(child,countdown)
+end
+-- Child creation is asynchronous: an infoChanged right after a request
+-- (e.g. from a driver switch) would otherwise request a second child.
+local CREATE_GUARD_SECONDS=120
 -- Create/remove children to match the definition and the parent's preference.
 function child_outlets.sync_parent(driver,device)
 local outlets=outlets_for(device)
@@ -70,8 +78,13 @@ end
 for component_id,suffix in pairs(outlets)do
 local child=device:get_child_by_parent_assigned_key(component_id)
 if enabled(device)and has_component(device,component_id)then
-if child==nil then
+local requested_key="st_smarthome_child_requested_" .. component_id
+local requested=device:get_field(requested_key)
+if child==nil and type(requested)=="number" and os.time()-requested < CREATE_GUARD_SECONDS then
+log.info(string.format("child device for %s %s already requested",tostring(device.label),component_id))
+elseif child==nil then
 log.info(string.format("creating child device for %s %s",tostring(device.label),component_id))
+device:set_field(requested_key,os.time())
 driver:try_create_device({
 type="EDGE_CHILD",
 label=string.format("%s %s",device.label,suffix),

@@ -1,6 +1,6 @@
 name: "ZCL Switch ST-SmartHome"
 packageKey: "zcl-switch-st-smarthome"
-description: "Fork of wonjj6768's ZCL Switch driver. Adds an optional separate child device for outlet 2 on Tuya dual metered plugs (TS011F), and fixes energy scaling on the Mercator Ikuu SPP02GIP."
+description: "Fork of wonjj6768's ZCL Switch driver. For the Mercator Ikuu SPP02GIP (Tuya TS011F): an optional separate device for outlet 2, a per-outlet Auto Off Timer, and fixed energy scaling."
 vendorSupportInformation: "https://github.com/ST-SmartHome/smartthings-zigbee-edge-drivers"
 permissions:
   zigbee: {}

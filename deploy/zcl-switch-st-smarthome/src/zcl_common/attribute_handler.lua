@@ -133,6 +133,14 @@ threshold=threshold/(meta.scale or 1)
 local key="st_smarthome_deadband_" .. tostring(meta.name)
 local last=device:get_field(key)
 local now=os.time()
+-- Always shown: a change to or from 0 (a load turning off or on) and
+-- anything read just after a Refresh.
+local bypass=device:get_field("st_smarthome_deadband_bypass_until")
+if (type(bypass)=="number" and now<=bypass) or
+(type(last)=="table" and type(last.value)=="number" and (value==0)~=(last.value==0)) then
+device:set_field(key,{value=value,time=now})
+return false
+end
 if type(last)=="table" and type(last.value)=="number" and
 math.abs(value-last.value)< threshold and
 now-last.time <(meta.maximum_interval or 600)then

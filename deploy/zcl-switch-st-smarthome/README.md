@@ -35,7 +35,7 @@ All other devices behave exactly as they do upstream.
   switching the outlet off cancels it. The SPP02GIP counts `OnWithTimedOff` in whole seconds (the ZCL spec says
   tenths). The tile shows the time last set, not the time remaining: the plug's `onTime` attribute doesn't track
   it (it reports 0 mid-countdown). It returns to 0 when the outlet turns off. The app's own Timer is separate and
-  run by SmartThings, not the plug The timer starts at 0 (no countdown) on every outlet, so its slider works on a newly paired plug too.
+  run by SmartThings, not the plug. The timer starts at 0 (no countdown) on every outlet, so its slider works on a newly paired plug too.
 - After switching an existing plug to this driver, point Alexa and Google Home at the new
   `Outlet 2` device (run device discovery in the Alexa app).
 

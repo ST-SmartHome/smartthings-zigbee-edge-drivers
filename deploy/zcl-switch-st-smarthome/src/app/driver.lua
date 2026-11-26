@@ -86,7 +86,13 @@ local preset=get_preset(device)
 if preset==nil then
 return false
 end
-return preset:apply_announce(device)
+local result=preset:apply_announce(device)
+-- ST-SmartHome: a plug that was off the network when the driver updated
+-- missed the reconfigure in init; it announces when it comes back.
+if preset.zcl_clusters then
+zcl.start_configuration(device,preset.zcl_clusters)
+end
+return result
 end
 battery_refresh.set_requester(function(device)
 return zcl.read_attribute(device,0x0001,0x0020,1)
@@ -776,6 +782,8 @@ local preset=get_preset(device)
 if preset==nil then
 return
 end
+-- ST-SmartHome: show what the refresh reads, even within the deadband.
+device:set_field("st_smarthome_deadband_bypass_until",os.time()+30)
 if type(preset.parent_refresh)=="function" then
 preset.parent_refresh(device,preset,driver)
 return
@@ -919,6 +927,9 @@ local profile_changed=device.profile.id ~=args.old_st_store.profile.id
 if profile_changed then
 component_mapping.apply(device,definition)
 configure_preset(driver,device,get_preset(device))
+-- ST-SmartHome: after a driver switch the new profile's Auto Off Timer
+-- needs a value too (init ran on the old profile).
+outlet_countdown.seed(device)
 end
 local preset=get_preset(device)
 if preset and preset.zcl_clusters and not profile_changed and

@@ -7,7 +7,8 @@
 -- again restarts the countdown; 0 cancels it and leaves the outlet as it is,
 -- and switching the outlet off cancels it too. The plug's onTime attribute
 -- doesn't track the remaining time, so the tile shows the time last set and
--- goes back to 0 when the outlet turns off (see app.child_outlets).
+-- goes back to 0 when the outlet turns off (see app.child_outlets). 0 on an
+-- outlet that's already off sends nothing.
 local capabilities=require "st.capabilities"
 local data_types=require "st.zigbee.data_types"
 local on_off=(require "st.zigbee.zcl.clusters").OnOff
@@ -55,6 +56,12 @@ raw=command.positional_args[1]
 end
 local minutes=math.floor(math.max(0,math.min(tonumber(raw)or 0,MAX_MINUTES)))
 local seconds=minutes*60
+-- 0 on an outlet that's off: no countdown can be running (off cancels it),
+-- and OnWithTimedOff could switch the outlet on, so nothing is sent.
+if seconds==0 and device:get_latest_state(component_id,capabilities.switch.ID,capabilities.switch.switch.NAME)=="off" then
+outlet_countdown.emit(device,component_id,0)
+return
+end
 if seconds>0 then
 device:send_to_component(component_id,on_off.server.commands.On(device))
 end
