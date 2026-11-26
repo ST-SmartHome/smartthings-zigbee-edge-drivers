@@ -1,5 +1,7 @@
 # EF00 Sensors ST-SmartHome
 
+> **Retired (November 2026).** These changes were merged into the upstream EF00 Sensors driver ([PR #45](https://github.com/wonjj6768/smartthings-zigbee-edge-drivers/pull/45)) and released on its channel. This package is no longer published; use upstream's EF00 Sensors driver.
+
 A SmartThings Edge driver for Tuya EF00 (`TS0601`) sensors. It is a fork of
 [wonjj6768's EF00 Sensors driver](https://github.com/wonjj6768/smartthings-zigbee-edge-drivers)
 and supports every device the upstream driver does. On top of that it tidies up the
